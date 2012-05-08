@@ -508,7 +508,7 @@ sub rewrite_slackbuild {
 		SECOND: for (my ($key,$value) = %changes) {
 			if ($key eq 'out_arch') {
 				if (index ($line,'makepkg') != -1) {
-					$line = /\$ARCH/$value/;
+					$line = s/\$ARCH/$value/;
 				}
 			}
 		}
