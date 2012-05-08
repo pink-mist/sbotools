@@ -42,7 +42,7 @@ use File::Copy;
 use File::Path qw(make_path remove_tree);
 use Fcntl;
 
-$UID == 0 or print "This script requires root privileges.\n" and exit(1);
+$UID == 0 or print "This script requires root privileges.\n" and exit (1);
 
 our $conf_dir = '/etc/sbotools';
 our $conf_file = "$conf_dir/sbotools.conf";
@@ -59,7 +59,7 @@ if (-f $conf_file) {
 	open my $reader, '<', $conf_file;
 	my $text = do {local $/; <$reader>};
 	%config = $text =~ /^(\w+)=(.*)$/mg;
-	close($reader);
+	close ($reader);
 }
 for my $key (keys %config) {
 	unless ($key ~~ @valid_conf_keys) {
@@ -90,7 +90,7 @@ sub script_error {
 		print "$_[0]\n";
 		print "Exiting.\n";
 	}
-	exit(1);
+	exit 1;
 } 
 
 sub show_version {
@@ -102,9 +102,9 @@ sub show_version {
 sub get_slack_version {
 	if (-f '/etc/slackware-version') {
 		open my $slackver, '<', '/etc/slackware-version';
-		chomp(my $line = <$slackver>); 
-		close($slackver);
-		my $slk_version = split_line($line,' ',1);
+		chomp (my $line = <$slackver>); 
+		close ($slackver);
+		my $slk_version = split_line ($line,' ',1);
 		$slk_version = '13.37' if $slk_version eq '13.37.0';
 		return $slk_version;
 	}
@@ -116,17 +116,17 @@ sub check_slackbuilds_txt {
 	} else {
 		print "I am unable to find SLACKBUILDS.TXT.\n";
 		print "Perhaps you need to \"sbosnap fetch\"?\n";
-		exit(1);
+		exit 1;
 	}
 }
 
 sub rsync_sbo_tree {
-	my $slk_version = get_slack_version();
+	my $slk_version = get_slack_version ();
 	my $cmd = 'rsync';
 	my @arg = ('-a','--exclude=*.tar.gz','--exclude=*.tar.gz.asc');
-	push(@arg,"rsync://slackbuilds.org/slackbuilds/$slk_version/*");
-	push(@arg,$config{SBO_HOME});
-	system($cmd,@arg);
+	push (@arg,"rsync://slackbuilds.org/slackbuilds/$slk_version/*");
+	push (@arg,$config{SBO_HOME});
+	system ($cmd,@arg);
 	print "Finished.\n";
 	return 1;
 }
@@ -134,28 +134,28 @@ sub rsync_sbo_tree {
 sub check_home {
 	my $sbo_home = $config{SBO_HOME};
 	if (-d $sbo_home) {
-		opendir(my $home_handle,$sbo_home);
+		opendir (my $home_handle,$sbo_home);
 		while (readdir $home_handle) {
 			next if /^\.[\.]{0,1}$/;
 			print "$sbo_home exists and is not empty. Exiting.\n";
-			exit(1);
+			exit 1;
 		}
 	} else {
-		make_path($sbo_home) or print "Unable to create $sbo_home. Exiting.\n"
-			and exit(1);
+		make_path ($sbo_home) or print "Unable to create $sbo_home. Exiting.\n"
+			and exit (1);
 	 }
 }
 
 sub fetch_tree {
-	check_home();
+	check_home ();
 	print "Pulling SlackBuilds tree...\n";
-	rsync_sbo_tree();
+	rsync_sbo_tree ();
 }
 
 sub update_tree {
-	check_slackbuilds_txt();
+	check_slackbuilds_txt ();
 	print "Updating SlackBuilds tree...\n";
-	rsync_sbo_tree();
+	rsync_sbo_tree ();
 }
 
 sub get_installed_sbos {
@@ -163,21 +163,21 @@ sub get_installed_sbos {
 	opendir my $diread, '/var/log/packages';
 	while (my $ls = readdir $diread) {
 		next if $ls =~ /\A\./;
-		if (index($ls,"SBo") != -1) {
-			my @split = split(/-/,reverse($ls),4);
+		if (index ($ls,"SBo") != -1) {
+			my @split = split (/-/,reverse ($ls) ,4);
 			my %hash;
-			$hash{name} = reverse($split[3]);
-			$hash{version} = reverse($split[2]);
-			push(@installed,\%hash);
+			$hash{name} = reverse ($split[3]);
+			$hash{version} = reverse ($split[2]);
+			push (@installed,\%hash);
 		}
 	}
 	return @installed;
 }
 
 sub clean_line {
-	script_error('clean line requires an argument')
+	script_error ('clean line requires an argument')
 		unless exists $_[0];
-	chomp(my $line = shift);
+	chomp (my $line = shift);
 	$line =~ s/[\s"\\]//g;
 	return $line;
 }
@@ -228,23 +228,23 @@ sub clean_line {
 # iterate over all the lines!
 #
 sub get_available_updates {
-	check_slackbuilds_txt();
+	check_slackbuilds_txt ();
 	my (@updates,$index);
-	my @pkg_list = get_installed_sbos();
+	my @pkg_list = get_installed_sbos ();
 	open my $sb_txt, '<', $slackbuilds_txt;
 	my $found = 'FALSE';
 	FIRST: while (my $line = <$sb_txt>) {
 		if ($found eq 'TRUE') {
 			if ($line =~ /VERSION/) {
 				$found = 'FALSE';
-				my $sbo_version = split_line($line,' ',2);
-				if (versioncmp($sbo_version,$pkg_list[$index]{version}) == 1) {
+				my $sbo_version = split_line ($line,' ',2);
+				if (versioncmp ($sbo_version,$pkg_list[$index]{version}) == 1) {
 					my %hash = (
 						name => $pkg_list[$index]{name},
 						installed => $pkg_list[$index]{version},
 						update => $sbo_version,
 					);
-					push(@updates,\%hash);
+					push (@updates,\%hash);
 				}
 			}
 		} else {
@@ -263,10 +263,10 @@ sub get_available_updates {
 }
 
 sub check_sbo_name_validity {
-	script_error('check_sbo_name_validity requires an argument')
+	script_error ('check_sbo_name_validity requires an argument')
 		unless exists $_[0];
 	my $sbo = shift;
-	check_slackbuilds_txt();
+	check_slackbuilds_txt ();
 	my $valid = 'FALSE';
 	my $regex = qr/$name_regex\Q$sbo\E\n\z/;
 	open my $sb_txt, '<', $slackbuilds_txt;
@@ -276,19 +276,19 @@ sub check_sbo_name_validity {
 			last FIRST;
 		}
 	}
-	close($sb_txt);
+	close ($sb_txt);
 	unless ($valid eq 'TRUE') {
 		print "$sbo does not exist in the SlackBuilds tree. Exiting.\n";
-		exit(1);
+		exit 1;
 	}
 	return 1;
 }
 
 sub get_sbo_location {
-	script_error('get_sbo_location requires an argument.Exiting.')
+	script_error ('get_sbo_location requires an argument.Exiting.')
 		unless exists $_[0];
 	my $sbo = shift;
-	check_slackbuilds_txt();
+	check_slackbuilds_txt ();
 	my $found = 'FALSE';
 	my $location;
 	my $regex = qr/$name_regex\Q$sbo\E\n\z/;
@@ -300,32 +300,32 @@ sub get_sbo_location {
 		}
 		if ($found eq 'TRUE') {
 			if ($line =~ /LOCATION/) {
-				my $loc_line = split_line($line,' ',2);
+				my $loc_line = split_line ($line,' ',2);
 				$loc_line  =~ s#^\./##;
 				$location = "$config{SBO_HOME}/$loc_line";
 				last FIRST;
 			}
 		}
 	}
-	close($sb_txt);
+	close ($sb_txt);
 	return $location;
 }
 
 sub split_line {
-	script_error('split_line requires three arguments') unless exists $_[2];
+	script_error ('split_line requires three arguments') unless exists $_[2];
 	my ($line,$pattern,$index) = @_;
 	my @split;
 	if ($pattern eq ' ') {
-		@split = split("$pattern",$line);
+		@split = split ("$pattern",$line);
 	} else {
-		@split = split(/$pattern/,$line);
+		@split = split (/$pattern/,$line);
 	}
-	return clean_line($split[$index]);
+	return clean_line ($split[$index]);
 }
 
 sub split_equal_one {
-	script_error("split_equal_one requires an argument") unless exists $_[0];
-	return split_line($_[0],'=',1);
+	script_error ('split_equal_one requires an argument') unless exists $_[0];
+	return split_line ($_[0],'=',1);
 }
 
 sub find_download_info {
@@ -404,53 +404,53 @@ sub get_sbo_downloads {
 }
 
 sub compute_md5sum {
-	script_error('compute_md5sum requires an argument.') unless exists $_[0];
-	script_error('compute_md5sum argument is not a file.') unless -f $_[0];
+	script_error ('compute_md5sum requires an argument.') unless exists $_[0];
+	script_error ('compute_md5sum argument is not a file.') unless -f $_[0];
 	my $filename = shift;
 	open my $reader, '<', $filename;
 	my $md5 = Digest::MD5->new;
-	$md5->addfile($reader);
+	$md5->addfile ($reader);
 	my $md5sum = $md5->hexdigest;
-	close($reader);
+	close ($reader);
 	return $md5sum;
 }
 
 sub get_filename_from_link {
-	script_error('get_filename_from_link requires an argument')
+	script_error ('get_filename_from_link requires an argument')
 		unless exists $_[0];
-	my @split = split('/',reverse($_[0]),2);
-	chomp(my $filename = $distfiles .'/'. reverse($split[0]));
+	my @split = split ('/',reverse ($_[0]) ,2);
+	chomp (my $filename = $distfiles .'/'. reverse ($split[0]) );
 	return $filename;
 }
 
 sub check_distfile {
-	script_error('check_distfile requires an argument.') unless exists $_[0];
-	my $filename = get_filename_from_link($_[0]);
+	script_error ('check_distfile requires an argument.') unless exists $_[0];
+	my $filename = get_filename_from_link ($_[0]);
 	return unless -d $distfiles;
 	return unless -f $filename;
-	my $md5sum = compute_md5sum($filename);
+	my $md5sum = compute_md5sum ($filename);
 	return unless $_[1] eq $md5sum;
 	return 1;
 }
 
 sub get_distfile {
-	script_error('get_distfile requires an argument') unless exists $_[1];
+	script_error ('get_distfile requires an argument') unless exists $_[1];
 	my ($link,$expected_md5sum) = @_;
-	my $filename = get_filename_from_link($link);
-	mkdir($distfiles) unless -d $distfiles;
-	chdir($distfiles);
-	my $out = system("wget $link");
+	my $filename = get_filename_from_link ($link);
+	mkdir ($distfiles) unless -d $distfiles;
+	chdir ($distfiles);
+	my $out = system ("wget $link");
 	return unless $out == 0;
-	my $md5sum = compute_md5sum($filename);
+	my $md5sum = compute_md5sum ($filename);
 	if ($md5sum ne $expected_md5sum) {
 		print "md5sum failure for $filename.\n";
-		exit(1);
+		exit (1);
 	}
 	return 1;
 }
 
 sub get_sbo_version {
-	script_error('get_sbo_version requires two arguments.')
+	script_error ('get_sbo_version requires two arguments.')
 		unless exists $_[1];
 	my ($sbo,$location) = @_;
 	my $version;
@@ -458,32 +458,32 @@ sub get_sbo_version {
 	my $version_regex = qr/\AVERSION=/;
 	FIRST: while (my $line = <$info>) {
 		if ($line =~ $version_regex) {
-			$version = split_equal_one($line);
+			$version = split_equal_one ($line);
 			last FIRST;
 		}
 	}
-	close($info);
+	close ($info);
 	return $version;
 }
 
 sub get_symlink_from_filename {
-	script_error('get_symlink_from_filename requires two arguments')
+	script_error ('get_symlink_from_filename requires two arguments')
 		unless exists $_[1];
-	script_error('get_symlink_from_filename first argument is not a file')
+	script_error ('get_symlink_from_filename first argument is not a file')
 		unless -f $_[0];
-	my @split = split('/',reverse($_[0]),2);
-	my $fn = reverse($split[0]);
+	my @split = split ('/',reverse ($_[0]) ,2);
+	my $fn = reverse ($split[0]);
 	return "$_[1]/$fn";
 }
 
 sub check_x32 {
-	script_error('check_x32 requires two arguments.') unless exists $_[1];
+	script_error ('check_x32 requires two arguments.') unless exists $_[1];
 	my ($sbo,$location) = @_;
 	open my $info,'<',"$location/$sbo.info";
 	my $regex = qr/^DOWNLOAD_x86_64/;
 	FIRST: while (my $line = <$info>) {
 		if ($line =~ $regex) {
-			return 1 if index($line,'UNSUPPORTED') != -1;
+			return 1 if index ($line,'UNSUPPORTED') != -1;
 		}
 	}
 	return;
@@ -561,18 +561,9 @@ sub make_distclean {
 }
 
 sub do_upgradepkg {
-	script_error ('do_upgradepkg requires two arguments.') unless exists $_[1];
-	my ($sbo,$version) = @_;
-	my $pkg;
-	my $pkg_regex = qr/^(\Q$sbo\E-\Q$version\E-[^-]+-.*_SBo.t[xblg]z)$/;
-	opendir my $diread, '/tmp/';
-	FIRST: while (my $ls = readdir $diread) {
-		if ($ls =~ $pkg_regex) {
-			chomp($pkg = "/tmp/$1");
-			last FIRST;
-		}
-	}
-	system("/sbin/upgradepkg --reinstall --install-new $pkg");
-	return $pkg;
+	script_error ('do_upgradepkg requires an argument.') unless exists $_[0];
+	my $pkg = shift;
+	system ("/sbin/upgradepkg --reinstall --install-new $pkg");
+	return;
 } 
 

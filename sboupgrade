@@ -16,7 +16,7 @@ use strict;
 use warnings FATAL => 'all';
 
 my %config = %SBO::Lib::config;
-my $self = basename($0);
+my $self = basename ($0);
 
 sub show_usage {
 	print <<EOF
@@ -30,6 +30,7 @@ Options:
   -f: force an update, even if the "upgrade" version is the same or lower.
   -N: install any new SBo's listed.
   -r: skip viewing of the SBo README.
+  -i: do not run installpkg at the end of the build process.
 
 Example:
   $self -d libsexy
@@ -40,11 +41,11 @@ EOF
 }
 
 my %options;
-getopts('hvacdfj:Nr',\%options);
+getopts ('hvacdfj:Nri',\%options);
 
 
-show_usage() && exit(0) if exists $options{h};
-show_version() && exit(0) if exists $options{v};
+show_usage () && exit(0) if exists $options{h};
+show_version () && exit(0) if exists $options{v};
 my $noclean = exists $options{c} ? 'FALSE' : $config{NOCLEAN};
 my $distclean = exists $options{d} ? 'TRUE' : $config{DISTCLEAN};
 my $force = exists $options{f} ? 'TRUE' : 'FALSE';
@@ -52,64 +53,75 @@ my $force = exists $options{f} ? 'TRUE' : 'FALSE';
 my $jobs = 'FALSE';
 my $install_new = exists $options{N} ? 'TRUE' : 'FALSE';
 my $no_readme = exists $options{r} ? 'TRUE' : 'FALSE';
+my $no_install = exists $options{i}? 'TRUE' : 'FALSE';
 
-show_usage() and exit(1) unless exists $ARGV[0];
+show_usage () and exit (1) unless exists $ARGV[0];
 
 for my $sbo_name (@ARGV) {
-	check_sbo_name_validity($sbo_name);
+	check_sbo_name_validity ($sbo_name);
 }
 
 sub get_readme_path {
-	script_error('get_readme_path requires an argument.') unless exists $_[0];
+	script_error ('get_readme_path requires an argument.') unless exists $_[0];
 	my $sbo = shift;
-	my $location = get_sbo_location($sbo);
+	my $location = get_sbo_location ($sbo);
 	return $location .'/README';
 }
 
 sub readme_prompt {
-	script_error('readme_prompt requires an argument.') unless exists $_[0];
+	script_error ('readme_prompt requires an argument.') unless exists $_[0];
 	my $sbo = shift;
-	my $readme_path = get_readme_path($sbo);
+	my $readme_path = get_readme_path ($sbo);
 	open my $readme,'<',$readme_path;
 	print "\n",<$readme>;
-	close($readme);
+	close ($readme);
 	print "\nProceed with $sbo? [yn]: ";
 	my $test = <STDIN>;
-	exit(0) unless $test =~ /^[Yy]/;
+	exit (0) unless $test =~ /^[Yy]/;
 	return 1;
 }
 
 sub process_sbos {
-	script_error('process_sbos requires an argument.') unless exists $_[0];
+	script_error ('process_sbos requires an argument.') unless exists $_[0];
 	my @todo = @_;
 	my @failures;
 	for my $sbo (@todo) {
-		readme_prompt($sbo) unless $no_readme eq 'TRUE';
+		readme_prompt ($sbo) unless $no_readme eq 'TRUE';
 		my $version;
 		eval {
-			$version = do_slackbuild($jobs,$sbo);
+			$version = do_slackbuild ($jobs,$sbo);
 		};
 		if ($@) {
-			push(@failures,$sbo);
+			push (@failures,$sbo);
 		} else {
 			unless ($distclean eq 'TRUE') {
 				if ($noclean eq 'FALSE') {
-					make_clean($sbo,$version);
+					make_clean ($sbo,$version);
 				}
 			} else {
-				make_distclean($sbo,$version);
+				make_distclean ($sbo,$version);
 			}
-			my $pkg = do_upgradepkg($sbo,$version);
+			my $pkg;
+			my $pkg_regex = qr/^(\Q$sbo\E-\Q$version\E-[^-]+-.*_SBo.t[xblg]z)$/;
+			opendir my $diread, '/tmp/';
+			FIRST: while (my $ls = readdir $diread) {
+				if ($ls =~ $pkg_regex) {
+					chomp ($pkg = "/tmp/$1");
+					last FIRST;
+				}
+			}
+
+			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
 
 			unless ($config{PKG_DIR} eq 'FALSE') {
 				unless (-d $config{PKG_DIR}) {
-					mkdir($config{PKG_DIR}) or 
+					mkdir ($config{PKG_DIR}) or 
 						warn "Unable to create $config{PKG_DIR}\n";
 				}
-				move($pkg,$config{PKG_DIR}) if -d $config{PKG_DIR};
+				move ($pkg,$config{PKG_DIR}) if -d $config{PKG_DIR};
 				print "$pkg stored in $config{PKG_DIR}\n";
 			} elsif ($distclean eq 'TRUE') {
-				unlink($pkg);
+				unlink ($pkg);
 			}
 		}
 	}
@@ -120,7 +132,7 @@ sub process_sbos {
 
 my @updates unless $force eq 'TRUE';
 unless ($force eq 'TRUE') {
-	my @updates_array = get_available_updates();
+	my @updates_array = get_available_updates ();
 	for my $index (keys @updates_array) {
 		push(@updates,$updates_array[$index]{name});
 	}
@@ -132,14 +144,14 @@ my @todo_upgrade;
 unless ($force eq 'TRUE') {
 	for (@ARGV) {
 		if ($_ ~~ @updates) {
-			push(@todo_upgrade,$_);
+			push (@todo_upgrade,$_);
 		}
 	}
 } else {
 	for (@ARGV) {
 		SECOND: for my $c (keys @installed) {
 			if ($_ eq $installed[$c]{name}) {
-				push(@todo_upgrade,$_);
+				push (@todo_upgrade,$_);
 				last SECOND;
 			}
 		}
@@ -147,17 +159,17 @@ unless ($force eq 'TRUE') {
 }
 
 my @failed;
-@failed = process_sbos(@todo_upgrade) if exists $todo_upgrade[0];
+@failed = process_sbos (@todo_upgrade) if exists $todo_upgrade[0];
 
 sub print_failures {
 	if (exists $failed[0]) {
 		print "Failures:\n";
 		print "  $_\n" for (@failed);
-		exit(1);
+		exit (1);
 	}
 }
 
-print_failures() unless $install_new eq 'TRUE';
+print_failures () unless $install_new eq 'TRUE';
 
 my @todo_install;
 my $has = 'FALSE';
@@ -169,15 +181,15 @@ for (@ARGV) {
 		}
 	}
 	unless ($has eq 'TRUE') {
-		push(@todo_install,$_);
+		push (@todo_install,$_);
 	} else {
 		print "$_ already installed.\n";
 	}
 	$has = 'FALSE';
 }
 
-@failed = process_sbos(@todo_install) if exists $todo_install[0];
+@failed = process_sbos (@todo_install) if exists $todo_install[0];
 
-print_failures();
+print_failures ();
 
-exit(0);
+exit (0);

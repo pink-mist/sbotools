@@ -13,7 +13,7 @@ use File::Basename;
 use strict;
 use warnings FATAL => 'all';
 
-my $self = basename($0);
+my $self = basename ($0);
 
 sub show_usage {
 	print <<EOF
@@ -25,26 +25,28 @@ Options:
   -c: do not clean working files/directories after the build.                   
   -d: clean distfiles afterward. 
   -r: skip viewing of the SBo README.
+  -i: do not run installpkg at the end of the build process.
 
 EOF
 }
 
 my %options;
-getopts('hvcdr',\%options);
+getopts ('hvcdri',\%options);
 
-show_usage() and exit(0) if exists $options{h};
-show_version() and exit(0) if exists $options{v};
+show_usage () and exit(0) if exists $options{h};
+show_version () and exit(0) if exists $options{v};
 
-show_usage() and exit(0) unless exists $ARGV[0];
+show_usage () and exit (0) unless exists $ARGV[0];
 
-unshift(@ARGV,'-c') if exists $options{c};
-unshift(@ARGV,'-d') if exists $options{d};
-unshift(@ARGV,'-r') if exists $options{r};
+unshift (@ARGV,'-c') if exists $options{c};
+unshift (@ARGV,'-d') if exists $options{d};
+unshift (@ARGV,'-r') if exists $options{r};
+unshift (@ARGV,'-i') if exists $options{i};
 
 my $string = '';
 for (@ARGV) {
 	$string .= " $_";
 }
 
-system("/usr/sbin/sboupgrade -N $string");
-exit(0);
+system ("/usr/sbin/sboupgrade -N $string");
+exit 0;
