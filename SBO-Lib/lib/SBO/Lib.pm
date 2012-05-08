@@ -372,7 +372,7 @@ sub find_download_info {
 			push(@return,$line);
 		}
 	}
-	close($return);
+	close($info);
 	return @return if exists $return[0];
 	return;
 }
