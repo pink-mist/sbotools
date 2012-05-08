@@ -23,7 +23,7 @@ require Exporter;
 	get_installed_sbos
 	get_available_updates
 	check_sbo_name_validity
-	do_slack_build
+	do_slackbuild
 	make_clean
 	make_distclean
 	do_upgradepkg
@@ -498,72 +498,106 @@ sub check_multilib {
 	return;
 }
 
-sub do_slack_build {
-	script_error('do_slack_build requires two arguments.') unless exists $_[1];
+sub rewrite_slackbuild {
+	script_error ('rewrite_slackbuild require three arguments')
+		unless exists $_[1];
+	my ($slackbuild,%changes) = @_;
+	copy ($slackbuild,"$slackbuild.old");
+	tie @sb,'Tie::File',$slackbuild;
+	FIRST: for (my $line = @arch) {
+		SECOND: for (my ($key,$value) = %changes) {
+			if ($key eq 'out_arch') {
+				if (index ($line,'makepkg') != -1) {
+					$line = /\$ARCH/$value/;
+				}
+			}
+		}
+	}
+	untie @sb;
+}
+
+sub replace_slackbuild {
+	script_error ('replace_slackbuild requires an argument')
+		unless exists $_[0];
+	my $slackbuild = shift;
+	if (-f "$slackbuild.old") {
+		if (-f $slackbuild) {
+			unlink $slackbuild;
+			rename ("$slackbuild.old",$slackbuild);
+		}
+	}
+}
+
+sub do_slackbuild {
+	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
 	my ($jobs,$sbo) = @_;
 	my $sbo_home = $config{SBO_HOME};
-	my $location = get_sbo_location($sbo);
-	my $x32 = check_x32($sbo,$location);
+	my $location = get_sbo_location ($sbo);
+	my $x32 = check_x32 ($sbo,$location);
 	if ($x32) {
-		if (! check_multilib()) {
+		if (! check_multilib() ) {
 			print "$sbo is 32-bit only, however, this system does not appear 
-to be multilib ready\n";
+to be multilib ready.\n";
 			exit 1
 		}
 	}
-	my $version = get_sbo_version($sbo,$location);
-	my @downloads = get_sbo_downloads($sbo,$location);
+	my $version = get_sbo_version ($sbo,$location);
+	my @downloads = get_sbo_downloads ($sbo,$location);
 	my @symlinks;
 	for my $c (keys @downloads) {
 		my $link = $downloads[$c]{link};
 		my $md5sum = $downloads[$c]{md5sum};
-		my $filename = get_filename_from_link($link);
-		unless (check_distfile($link,$md5sum)) {
-			die unless get_distfile($link,$md5sum);
+		my $filename = get_filename_from_link ($link);
+		unless (check_distfile ($link,$md5sum)) {
+			die unless get_distfile ($link,$md5sum);
 		}
-		my $symlink = get_symlink_from_filename($filename,$location);
-		push(@symlinks,$symlink);
-		symlink($filename,$symlink);
+		my $symlink = get_symlink_from_filename ($filename,$location);
+		push (@symlinks,$symlink);
+		symlink ($filename,$symlink);
 	}
-	chdir($location);
-	chmod(0755,"$location/$sbo.SlackBuild");
+	chdir ($location);
+	chmod (0755,"$location/$sbo.SlackBuild");
 	my $cmd;
+	my %changes;
 	if ($x32) {
+		$changes{out_arch} = 'i486';
+		rewrite_slackbuild ("$location/$sbo.SlackBuild",%changes);
 		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
 	} else {
 		$cmd = "$location/$sbo.SlackBuild";
 	}
-	my $out = system($cmd);
+	my $out = system ($cmd);
 	die unless $out == 0;
-	unlink($_) for (@symlinks);
+	unlink ($_) for (@symlinks);
 	return $version;
 }
 
 sub make_clean {
-	script_error('make_clean requires two arguments.') unless exists $_[1];
+	script_error ('make_clean requires two arguments.') unless exists $_[1];
 	my ($sbo,$version) = @_;
 	print "Cleaning for $sbo-$version...\n";
-	remove_tree("/tmp/SBo/$sbo-$version") if -d "/tmp/SBo/$sbo-$version";
-	remove_tree("/tmp/SBo/package-$sbo") if -d "/tmp/SBo/package-$sbo";
+	remove_tree ("/tmp/SBo/$sbo-$version") if -d "/tmp/SBo/$sbo-$version";
+	remove_tree ("/tmp/SBo/package-$sbo") if -d "/tmp/SBo/package-$sbo";
 	return 1;
 }
 
 sub make_distclean {
-	script_error('make_distclean requires two arguments.') unless exists $_[1];
+	script_error ('make_distclean requires two arguments.')
+		unless exists $_[1];
 	my ($sbo,$version) = @_;
-	make_clean($sbo,$version);
+	make_clean ($sbo,$version);
 	print "Distcleaning for $sbo-$version...\n";
-	my $location = get_sbo_location($sbo);
-	my @downloads = get_sbo_downloads($sbo,$location);
+	my $location = get_sbo_location ($sbo);
+	my @downloads = get_sbo_downloads ($sbo,$location);
 	for my $dl (@downloads) {
-		my $filename = get_filename_from_link($dl);
-		unlink($filename) if -f $filename;
+		my $filename = get_filename_from_link ($dl);
+		unlink ($filename) if -f $filename;
 	}
 	return 1;
 }
 
 sub do_upgradepkg {
-	script_error('do_upgradepkg requires two arguments.') unless exists $_[1];
+	script_error ('do_upgradepkg requires two arguments.') unless exists $_[1];
 	my ($sbo,$version) = @_;
 	my $pkg;
 	my $pkg_regex = qr/^(\Q$sbo\E-\Q$version\E-[^-]+-.*_SBo.t[xblg]z)$/;

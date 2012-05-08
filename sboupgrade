@@ -87,7 +87,7 @@ sub process_sbos {
 		readme_prompt($sbo) unless $no_readme eq 'TRUE';
 		my $version;
 		eval {
-			$version = do_slack_build($jobs,$sbo);
+			$version = do_slackbuild($jobs,$sbo);
 		};
 		if ($@) {
 			push(@failures,$sbo);
