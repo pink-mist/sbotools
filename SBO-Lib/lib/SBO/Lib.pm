@@ -503,8 +503,8 @@ sub rewrite_slackbuild {
 		unless exists $_[1];
 	my ($slackbuild,%changes) = @_;
 	copy ($slackbuild,"$slackbuild.old");
-	tie @sb,'Tie::File',$slackbuild;
-	FIRST: for (my $line = @arch) {
+	tie my @sb,'Tie::File',$slackbuild;
+	FIRST: for (my $line = @sb) {
 		SECOND: for (my ($key,$value) = %changes) {
 			if ($key eq 'out_arch') {
 				if (index ($line,'makepkg') != -1) {
