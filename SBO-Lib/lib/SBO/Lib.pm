@@ -356,8 +356,8 @@ sub find_download_info {
 		unless ($more eq 'TRUE') {
 			if ($line =~ $regex) {
 				last FIRST if $line =~ $empty_regex;
-				unless ($link eq 'UNSUPPORTED') {
-					push(@return,split_equal_one($line));
+				unless ($line =~ /UNSUPPORTED/) {
+					push (@return,split_equal_one ($line) );
 					$more = 'TRUE' if $line =~ $back_regex;
 				} else {
 					last FIRST;
