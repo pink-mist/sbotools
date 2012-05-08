@@ -352,7 +352,7 @@ sub find_download_info {
 		unless ($more eq 'TRUE') {
 			if ($line =~ $regex) {
 				last FIRST if $line =~ $empty_regex;
-				unless ($line =~ /UNSUPPORTED/) {
+				unless (index ($line,'UNSUPPORTED') != -1) {
 					push (@return,split_equal_one ($line) );
 					$more = 'TRUE' if $line =~ $back_regex;
 				} else {
@@ -364,11 +364,11 @@ sub find_download_info {
 				$more = 'FALSE';
 				last FIRST;
 			}
-			$line = clean_line($line);
-			push(@return,$line);
+			$line = clean_line ($line);
+			push (@return,$line);
 		}
 	}
-	close($info);
+	close ($info);
 	return @return if exists $return[0];
 	return;
 }
@@ -381,19 +381,19 @@ sub find_download_info {
 # would like to think of a better way to handle this.
 #
 sub get_sbo_downloads {
-	script_error('get_sbo_downloads requires two arguments.')
+	script_error ('get_sbo_downloads requires two arguments.')
 		unless exists $_[1];
-	script_error('get_sbo_downloads given a non-directory.') unless -d $_[1];
+	script_error ('get_sbo_downloads given a non-directory.') unless -d $_[1];
 	my ($sbo,$location) = @_;
-	chomp(my $arch = `uname -m`);
+	chomp (my $arch = `uname -m`);
 	my (@links,@md5s);
 	if ($arch eq 'x86_64') {
-		my @links = find_download_info($sbo,$location,'download',1);
-		my @md5s = find_download_info($sbo,$location,'md5sum',1);
+		@links = find_download_info ($sbo,$location,'download',1);
+		@md5s = find_download_info ($sbo,$location,'md5sum',1);
 	}
 	unless (exists $links[0]) {
-		my @links = find_download_info($sbo,$location,'download',0);
-		my @md5s = find_download_info($sbo,$location,'md5sum',0);
+		@links = find_download_info ($sbo,$location,'download',0);
+		@md5s = find_download_info ($sbo,$location,'md5sum',0);
 	}
 	my @downloads;
 	for my $c (keys @links) {
@@ -494,36 +494,6 @@ sub check_multilib {
 	return;
 }
 
-sub rewrite_slackbuild {
-	script_error ('rewrite_slackbuild require three arguments')
-		unless exists $_[1];
-	my ($slackbuild,%changes) = @_;
-	copy ($slackbuild,"$slackbuild.old");
-	tie my @sb,'Tie::File',$slackbuild;
-	FIRST: for (my $line = @sb) {
-		SECOND: for (my ($key,$value) = %changes) {
-			if ($key eq 'out_arch') {
-				if (index ($line,'makepkg') != -1) {
-					$line = s/\$ARCH/$value/;
-				}
-			}
-		}
-	}
-	untie @sb;
-}
-
-sub replace_slackbuild {
-	script_error ('replace_slackbuild requires an argument')
-		unless exists $_[0];
-	my $slackbuild = shift;
-	if (-f "$slackbuild.old") {
-		if (-f $slackbuild) {
-			unlink $slackbuild;
-			rename ("$slackbuild.old",$slackbuild);
-		}
-	}
-}
-
 sub do_slackbuild {
 	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
 	my ($jobs,$sbo) = @_;
@@ -544,7 +514,7 @@ to be multilib ready.\n";
 		my $link = $downloads[$c]{link};
 		my $md5sum = $downloads[$c]{md5sum};
 		my $filename = get_filename_from_link ($link);
-		unless (check_distfile ($link,$md5sum)) {
+		unless (check_distfile ($link,$md5sum) ) {
 			die unless get_distfile ($link,$md5sum);
 		}
 		my $symlink = get_symlink_from_filename ($filename,$location);
@@ -556,8 +526,6 @@ to be multilib ready.\n";
 	my $cmd;
 	my %changes;
 	if ($x32) {
-		$changes{out_arch} = 'i486';
-		rewrite_slackbuild ("$location/$sbo.SlackBuild",%changes);
 		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
 	} else {
 		$cmd = "$location/$sbo.SlackBuild";
