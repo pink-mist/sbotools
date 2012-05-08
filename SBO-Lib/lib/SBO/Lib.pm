@@ -314,10 +314,11 @@ sub get_sbo_location {
 sub split_line {
 	script_error('split_line requires three arguments') unless exists $_[2];
 	my ($line,$pattern,$index) = @_;
+	my @split;
 	if ($pattern eq ' ') {
-		my @split = split("$pattern",$line);
+		@split = split("$pattern",$line);
 	} else {
-		my @split = split(/$pattern/,$line);
+		@split = split(/$pattern/,$line);
 	}
 	return clean_line($split[$index]);
 }
@@ -325,11 +326,6 @@ sub split_line {
 sub split_equal_one {
 	script_error("split_equal_one requires an argument") unless exists $_[0];
 	return split_line($_[0],'=',1);
-}
-
-sub check_multilib {
-	return 1 if -f '/etc/profile.d/32dev.sh';
-	return;
 }
 
 sub find_download_info {
