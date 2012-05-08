@@ -1,0 +1,6 @@
+Revision history for Perl extension SBO::Lib.
+
+0.01  Wed Apr 25 23:13:55 2012
+	- original version; created by h2xs 1.23 with options
+		-X -n SBO::Lib
+

@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+#
+# sbocheck
+# script to update the local sbo tree and check for updates
+#
+# author: Jacob Pipkin <j@dawnrazor.net>
+# date: Sweetmorn, the 38th day of Discord in the YOLD 3178
+# license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
+
+use SBO::Lib;
+use File::Basename;
+use Getopt::Std;
+use Text::Tabulate;
+use warnings FATAL => 'all';
+use strict;
+
+my %config = %SBO::Lib::config;
+my $self = basename($0);
+
+my %options;
+getopts('v',\%options);
+
+show_version() && exit(0) if (exists $options{v});
+
+update_tree();
+
+print "Checking for updated SlackBuilds...\n";
+my @updates = get_available_updates();
+
+my @listing;
+for (keys @updates) {
+	my $string = "$updates[$_]{name}-$updates[$_]{installed}";
+	$string .= "        <   needs updating (SBo has $updates[$_]{update})\n";
+	push(@listing,$string);
+}
+
+if (exists $listing[0]) {
+	my $tab = new Text::Tabulate();
+	$tab->configure(tab => '\s');
+	my $output = $tab->format(@listing);
+	print "\n". $output ."\n";
+} else {
+	print "\nNo updates available.\n";
+}
+
+exit(0);

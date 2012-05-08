@@ -1,0 +1,25 @@
+.TH sbofind 1 "Pungenday, the 45th day of Discord in the YOLD 3178" "sbotools 0.1 fnord" dawnrazor.net
+.SH NAME
+.P
+sbofind - search SlackBuilds for a given name
+.SH SYNAPSES
+.P
+sbofind [-v] search_term
+.SH DESCRIPTION
+.P
+sbofind searches the names of all SlackBuilds for a given term. It reports back any SBos found along with the path for each. This is equivalent to running "cd /usr/ports; make search name=$search_term display=name,path" on a FreeBSD system. For a more general search, the slackbuilds.org site should be consulted, where tags also exist and are included in the searched fields.
+.SH OPTIONS
+.P
+-v
+.RS
+Show sbotools version information.
+.RE
+.SH BUGS
+.P
+None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+.SH SEE ALSO
+.P
+sbocheck(1), sboconfig(1), sboinstall(1), sboupgrade(1), sbosnap(1), sbotools.conf(5)
+.SH AUTHOR
+.P
+Jacob Pipkin <j@dawnrazor.net>

@@ -1,0 +1,50 @@
+#!/usr/bin/env perl
+#
+# sboinstall
+# script to install a SlackBuild by name
+#
+# author: Jacob Pipkin <j@dawnrazor.net>
+# date: Pungenday, the 40th day of Discord in the YOLD 3178
+# license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
+
+use SBO::Lib;
+use Getopt::Std;
+use File::Basename;
+use strict;
+use warnings FATAL => 'all';
+
+my $self = basename($0);
+
+sub show_usage {
+	print <<EOF
+Usage: $self [options] sbo
+
+Options:
+  -h: this screen.
+  -v: version information.
+  -c: do not clean working files/directories after the build.                   
+  -d: clean distfiles afterward. 
+  -r: skip viewing of the SBo README.
+
+EOF
+}
+
+my %options;
+getopts('hvcdr',\%options);
+
+show_usage() and exit(0) if exists $options{h};
+show_version() and exit(0) if exists $options{v};
+
+show_usage() and exit(0) unless exists $ARGV[0];
+
+unshift(@ARGV,'-c') if exists $options{c};
+unshift(@ARGV,'-d') if exists $options{d};
+unshift(@ARGV,'-r') if exists $options{r};
+
+my $string = '';
+for (@ARGV) {
+	$string .= " $_";
+}
+
+system("/usr/sbin/sboupgrade -N $string");
+exit(0);

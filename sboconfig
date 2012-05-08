@@ -1,0 +1,119 @@
+#!/usr/bin/env perl
+#
+# sboconfig
+# script to handle sbotools configuration
+#
+# author: Jacob Pipkin <j@dawnrazor.net>
+# date: Pungenday, the 40th day of Discord in the YOLD 3178
+# license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
+
+use strict;
+use warnings FATAL => 'all';
+use SBO::Lib;
+use File::Basename;
+use Getopt::Std;
+use File::Copy;
+use File::Path qw(make_path);
+use Fcntl;
+
+my %config = %SBO::Lib::config;
+my $self = basename($0);
+
+sub show_usage {
+	print <<EOF
+Usage: $self [options] [arguments]
+
+Options:
+  -h: this screen.
+  -v: version information.
+  -l: show current options.
+
+Config options (defaults shown):
+  -c FALSE:
+      NOCLEAN: if TRUE, do NOT clean up after building by default.
+  -d FALSE:
+      DISTCLEAN: if TRUE, DO clean distfiles by default after building.
+  -p FALSE:
+      PKG_DIR: set a directory to store packages in. 
+  -s /usr/sbo:
+      SBO_HOME: set the SBo directory.
+
+EOF
+#  -j FALSE:
+#      set the -j# option to feed to make.
+}
+
+my %options;
+getopts('hvlc:d:p:s:',\%options);
+
+show_usage() and exit(0) if exists $options{h};
+show_version() and exit(0) if exists $options{v};
+
+if (exists $options{l}) {
+	while (my ($key,$value) = each %config) {
+		print "$key=$value\n";
+	}
+}
+
+show_usage() unless %options;
+
+my %changes;
+$changes{NOCLEAN} = $options{c} if exists $options{c};
+$changes{DISTCLEAN} = $options{d} if exists $options{d};
+$changes{PKG_DIR} = $options{p} if exists $options{p};
+$changes{SBO_HOME} = $options{s} if exists $options{s};
+
+my $conf_dir = $SBO::Lib::conf_dir;;
+my $conf_file = $SBO::Lib::conf_file;
+
+sub make_temp_file {
+	make_path('/tmp/sbotools') unless -d '/tmp/sbotools';
+	my $temp_dir = -d '/tmp/sbotools' ? '/tmp/sbotools' : $ENV{TMPDIR} ||
+		$ENV{TEMP};
+	my $filename = sprintf "%s/%d-%d-0000", $temp_dir, $$, time;
+	sysopen my($fh), $filename, O_WRONLY|O_EXCL|O_CREAT;
+	return ($fh,$filename);
+}
+
+sub config_write {
+	script_error('config_write requires two arguments.') unless $_[1];
+	my ($key,$val) = @_;
+	if (! -d $conf_dir) {
+		mkdir($conf_dir)
+			or print "Unable to create $conf_dir. Exiting.\n" and exit(1);
+	}
+	if (-f $conf_file) {
+		my ($fh,$filename) = make_temp_file();
+		open my $reader, '<', $conf_file;
+		print {$fh} <$reader>;
+		close($fh);
+		tie my @temp, 'Tie::File', $filename;
+		my $has = 'FALSE';
+		my $regex = qr/\A\Q$key\E=/;
+		FIRST: for my $tmpline (@temp) {
+			if ($tmpline =~ $regex) {
+				$has = 'TRUE';
+				$tmpline = "$key=$val";
+				last FIRST;
+			}
+		}
+		untie @temp;
+		if ($has eq 'FALSE') {
+			open (my $writer, '>>', $filename);
+			print {$writer} "$key=$val\n";
+			close($writer);
+		}
+		move($filename,$conf_file);
+	} else {
+		open my $writer, '>', $conf_file;
+		print {$writer} "$key=$val\n";
+		close($writer);
+	}
+}
+
+while (my ($key,$value) = each %changes) {
+	print "Setting $key to $value...\n";
+	config_write($key,$value);
+}
+
+exit(0);

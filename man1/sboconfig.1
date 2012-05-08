@@ -1,0 +1,55 @@
+.TH sboconfig 1 "Pungenday, the 45th day of Discord in the YOLD 3178" "sbotools 0.1 fnord" dawnrazor.net
+.SH NAME
+.P
+sboconfig - set sbotools configuration options.
+.SH SYNAPSES
+.P
+sboconfig [-h] [-l] [-c TRUE|FALSE] [-d TRUE|FALSE] [-p /path|FALSE] [-s /path|/usr/sbo] [-v]
+.SH DESCRIPTION
+.P
+sboconfig is a front-end for managing sbotools configuration options. The sbotools.conf(5) file can also be manually edited; any fields not relevant to sbotools configuration will be ignored. Note that more options may be added in the future, so you should not add garbage to the sbotools.conf(5) file.
+.SH OPTIONS
+.P
+-h
+.RS
+Show help information.
+.RE
+.P
+-l
+.RS
+List out current configuration options, included unmodified default configuration options (meaning that if a given option is not set in the sbotools.conf(5) file, the default will be shown for that option).
+.RE
+.P
+-c (TRUE|FALSE)
+.RS
+NOCLEAN: If TRUE, then DO NOT clean working directories after building the SBo. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an SBo. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+.RE
+.P
+-d (TRUE|FALSE)
+.RS
+DISTCLEAN: If TRUE, then DO remove the source code after building the SBo. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+.RE
+.P
+-p (/path|FALSE)
+.RS
+PKG_DIR: If set to a path, packages will be stored at the given location after building and installing. By default, packages are left where they are deposited by SlackBuilds, which is typically (probably always) /tmp. If PKG_DIR is FALSE and DISTCLEAN is TRUE (either in sbotools.conf(5) or at sboupgrade/sboinstall runtime), the package will be deleted. If this option is set to a path in the filesystem, the package will be stored in that directory, regardless of any DISTCLEAN option.
+.RE
+.P
+-s (/path|/usr/sbo)
+.RS
+SBO_HOME: If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
+.RE
+.P
+-v
+.RS
+Show sbotools version information.
+.RE
+.SH BUGS
+.P
+None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+.SH SEE ALSO
+.P
+sbocheck(1), sbofind(1), sboinstall(1), sboupgrade(1), sbosnap(1), sbotools.conf(5)
+.SH AUTHOR
+.P
+Jacob Pipkin <j@dawnrazor.net>
