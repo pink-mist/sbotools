@@ -275,10 +275,7 @@ sub find_download_info {
 				}
 			}
 		} else {
-			unless ($line =~ $back_regex) {
-				$more = 'FALSE';
-				last FIRST;
-			}
+			$more = 'FALSE' unless $line =~ $back_regex;
 			$line = clean_line ($line);
 			push (@return,$line);
 		}
