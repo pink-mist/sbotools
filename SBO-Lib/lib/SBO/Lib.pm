@@ -373,6 +373,11 @@ sub find_download_info {
 	return;
 }
 
+sub get_arch {
+	chomp (my $arch = `uname -m`);
+	return $arch;
+}
+
 # this is a bit wonky - if running a 64-bit system, we have to first see if
 # DOWNLOAD_x86_64 is defined, and make sure it's not set to "UNSUPPORTED";
 # then if that doesn't yield anything, go through again pulling the DOWNLOAD
@@ -385,7 +390,7 @@ sub get_sbo_downloads {
 		unless exists $_[1];
 	script_error ('get_sbo_downloads given a non-directory.') unless -d $_[1];
 	my ($sbo,$location) = @_;
-	chomp (my $arch = `uname -m`);
+	my $arch = get_arch ();
 	my (@links,@md5s);
 	if ($arch eq 'x86_64') {
 		@links = find_download_info ($sbo,$location,'download',1);
@@ -499,12 +504,16 @@ sub do_slackbuild {
 	my ($jobs,$sbo) = @_;
 	my $sbo_home = $config{SBO_HOME};
 	my $location = get_sbo_location ($sbo);
-	my $x32 = check_x32 ($sbo,$location);
-	if ($x32) {
-		if (! check_multilib() ) {
-			print "$sbo is 32-bit only, however, this system does not appear 
+	my $arch = get_arch ();
+	my $x32;
+	if ($arch eq 'x86_64') {
+		$x32 = check_x32 ($sbo,$location);
+		if ($x32) {
+			if (! check_multilib () ) {
+				print "$sbo is 32-bit only, however, this system does not appear 
 to be multilib ready.\n";
-			exit 1
+				exit 1
+			}
 		}
 	}
 	my $version = get_sbo_version ($sbo,$location);
@@ -525,7 +534,7 @@ to be multilib ready.\n";
 	chmod (0755,"$location/$sbo.SlackBuild");
 	my $cmd;
 	my %changes;
-	if ($x32) {
+	if ($arch eq 'x86_64' and $x32) {
 		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
 	} else {
 		$cmd = "$location/$sbo.SlackBuild";
