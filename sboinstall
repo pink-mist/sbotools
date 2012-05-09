@@ -48,5 +48,5 @@ for (@ARGV) {
 	$string .= " $_";
 }
 
-system ("/usr/sbin/sboupgrade -N $string");
+system ("/usr/sbin/sboupgrade -oN $string");
 exit 0;

@@ -41,7 +41,7 @@ EOF
 }
 
 my %options;
-getopts ('hvacdfj:Nri',\%options);
+getopts ('hvacdfj:Nrio',\%options);
 
 
 show_usage () && exit(0) if exists $options{h};
@@ -53,18 +53,25 @@ my $force = exists $options{f} ? 'TRUE' : 'FALSE';
 my $jobs = 'FALSE';
 my $install_new = exists $options{N} ? 'TRUE' : 'FALSE';
 my $no_readme = exists $options{r} ? 'TRUE' : 'FALSE';
-my $no_install = exists $options{i}? 'TRUE' : 'FALSE';
+my $no_install = exists $options{i} ? 'TRUE' : 'FALSE';
+my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
 
 show_usage () and exit (1) unless exists $ARGV[0];
 
+my %locations;
+
 for my $sbo_name (@ARGV) {
-	check_sbo_name_validity ($sbo_name);
+	$locations{$sbo_name} = get_sbo_location ($sbo_name);
+	unless (defined $locations{$sbo_name}) {
+		print "Unable to locate $sbo_name in the SlackBuilds.org tree.\n";
+		exit 1;
+	}
 }
 
 sub get_readme_path {
 	script_error ('get_readme_path requires an argument.') unless exists $_[0];
 	my $sbo = shift;
-	my $location = get_sbo_location ($sbo);
+	my $location = $locations{$sbo};
 	return $location .'/README';
 }
 
@@ -89,7 +96,7 @@ sub process_sbos {
 		readme_prompt ($sbo) unless $no_readme eq 'TRUE';
 		my $version;
 		eval {
-			$version = do_slackbuild ($jobs,$sbo);
+			$version = do_slackbuild ($jobs,$sbo,$locations{$sbo});
 		};
 		if ($@) {
 			push (@failures,$sbo);
@@ -99,7 +106,7 @@ sub process_sbos {
 					make_clean ($sbo,$version);
 				}
 			} else {
-				make_distclean ($sbo,$version);
+				make_distclean ($sbo,$version,$locations{$sbo});
 			}
 			my $pkg;
 			my $pkg_regex = qr/^(\Q$sbo\E-\Q$version\E-[^-]+-.*_SBo.t[xblg]z)$/;
@@ -128,38 +135,8 @@ sub process_sbos {
 	return @failures;
 }
 
-# this can probably be redone to be faster overall.
-
-my @updates unless $force eq 'TRUE';
-unless ($force eq 'TRUE') {
-	my @updates_array = get_available_updates ();
-	for my $index (keys @updates_array) {
-		push(@updates,$updates_array[$index]{name});
-	}
-}
-
 my @installed = get_installed_sbos();
-
-my @todo_upgrade;
-unless ($force eq 'TRUE') {
-	for (@ARGV) {
-		if ($_ ~~ @updates) {
-			push (@todo_upgrade,$_);
-		}
-	}
-} else {
-	for (@ARGV) {
-		SECOND: for my $c (keys @installed) {
-			if ($_ eq $installed[$c]{name}) {
-				push (@todo_upgrade,$_);
-				last SECOND;
-			}
-		}
-	}
-}
-
 my @failed;
-@failed = process_sbos (@todo_upgrade) if exists $todo_upgrade[0];
 
 sub print_failures {
 	if (exists $failed[0]) {
@@ -169,7 +146,36 @@ sub print_failures {
 	}
 }
 
-print_failures () unless $install_new eq 'TRUE';
+unless ($only_new eq 'TRUE') {
+	my @updates unless $force eq 'TRUE';
+	unless ($force eq 'TRUE') {
+		my @updates_array = get_available_updates ();
+		for my $index (keys @updates_array) {
+			push(@updates,$updates_array[$index]{name});
+		}
+	}
+
+	my @todo_upgrade;
+	unless ($force eq 'TRUE') {
+		for (@ARGV) {
+			if ($_ ~~ @updates) {
+				push (@todo_upgrade,$_);
+			}
+		}
+	} else {
+		for (@ARGV) {
+			SECOND: for my $c (keys @installed) {
+				if ($_ eq $installed[$c]{name}) {
+					push (@todo_upgrade,$_);
+					last SECOND;
+				}
+			}
+		}
+	}
+
+	@failed = process_sbos (@todo_upgrade) if exists $todo_upgrade[0];
+	print_failures () unless $install_new eq 'TRUE';
+}
 
 my @todo_install;
 my $has = 'FALSE';

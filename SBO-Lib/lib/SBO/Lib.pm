@@ -41,6 +41,7 @@ use Digest::MD5;
 use File::Copy;
 use File::Path qw(make_path remove_tree);
 use Fcntl;
+use File::Find;
 
 $UID == 0 or print "This script requires root privileges.\n" and exit (1);
 
@@ -182,132 +183,47 @@ sub clean_line {
 	return $line;
 }
 
-#sub get_available_updates {
-#	check_slackbuilds_txt();
-#	my @updates;
-#	my @pkg_list = get_installed_sbos();
-#	my $sb_txt = IO::File->new($slackbuilds_txt,"r");
-#	FIRST: for my $c (keys @pkg_list) {
-#		my $name = $pkg_list[$c]{name};
-#		my $version = $pkg_list[$c]{version};
-#		my $regex = qr/$name_regex\Q$name\E\n\z/;
-#		my $found = "FALSE";
-#		SECOND: while (my $line = <$sb_txt>) {
-#			if ($line =~ $regex) {
-#				$found = "TRUE";
-#				next SECOND;
-#			}
-#			if ($found eq "TRUE") {
-#			    if ($line =~ /VERSION/) {
-#					$found = "FALSE";
-#					my @split = split(' ',$line);
-#					my $sbo_version = clean_line($split[2]);
-#					if (versioncmp($sbo_version,$version) == 1) {
-#						my %hash = (
-#							name => $name,
-#							installed => $version,
-#							update => $sbo_version,
-#						);
-#						push(@updates,\%hash);
-#					}
-#					$sb_txt->seek(0,0);
-#			        next FIRST;
-#				}
-#			}
-#		}
-#	}
-#	$sb_txt->close;
-#	return @updates;
-#}
-
-# much nicer version above does not work with perl 5.12, at last on Slackware
-# 13.37 - the regex within the SECOND loop (while inside for) will never ever
-# match, or at least I couldn't find a way to make it do so. switch which is
-# inside which, and it works, so we use this method for now.
-#
-# iterate over all the lines!
-#
 sub get_available_updates {
 	check_slackbuilds_txt ();
 	my (@updates,$index);
 	my @pkg_list = get_installed_sbos ();
-	open my $sb_txt, '<', $slackbuilds_txt;
-	my $found = 'FALSE';
-	FIRST: while (my $line = <$sb_txt>) {
-		if ($found eq 'TRUE') {
-			if ($line =~ /VERSION/) {
-				$found = 'FALSE';
-				my $sbo_version = split_line ($line,' ',2);
-				if (versioncmp ($sbo_version,$pkg_list[$index]{version}) == 1) {
+	FIRST: for my $c (keys @pkg_list) {
+		my $location = get_sbo_location ($pkg_list[$c]{name});
+		next FIRST unless defined $location;
+		my $regex = qr/^VERSION=/;
+		open my $info,'<',"$location/$pkg_list[$c]{name}.info";
+		SECOND: while (my $line = <$info>) {
+			if ($line =~ $regex) {
+				my $sbo_version = split_equal_one ($line);
+				if (versioncmp ($sbo_version,$pkg_list[$c]{version}) == 1) {
 					my %hash = (
-						name => $pkg_list[$index]{name},
-						installed => $pkg_list[$index]{version},
+						name => $pkg_list[$c]{name},
+						installed => $pkg_list[$c]{version},
 						update => $sbo_version,
 					);
 					push (@updates,\%hash);
 				}
-			}
-		} else {
-			SECOND: for my $c (keys @pkg_list) {
-				my $regex = qr/$name_regex\Q$pkg_list[$c]{name}\E\n\z/;
-				if ($line =~ $regex) {
-					$found = 'TRUE';
-					$index = $c;
-					last SECOND;
-				}
+				last SECOND;
 			}
 		}
+		close ($info);
 	}
-	close $sb_txt;
 	return @updates;
-}
-
-sub check_sbo_name_validity {
-	script_error ('check_sbo_name_validity requires an argument')
-		unless exists $_[0];
-	my $sbo = shift;
-	check_slackbuilds_txt ();
-	my $valid = 'FALSE';
-	my $regex = qr/$name_regex\Q$sbo\E\n\z/;
-	open my $sb_txt, '<', $slackbuilds_txt;
-	FIRST: while (my $line = <$sb_txt>) {
-		if ($line =~ $regex) {
-			$valid = 'TRUE';
-			last FIRST;
-		}
-	}
-	close ($sb_txt);
-	unless ($valid eq 'TRUE') {
-		print "$sbo does not exist in the SlackBuilds tree. Exiting.\n";
-		exit 1;
-	}
-	return 1;
 }
 
 sub get_sbo_location {
 	script_error ('get_sbo_location requires an argument.Exiting.')
 		unless exists $_[0];
 	my $sbo = shift;
-	check_slackbuilds_txt ();
-	my $found = 'FALSE';
 	my $location;
-	my $regex = qr/$name_regex\Q$sbo\E\n\z/;
-	open my $sb_txt, '<', $slackbuilds_txt;
-	FIRST: while (my $line = <$sb_txt>) {
-		if ($line =~ $regex) {
-			$found = 'TRUE';
-			next FIRST;
-		}
-		if ($found eq 'TRUE') {
-			if ($line =~ /LOCATION/) {
-				my $loc_line = split_line ($line,' ',2);
-				$loc_line  =~ s#^\./##;
-				$location = "$config{SBO_HOME}/$loc_line";
-				last FIRST;
-			}
-		}
-	}
-	close ($sb_txt);
+	my $regex = qr#$config{SBO_HOME}/[^/]+/\Q$sbo\E\z#;
+	find (
+		sub {
+			$location = $File::Find::dir if $File::Find::dir =~ $regex
+		},
+		$config{SBO_HOME}
+	);
+	return unless defined $location;
 	return $location;
 }
 
@@ -501,9 +417,8 @@ sub check_multilib {
 
 sub do_slackbuild {
 	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
-	my ($jobs,$sbo) = @_;
+	my ($jobs,$sbo,$location) = @_;
 	my $sbo_home = $config{SBO_HOME};
-	my $location = get_sbo_location ($sbo);
 	my $arch = get_arch ();
 	my $x32;
 	if ($arch eq 'x86_64') {
@@ -557,10 +472,9 @@ sub make_clean {
 sub make_distclean {
 	script_error ('make_distclean requires two arguments.')
 		unless exists $_[1];
-	my ($sbo,$version) = @_;
+	my ($sbo,$version,$location) = @_;
 	make_clean ($sbo,$version);
 	print "Distcleaning for $sbo-$version...\n";
-	my $location = get_sbo_location ($sbo);
 	my @downloads = get_sbo_downloads ($sbo,$location);
 	for my $dl (@downloads) {
 		my $filename = get_filename_from_link ($dl);
