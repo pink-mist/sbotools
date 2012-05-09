@@ -15,7 +15,7 @@ use strict;
 use warnings FATAL => 'all';
 
 my %config = %SBO::Lib::config;
-my $self = basename($0);
+my $self = basename ($0);
 
 sub show_usage {
 	print <<EOF
@@ -32,15 +32,15 @@ EOF
 }
 
 my %options;
-getopts('hv',\%options);
+getopts ('hv',\%options);
 
-show_usage() and exit(0) if (exists $options{h});
-show_version() and exit(0) if (exists $options{v});
+show_usage () and exit (0) if (exists $options{h});
+show_version () and exit (0) if (exists $options{v});
 
-show_usage() and exit(1) unless exists $ARGV[0];
+show_usage () and exit (1) unless exists $ARGV[0];
 my $search = $ARGV[0];
 
-check_slackbuilds_txt();
+check_slackbuilds_txt ();
 
 my (@findings,$name);
 my $found = 'FALSE';
@@ -50,18 +50,18 @@ FIRST: while (my $line = <$sb_txt>) {
 	unless ($found eq 'TRUE') {
 		if ($line =~ $regex) {
 			$found = 'TRUE';
-			my @split = split(' ',$line);
-			chomp($name = $split[2]);
+			my @split = split (' ',$line);
+			chomp ($name = $split[2]);
 			next FIRST;
 		}
 	} else {
 		if ($line =~ /LOCATION/) {
 			$found = 'FALSE';
-			my @split = split(' ',$line);
-			chomp(my $location = $split[2]);
+			my @split = split (' ',$line);
+			chomp (my $location = $split[2]);
 			$location =~ s#^\.##;
 			my %hash = ($name => $config{SBO_HOME} . $location);
-			push(@findings,\%hash);
+			push (@findings,\%hash);
 		}
 	}
 }
@@ -70,16 +70,16 @@ if (exists $findings[0]) {
 	my @listing;
 	for my $hash (@findings) {
 		while (my ($key,$value) = each %{$hash}) {
-			push(@listing,"SBo: $key\n");
-			push(@listing,"Path: $value\n\n");
+			push (@listing,"SBo: $key\n");
+			push (@listing,"Path: $value\n\n");
 		}
 	}
 	my $tab = new Text::Tabulate();
-	$tab->configure(tab => '\s');
-	my $output = $tab->format(@listing);
+	$tab->configure (tab => '\s');
+	my $output = $tab->format (@listing);
 	print "\n". $output;
 } else {
 	print "Nothing found for search term: $search\n";
 }
 
-exit(0);
+exit 0;

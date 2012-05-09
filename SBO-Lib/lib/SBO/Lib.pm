@@ -22,7 +22,6 @@ require Exporter;
 	update_tree
 	get_installed_sbos
 	get_available_updates
-	check_sbo_name_validity
 	do_slackbuild
 	make_clean
 	make_distclean
@@ -184,12 +183,12 @@ sub clean_line {
 }
 
 sub get_available_updates {
-	check_slackbuilds_txt ();
-	my (@updates,$index);
+	my @updates;
 	my @pkg_list = get_installed_sbos ();
 	FIRST: for my $c (keys @pkg_list) {
 		my $location = get_sbo_location ($pkg_list[$c]{name});
 		next FIRST unless defined $location;
+
 		my $regex = qr/^VERSION=/;
 		open my $info,'<',"$location/$pkg_list[$c]{name}.info";
 		SECOND: while (my $line = <$info>) {
