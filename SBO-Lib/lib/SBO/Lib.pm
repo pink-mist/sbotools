@@ -338,18 +338,19 @@ sub compute_md5sum {
 sub get_filename_from_link {
 	script_error ('get_filename_from_link requires an argument')
 		unless exists $_[0];
-	my @split = split ('/',reverse ($_[0]) ,2);
+	my @split = split ('/',reverse (shift) ,2);
 	chomp (my $filename = $distfiles .'/'. reverse ($split[0]) );
 	return $filename;
 }
 
 sub check_distfile {
-	script_error ('check_distfile requires an argument.') unless exists $_[0];
-	my $filename = get_filename_from_link ($_[0]);
+	script_error ('check_distfile requires two arguments.') unless exists $_[1];
+	my ($link,$info_md5sum) = @_;
+	my $filename = get_filename_from_link ($link);
 	return unless -d $distfiles;
 	return unless -f $filename;
 	my $md5sum = compute_md5sum ($filename);
-	return unless $_[1] eq $md5sum;
+	return unless $info_md5sum eq $md5sum;
 	return 1;
 }
 
@@ -469,14 +470,14 @@ sub make_clean {
 }
 
 sub make_distclean {
-	script_error ('make_distclean requires two arguments.')
-		unless exists $_[1];
+	script_error ('make_distclean requires three arguments.')
+		unless exists $_[2];
 	my ($sbo,$version,$location) = @_;
 	make_clean ($sbo,$version);
 	print "Distcleaning for $sbo-$version...\n";
 	my @downloads = get_sbo_downloads ($sbo,$location);
-	for my $dl (@downloads) {
-		my $filename = get_filename_from_link ($dl);
+	for my $c (keys @downloads) {
+		my $filename = get_filename_from_link ($downloads[$c]{link});
 		unlink ($filename) if -f $filename;
 	}
 	return 1;

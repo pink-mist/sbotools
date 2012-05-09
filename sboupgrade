@@ -142,7 +142,7 @@ sub print_failures {
 	if (exists $failed[0]) {
 		print "Failures:\n";
 		print "  $_\n" for (@failed);
-		exit (1);
+		exit 1;
 	}
 }
 
@@ -177,25 +177,26 @@ unless ($only_new eq 'TRUE') {
 	print_failures () unless $install_new eq 'TRUE';
 }
 
-my @todo_install;
-my $has = 'FALSE';
-for (@ARGV) {
-	SECOND: for my $index (keys @installed) {
-		if ($_ eq $installed[$index]{name}) {
-			$has = 'TRUE';
-			last SECOND;
+if ($install_new eq 'TRUE') {
+	my @todo_install;
+	my $has = 'FALSE';
+	for (@ARGV) {
+		SECOND: for my $index (keys @installed) {
+			if ($_ eq $installed[$index]{name}) {
+				$has = 'TRUE';
+				last SECOND;
+			}
 		}
+		unless ($has eq 'TRUE') {
+			push (@todo_install,$_);
+		} else {
+			print "$_ already installed.\n";
+		}
+		$has = 'FALSE';
 	}
-	unless ($has eq 'TRUE') {
-		push (@todo_install,$_);
-	} else {
-		print "$_ already installed.\n";
-	}
-	$has = 'FALSE';
+
+	@failed = process_sbos (@todo_install) if exists $todo_install[0];
+	print_failures ();
 }
 
-@failed = process_sbos (@todo_install) if exists $todo_install[0];
-
-print_failures ();
-
-exit (0);
+exit 0;
