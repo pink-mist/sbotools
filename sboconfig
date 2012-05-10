@@ -17,7 +17,7 @@ use File::Path qw(make_path);
 use Fcntl;
 
 my %config = %SBO::Lib::config;
-my $self = basename($0);
+my $self = basename ($0);
 
 sub show_usage {
 	print <<EOF
@@ -44,10 +44,10 @@ EOF
 }
 
 my %options;
-getopts('hvlc:d:p:s:',\%options);
+getopts ('hvlc:d:p:s:',\%options);
 
-show_usage() and exit(0) if exists $options{h};
-show_version() and exit(0) if exists $options{v};
+show_usage () and exit (0) if exists $options{h};
+show_version () and exit (0) if exists $options{v};
 
 if (exists $options{l}) {
 	while (my ($key,$value) = each %config) {
@@ -55,7 +55,7 @@ if (exists $options{l}) {
 	}
 }
 
-show_usage() unless %options;
+show_usage () unless %options;
 
 my %changes;
 $changes{NOCLEAN} = $options{c} if exists $options{c};
@@ -67,26 +67,26 @@ my $conf_dir = $SBO::Lib::conf_dir;;
 my $conf_file = $SBO::Lib::conf_file;
 
 sub make_temp_file {
-	make_path('/tmp/sbotools') unless -d '/tmp/sbotools';
+	make_path ('/tmp/sbotools') unless -d '/tmp/sbotools';
 	my $temp_dir = -d '/tmp/sbotools' ? '/tmp/sbotools' : $ENV{TMPDIR} ||
 		$ENV{TEMP};
 	my $filename = sprintf "%s/%d-%d-0000", $temp_dir, $$, time;
-	sysopen my($fh), $filename, O_WRONLY|O_EXCL|O_CREAT;
+	sysopen my ($fh), $filename, O_WRONLY|O_EXCL|O_CREAT;
 	return ($fh,$filename);
 }
 
 sub config_write {
-	script_error('config_write requires two arguments.') unless $_[1];
+	script_error ('config_write requires two arguments.') unless exists $_[1];
 	my ($key,$val) = @_;
 	if (! -d $conf_dir) {
 		mkdir($conf_dir)
-			or print "Unable to create $conf_dir. Exiting.\n" and exit(1);
+			or print "Unable to create $conf_dir. Exiting.\n" and exit (1);
 	}
 	if (-f $conf_file) {
 		my ($fh,$filename) = make_temp_file();
 		open my $reader, '<', $conf_file;
 		print {$fh} <$reader>;
-		close($fh);
+		close ($fh);
 		tie my @temp, 'Tie::File', $filename;
 		my $has = 'FALSE';
 		my $regex = qr/\A\Q$key\E=/;
@@ -101,19 +101,19 @@ sub config_write {
 		if ($has eq 'FALSE') {
 			open (my $writer, '>>', $filename);
 			print {$writer} "$key=$val\n";
-			close($writer);
+			close ($writer);
 		}
-		move($filename,$conf_file);
+		move ($filename,$conf_file);
 	} else {
 		open my $writer, '>', $conf_file;
 		print {$writer} "$key=$val\n";
-		close($writer);
+		close ($writer);
 	}
 }
 
 while (my ($key,$value) = each %changes) {
 	print "Setting $key to $value...\n";
-	config_write($key,$value);
+	config_write ($key,$value);
 }
 
-exit(0);
+exit 0;

@@ -15,32 +15,32 @@ use warnings FATAL => 'all';
 use strict;
 
 my %config = %SBO::Lib::config;
-my $self = basename($0);
+my $self = basename ($0);
 
 my %options;
-getopts('v',\%options);
+getopts ('v',\%options);
 
-show_version() && exit(0) if (exists $options{v});
+show_version () && exit (0) if (exists $options{v});
 
-update_tree();
+update_tree ();
 
 print "Checking for updated SlackBuilds...\n";
-my @updates = get_available_updates();
+my @updates = get_available_updates ();
 
 my @listing;
 for (keys @updates) {
 	my $string = "$updates[$_]{name}-$updates[$_]{installed}";
 	$string .= "        <   needs updating (SBo has $updates[$_]{update})\n";
-	push(@listing,$string);
+	push (@listing,$string);
 }
 
 if (exists $listing[0]) {
-	my $tab = new Text::Tabulate();
-	$tab->configure(tab => '\s');
-	my $output = $tab->format(@listing);
+	my $tab = new Text::Tabulate ();
+	$tab->configure (tab => '\s');
+	my $output = $tab->format (@listing);
 	print "\n". $output ."\n";
 } else {
 	print "\nNo updates available.\n";
 }
 
-exit(0);
+exit 0;

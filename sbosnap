@@ -20,7 +20,7 @@ use strict;
 
 my %config = %SBO::Lib::config;
 my $sbo_home = $config{SBO_HOME};
-my $self = basename($0);
+my $self = basename ($0);
 
 sub show_usage {
 	print <<EOF
@@ -38,13 +38,13 @@ Commands:
 EOF
 }
 
-show_usage() and exit(1) unless exists $ARGV[0];
+show_usage () and exit (1) unless exists $ARGV[0];
 
 my %options;
-getopts('hv',\%options);
+getopts ('hv',\%options);
 
-show_usage() and exit(0) if exists $options{h};
-show_version() and exit(0) if exists $options{v};
+show_usage () and exit (0) if exists $options{h};
+show_version () and exit (0) if exists $options{v};
 
 # check for a command and, if found, execute it
 #
@@ -52,13 +52,12 @@ my $command;
 if ($ARGV[0] =~ /fetch|update/) {
 	$command = $ARGV[0];
 } else { 
-	show_usage();
-	exit(1);
+	show_usage () and exit (1);
 }
 
-given($command) {
-	when('fetch') { fetch_tree() }
-	when('update') { update_tree() }
+given ($command) {
+	when ('fetch') { fetch_tree () }
+	when ('update') { update_tree () }
 }
 
-exit(0);
+exit 0;
