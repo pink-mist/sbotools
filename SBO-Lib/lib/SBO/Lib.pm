@@ -412,6 +412,37 @@ sub check_multilib {
 	return;
 }
 
+sub rewrite_slackbuild {
+	script_error ('rewrite_slackbuild requires two arguments.')
+		unless exists $_[1];
+	my ($slackbuild,%changes) = @_;
+	copy ($slackbuild,"$slackbuild.orig");
+	tie my @sb_file,'Tie::File',$slackbuild;
+	FIRST: for (my $line = @sb_file) {
+		SECOND: while (my ($key,$value) = each %changes) {
+			if ($key eq 'arch_out') {
+				if (index ($line,'makepkg') != -1) {
+					$line =~ s/\$ARCH/$value/;
+				}
+			}
+		}
+	}
+	untie @sb_file;
+	return 1;
+}
+
+sub revert_slackbuild {
+	script_error ('revert_slackbuild requires an argument') unless exists $_[0];
+	my $slackbuild = shift;
+	if (-f "$slackbuild.orig") {
+		if (-f $slackbuild) {
+			unlink $slackbuild;
+		}
+		rename ("$slackbuild.orig",$slackbuild);
+	}
+	return 1;
+}
+
 sub do_slackbuild {
 	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
 	my ($jobs,$sbo,$location) = @_;
@@ -445,13 +476,15 @@ to be multilib ready.\n";
 	chdir ($location);
 	chmod (0755,"$location/$sbo.SlackBuild");
 	my $cmd;
-	my %changes;
 	if ($arch eq 'x86_64' and $x32) {
+		my %changes = (arch_out => 'i486');
+		rewrite_slackbuild ("$location/$sbo.SlackBuild",%changes);
 		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
 	} else {
 		$cmd = "$location/$sbo.SlackBuild";
 	}
 	my $out = system ($cmd);
+	revert_slackbuild ("$location/$sbo.SlackBuild");
 	die unless $out == 0;
 	unlink ($_) for (@symlinks);
 	return $version;
