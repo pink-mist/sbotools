@@ -4,10 +4,10 @@
 sboupgrade,sboinstall - install or upgrade SBos
 .SH SYNAPSES
 .P
-sboupgrade [-h] [-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-f] [-N] [-r] sbo_name (sbo_name)
+sboinstall [-h] [-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-N] [-r] [-i] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
-sboupgrade is used to upgrade packages installed from SBos. sboinstall is equivalent to sboupgrade -N
+sboupgrade is used to upgrade packages installed from SBos. sboinstall is equivalent to sboupgrade -N, but is faster, so is preferred if only installing a new package.
 .SH OPTIONS
 .P
 -h
@@ -25,11 +25,6 @@ If TRUE, then DO NOT clean working directories after building the SBo. These are
 If TRUE, then DO remove the source code after building the SBo. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles; this option can be set as default via the sboconfig(1) command. See also sbotools.conf(5). This option overrides the default.
 .RE
 .P
--f
-.RS
-Force an upgrade, even if the installed version is equal to or less than the slackbuilds.org version.
-.RE
-.P
 -N
 .RS
 Install any new SBos specified. So, if you want to upgrade some things and install new things with the same command, then you would use the -N flag. Note that upgrades are handled prior to new installs.
@@ -40,13 +35,18 @@ Install any new SBos specified. So, if you want to upgrade some things and insta
 Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade or sboinstall is run, the first thing the command will attempt to do is show you the README for a given SBo and ask whether or not you wish to proceed; this option skips the README and bypasses the question. If multiple SBos are specified, this option bypasses them all.
 .RE
 .P
+-i
+.RS
+Do not actually install the package created at the end of the build process. So, the SlackBuild will be run, and the package will be left in /tmp, or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
+.RE
+.P
 -v
 .RS
 Show sbotools version information.
 .RE
 .SH BUGS
 .P
-- Installing 32-bit packages on 64-bit systems is currently unsupported and in some cases impossible.
+- Installing compat-32 packages on 64-bit systems is currently impossible.
 .P
 - It is currently not possible to specify how many concurrent jobs make should run (make's -j flag).
 .P
