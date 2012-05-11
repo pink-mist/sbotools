@@ -40,7 +40,7 @@ show_version () and exit (0) if (exists $options{v});
 show_usage () and exit (1) unless exists $ARGV[0];
 my $search = $ARGV[0];
 
-check_slackbuilds_txt ();
+slackbuilds_or_fetch ();
 
 my (@findings,$name);
 my $found = 'FALSE';

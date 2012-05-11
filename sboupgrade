@@ -58,6 +58,8 @@ my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
 
 show_usage () and exit (1) unless exists $ARGV[0];
 
+slackbuilds_or_fetch ();
+
 my %locations;
 
 for my $sbo_name (@ARGV) {

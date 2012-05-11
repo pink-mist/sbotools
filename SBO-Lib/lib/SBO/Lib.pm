@@ -18,6 +18,7 @@ require Exporter;
 	show_version
 	get_slack_version
 	check_slackbuilds_txt
+	slackbuilds_or_fetch
 	fetch_tree
 	update_tree
 	get_installed_sbos
@@ -111,12 +112,22 @@ sub get_slack_version {
 }
 
 sub check_slackbuilds_txt {
-	if (-f $slackbuilds_txt) {
-		return 1;
-	} else {
-		print "I am unable to find SLACKBUILDS.TXT.\n";
-		print "Perhaps you need to \"sbosnap fetch\"?\n";
-		exit 1;
+	return 1 if -f $slackbuilds_txt;
+	return;
+}
+
+sub slackbuilds_or_fetch {
+	if (! check_slackbuilds_txt () ) {
+		print "It looks like you haven't run \"sbosnap fetch\" yet.\n";
+		print "Would you like me to do this now? [y] ";
+		my $fetch = <STDIN>;
+		$fetch = 'y' if $fetch eq "\n";
+		if ($fetch =~ /^[Yy]/) {
+			fetch_tree ();
+		} else {
+			print "Please run \"sbosnap fetch\"\n";
+			exit 0;
+		}
 	}
 }
 
@@ -418,7 +429,7 @@ sub rewrite_slackbuild {
 	my ($slackbuild,%changes) = @_;
 	copy ($slackbuild,"$slackbuild.orig");
 	tie my @sb_file,'Tie::File',$slackbuild;
-	FIRST: for (my $line = @sb_file) {
+	FIRST: for my $line (@sb_file) {
 		SECOND: while (my ($key,$value) = each %changes) {
 			if ($key eq 'arch_out') {
 				if (index ($line,'makepkg') != -1) {
