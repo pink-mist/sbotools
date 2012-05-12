@@ -28,9 +28,9 @@ Options:
   -c: do not clean working files/directories after the build.
   -d: clean distfiles afterward.
   -f: force an update, even if the "upgrade" version is the same or lower.
+  -i: do not run installpkg at the end of the build process.
   -N: install any new SBo's listed.
   -r: skip viewing of the SBo README.
-  -i: do not run installpkg at the end of the build process.
 
 Example:
   $self -d libsexy
@@ -41,11 +41,11 @@ EOF
 }
 
 my %options;
-getopts ('hvacdfj:Nrio',\%options);
+getopts ('hvacdfj:Nriop',\%options);
 
 
-show_usage () && exit(0) if exists $options{h};
-show_version () && exit(0) if exists $options{v};
+show_usage () && exit (0) if exists $options{h};
+show_version () && exit (0) if exists $options{v};
 my $noclean = exists $options{c} ? 'FALSE' : $config{NOCLEAN};
 my $distclean = exists $options{d} ? 'TRUE' : $config{DISTCLEAN};
 my $force = exists $options{f} ? 'TRUE' : 'FALSE';
@@ -55,6 +55,7 @@ my $install_new = exists $options{N} ? 'TRUE' : 'FALSE';
 my $no_readme = exists $options{r} ? 'TRUE' : 'FALSE';
 my $no_install = exists $options{i} ? 'TRUE' : 'FALSE';
 my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
+my $compat32 = exists $options{p} ? 'TRUE' : 'FALSE';
 
 show_usage () and exit (1) unless exists $ARGV[0];
 
@@ -92,13 +93,14 @@ sub readme_prompt {
 
 sub process_sbos {
 	script_error ('process_sbos requires an argument.') unless exists $_[0];
-	my @todo = @_;
+	my (@todo) = @_;
 	my @failures;
 	for my $sbo (@todo) {
 		readme_prompt ($sbo) unless $no_readme eq 'TRUE';
+		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
 		my $version;
 		eval {
-			$version = do_slackbuild ($jobs,$sbo,$locations{$sbo});
+			$version = do_slackbuild ($jobs,$sbo,$locations{$sbo},$compat32);
 		};
 		if ($@) {
 			push (@failures,$sbo);
@@ -110,16 +112,7 @@ sub process_sbos {
 			} else {
 				make_distclean ($sbo,$version,$locations{$sbo});
 			}
-			my $pkg;
-			my $pkg_regex = qr/^(\Q$sbo\E-\Q$version\E-[^-]+-.*_SBo.t[xblg]z)$/;
-			opendir my $diread, '/tmp/';
-			FIRST: while (my $ls = readdir $diread) {
-				if ($ls =~ $pkg_regex) {
-					chomp ($pkg = "/tmp/$1");
-					last FIRST;
-				}
-			}
-
+			my $pkg = get_pkg_name ($sbo,$version,$compat32);
 			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
 
 			unless ($config{PKG_DIR} eq 'FALSE') {
@@ -182,21 +175,21 @@ unless ($only_new eq 'TRUE') {
 if ($install_new eq 'TRUE') {
 	my @todo_install;
 	my $has = 'FALSE';
-	for (@ARGV) {
+	for my $sbo (@ARGV) {
+		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 		SECOND: for my $index (keys @installed) {
-			if ($_ eq $installed[$index]{name}) {
+			if ($name eq $installed[$index]{name}) {
 				$has = 'TRUE';
 				last SECOND;
 			}
 		}
 		unless ($has eq 'TRUE') {
-			push (@todo_install,$_);
+			push (@todo_install,$sbo);
 		} else {
-			print "$_ already installed.\n";
+			print "$name already installed.\n";
 		}
 		$has = 'FALSE';
 	}
-
 	@failed = process_sbos (@todo_install) if exists $todo_install[0];
 	print_failures ();
 }

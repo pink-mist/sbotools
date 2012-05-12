@@ -28,6 +28,7 @@ require Exporter;
 	make_distclean
 	do_upgradepkg
 	get_sbo_location
+	get_pkg_name
 );
 
 use warnings FATAL => 'all';
@@ -301,23 +302,18 @@ sub get_arch {
 	return $arch;
 }
 
-# this is a bit wonky - if running a 64-bit system, we have to first see if
-# DOWNLOAD_x86_64 is defined, and make sure it's not set to "UNSUPPORTED";
-# then if that doesn't yield anything, go through again pulling the DOWNLOAD
-# contents.
-#
-# would like to think of a better way to handle this.
-#
 sub get_sbo_downloads {
-	script_error ('get_sbo_downloads requires two arguments.')
-		unless exists $_[1];
+	script_error ('get_sbo_downloads requires three arguments.')
+		unless exists $_[2];
 	script_error ('get_sbo_downloads given a non-directory.') unless -d $_[1];
-	my ($sbo,$location) = @_;
+	my ($sbo,$location,$only32) = @_;
 	my $arch = get_arch ();
 	my (@links,@md5s);
 	if ($arch eq 'x86_64') {
-		@links = find_download_info ($sbo,$location,'download',1);
-		@md5s = find_download_info ($sbo,$location,'md5sum',1);
+		unless ($only32) {
+			@links = find_download_info ($sbo,$location,'download',1);
+			@md5s = find_download_info ($sbo,$location,'md5sum',1);
+		}
 	}
 	unless (exists $links[0]) {
 		@links = find_download_info ($sbo,$location,'download',0);
@@ -428,9 +424,15 @@ sub rewrite_slackbuild {
 		unless exists $_[1];
 	my ($slackbuild,%changes) = @_;
 	copy ($slackbuild,"$slackbuild.orig");
+	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	tie my @sb_file,'Tie::File',$slackbuild;
 	FIRST: for my $line (@sb_file) {
 		SECOND: while (my ($key,$value) = each %changes) {
+			if ($key eq 'libdirsuffix') {
+				if ($line =~ $libdir_regex) {
+					$line =~ s/64/$value/;
+				}
+			}
 			if ($key eq 'arch_out') {
 				if (index ($line,'makepkg') != -1) {
 					$line =~ s/\$ARCH/$value/;
@@ -454,24 +456,10 @@ sub revert_slackbuild {
 	return 1;
 }
 
-sub do_slackbuild {
-	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
-	my ($jobs,$sbo,$location) = @_;
-	my $sbo_home = $config{SBO_HOME};
-	my $arch = get_arch ();
-	my $x32;
-	if ($arch eq 'x86_64') {
-		$x32 = check_x32 ($sbo,$location);
-		if ($x32) {
-			if (! check_multilib () ) {
-				print "$sbo is 32-bit only, however, this system does not appear 
-to be multilib ready.\n";
-				exit 1
-			}
-		}
-	}
-	my $version = get_sbo_version ($sbo,$location);
-	my @downloads = get_sbo_downloads ($sbo,$location);
+sub create_symlinks {
+	script_error ('create_symlinks requires two arguments.')
+		unless exists $_[1];
+	my ($location,@downloads) = @_;
 	my @symlinks;
 	for my $c (keys @downloads) {
 		my $link = $downloads[$c]{link};
@@ -484,11 +472,28 @@ to be multilib ready.\n";
 		push (@symlinks,$symlink);
 		symlink ($filename,$symlink);
 	}
+	return @symlinks;
+}
+
+sub prep_sbo_file {
+	script_error ('prep_sbo_file requires two arguments') unless exists $_[1];
+	my ($sbo,$location) = @_;
 	chdir ($location);
 	chmod (0755,"$location/$sbo.SlackBuild");
+	return 1;
+}
+
+sub perform_sbo {
+	script_error ('perform_sbo requires five arguments') unless exists $_[4];
+	my ($sbo,$location,$arch,$c32,$x32) = @_;
 	my $cmd;
-	if ($arch eq 'x86_64' and $x32) {
-		my %changes = (arch_out => 'i486');
+	if ($arch eq 'x86_64' and ($c32 || $x32) ) {
+		my %changes;
+		if ($c32) {
+			%changes = (libdirsuffix => '');
+		} elsif ($x32) {
+			%changes = (arch_out => 'i486');
+		}
 		rewrite_slackbuild ("$location/$sbo.SlackBuild",%changes);
 		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
 	} else {
@@ -497,6 +502,87 @@ to be multilib ready.\n";
 	my $out = system ($cmd);
 	revert_slackbuild ("$location/$sbo.SlackBuild");
 	die unless $out == 0;
+	return 1;
+}
+
+sub get_pkg_name {
+	script_error ('get_pkg_name requires three arguments') unless exists $_[2];
+	my ($sbo,$version,$compat32) = @_;
+	if ($compat32 eq 'TRUE') {
+		$sbo = "$sbo-compat32" unless $sbo =~ /-compat32$/;
+	}
+	my $pkg;
+	my $pkg_regex = qr/^(\Q$sbo\E-\Q$version\E-[^-]+-.*_SBo.t[xblg]z)$/;
+	opendir my $diread, '/tmp/';
+	FIRST: while (my $ls = readdir $diread) {
+		if ($ls =~ $pkg_regex) {
+			chomp ($pkg = "/tmp/$1");
+			last FIRST;
+		}
+	}
+	return $pkg;
+}
+
+sub sb_compat32 {
+	script_error ('sb_compat32 requires six arguments.') unless exists $_[5];
+	my ($jobs,$sbo,$location,$arch,$version,@downloads) = @_;
+	unless ($arch eq 'x86_64') {
+		print 'You can only create compat32 packages on x86_64 systems.';
+		exit 1;
+	} else {
+		if (! check_multilib () ) {
+			print "This system does not appear to be setup for multilib.\n";
+			exit 1;
+		}
+		if (! -f '/usr/sbin/convertpkg-compat32') {
+			print "compat32 pkgs require /usr/sbin/convertpkg-compat32.\n";
+			exit 1;
+		}
+	}
+	my @symlinks = create_symlinks ($location,@downloads);
+	prep_sbo_file ($sbo,$location);
+	perform_sbo ($sbo,$location,$arch,1,1);
+	my $pkg = get_pkg_name ($sbo,$version,'FALSE');
+	my $cmd = '/usr/sbin/convertpkg-compat32';
+	my @args = ('-i',"$pkg",'-d','/tmp');
+	my $out = system ($cmd,@args);
+	return @symlinks;
+}
+
+sub sb_normal {
+	script_error ('sb_normal requires six arguments.') unless exists $_[5];
+	my ($jobs,$sbo,$location,$arch,$version,@downloads) = @_;
+	my $x32;
+	if ($arch eq 'x86_64') {
+		$x32 = check_x32 ($sbo,$location);
+		if ($x32) {
+			if (! check_multilib () ) {
+				print "$sbo is 32-bit only, however, this system does not appear 
+to be setup for multilib.\n";
+				exit 1
+			}
+		}
+	}
+	my @symlinks = create_symlinks ($location,@downloads);
+	prep_sbo_file ($sbo,$location);
+	perform_sbo ($sbo,$location,$arch,0,$x32);
+	return @symlinks;
+}
+
+sub do_slackbuild {
+	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
+	my ($jobs,$sbo,$location,$compat32) = @_;
+	my $arch = get_arch ();
+	my $version = get_sbo_version ($sbo,$location);
+	my $c32 = $compat32 eq 'TRUE' ? 1 : 0;
+	my @downloads = get_sbo_downloads ($sbo,$location,$c32);
+	my @symlinks;
+	if ($compat32 eq 'TRUE') {
+		@symlinks = sb_compat32 ($jobs,$sbo,$location,$arch,$version,
+			@downloads);
+	} else {
+		@symlinks = sb_normal ($jobs,$sbo,$location,$arch,$version,@downloads);
+	}
 	unlink ($_) for (@symlinks);
 	return $version;
 }
@@ -516,7 +602,7 @@ sub make_distclean {
 	my ($sbo,$version,$location) = @_;
 	make_clean ($sbo,$version);
 	print "Distcleaning for $sbo-$version...\n";
-	my @downloads = get_sbo_downloads ($sbo,$location);
+	my @downloads = get_sbo_downloads ($sbo,$location,0);
 	for my $c (keys @downloads) {
 		my $filename = get_filename_from_link ($downloads[$c]{link});
 		unlink ($filename) if -f $filename;
