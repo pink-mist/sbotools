@@ -41,8 +41,6 @@ Config options (defaults shown):
       SBO_HOME: set the SBo directory.
 
 EOF
-#  -j FALSE:
-#      set the -j# option to feed to make.
 }
 
 my %options;
