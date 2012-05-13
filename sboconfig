@@ -33,6 +33,8 @@ Config options (defaults shown):
       NOCLEAN: if TRUE, do NOT clean up after building by default.
   -d FALSE:
       DISTCLEAN: if TRUE, DO clean distfiles by default after building.
+  -j FALSE:
+      JOBS: numeric -j setting to feed to make for multicore systems.
   -p FALSE:
       PKG_DIR: set a directory to store packages in. 
   -s /usr/sbo:
@@ -44,7 +46,7 @@ EOF
 }
 
 my %options;
-getopts ('hvlc:d:p:s:',\%options);
+getopts ('hvlc:d:p:s:j:',\%options);
 
 show_usage () and exit (0) if exists $options{h};
 show_version () and exit (0) if exists $options{v};
@@ -57,11 +59,18 @@ if (exists $options{l}) {
 
 show_usage () unless %options;
 
+my %valid_confs = (
+	c => 'NOCLEAN',
+	d => 'DISTCLEAN',
+	j => 'JOBS',
+	p => 'PKG_DIR',
+	s => 'SBO_HOME',
+);
+	
 my %changes;
-$changes{NOCLEAN} = $options{c} if exists $options{c};
-$changes{DISTCLEAN} = $options{d} if exists $options{d};
-$changes{PKG_DIR} = $options{p} if exists $options{p};
-$changes{SBO_HOME} = $options{s} if exists $options{s};
+while (my ($key,$value) = each %valid_confs) {
+	$changes{$value} = $options{$key} if exists $options{$key};
+}
 
 my $conf_dir = $SBO::Lib::conf_dir;;
 my $conf_file = $SBO::Lib::conf_file;
