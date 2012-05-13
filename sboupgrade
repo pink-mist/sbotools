@@ -43,7 +43,6 @@ EOF
 my %options;
 getopts ('hvacdfj:Nriop',\%options);
 
-
 show_usage () && exit (0) if exists $options{h};
 show_version () && exit (0) if exists $options{v};
 my $noclean = exists $options{c} ? 'FALSE' : $config{NOCLEAN};
@@ -119,8 +118,12 @@ sub process_sbos {
 					mkdir ($config{PKG_DIR}) or 
 						warn "Unable to create $config{PKG_DIR}\n";
 				}
-				move ($pkg,$config{PKG_DIR}) if -d $config{PKG_DIR};
-				print "$pkg stored in $config{PKG_DIR}\n";
+				if (-d $config{PKG_DIR}) {
+					move ($pkg,$config{PKG_DIR});
+					print "$pkg stored in $config{PKG_DIR}\n";
+				} else {
+					warn "$pkg left in /tmp\n";
+				}
 			} elsif ($distclean eq 'TRUE') {
 				unlink ($pkg);
 			}

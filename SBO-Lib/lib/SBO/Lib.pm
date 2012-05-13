@@ -51,9 +51,9 @@ our $conf_file = "$conf_dir/sbotools.conf";
 my @valid_conf_keys = (
 	'NOCLEAN',
 	'DISTCLEAN',
-#	"JOBS",
+	'JOBS',
 	'PKG_DIR',
-	'SBO_HOME'
+	'SBO_HOME',
 );
 
 our %config;
@@ -551,7 +551,7 @@ sub sb_compat32 {
 	}
 	my @symlinks = create_symlinks ($location,@downloads);
 	prep_sbo_file ($sbo,$location);
-	perform_sbo ($sbo,$location,$arch,1,1);
+	perform_sbo ($jobs,$sbo,$location,$arch,1,1);
 	my $pkg = get_pkg_name ($sbo,$version,'FALSE');
 	my $cmd = '/usr/sbin/convertpkg-compat32';
 	my @args = ('-i',"$pkg",'-d','/tmp');
