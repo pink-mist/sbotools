@@ -24,28 +24,29 @@ Options:
   -v: version information.
   -c: do not clean working files/directories after the build.                   
   -d: clean distfiles afterward. 
-  -r: skip viewing of the SBo README.
   -i: do not run installpkg at the end of the build process.
+  -p: install an SBo as a -compat32 pkg on a multilib x86_64 system.
+  -r: skip viewing of the SBo README.
 
 EOF
 }
 
 my %options;
-getopts ('hvcdri',\%options);
+getopts ('hvcdrip',\%options);
 
 show_usage () and exit(0) if exists $options{h};
 show_version () and exit(0) if exists $options{v};
 
 show_usage () and exit (0) unless exists $ARGV[0];
 
-unshift (@ARGV,'-c') if exists $options{c};
-unshift (@ARGV,'-d') if exists $options{d};
-unshift (@ARGV,'-r') if exists $options{r};
-unshift (@ARGV,'-i') if exists $options{i};
+my @opts = ('c','d','r','i','p');
+for my $opt (@opts) {
+	unshift (@ARGV,"-$opt") if exists $options{$opt};
+}
 
 my $string = '';
-for (@ARGV) {
-	$string .= " $_";
+for my $arg (@ARGV) {
+	$string .= " $arg";
 }
 
 system ("/usr/sbin/sboupgrade -oN $string");
