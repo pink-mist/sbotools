@@ -29,6 +29,7 @@ Options:
   -d: clean distfiles afterward.
   -f: force an update, even if the "upgrade" version is the same or lower.
   -i: do not run installpkg at the end of the build process.
+  -j: specify "-j" setting to make, for SMP systems; overrides conf file.
   -N: install any new SBo's listed.
   -r: skip viewing of the SBo README.
 
@@ -37,7 +38,6 @@ Example:
   $self -ca
 
 EOF
-#  -j: specify "-j" setting to make, for SMP systems; overrides conf file.
 }
 
 my %options;
@@ -49,8 +49,7 @@ show_version () && exit (0) if exists $options{v};
 my $noclean = exists $options{c} ? 'FALSE' : $config{NOCLEAN};
 my $distclean = exists $options{d} ? 'TRUE' : $config{DISTCLEAN};
 my $force = exists $options{f} ? 'TRUE' : 'FALSE';
-#my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
-my $jobs = 'FALSE';
+my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
 my $install_new = exists $options{N} ? 'TRUE' : 'FALSE';
 my $no_readme = exists $options{r} ? 'TRUE' : 'FALSE';
 my $no_install = exists $options{i} ? 'TRUE' : 'FALSE';

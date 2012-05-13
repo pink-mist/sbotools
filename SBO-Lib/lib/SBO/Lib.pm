@@ -425,6 +425,8 @@ sub rewrite_slackbuild {
 	my ($slackbuild,%changes) = @_;
 	copy ($slackbuild,"$slackbuild.orig");
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
+	my $make_regex = qr/^\s*make(| \Q||\E exit 1)$/;
+	my $arch_out_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
 	tie my @sb_file,'Tie::File',$slackbuild;
 	FIRST: for my $line (@sb_file) {
 		SECOND: while (my ($key,$value) = each %changes) {
@@ -433,8 +435,13 @@ sub rewrite_slackbuild {
 					$line =~ s/64/$value/;
 				}
 			}
+			if ($key eq 'make') {
+				if ($line =~ $make_regex) {
+					$line =~ s/make/make $value/;
+				}
+			}
 			if ($key eq 'arch_out') {
-				if (index ($line,'makepkg') != -1) {
+				if ($line =~ $arch_out_regex) {
 					$line =~ s/\$ARCH/$value/;
 				}
 			}
@@ -485,20 +492,23 @@ sub prep_sbo_file {
 
 sub perform_sbo {
 	script_error ('perform_sbo requires five arguments') unless exists $_[4];
-	my ($sbo,$location,$arch,$c32,$x32) = @_;
+	my ($jobs,$sbo,$location,$arch,$c32,$x32) = @_;
 	my $cmd;
+	my %changes;
+	unless ($jobs eq 'FALSE') {
+		$changes{make} = "-j $jobs";
+	}
 	if ($arch eq 'x86_64' and ($c32 || $x32) ) {
-		my %changes;
 		if ($c32) {
-			%changes = (libdirsuffix => '');
+			$changes{libdirsuffix} = '';
 		} elsif ($x32) {
-			%changes = (arch_out => 'i486');
+			$changes{arch_out} = 'i486';
 		}
-		rewrite_slackbuild ("$location/$sbo.SlackBuild",%changes);
 		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
 	} else {
 		$cmd = "$location/$sbo.SlackBuild";
 	}
+	rewrite_slackbuild ("$location/$sbo.SlackBuild",%changes) if %changes;
 	my $out = system ($cmd);
 	revert_slackbuild ("$location/$sbo.SlackBuild");
 	die unless $out == 0;
@@ -565,7 +575,7 @@ to be setup for multilib.\n";
 	}
 	my @symlinks = create_symlinks ($location,@downloads);
 	prep_sbo_file ($sbo,$location);
-	perform_sbo ($sbo,$location,$arch,0,$x32);
+	perform_sbo ($jobs,$sbo,$location,$arch,0,$x32);
 	return @symlinks;
 }
 

@@ -25,6 +25,7 @@ Options:
   -c: do not clean working files/directories after the build.                   
   -d: clean distfiles afterward. 
   -i: do not run installpkg at the end of the build process.
+  -j: specify "-j" setting to make, for SMP systems; overrides conf file.
   -p: install an SBo as a -compat32 pkg on a multilib x86_64 system.
   -r: skip viewing of the SBo README.
 
@@ -32,14 +33,14 @@ EOF
 }
 
 my %options;
-getopts ('hvcdrip',\%options);
+getopts ('hvcdripj:',\%options);
 
 show_usage () and exit(0) if exists $options{h};
 show_version () and exit(0) if exists $options{v};
 
 show_usage () and exit (0) unless exists $ARGV[0];
 
-my @opts = ('c','d','r','i','p');
+my @opts = ('c','d','r','i','p','j');
 for my $opt (@opts) {
 	unshift (@ARGV,"-$opt") if exists $options{$opt};
 }
