@@ -68,14 +68,13 @@ for my $key (keys %config) {
 		undef $config{$key};
 	}
 }
-for (@valid_conf_keys) {
-	unless ($_ eq 'SBO_HOME') {
-		$config{$_} = "FALSE" unless exists $config{$_};
+for my $key (@valid_conf_keys) {
+	unless ($key eq 'SBO_HOME') {
+		$config{$key} = "FALSE" unless exists $config{$key};
 	} else {
-		$config{$_} = '/usr/sbo' unless exists $config{$_};
+		$config{$key} = '/usr/sbo' unless exists $config{$key};
 	}
 }
-
 
 my $distfiles = "$config{SBO_HOME}/distfiles";
 my $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
