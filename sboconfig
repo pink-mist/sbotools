@@ -50,8 +50,9 @@ show_usage () and exit (0) if exists $options{h};
 show_version () and exit (0) if exists $options{v};
 
 if (exists $options{l}) {
-	while (my ($key,$value) = each %config) {
-		print "$key=$value\n";
+	my @keys = sort {$a cmp $b} keys %config;
+	for my $key (@keys) {
+		print $config{$key}=$config{$value},"\n";
 	}
 }
 
