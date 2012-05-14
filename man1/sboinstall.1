@@ -1,13 +1,13 @@
-.TH sboupgrade 1 "Pungenday, the 45th day of Discord in the YOLD 3178" "sbotools 0.2 fnord" dawnrazor.net
+.TH sboinstall 1 "Prickle-Prickle, the 61st day of Discord in the YOLD 3178" "sbotools 0.3 fnord" dawnrazor.net
 .SH NAME
 .P
-sboupgrade,sboinstall - install or upgrade SBos
+sboinstall - install SBos
 .SH SYNAPSES
 .P
-sboinstall [-h] [-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-N] [-r] [-i] sbo_name (sbo_name)
+sboinstall [-h] [-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-N] [-r] [-i] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
-sboupgrade is used to upgrade packages installed from SBos. sboinstall is equivalent to sboupgrade -N, but is faster, so is preferred if only installing a new package.
+sboinstall is equivalent to sboupgrade -N, but is faster, so is preferred if only installing one or more new packages.
 .SH OPTIONS
 .P
 -h
@@ -15,14 +15,19 @@ sboupgrade is used to upgrade packages installed from SBos. sboinstall is equiva
 Show help information.
 .RE
 .P
--c (TRUE|FALSE)
-.RS
-If TRUE, then DO NOT clean working directories after building the SBo. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an SBo. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
-.RE
-.P
 -d (TRUE|FALSE)
 .RS
 If TRUE, then DO remove the source code after building the SBo. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles; this option can be set as default via the sboconfig(1) command. See also sbotools.conf(5). This option overrides the default.
+.RE
+.P
+-j (#|FALSE)
+.RS
+If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a SlackBuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
+.RE
+.P
+-c (TRUE|FALSE)
+.RS
+If TRUE, then DO NOT clean working directories after building the SBo. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an SBo. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
 .RE
 .P
 -N
@@ -46,11 +51,7 @@ Show sbotools version information.
 .RE
 .SH BUGS
 .P
-- Installing compat-32 packages on 64-bit systems is currently impossible.
-.P
-- It is currently not possible to specify how many concurrent jobs make should run (make's -j flag).
-.P
-- Probably more that I've missed. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+None that I'm aware of, but I may have missed some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
 .SH SEE ALSO
 .P
 sbocheck(1), sboconfig(1), sbofind(1), sbosnap(1), sbotools.conf(5)

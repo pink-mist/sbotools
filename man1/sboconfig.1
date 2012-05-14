@@ -1,10 +1,10 @@
-.TH sboconfig 1 "Pungenday, the 45th day of Discord in the YOLD 3178" "sbotools 0.2 fnord" dawnrazor.net
+.TH sboconfig 1 "Prickle-Prickle, the 61st day of Discord in the YOLD 3178" "sbotools 0.3 fnord" dawnrazor.net
 .SH NAME
 .P
 sboconfig - set sbotools configuration options.
 .SH SYNAPSES
 .P
-sboconfig [-h] [-l] [-c TRUE|FALSE] [-d TRUE|FALSE] [-p /path|FALSE] [-s /path|/usr/sbo] [-v]
+sboconfig [-h] [-l] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-p /path|FALSE] [-s /path|/usr/sbo] [-v]
 .SH DESCRIPTION
 .P
 sboconfig is a front-end for managing sbotools configuration options. The sbotools.conf(5) file can also be manually edited; any fields not relevant to sbotools configuration will be ignored. Note that more options may be added in the future, so you should not add garbage to the sbotools.conf(5) file.
@@ -17,17 +17,22 @@ Show help information.
 .P
 -l
 .RS
-List out current configuration options, included unmodified default configuration options (meaning that if a given option is not set in the sbotools.conf(5) file, the default will be shown for that option).
-.RE
-.P
--c (TRUE|FALSE)
-.RS
-NOCLEAN: If TRUE, then DO NOT clean working directories after building the SBo. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an SBo. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+List out current configuration options, including unmodified default configuration options (meaning that if a given option is not set in the sbotools.conf(5) file, the default will be shown for that option).
 .RE
 .P
 -d (TRUE|FALSE)
 .RS
 DISTCLEAN: If TRUE, then DO remove the source code after building the SBo. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+.RE
+.P
+-j (#|FALSE)
+.RS
+JOBS: If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a SlackBuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
+.RE
+.P
+-c (TRUE|FALSE)
+.RS
+NOCLEAN: If TRUE, then DO NOT clean working directories after building the SBo. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an SBo. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
 .P
 -p (/path|FALSE)
