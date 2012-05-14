@@ -25,7 +25,7 @@ Options:
   -c: do not clean working files/directories after the build.                   
   -d: clean distfiles afterward. 
   -i: do not run installpkg at the end of the build process.
-  -j: specify "-j" setting to make, for SMP systems; overrides conf file.
+  -j: specify "-j" setting to make, for multicore systems; overrides conf file.
   -p: install an SBo as a -compat32 pkg on a multilib x86_64 system.
   -r: skip viewing of the SBo README.
 

@@ -29,7 +29,7 @@ Options:
   -d: clean distfiles afterward.
   -f: force an update, even if the "upgrade" version is the same or lower.
   -i: do not run installpkg at the end of the build process.
-  -j: specify "-j" setting to make, for SMP systems; overrides conf file.
+  -j: specify "-j" setting to make, for multicore systems; overrides conf file.
   -N: install any new SBo's listed.
   -r: skip viewing of the SBo README.
 
