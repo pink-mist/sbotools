@@ -48,12 +48,19 @@ show_version () && exit (0) if exists $options{v};
 my $noclean = exists $options{c} ? 'FALSE' : $config{NOCLEAN};
 my $distclean = exists $options{d} ? 'TRUE' : $config{DISTCLEAN};
 my $force = exists $options{f} ? 'TRUE' : 'FALSE';
-my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
 my $install_new = exists $options{N} ? 'TRUE' : 'FALSE';
 my $no_readme = exists $options{r} ? 'TRUE' : 'FALSE';
 my $no_install = exists $options{i} ? 'TRUE' : 'FALSE';
 my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
 my $compat32 = exists $options{p} ? 'TRUE' : 'FALSE';
+
+if (exists $options{j}) {
+	unless ($options{j} =~ /^\d+$/) {
+		print "You have provided an invalid parameter for -j\n";
+		exit 1;
+	}
+}
+my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
 
 show_usage () and exit (1) unless exists $ARGV[0];
 
@@ -97,8 +104,10 @@ sub process_sbos {
 		readme_prompt ($sbo) unless $no_readme eq 'TRUE';
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
 		my $version;
+		my $pkg;
 		eval {
-			$version = do_slackbuild ($jobs,$sbo,$locations{$sbo},$compat32);
+			($version,$pkg) = do_slackbuild
+				($jobs,$sbo,$locations{$sbo},$compat32);
 		};
 		if ($@) {
 			push (@failures,$sbo);
@@ -110,7 +119,6 @@ sub process_sbos {
 			} else {
 				make_distclean ($sbo,$version,$locations{$sbo});
 			}
-			my $pkg = get_pkg_name ($sbo,$version,$compat32);
 			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
 
 			unless ($config{PKG_DIR} eq 'FALSE') {

@@ -70,18 +70,15 @@ my %changes;
 while (my ($key,$value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
 }
+if (exists $changes{JOBS}) {
+	unless ($changes{JOBS} =~ /^\d+$/) {
+		print "You have provided an invalid parameter for -j\n";
+		exit 1;
+	}
+}
 
 my $conf_dir = $SBO::Lib::conf_dir;;
 my $conf_file = $SBO::Lib::conf_file;
-
-sub make_temp_file {
-	make_path ('/tmp/sbotools') unless -d '/tmp/sbotools';
-	my $temp_dir = -d '/tmp/sbotools' ? '/tmp/sbotools' : $ENV{TMPDIR} ||
-		$ENV{TEMP};
-	my $filename = sprintf "%s/%d-%d-0000", $temp_dir, $$, time;
-	sysopen my ($fh), $filename, O_WRONLY|O_EXCL|O_CREAT;
-	return ($fh,$filename);
-}
 
 sub config_write {
 	script_error ('config_write requires two arguments.') unless exists $_[1];
@@ -91,7 +88,7 @@ sub config_write {
 			or print "Unable to create $conf_dir. Exiting.\n" and exit (1);
 	}
 	if (-f $conf_file) {
-		my ($fh,$filename) = make_temp_file();
+		my ($fh,$filename) = make_temp_file ();
 		open my $reader, '<', $conf_file;
 		print {$fh} <$reader>;
 		close ($fh);

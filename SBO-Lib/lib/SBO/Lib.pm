@@ -29,6 +29,7 @@ require Exporter;
 	do_upgradepkg
 	get_sbo_location
 	get_pkg_name
+	make_temp_file
 );
 
 use warnings FATAL => 'all';
@@ -73,6 +74,11 @@ for my $key (@valid_conf_keys) {
 		$config{$key} = "FALSE" unless exists $config{$key};
 	} else {
 		$config{$key} = '/usr/sbo' unless exists $config{$key};
+	}
+}
+while (my ($key,$value) = each %config) {
+	if ($key eq 'JOBS') {
+		$config{JOBS} = 'FALSE' unless $value =~ /^\d+$/;
 	}
 }
 
@@ -421,27 +427,33 @@ sub check_multilib {
 sub rewrite_slackbuild {
 	script_error ('rewrite_slackbuild requires two arguments.')
 		unless exists $_[1];
-	my ($slackbuild,%changes) = @_;
+	my ($slackbuild,$tempfn,%changes) = @_;
 	copy ($slackbuild,"$slackbuild.orig");
+	my $makepkg_regex = qr/makepkg/;
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	my $make_regex = qr/^\s*make(| \Q||\E exit 1)$/;
 	my $arch_out_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
 	tie my @sb_file,'Tie::File',$slackbuild;
 	FIRST: for my $line (@sb_file) {
-		SECOND: while (my ($key,$value) = each %changes) {
-			if ($key eq 'libdirsuffix') {
-				if ($line =~ $libdir_regex) {
-					$line =~ s/64/$value/;
+		if ($line =~ $makepkg_regex) {
+			$line = "$line | tee $tempfn";
+		}
+		if (%changes) {
+			SECOND: while (my ($key,$value) = each %changes) {
+				if ($key eq 'libdirsuffix') {
+					if ($line =~ $libdir_regex) {
+						$line =~ s/64/$value/;
+					}
 				}
-			}
-			if ($key eq 'make') {
-				if ($line =~ $make_regex) {
-					$line =~ s/make/make $value/;
+				if ($key eq 'make') {
+					if ($line =~ $make_regex) {
+						$line =~ s/make/make $value/;
+					}
 				}
-			}
-			if ($key eq 'arch_out') {
-				if ($line =~ $arch_out_regex) {
-					$line =~ s/\$ARCH/$value/;
+				if ($key eq 'arch_out') {
+					if ($line =~ $arch_out_regex) {
+						$line =~ s/\$ARCH/$value/;
+					}
 				}
 			}
 		}
@@ -492,6 +504,7 @@ sub prep_sbo_file {
 sub perform_sbo {
 	script_error ('perform_sbo requires five arguments') unless exists $_[4];
 	my ($jobs,$sbo,$location,$arch,$c32,$x32) = @_;
+	prep_sbo_file ($sbo,$location);
 	my $cmd;
 	my %changes;
 	unless ($jobs eq 'FALSE') {
@@ -507,29 +520,39 @@ sub perform_sbo {
 	} else {
 		$cmd = "$location/$sbo.SlackBuild";
 	}
-	rewrite_slackbuild ("$location/$sbo.SlackBuild",%changes) if %changes;
+	my ($tempfh,$tempfn) = make_temp_file ();
+	close ($tempfh);
+	rewrite_slackbuild ("$location/$sbo.SlackBuild",$tempfn,%changes);
 	my $out = system ($cmd);
 	revert_slackbuild ("$location/$sbo.SlackBuild");
 	die unless $out == 0;
-	return 1;
+	my $pkg = get_pkg_name ($tempfn);
+	return $pkg;
 }
 
 sub get_pkg_name {
-	script_error ('get_pkg_name requires three arguments') unless exists $_[2];
-	my ($sbo,$version,$compat32) = @_;
-	if ($compat32 eq 'TRUE') {
-		$sbo = "$sbo-compat32" unless $sbo =~ /-compat32$/;
-	}
+	script_error ('get_pkg_name requires an argument') unless exists $_[0];
+	my $filename = shift;
 	my $pkg;
-	my $pkg_regex = qr/^(\Q$sbo\E-\Q$version\E-[^-]+-.*_SBo.t[xblg]z)$/;
-	opendir my $diread, '/tmp/';
-	FIRST: while (my $ls = readdir $diread) {
-		if ($ls =~ $pkg_regex) {
-			chomp ($pkg = "/tmp/$1");
+	open my $fh,'<',$filename;
+	FIRST: while (my $line = <$fh>) {
+		if ($line =~ /^Slackware\s+package\s+([^\s]+)\s+created\.$/) {
+			$pkg = $1;
 			last FIRST;
 		}
 	}
+	close $fh;
+	unlink $fh;
 	return $pkg;
+}
+
+sub make_temp_file {
+	make_path ('/tmp/sbotools') unless -d '/tmp/sbotools';
+	my $temp_dir = -d '/tmp/sbotools' ? '/tmp/sbotools' : $ENV{TMPDIR} ||
+		$ENV{TEMP};
+	my $filename = sprintf "%s/%d-%d-0000", $temp_dir, $$, time;
+	sysopen my ($fh), $filename, O_WRONLY|O_EXCL|O_CREAT;
+	return ($fh,$filename);
 }
 
 sub sb_compat32 {
@@ -549,13 +572,13 @@ sub sb_compat32 {
 		}
 	}
 	my @symlinks = create_symlinks ($location,@downloads);
-	prep_sbo_file ($sbo,$location);
-	perform_sbo ($jobs,$sbo,$location,$arch,1,1);
-	my $pkg = get_pkg_name ($sbo,$version,'FALSE');
+	my $pkg = perform_sbo ($jobs,$sbo,$location,$arch,1,1);
 	my $cmd = '/usr/sbin/convertpkg-compat32';
 	my @args = ('-i',"$pkg",'-d','/tmp');
 	my $out = system ($cmd,@args);
-	return @symlinks;
+	unlink ($_) for @symlinks;
+	die unless $out == 0;
+	return $pkg;
 }
 
 sub sb_normal {
@@ -573,9 +596,9 @@ to be setup for multilib.\n";
 		}
 	}
 	my @symlinks = create_symlinks ($location,@downloads);
-	prep_sbo_file ($sbo,$location);
-	perform_sbo ($jobs,$sbo,$location,$arch,0,$x32);
-	return @symlinks;
+	my $pkg = perform_sbo ($jobs,$sbo,$location,$arch,0,$x32);
+	unlink ($_) for @symlinks;
+	return $pkg;
 }
 
 sub do_slackbuild {
@@ -585,15 +608,13 @@ sub do_slackbuild {
 	my $version = get_sbo_version ($sbo,$location);
 	my $c32 = $compat32 eq 'TRUE' ? 1 : 0;
 	my @downloads = get_sbo_downloads ($sbo,$location,$c32);
-	my @symlinks;
+	my $pkg;
 	if ($compat32 eq 'TRUE') {
-		@symlinks = sb_compat32 ($jobs,$sbo,$location,$arch,$version,
-			@downloads);
+		$pkg = sb_compat32 ($jobs,$sbo,$location,$arch,$version,@downloads);
 	} else {
-		@symlinks = sb_normal ($jobs,$sbo,$location,$arch,$version,@downloads);
+		$pkg = sb_normal ($jobs,$sbo,$location,$arch,$version,@downloads);
 	}
-	unlink ($_) for (@symlinks);
-	return $version;
+	return $version,$pkg;
 }
 
 sub make_clean {
