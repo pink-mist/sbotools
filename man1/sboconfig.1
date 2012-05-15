@@ -22,7 +22,7 @@ List out current configuration options, including unmodified default configurati
 .P
 -d (TRUE|FALSE)
 .RS
-DISTCLEAN: If TRUE, then DO remove the source code after building the SBo. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+DISTCLEAN: If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
 .P
 -j (#|FALSE)
@@ -32,7 +32,7 @@ JOBS: If numeric (2,5,10, etc), then that number will be fed to the "-j" argumen
 .P
 -c (TRUE|FALSE)
 .RS
-NOCLEAN: If TRUE, then DO NOT clean working directories after building the SBo. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an SBo. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+NOCLEAN: If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/slackbuild. By default, these directories are removed after building an slackbuild. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
 .P
 -p (/path|FALSE)
