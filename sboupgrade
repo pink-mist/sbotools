@@ -41,7 +41,7 @@ EOF
 }
 
 my %options;
-getopts ('hvacdfj:Nriop',\%options);
+getopts ('hvacdfj:Nriop', \%options);
 
 show_usage () && exit (0) if exists $options{h};
 show_version () && exit (0) if exists $options{v};
@@ -87,8 +87,8 @@ sub readme_prompt {
 	script_error ('readme_prompt requires an argument.') unless exists $_[0];
 	my $sbo = shift;
 	my $readme_path = get_readme_path ($sbo);
-	open my $readme,'<',$readme_path;
-	print "\n",<$readme>;
+	open my $readme, '<', $readme_path;
+	print "\n". <$readme>;
 	close ($readme);
 	print "\nProceed with $sbo? [yn]: ";
 	my $test = <STDIN>;
@@ -98,7 +98,7 @@ sub readme_prompt {
 
 sub process_sbos {
 	script_error ('process_sbos requires an argument.') unless exists $_[0];
-	my (@todo) = @_;
+	my @todo = @_;
 	my @failures;
 	for my $sbo (@todo) {
 		readme_prompt ($sbo) unless $no_readme eq 'TRUE';
@@ -107,17 +107,17 @@ sub process_sbos {
 		my $pkg;
 		eval {
 			($version,$pkg) = do_slackbuild
-				($jobs,$sbo,$locations{$sbo},$compat32);
+				($jobs, $sbo, $locations{$sbo}, $compat32);
 		};
 		if ($@) {
-			push (@failures,$sbo);
+			push (@failures, $sbo);
 		} else {
 			unless ($distclean eq 'TRUE') {
 				if ($noclean eq 'FALSE') {
-					make_clean ($sbo,$version);
+					make_clean ($sbo, $version);
 				}
 			} else {
-				make_distclean ($sbo,$version,$locations{$sbo});
+				make_distclean ($sbo, $version, $locations{$sbo});
 			}
 			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
 
@@ -127,7 +127,7 @@ sub process_sbos {
 						warn "Unable to create $config{PKG_DIR}\n";
 				}
 				if (-d $config{PKG_DIR}) {
-					move ($pkg,$config{PKG_DIR});
+					move ($pkg, $config{PKG_DIR});
 					print "$pkg stored in $config{PKG_DIR}\n";
 				} else {
 					warn "$pkg left in /tmp\n";
@@ -156,22 +156,22 @@ unless ($only_new eq 'TRUE') {
 	unless ($force eq 'TRUE') {
 		my @updates_array = get_available_updates ();
 		for my $index (keys @updates_array) {
-			push(@updates,$updates_array[$index]{name});
+			push(@updates, $updates_array[$index]{name});
 		}
 	}
 
 	my @todo_upgrade;
 	unless ($force eq 'TRUE') {
-		for (@ARGV) {
-			if ($_ ~~ @updates) {
-				push (@todo_upgrade,$_);
+		for my $sbo (@ARGV) {
+			if ($sbo ~~ @updates) {
+				push (@todo_upgrade, $sbo);
 			}
 		}
 	} else {
-		for (@ARGV) {
+		FIRST: for my $sbo (@ARGV) {
 			SECOND: for my $c (keys @installed) {
-				if ($_ eq $installed[$c]{name}) {
-					push (@todo_upgrade,$_);
+				if ($sbo eq $installed[$c]{name}) {
+					push (@todo_upgrade, $sbo);
 					last SECOND;
 				}
 			}
@@ -185,7 +185,7 @@ unless ($only_new eq 'TRUE') {
 if ($install_new eq 'TRUE') {
 	my @todo_install;
 	my $has = 'FALSE';
-	for my $sbo (@ARGV) {
+	FIRST: for my $sbo (@ARGV) {
 		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 		SECOND: for my $index (keys @installed) {
 			if ($name eq $installed[$index]{name}) {
@@ -194,7 +194,7 @@ if ($install_new eq 'TRUE') {
 			}
 		}
 		unless ($has eq 'TRUE') {
-			push (@todo_install,$sbo);
+			push (@todo_install, $sbo);
 		} else {
 			print "$name already installed.\n";
 		}

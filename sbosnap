@@ -41,7 +41,7 @@ EOF
 show_usage () and exit (1) unless exists $ARGV[0];
 
 my %options;
-getopts ('hv',\%options);
+getopts ('hv', \%options);
 
 show_usage () and exit (0) if exists $options{h};
 show_version () and exit (0) if exists $options{v};

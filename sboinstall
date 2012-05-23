@@ -33,21 +33,21 @@ EOF
 }
 
 my %options;
-getopts ('hvcdripj:',\%options);
+getopts ('hvcdripj:', \%options);
 
-show_usage () and exit(0) if exists $options{h};
-show_version () and exit(0) if exists $options{v};
+show_usage () and exit (0) if exists $options{h};
+show_version () and exit (0) if exists $options{v};
 
 show_usage () and exit (0) unless exists $ARGV[0];
 
-my @opts1 = ('c','d','r','i','p');
+my @opts1 = ('c', 'd', 'r', 'i', 'p');
 for my $opt (@opts1) {
-	unshift (@ARGV,"-$opt") if exists $options{$opt};
+	unshift (@ARGV, "-$opt") if exists $options{$opt};
 }
 
 my @opts2 = ('j');
 for my $opt (@opts2) {
-	unshift (@ARGV,"-$opt $options{$opt}") if exists $options{$opt};
+	unshift (@ARGV, "-$opt $options{$opt}") if exists $options{$opt};
 }
 
 my $string = '';
