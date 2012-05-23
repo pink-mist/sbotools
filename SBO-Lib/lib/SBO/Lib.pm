@@ -122,32 +122,6 @@ sub check_slackbuilds_txt {
 	return;
 }
 
-sub slackbuilds_or_fetch {
-	if (! check_slackbuilds_txt () ) {
-		print "It looks like you haven't run \"sbosnap fetch\" yet.\n";
-		print "Would you like me to do this now? [y] ";
-		my $fetch = <STDIN>;
-		$fetch = 'y' if $fetch eq "\n";
-		if ($fetch =~ /^[Yy]/) {
-			fetch_tree ();
-		} else {
-			print "Please run \"sbosnap fetch\"\n";
-			exit 0;
-		}
-	}
-}
-
-sub rsync_sbo_tree {
-	my $slk_version = get_slack_version ();
-	my $cmd = 'rsync';
-	my @arg = ('-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
-	push (@arg, "rsync://slackbuilds.org/slackbuilds/$slk_version/*");
-	push (@arg, $config{SBO_HOME});
-	system ($cmd, @arg);
-	print "Finished.\n";
-	return 1;
-}
-
 sub check_home {
 	my $sbo_home = $config{SBO_HOME};
 	if (-d $sbo_home) {
@@ -163,6 +137,17 @@ sub check_home {
 	}
 }
 
+sub rsync_sbo_tree {
+	my $slk_version = get_slack_version ();
+	my $cmd = 'rsync';
+	my @arg = ('-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
+	push (@arg, "rsync://slackbuilds.org/slackbuilds/$slk_version/*");
+	push (@arg, $config{SBO_HOME});
+	system ($cmd, @arg);
+	print "Finished.\n";
+	return 1;
+}
+
 sub fetch_tree {
 	check_home ();
 	print "Pulling SlackBuilds tree...\n";
@@ -175,13 +160,28 @@ sub update_tree {
 	rsync_sbo_tree ();
 }
 
+sub slackbuilds_or_fetch {
+	if (! check_slackbuilds_txt () ) {
+		print "It looks like you haven't run \"sbosnap fetch\" yet.\n";
+		print "Would you like me to do this now? [y] ";
+		my $fetch = <STDIN>;
+		$fetch = 'y' if $fetch eq "\n";
+		if ($fetch =~ /^[Yy]/) {
+			fetch_tree ();
+		} else {
+			print "Please run \"sbosnap fetch\"\n";
+			exit 0;
+		}
+	}
+}
+
 sub get_installed_sbos {
 	my @installed;
 	opendir my $diread, '/var/log/packages';
 	while (my $ls = readdir $diread) {
 		next if $ls =~ /\A\./;
 		if (index ($ls, "SBo") != -1) {
-			my @split = split (/-/, reverse ($ls) , 4);
+			my @split = split (/-/, reverse ($ls), 4);
 			my %hash;
 			$hash{name} = reverse ($split[3]);
 			$hash{version} = reverse ($split[2]);
@@ -196,6 +196,39 @@ sub clean_line {
 	chomp (my $line = shift);
 	$line =~ s/[\s"\\]//g;
 	return $line;
+}
+
+sub split_line {
+	script_error ('split_line requires three arguments') unless exists $_[2];
+	my ($line, $pattern, $index) = @_;
+	my @split;
+	if ($pattern eq ' ') {
+		@split = split ("$pattern", $line);
+	} else {
+		@split = split (/$pattern/, $line);
+	}
+	return clean_line ($split[$index]);
+}
+
+sub split_equal_one {
+	script_error ('split_equal_one requires an argument') unless exists $_[0];
+	return split_line ($_[0], '=', 1);
+}
+
+sub get_sbo_location {
+	script_error ('get_sbo_location requires an argument.Exiting.')
+		unless exists $_[0];
+	my $sbo = shift;
+	my $location;
+	my $regex = qr#$config{SBO_HOME}/[^/]+/\Q$sbo\E\z#;
+	find (
+		sub {
+			$location = $File::Find::dir if $File::Find::dir =~ $regex
+		},
+		$config{SBO_HOME}
+	);
+	return unless defined $location;
+	return $location;
 }
 
 sub get_available_updates {
@@ -224,39 +257,6 @@ sub get_available_updates {
 		close ($info);
 	}
 	return @updates;
-}
-
-sub get_sbo_location {
-	script_error ('get_sbo_location requires an argument.Exiting.')
-		unless exists $_[0];
-	my $sbo = shift;
-	my $location;
-	my $regex = qr#$config{SBO_HOME}/[^/]+/\Q$sbo\E\z#;
-	find (
-		sub {
-			$location = $File::Find::dir if $File::Find::dir =~ $regex
-		},
-		$config{SBO_HOME}
-	);
-	return unless defined $location;
-	return $location;
-}
-
-sub split_line {
-	script_error ('split_line requires three arguments') unless exists $_[2];
-	my ($line, $pattern, $index) = @_;
-	my @split;
-	if ($pattern eq ' ') {
-		@split = split ("$pattern", $line);
-	} else {
-		@split = split (/$pattern/, $line);
-	}
-	return clean_line ($split[$index]);
-}
-
-sub split_equal_one {
-	script_error ('split_equal_one requires an argument') unless exists $_[0];
-	return split_line ($_[0], '=', 1);
 }
 
 sub find_download_info {
@@ -331,6 +331,14 @@ sub get_sbo_downloads {
 	return @downloads;
 }
 
+sub get_filename_from_link {
+	script_error ('get_filename_from_link requires an argument')
+		unless exists $_[0];
+	my @split = split ('/', reverse (shift) , 2);
+	chomp (my $filename = $distfiles .'/'. reverse ($split[0]) );
+	return $filename;
+}
+
 sub compute_md5sum {
 	script_error ('compute_md5sum requires an argument.') unless exists $_[0];
 	script_error ('compute_md5sum argument is not a file.') unless -f $_[0];
@@ -341,14 +349,6 @@ sub compute_md5sum {
 	my $md5sum = $md5->hexdigest;
 	close ($reader);
 	return $md5sum;
-}
-
-sub get_filename_from_link {
-	script_error ('get_filename_from_link requires an argument')
-		unless exists $_[0];
-	my @split = split ('/', reverse (shift) , 2);
-	chomp (my $filename = $distfiles .'/'. reverse ($split[0]) );
-	return $filename;
 }
 
 sub check_distfile {
@@ -400,7 +400,7 @@ sub get_symlink_from_filename {
 		unless exists $_[1];
 	script_error ('get_symlink_from_filename first argument is not a file')
 		unless -f $_[0];
-	my @split = split ('/', reverse ($_[0]) , 2);
+	my @split = split ('/', reverse ($_[0]), 2);
 	my $fn = reverse ($split[0]);
 	return "$_[1]/$fn";
 }
