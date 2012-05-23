@@ -28,10 +28,10 @@ print "Checking for updated SlackBuilds...\n";
 my @updates = get_available_updates ();
 
 my @listing;
-for (keys @updates) {
-	my $string = "$updates[$_]{name}-$updates[$_]{installed}";
-	$string .= "        <   needs updating (SBo has $updates[$_]{update})\n";
-	push (@listing,$string);
+for my $key (keys @updates) {
+	my $string = "$updates[$key]{name}-$updates[$key]{installed}";
+	$string .= "        <   needs updating (SBo has $updates[$key]{update})\n";
+	push (@listing, $string);
 }
 
 if (exists $listing[0]) {
