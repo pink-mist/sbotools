@@ -87,9 +87,10 @@ sub readme_prompt {
 	script_error ('readme_prompt requires an argument.') unless exists $_[0];
 	my $sbo = shift;
 	my $readme_path = get_readme_path ($sbo);
-	open my $readme, '<', $readme_path;
-	print "\n". <$readme>;
-	close ($readme);
+	open my $readme_file, '<', $readme_path;
+	my $readme = do {local $/; <$readme_file>};
+	print "\n". $readme;
+	close ($readme_file);
 	print "\nProceed with $sbo? [yn]: ";
 	my $test = <STDIN>;
 	exit (0) unless $test =~ /^[Yy]/;
