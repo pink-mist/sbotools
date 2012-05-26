@@ -71,7 +71,7 @@ while (my ($key, $value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
 }
 if (exists $changes{JOBS}) {
-	unless ($changes{JOBS} =~ /^\d+$/) {
+	unless ($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE') {
 		print "You have provided an invalid parameter for -j\n";
 		exit 1;
 	}
