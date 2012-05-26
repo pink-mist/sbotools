@@ -73,7 +73,11 @@ for my $key (@valid_conf_keys) {
 	if ($key eq 'SBO_HOME') {
 		$config{$key} = '/usr/sbo' unless exists $config{$key};
 	} elsif ($key eq 'JOBS') {
-		$config{$key} = 'FALSE' unless $config{$key} =~ /^\d+$/;
+		if (exists $config{$key}) {
+			$config{$key} = 'FALSE' unless $config{$key} =~ /^\d+$/;
+		} else {
+			$config{$key} = 'FALSE';
+		}
 	} else {
 		$config{$key} = 'FALSE' unless exists $config{$key};
 	}
