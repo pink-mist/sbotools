@@ -21,12 +21,12 @@ If TRUE, then DO remove the source code after building the slackbuild. By defaul
 .RE
 -j (#|FALSE)
 .RS
-If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a SlackBuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
+If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a slackbuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
 .RE
 .P
 -c (TRUE|FALSE)
 .RS
-If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/slackbuild. By default, these directories are removed after building an slackbuild. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
+If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an slackbuild. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
 .RE
 .P
 -f
@@ -46,7 +46,7 @@ Skip viewing of the README and the yes or no question which accompanies it. Anyt
 .P
 -i
 .RS
-Do not actually install the package created at the end of the build process. So, the SlackBuild will be run, and the package will be left in /tmp, or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
+Do not actually install the package created at the end of the build process. So, the slackbuild will be run, and the package will be left in /tmp, or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
 .RE
 .P
 -v
