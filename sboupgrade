@@ -83,6 +83,47 @@ sub get_readme_path {
 	return $location .'/README';
 }
 
+sub grok_readme {
+	script_error ('grok_readme requires two arguments') unless exists $_[1];
+	my ($sbo, $readme) = @_;
+	$readme =~ s/\n//g;
+	my @line;
+	unless (@line = $readme =~ /([Tt]his|$sbo|)\s+[Rr]equires(|:)\s+([^\.]+)/) {
+		return;
+	}
+	my $string = $line[2];
+	$string =~ s/\[[^\]]+\]//g;
+	$string =~ s/\([^\)]+\)//g;
+	$string =~ s/\s+and\s+/,/g;
+	$string =~ s/,\s+/,/g;
+	my @deps = split (/,/, $string);
+	my @installed = get_installed_sbos ();
+	my @needed;
+	my @have;
+	FIRST: for my $dep (@deps) {
+		SECOND: for my $c (keys @installed) {
+			if ($dep eq $installed[$c]{name}) {
+				push (@have, $dep);
+				last SECOND;
+			}
+		}
+	}
+	for my $dep (@deps) {
+		push (@needed, $dep) unless $dep ~~ @have;
+	}
+	FIRST: for my $need (@needed) {
+		my @inst = get_installed_sbos ();
+		SECOND: for my $c (keys @inst) {
+			next FIRST if $need eq $inst[$c]{name};
+		}
+		print "It looks this slackbuild requires $need; shall I attempt to ";
+		print "install it first? [y] ";
+		my $test = <STDIN>;
+		$test = 'y' if $test eq "\n";
+		system ("/usr/sbin/sboinstall $need") if $test =~ /^[Yy]/;
+	}
+}
+
 sub readme_prompt {
 	script_error ('readme_prompt requires an argument.') unless exists $_[0];
 	my $sbo = shift;
@@ -90,11 +131,14 @@ sub readme_prompt {
 	open my $readme_file, '<', $readme_path;
 	my $readme = do {local $/; <$readme_file>};
 	print "\n". $readme;
-	close ($readme_file);
-	print "\nProceed with $sbo? [yn]: ";
-	my $test = <STDIN>;
-	exit (0) unless $test =~ /^[Yy]/;
-	return 1;
+	unless (grok_readme ($sbo, $readme) ) {
+		close ($readme_file);
+		print "\nProceed with $sbo? [y]: ";
+		my $test = <STDIN>;
+		$test = 'y' if $test eq "\n";
+		exit (0) unless $test =~ /^[Yy]/;
+		return 1;
+	}
 }
 
 sub process_sbos {
@@ -141,7 +185,7 @@ sub process_sbos {
 	return @failures;
 }
 
-my @installed = get_installed_sbos();
+my @installed = get_installed_sbos ();
 my @failed;
 
 sub print_failures {
