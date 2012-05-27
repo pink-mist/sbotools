@@ -596,11 +596,14 @@ sub sb_compat32 {
 	}
 	my @symlinks = create_symlinks ($location, @downloads);
 	my ($pkg, $src) = perform_sbo ($jobs, $sbo, $location, $arch, 1, 1);
-	my $cmd = '/usr/sbin/convertpkg-compat32';
-	my @args = ('-i', "$pkg", '-d', '/tmp');
-	my $out = system ($cmd, @args);
+	my ($tempfh, $tempfn) = make_temp_file ();
+	close ($tempfh);
+	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $tempfn";
+	my $out = system ($cmd);
 	unlink ($_) for @symlinks;
 	die unless $out == 0;
+	unlink $pkg;
+	$pkg = get_pkg_name ($tempfn);
 	return $pkg, $src;
 }
 
