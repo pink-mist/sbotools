@@ -150,8 +150,9 @@ sub process_sbos {
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
 		my $version;
 		my $pkg;
+		my $src;
 		eval {
-			($version,$pkg) = do_slackbuild
+			($version, $pkg, $src) = do_slackbuild
 				($jobs, $sbo, $locations{$sbo}, $compat32);
 		};
 		if ($@) {
@@ -159,10 +160,10 @@ sub process_sbos {
 		} else {
 			unless ($distclean eq 'TRUE') {
 				if ($noclean eq 'FALSE') {
-					make_clean ($sbo, $version);
+					make_clean ($sbo, $src, $version);
 				}
 			} else {
-				make_distclean ($sbo, $version, $locations{$sbo});
+				make_distclean ($sbo, $src, $version, $locations{$sbo});
 			}
 			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
 

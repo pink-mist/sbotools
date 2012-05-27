@@ -432,14 +432,15 @@ sub rewrite_slackbuild {
 		unless exists $_[1];
 	my ($slackbuild, $tempfn, %changes) = @_;
 	copy ($slackbuild, "$slackbuild.orig");
+	my $tar_regex = qr/(un|)tar .*$/;
 	my $makepkg_regex = qr/makepkg/;
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	my $make_regex = qr/^\s*make(| \Q||\E exit 1)$/;
 	my $arch_out_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
 	tie my @sb_file, 'Tie::File', $slackbuild;
 	FIRST: for my $line (@sb_file) {
-		if ($line =~ $makepkg_regex) {
-			$line = "$line | tee $tempfn";
+		if ($line =~ $tar_regex || $line =~ $makepkg_regex) {
+			$line = "$line | tee -a $tempfn";
 		}
 		if (%changes) {
 			SECOND: while (my ($key, $value) = each %changes) {
@@ -504,6 +505,39 @@ sub prep_sbo_file {
 	return 1;
 }
 
+sub grok_temp_file {
+	script_error ('grok_temp_file requires two arguments') unless exists $_[1];
+	my ($tempfn, $find) = @_;
+	my $out;
+	open my $fh, '<', $tempfn;
+	FIRST: while (my $line = <$fh>) {
+		if ($find eq 'pkg') {
+			if ($line =~ /^Slackware\s+package\s+([^\s]+)\s+created\.$/) {
+				$out = $1;
+				last FIRST;
+			}
+		} elsif ($find eq 'src') {
+			if ($line =~ /^([^\/]+)\/.*$/) {
+				$out = $1;
+				last FIRST;
+			}
+		}
+	}
+	return $out;
+}
+
+sub get_src_dir {
+	script_error ('get_src_dir requires an argument') unless exists $_[0];
+	my $filename = shift;
+	return grok_temp_file ($filename, 'src');
+}
+
+sub get_pkg_name {
+	script_error ('get_pkg_name requires an argument') unless exists $_[0];
+	my $filename = shift;
+	return grok_temp_file ($filename, 'pkg');
+}
+
 sub perform_sbo {
 	script_error ('perform_sbo requires five arguments') unless exists $_[4];
 	my ($jobs, $sbo, $location, $arch, $c32, $x32) = @_;
@@ -529,24 +563,10 @@ sub perform_sbo {
 	my $out = system ($cmd);
 	revert_slackbuild ("$location/$sbo.SlackBuild");
 	die unless $out == 0;
+	my $src = get_src_dir ($tempfn);
 	my $pkg = get_pkg_name ($tempfn);
-	return $pkg;
-}
-
-sub get_pkg_name {
-	script_error ('get_pkg_name requires an argument') unless exists $_[0];
-	my $filename = shift;
-	my $pkg;
-	open my $fh, '<', $filename;
-	FIRST: while (my $line = <$fh>) {
-		if ($line =~ /^Slackware\s+package\s+([^\s]+)\s+created\.$/) {
-			$pkg = $1;
-			last FIRST;
-		}
-	}
-	close $fh;
-	unlink $fh;
-	return $pkg;
+	unlink $tempfn;
+	return $pkg, $src;
 }
 
 sub make_temp_file {
@@ -575,13 +595,13 @@ sub sb_compat32 {
 		}
 	}
 	my @symlinks = create_symlinks ($location, @downloads);
-	my $pkg = perform_sbo ($jobs, $sbo, $location, $arch, 1, 1);
+	my ($pkg, $src) = perform_sbo ($jobs, $sbo, $location, $arch, 1, 1);
 	my $cmd = '/usr/sbin/convertpkg-compat32';
 	my @args = ('-i', "$pkg", '-d', '/tmp');
 	my $out = system ($cmd, @args);
 	unlink ($_) for @symlinks;
 	die unless $out == 0;
-	return $pkg;
+	return $pkg, $src;
 }
 
 sub sb_normal {
@@ -599,9 +619,9 @@ to be setup for multilib.\n";
 		}
 	}
 	my @symlinks = create_symlinks ($location, @downloads);
-	my $pkg = perform_sbo ($jobs, $sbo, $location, $arch, 0, $x32);
+	my ($pkg, $src) = perform_sbo ($jobs, $sbo, $location, $arch, 0, $x32);
 	unlink ($_) for @symlinks;
-	return $pkg;
+	return $pkg, $src;
 }
 
 sub do_slackbuild {
@@ -611,30 +631,32 @@ sub do_slackbuild {
 	my $version = get_sbo_version ($sbo, $location);
 	my $c32 = $compat32 eq 'TRUE' ? 1 : 0;
 	my @downloads = get_sbo_downloads ($sbo, $location, $c32);
-	my $pkg;
+	my ($pkg, $src);
 	if ($compat32 eq 'TRUE') {
-		$pkg = sb_compat32
+		($pkg, $src) = sb_compat32
 			($jobs, $sbo, $location, $arch, $version, @downloads);
 	} else {
-		$pkg = sb_normal ($jobs, $sbo, $location, $arch, $version, @downloads);
+		($pkg, $src) = sb_normal
+			($jobs, $sbo, $location, $arch, $version, @downloads);
 	}
-	return $version, $pkg;
+	return $version, $pkg, $src;
 }
 
 sub make_clean {
 	script_error ('make_clean requires two arguments.') unless exists $_[1];
-	my ($sbo, $version) = @_;
+	my ($sbo, $src, $version) = @_;
 	print "Cleaning for $sbo-$version...\n";
-	remove_tree ("/tmp/SBo/$sbo-$version") if -d "/tmp/SBo/$sbo-$version";
-	remove_tree ("/tmp/SBo/package-$sbo") if -d "/tmp/SBo/package-$sbo";
+	my $tmpsbo = "/tmp/SBo";
+	remove_tree ("$tmpsbo/$src") if -d "$tmpsbo/$src";
+	remove_tree ("$tmpsbo/package-$sbo") if -d "$tmpsbo/package-$sbo";
 	return 1;
 }
 
 sub make_distclean {
 	script_error ('make_distclean requires three arguments.')
 		unless exists $_[2];
-	my ($sbo, $version, $location) = @_;
-	make_clean ($sbo, $version);
+	my ($sbo, $src, $version, $location) = @_;
+	make_clean ($sbo, $src, $version);
 	print "Distcleaning for $sbo-$version...\n";
 	my @downloads = get_sbo_downloads ($sbo, $location, 0);
 	for my $c (keys @downloads) {
