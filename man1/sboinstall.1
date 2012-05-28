@@ -1,4 +1,4 @@
-.TH sboinstall 1 "Sweetmorn, the 73rd day of Discord in the YOLD 3178" "sbotools 0.4 fnord" dawnrazor.net
+.TH sboinstall 1 "Pungenday, the 2nd day of Confusion in the YOLD 3178" "sbotools 0.5 fnord" dawnrazor.net
 .SH NAME
 .P
 sboinstall - install slackbuilds
@@ -7,7 +7,7 @@ sboinstall - install slackbuilds
 sboinstall [-h] [-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-N] [-r] [-i] [-p] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
-sboinstall is equivalent to sboupgrade -N, but is faster, so is preferred if only installing one or more new packages.
+sboinstall is equivalent to sboupgrade -N, but is faster, so is preferred if only installing one or more new packages. If the -r flag is NOT specified, sboinstall will attempt to grok a list of requirements in the README for a given slackbuild. If such a list exists, sboinstall will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. Note that this method is FAR from foolproof, which is why this does not happen if the README is bypassed. 
 .SH OPTIONS
 .P
 -h
@@ -56,7 +56,7 @@ Show sbotools version information.
 .RE
 .SH BUGS
 .P
-None that I'm aware of, but I may have missed some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+Requirement parsing is not foolproof; there are very likely corner cases where it does not function as expected. If any such cases are found, please report this to j@dawnrazor.net; patches are always welcome as well.
 .SH SEE ALSO
 .P
 sbocheck(1), sboconfig(1), sbofind(1), sbosnap(1), sbotools.conf(5)
