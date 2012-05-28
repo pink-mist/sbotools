@@ -40,8 +40,10 @@ show_version () and exit (0) if (exists $options{v});
 show_usage () and exit (1) unless exists $ARGV[0];
 my $search = $ARGV[0];
 
+# if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
 slackbuilds_or_fetch ();
 
+# find anything with $search in its name
 my (@findings, $name);
 my $found = 'FALSE';
 my $regex = qr/NAME:\s.*\Q$search\E.*/;
@@ -67,6 +69,7 @@ FIRST: while (my $line = <$sb_txt>) {
 }
 
 if (exists $findings[0]) {
+	# pretty formatting
 	my @listing;
 	for my $hash (@findings) {
 		while (my ($key, $value) = each %{$hash}) {

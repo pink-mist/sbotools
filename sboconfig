@@ -54,6 +54,7 @@ if (exists $options{l}) {
 	for my $key (@keys) {
 		print "$key=$config{$key}\n";
 	}
+	exit 0;
 }
 
 show_usage () unless %options;
@@ -66,6 +67,7 @@ my %valid_confs = (
 	s => 'SBO_HOME',
 );
 	
+# setup what's being changed.
 my %changes;
 while (my ($key, $value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
@@ -80,6 +82,8 @@ if (exists $changes{JOBS}) {
 my $conf_dir = $SBO::Lib::conf_dir;;
 my $conf_file = $SBO::Lib::conf_file;
 
+# safely modify our conf file; copy to a temp location, edit the temp file,
+# move the edited file into place
 sub config_write {
 	script_error ('config_write requires two arguments.') unless exists $_[1];
 	my ($key, $val) = @_;
@@ -88,10 +92,13 @@ sub config_write {
 			or print "Unable to create $conf_dir. Exiting.\n" and exit (1);
 	}
 	if (-f $conf_file) {
+		# get a temp file and fill it with the contents of our config file
 		my ($fh, $filename) = make_temp_file ();
 		open my $reader, '<', $conf_file;
 		print {$fh} <$reader>;
 		close ($fh);
+		# tie the file so that if $key is already there, we just change that
+		# line and untie it
 		tie my @temp, 'Tie::File', $filename;
 		my $has = 'FALSE';
 		my $regex = qr/\A\Q$key\E=/;
@@ -103,6 +110,7 @@ sub config_write {
 			}
 		}
 		untie @temp;
+		# otherwise, append our new $key=$value pair
 		if ($has eq 'FALSE') {
 			open (my $writer, '>>', $filename);
 			print {$writer} "$key=$val\n";
@@ -110,6 +118,7 @@ sub config_write {
 		}
 		move ($filename, $conf_file);
 	} else {
+		# no config file, easiest case of all.
 		open my $writer, '>', $conf_file;
 		print {$writer} "$key=$val\n";
 		close ($writer);

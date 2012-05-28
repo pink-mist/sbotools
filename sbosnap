@@ -47,7 +47,6 @@ show_usage () and exit (0) if exists $options{h};
 show_version () and exit (0) if exists $options{v};
 
 # check for a command and, if found, execute it
-#
 my $command;
 if ($ARGV[0] =~ /fetch|update/) {
 	$command = $ARGV[0];

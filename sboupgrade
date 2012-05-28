@@ -10,7 +10,6 @@
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
-use Text::Tabulate;
 use File::Copy;
 use strict;
 use warnings FATAL => 'all';
@@ -55,7 +54,7 @@ my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
 my $compat32 = exists $options{p} ? 'TRUE' : 'FALSE';
 
 if (exists $options{j}) {
-	unless ($options{j} =~ /^\d+$/) {
+	unless ($options{j} =~ /^\d+$/ || $options{j} == 'FALSE') {
 		print "You have provided an invalid parameter for -j\n";
 		exit 1;
 	}
@@ -64,10 +63,12 @@ my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
 
 show_usage () and exit (1) unless exists $ARGV[0];
 
+# if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
 slackbuilds_or_fetch ();
 
+# build a hash of locations for each item provided on command line, at the same
+# time verifying each item is a valid slackbuild
 my %locations;
-
 for my $sbo_name (@ARGV) {
 	$locations{$sbo_name} = get_sbo_location ($sbo_name);
 	unless (defined $locations{$sbo_name}) {
@@ -83,35 +84,37 @@ sub get_readme_path {
 	return $location .'/README';
 }
 
+# this subroutine may be getting a little out of hand.
 sub grok_readme {
 	script_error ('grok_readme requires two arguments') unless exists $_[1];
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
+	# work around missing period at end of list of requirements (given 2 \ns)
 	$readme =~ s/\n\n/./g;
 	$readme =~ s/\n//g;
-	my @line;
-	unless (@line = $readme =~ /([Tt]his|$sbo|)\s+[Rr]equires(|:)\s+([^\.]+)/) {
-		return;
-	}
-	my $string = $line[2];
+	my $string = $3 if $readme =~
+		/([Tt]his|$sbo|)\s+[Rr]equires(|:)\s+([^\.]+)/;
+	# remove anything in brackets or parens
 	$string =~ s/\[[^\]]+\]//g;
 	$string =~ s/\([^\)]+\)//g;
+	# converts and to comma
 	$string =~ s/(\s+|,)and\s+/,/g;
 	$string =~ s/,\s+/,/g;
 	my @deps = split (/,/, $string);
+	# if anything has a space, we didn't parse correctly, so remove it
 	my $remove;
 	for my $key (keys @deps) {
 		$remove = $key if $deps[$key] =~ /\s+/;
 	}
 	splice (@deps, $remove, 1) if defined $remove;
 	return unless exists $deps[0];
-
+	# check each parsed requirement against installed slackbuilds
 	my @installed = get_installed_sbos ();
 	my @needed;
 	my @have;
 	FIRST: for my $dep (@deps) {
-		SECOND: for my $c (keys @installed) {
-			if ($dep eq $installed[$c]{name}) {
+		SECOND: for my $key (keys @installed) {
+			if ($dep eq $installed[$key]{name}) {
 				push (@have, $dep);
 				last SECOND;
 			}
@@ -121,9 +124,12 @@ sub grok_readme {
 		push (@needed, $dep) unless $dep ~~ @have;
 	}
 	FIRST: for my $need (@needed) {
+		# compared against installed slackbuilds again, since we're recursive
+		# and may have installed the requirement in question as a requirement
+		# of an earlier requirement, etc
 		my @inst = get_installed_sbos ();
-		SECOND: for my $c (keys @inst) {
-			next FIRST if $need eq $inst[$c]{name};
+		SECOND: for my $key (keys @inst) {
+			next FIRST if $need eq $inst[$key]{name};
 		}
 		print "\n". $readme_orig;
 		print "\nIt looks this slackbuild requires $need; shall I attempt to ";
@@ -133,6 +139,7 @@ sub grok_readme {
 		if ($test =~ /^[Yy]/) {
 			my $cmd = "/usr/sbin/sboinstall";
 			my @args;
+			# populate args so that they carry over correctly
 			push (@args, "-c") if exists $options{c};
 			push (@args, "-d") if exists $options{d};
 			push (@args, "-j $options{j}") if exists $options{j};
@@ -143,6 +150,10 @@ sub grok_readme {
 	}
 }
 
+# prompt for the readme, and grok the readme at this time also. we grok the
+# readme within this subroutine so that if the readme_prompt is bypassed, the
+# requirement parsing will be as well - that should never be able to happen
+# w/o the user verifying its suggestions against the readme
 sub readme_prompt {
 	script_error ('readme_prompt requires an argument.') unless exists $_[0];
 	my $sbo = shift;
@@ -160,12 +171,15 @@ sub readme_prompt {
 	}
 }
 
+# do the things with the provided sbos - whether upgrades or new installs.
 sub process_sbos {
 	script_error ('process_sbos requires an argument.') unless exists $_[0];
 	my @todo = @_;
 	my @failures;
 	for my $sbo (@todo) {
 		readme_prompt ($sbo) unless $no_readme eq 'TRUE';
+		# switch compat32 on if upgrading a -compat32
+		# this should maybe happen not in this sub?
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
 		my $version;
 		my $pkg;
@@ -178,14 +192,12 @@ sub process_sbos {
 			push (@failures, $sbo);
 		} else {
 			unless ($distclean eq 'TRUE') {
-				if ($noclean eq 'FALSE') {
-					make_clean ($sbo, $src, $version);
-				}
+				make_clean ($sbo, $src, $version) if $noclean eq 'FALSE';
 			} else {
 				make_distclean ($sbo, $src, $version, $locations{$sbo});
 			}
 			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
-
+			# move package to $config{PKG_DIR} if defined
 			unless ($config{PKG_DIR} eq 'FALSE') {
 				unless (-d $config{PKG_DIR}) {
 					mkdir ($config{PKG_DIR}) or 
@@ -216,16 +228,20 @@ sub print_failures {
 	}
 }
 
+# deal with any updates prior to any new installs; no reason to bother with all
+# this if only_new is specified - ie, if we are run from sboinstall, so can be
+# much faster with this separation of logic
 unless ($only_new eq 'TRUE') {
+	# doesn't matter what's updatable and what's not if force is specified
 	my @updates unless $force eq 'TRUE';
 	unless ($force eq 'TRUE') {
 		my @updates_array = get_available_updates ();
-		for my $index (keys @updates_array) {
-			push(@updates, $updates_array[$index]{name});
+		for my $key (keys @updates_array) {
+			push(@updates, $updates_array[$key]{name});
 		}
 	}
-
 	my @todo_upgrade;
+	# but without force, we only want to update what there are updates for
 	unless ($force eq 'TRUE') {
 		for my $sbo (@ARGV) {
 			if ($sbo ~~ @updates) {
@@ -234,15 +250,14 @@ unless ($only_new eq 'TRUE') {
 		}
 	} else {
 		FIRST: for my $sbo (@ARGV) {
-			SECOND: for my $c (keys @installed) {
-				if ($sbo eq $installed[$c]{name}) {
+			SECOND: for my $key (keys @installed) {
+				if ($sbo eq $installed[$key]{name}) {
 					push (@todo_upgrade, $sbo);
 					last SECOND;
 				}
 			}
 		}
 	}
-
 	@failed = process_sbos (@todo_upgrade) if exists $todo_upgrade[0];
 	print_failures () unless $install_new eq 'TRUE';
 }
@@ -251,9 +266,11 @@ if ($install_new eq 'TRUE') {
 	my @todo_install;
 	my $has = 'FALSE';
 	FIRST: for my $sbo (@ARGV) {
+		# rename to -compat32 if appropriate, so that we can see if it's
+		# already installed
 		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
-		SECOND: for my $index (keys @installed) {
-			if ($name eq $installed[$index]{name}) {
+		SECOND: for my $key (keys @installed) {
+			if ($name eq $installed[$key]{name}) {
 				$has = 'TRUE';
 				last SECOND;
 			}

@@ -27,6 +27,7 @@ update_tree ();
 print "Checking for updated SlackBuilds...\n";
 my @updates = get_available_updates ();
 
+# pretty formatting.
 my @listing;
 for my $key (keys @updates) {
 	my $string = "$updates[$key]{name}-$updates[$key]{installed}";
