@@ -7,8 +7,8 @@
 # date: Setting Orange, the 37th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
-package SBO::Lib 0.1;
-my $version = "0.1";
+package SBO::Lib 0.5;
+my $version = "0.5";
 
 require Exporter;
 
@@ -35,7 +35,6 @@ require Exporter;
 use warnings FATAL => 'all';
 use strict;
 use File::Basename;
-#use English '-no_match_vars';
 use Tie::File;
 use IO::File;
 use Sort::Versions;
@@ -58,17 +57,20 @@ my @valid_conf_keys = (
 );
 
 our %config;
+# if the conf file exists, pull all the $key=$value pairs into a hash
 if (-f $conf_file) {
 	open my $reader, '<', $conf_file;
 	my $text = do {local $/; <$reader>};
 	%config = $text =~ /^(\w+)=(.*)$/mg;
 	close ($reader);
 }
+# undef any invalid $key=$value pairs
 for my $key (keys %config) {
 	unless ($key ~~ @valid_conf_keys) {
 		undef $config{$key};
 	}
 }
+# ensure we have sane configs, and defaults for anything not in the conf file
 for my $key (@valid_conf_keys) {
 	if ($key eq 'SBO_HOME') {
 		$config{$key} = '/usr/sbo' unless exists $config{$key};
@@ -89,7 +91,6 @@ my $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
 my $name_regex = '\ASLACKBUILD\s+NAME:\s+';
 
 # this should be done a bit differently.
-#
 sub script_error {
 	unless (exists $_[0]) {
 		print "A fatal script error has occured. Exiting.\n";
@@ -113,7 +114,14 @@ sub get_slack_version {
 		chomp (my $line = <$slackver>); 
 		close ($slackver);
 		my $slk_version = split_line ($line, ' ', 1);
-		$slk_version = '13.37' if $slk_version eq '13.37.0';
+		# for now, we may as well die if $slk_version ne '13.37', since it and
+		# current, which will also be '13.37' in this case, are the only
+		# supported versions
+		if ($slk_version eq '13.37.0') {
+			$slk_version = '13.37';
+		} else {
+			print "Unsupported Slackware version: $slk_version\n" and exit (1);
+		}
 		return $slk_version;
 	} else {
 		print "I am unable to locate your /etc/slackware-version file.\n";
@@ -126,6 +134,8 @@ sub check_slackbuilds_txt {
 	return;
 }
 
+# check for the existence of $config{SBO_HOME}, and whether or not it already
+# has stuff in
 sub check_home {
 	my $sbo_home = $config{SBO_HOME};
 	if (-d $sbo_home) {
@@ -164,6 +174,9 @@ sub update_tree {
 	rsync_sbo_tree ();
 }
 
+# if the SLACKBUILDS.TXT is not in $config{SBO_HOME}, we should assume the tree
+# has not been populated there, since we rely on that file anyway; prompt the
+# user to automagickally pull the tree.
 sub slackbuilds_or_fetch {
 	if (! check_slackbuilds_txt () ) {
 		print "It looks like you haven't run \"sbosnap fetch\" yet.\n";
@@ -179,6 +192,9 @@ sub slackbuilds_or_fetch {
 	}
 }
 
+# pull an array of hashes, each hash containing the name and version of an sbo
+# currently installed. starting to think it might be better to only pull an
+# array of names, and have another sub to pull the versions.
 sub get_installed_sbos {
 	my @installed;
 	opendir my $diread, '/var/log/packages';
@@ -195,6 +211,7 @@ sub get_installed_sbos {
 	return @installed;
 }
 
+# take a line and get rid of newlines, spaces, double quotes, and backslashes
 sub clean_line {
 	script_error ('clean line requires an argument') unless exists $_[0];
 	chomp (my $line = shift);
@@ -202,6 +219,8 @@ sub clean_line {
 	return $line;
 }
 
+# given a line, pattern, and index, split the line on the pattern, and return
+# a clean_line'd version of the index
 sub split_line {
 	script_error ('split_line requires three arguments') unless exists $_[2];
 	my ($line, $pattern, $index) = @_;
@@ -214,11 +233,13 @@ sub split_line {
 	return clean_line ($split[$index]);
 }
 
+# pull a clean_line'd value from a $key=$value pair
 sub split_equal_one {
 	script_error ('split_equal_one requires an argument') unless exists $_[0];
 	return split_line ($_[0], '=', 1);
 }
 
+# search the tree for a given sbo's directory
 sub get_sbo_location {
 	script_error ('get_sbo_location requires an argument.Exiting.')
 		unless exists $_[0];
@@ -235,22 +256,24 @@ sub get_sbo_location {
 	return $location;
 }
 
+# for each installed sbo, find out whether or not the version in the tree is
+# newer, and compile an array of hashes containing those which are
 sub get_available_updates {
 	my @updates;
 	my @pkg_list = get_installed_sbos ();
-	FIRST: for my $c (keys @pkg_list) {
-		my $location = get_sbo_location ($pkg_list[$c]{name});
+	FIRST: for my $key (keys @pkg_list) {
+		my $location = get_sbo_location ($pkg_list[$key]{name});
+		# if we can't find a location, assume invalid and skip
 		next FIRST unless defined $location;
-
 		my $regex = qr/^VERSION=/;
-		open my $info, '<', "$location/$pkg_list[$c]{name}.info";
+		open my $info, '<', "$location/$pkg_list[$key]{name}.info";
 		SECOND: while (my $line = <$info>) {
 			if ($line =~ $regex) {
 				my $sbo_version = split_equal_one ($line);
-				if (versioncmp ($sbo_version, $pkg_list[$c]{version}) == 1) {
+				if (versioncmp ($sbo_version, $pkg_list[$key]{version}) == 1) {
 					my %hash = (
-						name => $pkg_list[$c]{name},
-						installed => $pkg_list[$c]{version},
+						name => $pkg_list[$key]{name},
+						installed => $pkg_list[$key]{version},
 						update => $sbo_version,
 					);
 					push (@updates, \%hash);
@@ -263,6 +286,8 @@ sub get_available_updates {
 	return @updates;
 }
 
+# pull links or md5sums (type - 'download','md5sum') from a given sbo's .info
+# file, first checking for x86_64-specific info we are told to
 sub find_download_info {
 	script_error('find_download_info requires four arguments.')
 		unless exists $_[3];
@@ -279,14 +304,20 @@ sub find_download_info {
 	} else {
 		$regex = qr/$regex=/;
 	}
+	# the x86_64 info may be empty
 	my $empty_regex = qr/=""$/;
+	# we need to know whether or not there are more than one lines for a given
+	# key
 	my $back_regex = qr/\\$/;
+	# assume there's not
 	my $more = 'FALSE';
 	open my $info, '<', "$location/$sbo.info";
 	FIRST: while (my $line = <$info>) {
 		unless ($more eq 'TRUE') {
 			if ($line =~ $regex) {
 				last FIRST if $line =~ $empty_regex;
+				# some sbos have UNSUPPORTED for the x86_64 info, meaning we
+				# proceed to pull the non-x86_64-specific info
 				unless (index ($line, 'UNSUPPORTED') != -1) {
 					push (@return, split_equal_one ($line) );
 					$more = 'TRUE' if $line =~ $back_regex;
@@ -310,6 +341,8 @@ sub get_arch {
 	return $arch;
 }
 
+# assemble an array of hashes containing links and md5sums for a given sbo,
+# with the option of only checking for 32-bit links, for -compat32 packaging
 sub get_sbo_downloads {
 	script_error ('get_sbo_downloads requires three arguments.')
 		unless exists $_[2];
@@ -328,8 +361,8 @@ sub get_sbo_downloads {
 		@md5s = find_download_info ($sbo, $location, 'md5sum', 0);
 	}
 	my @downloads;
-	for my $c (keys @links) {
-		my %hash = (link => $links[$c], md5sum => $md5s[$c]);
+	for my $key (keys @links) {
+		my %hash = (link => $links[$key], md5sum => $md5s[$key]);
 		push (@downloads, \%hash);
 	}
 	return @downloads;
@@ -355,6 +388,8 @@ sub compute_md5sum {
 	return $md5sum;
 }
 
+# for a given distfile, see whether or not it exists, and if so, if its md5sum
+# matches the sbo's .info file
 sub check_distfile {
 	script_error ('check_distfile requires two arguments.') unless exists $_[1];
 	my ($link, $info_md5sum) = @_;
@@ -366,6 +401,8 @@ sub check_distfile {
 	return 1;
 }
 
+# for a given distfile, attempt to retrieve it and, if successful, check its
+# md5sum against that in the sbo's .info file
 sub get_distfile {
 	script_error ('get_distfile requires an argument') unless exists $_[1];
 	my ($link, $expected_md5sum) = @_;
@@ -382,6 +419,7 @@ sub get_distfile {
 	return 1;
 }
 
+# find the version in the tree for a given sbo
 sub get_sbo_version {
 	script_error ('get_sbo_version requires two arguments.')
 		unless exists $_[1];
@@ -399,16 +437,19 @@ sub get_sbo_version {
 	return $version;
 }
 
+# for a given distfile, what will be the full path of the symlink?
 sub get_symlink_from_filename {
 	script_error ('get_symlink_from_filename requires two arguments')
 		unless exists $_[1];
 	script_error ('get_symlink_from_filename first argument is not a file')
 		unless -f $_[0];
-	my @split = split ('/', reverse ($_[0]), 2);
+	my ($filename, $location) = @_;
+	my @split = split ('/', reverse ($filename), 2);
 	my $fn = reverse ($split[0]);
-	return "$_[1]/$fn";
+	return "$location/$fn";
 }
 
+# determine whether or not a given sbo is 32-bit only
 sub check_x32 {
 	script_error ('check_x32 requires two arguments.') unless exists $_[1];
 	my ($sbo, $location) = @_;
@@ -422,11 +463,18 @@ sub check_x32 {
 	return;
 }
 
+# can't do 32-bit on x86_64 without this file, so we'll use it as the test to
+# to determine whether or not an x86_64 system is setup for multilib
 sub check_multilib {
 	return 1 if -f '/etc/profile.d/32dev.sh';
 	return;
 }
 
+# necessary to rewrite the .SlackBuild on the fly, at the very least, in order
+# to add our tee commands in, so that we can grok the output; optionally, to 
+# alter the LIBDIRSUFFIX, for 32-bit things, to edit the "make" command for -j,
+# or to change the output architecture. first thing we do is backup the
+# existent .SlackBuild file.
 sub rewrite_slackbuild {
 	script_error ('rewrite_slackbuild requires two arguments.')
 		unless exists $_[1];
@@ -439,6 +487,8 @@ sub rewrite_slackbuild {
 	my $arch_out_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
 	tie my @sb_file, 'Tie::File', $slackbuild;
 	FIRST: for my $line (@sb_file) {
+		# get the output of the tar and makepkg commands. hope like hell that v
+		# is specified among tar's arguments
 		if ($line =~ $tar_regex || $line =~ $makepkg_regex) {
 			$line = "$line | tee -a $tempfn";
 		}
@@ -466,6 +516,7 @@ sub rewrite_slackbuild {
 	return 1;
 }
 
+# move a backed-up .SlackBuild file back into place
 sub revert_slackbuild {
 	script_error ('revert_slackbuild requires an argument') unless exists $_[0];
 	my $slackbuild = shift;
@@ -478,14 +529,18 @@ sub revert_slackbuild {
 	return 1;
 }
 
+# given a location and a list of download links, assemble a list of symlinks,
+# and create them.
+#
+# actually, we're also handling the links themselves here. odd.
 sub create_symlinks {
 	script_error ('create_symlinks requires two arguments.')
 		unless exists $_[1];
 	my ($location, @downloads) = @_;
 	my @symlinks;
-	for my $c (keys @downloads) {
-		my $link = $downloads[$c]{link};
-		my $md5sum = $downloads[$c]{md5sum};
+	for my $key (keys @downloads) {
+		my $link = $downloads[$key]{link};
+		my $md5sum = $downloads[$key]{md5sum};
 		my $filename = get_filename_from_link ($link);
 		unless (check_distfile ($link, $md5sum) ) {
 			die unless get_distfile ($link, $md5sum);
@@ -497,6 +552,7 @@ sub create_symlinks {
 	return @symlinks;
 }
 
+# make a .SlackBuild executable.
 sub prep_sbo_file {
 	script_error ('prep_sbo_file requires two arguments') unless exists $_[1];
 	my ($sbo, $location) = @_;
@@ -505,6 +561,8 @@ sub prep_sbo_file {
 	return 1;
 }
 
+# pull the untarred source directory or created package name from the temp
+# file (the one we tee'd to)
 sub grok_temp_file {
 	script_error ('grok_temp_file requires two arguments') unless exists $_[1];
 	my ($tempfn, $find) = @_;
@@ -526,6 +584,7 @@ sub grok_temp_file {
 	return $out;
 }
 
+# wrappers around grok_temp_file
 sub get_src_dir {
 	script_error ('get_src_dir requires an argument') unless exists $_[0];
 	my $filename = shift;
@@ -538,6 +597,7 @@ sub get_pkg_name {
 	return grok_temp_file ($filename, 'pkg');
 }
 
+# do things necessary to run the .SlackBuild, and then do so.
 sub perform_sbo {
 	script_error ('perform_sbo requires five arguments') unless exists $_[4];
 	my ($jobs, $sbo, $location, $arch, $c32, $x32) = @_;
@@ -569,6 +629,7 @@ sub perform_sbo {
 	return $pkg, $src;
 }
 
+# safely create a temp file
 sub make_temp_file {
 	make_path ('/tmp/sbotools') unless -d '/tmp/sbotools';
 	my $temp_dir = -d '/tmp/sbotools' ? '/tmp/sbotools' : $ENV{TMPDIR} ||
@@ -578,6 +639,8 @@ sub make_temp_file {
 	return ($fh, $filename);
 }
 
+# for compat32 slackbuilds
+# sb_compat32 and sb_normal should probably be refactored a bit.
 sub sb_compat32 {
 	script_error ('sb_compat32 requires six arguments.') unless exists $_[5];
 	my ($jobs, $sbo, $location, $arch, $version, @downloads) = @_;
@@ -627,6 +690,7 @@ to be setup for multilib.\n";
 	return $pkg, $src;
 }
 
+# "public interface", sort of thing - calls sb_compat32 or sb_normal.
 sub do_slackbuild {
 	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
 	my ($jobs, $sbo, $location, $compat32) = @_;
@@ -645,6 +709,7 @@ sub do_slackbuild {
 	return $version, $pkg, $src;
 }
 
+# remove work directories (source and packaging dirs under /tmp/SBo)
 sub make_clean {
 	script_error ('make_clean requires two arguments.') unless exists $_[1];
 	my ($sbo, $src, $version) = @_;
@@ -655,6 +720,7 @@ sub make_clean {
 	return 1;
 }
 
+# remove distfiles
 sub make_distclean {
 	script_error ('make_distclean requires three arguments.')
 		unless exists $_[2];
@@ -662,13 +728,14 @@ sub make_distclean {
 	make_clean ($sbo, $src, $version);
 	print "Distcleaning for $sbo-$version...\n";
 	my @downloads = get_sbo_downloads ($sbo, $location, 0);
-	for my $c (keys @downloads) {
-		my $filename = get_filename_from_link ($downloads[$c]{link});
+	for my $key (keys @downloads) {
+		my $filename = get_filename_from_link ($downloads[$key]{link});
 		unlink ($filename) if -f $filename;
 	}
 	return 1;
 }
 
+# run upgradepkg for a created package
 sub do_upgradepkg {
 	script_error ('do_upgradepkg requires an argument.') unless exists $_[0];
 	my $pkg = shift;
