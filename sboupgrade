@@ -94,6 +94,7 @@ sub grok_readme {
 	$readme =~ s/\n//g;
 	my $string = $3 if $readme =~
 		/([Tt]his|$sbo|)\s+[Rr]equires(|:)\s+([^\.]+)/;
+	return unless defined $string;
 	# remove anything in brackets or parens
 	$string =~ s/\[[^\]]+\]//g;
 	$string =~ s/\([^\)]+\)//g;
@@ -114,7 +115,8 @@ sub grok_readme {
 	my @have;
 	FIRST: for my $dep (@deps) {
 		SECOND: for my $key (keys @installed) {
-			if ($dep eq $installed[$key]{name}) {
+			my $tempname = $compat32 eq 'TRUE' ? "$dep-compat32" : $dep;
+			if ($tempname eq $installed[$key]{name}) {
 				push (@have, $dep);
 				last SECOND;
 			}
@@ -127,18 +129,19 @@ sub grok_readme {
 		# compared against installed slackbuilds again, since we're recursive
 		# and may have installed the requirement in question as a requirement
 		# of an earlier requirement, etc
+		my $tempname = $compat32 eq 'TRUE' ? "$need-compat32" : $need;
 		my @inst = get_installed_sbos ();
 		SECOND: for my $key (keys @inst) {
-			next FIRST if $need eq $inst[$key]{name};
+			next FIRST if $tempname eq $inst[$key]{name};
 		}
 		print "\n". $readme_orig;
-		print "\nIt looks this slackbuild requires $need; shall I attempt to ";
+		print "\nIt looks this slackbuild requires $tempname; shall I attempt to ";
 		print "install it first? [y] ";
 		my $test = <STDIN>;
 		$test = 'y' if $test eq "\n";
 		if ($test =~ /^[Yy]/) {
-			my $cmd = "/usr/sbin/sboinstall";
-			my @args;
+			my $cmd = "/usr/sbin/sboupgrade";
+			my @args = ('-oN');
 			# populate args so that they carry over correctly
 			push (@args, "-c") if exists $options{c};
 			push (@args, "-d") if exists $options{d};
