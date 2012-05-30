@@ -99,7 +99,7 @@ sub grok_readme {
 	# remove anything in brackets or parens
 	$string =~ s/(\s)*\[[^\]]+\](\s)*//g;
 	$string =~ s/(\s)*\([^\)]+\)(\s)*//g;
-	# converts and to comma
+	# convert and to comma
 	$string =~ s/(\s+|,)and\s+/,/g;
 	$string =~ s/,\s+/,/g;
 	my @deps = split (/,/, $string);
@@ -127,17 +127,15 @@ sub grok_readme {
 		push (@needed, $dep) unless $dep ~~ @have;
 	}
 	FIRST: for my $need (@needed) {
-		# compared against installed slackbuilds again, since we're recursive
-		# and may have installed the requirement in question as a requirement
-		# of an earlier requirement, etc
+		# compare against installed slackbuilds again, since we're recursive
 		my $tempname = $compat32 eq 'TRUE' ? "$need-compat32" : $need;
 		my @inst = get_installed_sbos ();
 		SECOND: for my $key (keys @inst) {
 			next FIRST if $tempname eq $inst[$key]{name};
 		}
 		print "\n". $readme_orig;
-		print "\nIt looks this slackbuild requires $tempname; shall I attempt to ";
-		print "install it first? [y] ";
+		print "\nIt looks this slackbuild requires $tempname; shall I attempt";
+		print " to install it first? [y] ";
 		my $test = <STDIN>;
 		$test = 'y' if $test eq "\n";
 		if ($test =~ /^[Yy]/) {
@@ -154,10 +152,7 @@ sub grok_readme {
 	}
 }
 
-# prompt for the readme, and grok the readme at this time also. we grok the
-# readme within this subroutine so that if the readme_prompt is bypassed, the
-# requirement parsing will be as well - that should never be able to happen
-# w/o the user verifying its suggestions against the readme
+# prompt for the readme, and grok the readme at this time also.
 sub readme_prompt {
 	script_error ('readme_prompt requires an argument.') unless exists $_[0];
 	my $sbo = shift;
@@ -233,15 +228,14 @@ sub print_failures {
 }
 
 # deal with any updates prior to any new installs; no reason to bother with all
-# this if only_new is specified - ie, if we are run from sboinstall, so can be
-# much faster with this separation of logic
+# this if only_new is specified - ie, if we are run from sboinstall
 unless ($only_new eq 'TRUE') {
 	# doesn't matter what's updatable and what's not if force is specified
 	my @updates unless $force eq 'TRUE';
 	unless ($force eq 'TRUE') {
 		my @updates_array = get_available_updates ();
 		for my $key (keys @updates_array) {
-			push(@updates, $updates_array[$key]{name});
+			push (@updates, $updates_array[$key]{name});
 		}
 	}
 	my @todo_upgrade;
