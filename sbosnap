@@ -50,7 +50,7 @@ my $command;
 if ($ARGV[0] =~ /fetch|update/) {
 	$command = $ARGV[0];
 } else { 
-	show_usage () and exit (1);
+	show_usage () and exit 1;
 }
 
 given ($command) {

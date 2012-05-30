@@ -52,11 +52,6 @@ for my $opt (@opts2) {
 	unshift (@ARGV, "-$opt $options{$opt}") if exists $options{$opt};
 }
 
-# stringify the args
-my $string = '';
-for my $arg (@ARGV) {
-	$string .= " $arg";
-}
-
-system ("/usr/sbin/sboupgrade -oN $string");
+unshift (@ARGV, '-oN');
+system ('/usr/sbin/sboupgrade', @ARGV);
 exit 0;

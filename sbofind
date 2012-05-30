@@ -64,8 +64,7 @@ FIRST: while (my $line = <$sb_txt>) {
 			my @split = split (' ', $line);
 			chomp (my $location = $split[2]);
 			$location =~ s#^\.##;
-			my %hash = ($name => $config{SBO_HOME} . $location);
-			push (@findings, \%hash);
+			push (@findings, {$name => $config{SBO_HOME} . $location} );
 		}
 	}
 }

@@ -56,7 +56,7 @@ if (exists $options{l}) {
 	exit 0;
 }
 
-show_usage () unless %options;
+show_usage () and exit (0) unless %options;
 
 my %valid_confs = (
 	c => 'NOCLEAN',
@@ -72,9 +72,8 @@ while (my ($key, $value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
 }
 if (exists $changes{JOBS}) {
-	unless ($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE') {
-		die "You have provided an invalid parameter for -j\n";
-	}
+	die "You have provided an invalid parameter for -j\n" unless
+		($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE');
 }
 
 my $conf_dir = $SBO::Lib::conf_dir;;
@@ -86,14 +85,12 @@ sub config_write {
 	script_error ('config_write requires two arguments.') unless exists $_[1];
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
-		mkdir ($conf_dir)
-			or die "Unable to create $conf_dir. Exiting.\n";
+		mkdir ($conf_dir) or die "Unable to create $conf_dir. Exiting.\n";
 	}
 	if (-f $conf_file) {
-		# get a temp file and fill it with the contents of our config file
 		my ($fh, $filename) = make_temp_file ();
 		close $fh;
-		copy ($conf_file, $filename)
+		copy ($conf_file, $filename);
 		# tie the file so that if $key is already there, we just change that
 		# line and untie it
 		tie my @temp, 'Tie::File', $filename;
