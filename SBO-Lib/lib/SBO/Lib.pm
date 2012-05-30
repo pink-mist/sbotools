@@ -16,8 +16,6 @@ require Exporter;
 @EXPORT = qw(
 	script_error
 	show_version
-	get_slack_version
-	check_slackbuilds_txt
 	slackbuilds_or_fetch
 	fetch_tree
 	update_tree
@@ -28,7 +26,6 @@ require Exporter;
 	make_distclean
 	do_upgradepkg
 	get_sbo_location
-	get_pkg_name
 	make_temp_file
 );
 
