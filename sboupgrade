@@ -54,7 +54,7 @@ my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
 my $compat32 = exists $options{p} ? 'TRUE' : 'FALSE';
 
 if (exists $options{j}) {
-	unless ($options{j} =~ /^\d+$/ || $options{j} == 'FALSE') {
+	unless ($options{j} =~ /^\d+$/ || $options{j} eq 'FALSE') {
 		die "You have provided an invalid parameter for -j\n";
 	}
 }
