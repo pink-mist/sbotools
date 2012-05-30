@@ -44,7 +44,7 @@ use File::Path qw(make_path remove_tree);
 use Fcntl;
 use File::Find;
 
-$< == 0 or print "This script requires root privileges.\n" and exit (1);
+$< == 0 or die "This script requires root privileges.\n";
 
 our $conf_dir = '/etc/sbotools';
 our $conf_file = "$conf_dir/sbotools.conf";
@@ -93,13 +93,10 @@ my $name_regex = '\ASLACKBUILD\s+NAME:\s+';
 # this should be done a bit differently.
 sub script_error {
 	unless (exists $_[0]) {
-		print "A fatal script error has occured. Exiting.\n";
+		die "A fatal script error has occured. Exiting.\n";
 	} else {
-		print "A fatal script error has occured:\n";
-		print "$_[0]\n";
-		print "Exiting.\n";
+		die "A fatal script error has occured:\n$_[0]\nExiting.\n";
 	}
-	exit 1;
 } 
 
 sub show_version {
@@ -120,12 +117,11 @@ sub get_slack_version {
 		if ($slk_version eq '13.37.0') {
 			$slk_version = '13.37';
 		} else {
-			print "Unsupported Slackware version: $slk_version\n" and exit (1);
+			die "Unsupported Slackware version: $slk_version\n";
 		}
 		return $slk_version;
 	} else {
-		print "I am unable to locate your /etc/slackware-version file.\n";
-		exit 1;
+		die "I am unable to locate your /etc/slackware-version file.\n";
 	}
 }
 
@@ -142,12 +138,10 @@ sub check_home {
 		opendir (my $home_handle, $sbo_home);
 		while (readdir $home_handle) {
 			next if /^\.[\.]{0,1}$/;
-			print "$sbo_home exists and is not empty. Exiting.\n";
-			exit 1;
+			die "$sbo_home exists and is not empty. Exiting.\n";
 		}
 	} else {
-		make_path ($sbo_home) or print "Unable to create $sbo_home. Exiting.\n"
-			and exit (1);
+		make_path ($sbo_home) or die "Unable to create $sbo_home. Exiting.\n";
 	}
 }
 
@@ -186,8 +180,7 @@ sub slackbuilds_or_fetch {
 		if ($fetch =~ /^[Yy]/) {
 			fetch_tree ();
 		} else {
-			print "Please run \"sbosnap fetch\"\n";
-			exit 0;
+			print "Please run \"sbosnap fetch\"\n" and exit 0;
 		}
 	}
 }
@@ -241,8 +234,7 @@ sub split_equal_one {
 
 # search the tree for a given sbo's directory
 sub get_sbo_location {
-	script_error ('get_sbo_location requires an argument.Exiting.')
-		unless exists $_[0];
+	script_error ('get_sbo_location requires an argument.') unless exists $_[0];
 	my $sbo = shift;
 	my $location;
 	my $regex = qr#$config{SBO_HOME}/[^/]+/\Q$sbo\E\z#;
@@ -413,8 +405,7 @@ sub get_distfile {
 	return unless $out == 0;
 	my $md5sum = compute_md5sum ($filename);
 	if ($md5sum ne $expected_md5sum) {
-		print "md5sum failure for $filename.\n";
-		exit 1;
+		die "md5sum failure for $filename.\n";
 	}
 	return 1;
 }
@@ -650,25 +641,21 @@ sub do_slackbuild {
 	my $x32;
 	if ($compat32 eq 'TRUE') {
 		unless ($arch eq 'x86_64') {
-			print 'You can only create compat32 packages on x86_64 systems.';
-			exit 1;
+			die "You can only create compat32 packages on x86_64 systems.\n";
 		} else {
 			if (! check_multilib () ) {
-				print "This system does not appear to be setup for multilib.\n";
-				exit 1;
+				die "This system does not appear to be setup for multilib.\n";
 			}
 			if (! -f '/usr/sbin/convertpkg-compat32') {
-				print "compat32 pkgs require /usr/sbin/convertpkg-compat32.\n";
-				exit 1;
+				die "compat32 pkgs require /usr/sbin/convertpkg-compat32.\n";
 			}
 		}
 	} else {
 		if ($arch eq 'x86_64') {
 			$x32 = check_x32 ($sbo, $location);
 			if ($x32 && ! check_multilib () ) {
-				print "$sbo is 32-bit only, however, this system does not appear 
+				die "$sbo is 32-bit only, however, this system does not appear 
 to be setup for multilib.\n";
-				exit 1;
 			}
 		}
 	}

@@ -55,8 +55,7 @@ my $compat32 = exists $options{p} ? 'TRUE' : 'FALSE';
 
 if (exists $options{j}) {
 	unless ($options{j} =~ /^\d+$/ || $options{j} == 'FALSE') {
-		print "You have provided an invalid parameter for -j\n";
-		exit 1;
+		die "You have provided an invalid parameter for -j\n";
 	}
 }
 my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
@@ -72,8 +71,7 @@ my %locations;
 for my $sbo_name (@ARGV) {
 	$locations{$sbo_name} = get_sbo_location ($sbo_name);
 	unless (defined $locations{$sbo_name}) {
-		print "Unable to locate $sbo_name in the SlackBuilds.org tree.\n";
-		exit 1;
+		die "Unable to locate $sbo_name in the SlackBuilds.org tree.\n";
 	}
 }
 

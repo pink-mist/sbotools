@@ -74,8 +74,7 @@ while (my ($key, $value) = each %valid_confs) {
 }
 if (exists $changes{JOBS}) {
 	unless ($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE') {
-		print "You have provided an invalid parameter for -j\n";
-		exit 1;
+		die "You have provided an invalid parameter for -j\n";
 	}
 }
 
@@ -89,7 +88,7 @@ sub config_write {
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
 		mkdir ($conf_dir)
-			or print "Unable to create $conf_dir. Exiting.\n" and exit (1);
+			or die "Unable to create $conf_dir. Exiting.\n";
 	}
 	if (-f $conf_file) {
 		# get a temp file and fill it with the contents of our config file
