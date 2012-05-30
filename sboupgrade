@@ -89,15 +89,18 @@ sub grok_readme {
 	script_error ('grok_readme requires two arguments') unless exists $_[1];
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
-	# work around missing period at end of list of requirements (given 2 \ns)
+	# work around missing period at end of list of requirements (given 2 \ns),
+	# or no period at end of whole thing.
+	my $endchar = $1 if $readme =~ /(.)$/;
+	$readme =~ s/.$/$endchar./;
 	$readme =~ s/\n\n/./g;
 	$readme =~ s/\n//g;
-	my $string = $3 if $readme =~
-		/([Tt]his|$sbo|)\s+[Rr]equires(|:)\s+([^\.]+)/;
+	my $string = $4 if $readme =~
+		/([Tt]his|$sbo|)\s+[Rr]equire(s|)(|:)\s+([^\.]+)/;
 	return unless defined $string;
 	# remove anything in brackets or parens
-	$string =~ s/\[[^\]]+\]//g;
-	$string =~ s/\([^\)]+\)//g;
+	$string =~ s/(\s)*\[[^\]]+\](\s)*//g;
+	$string =~ s/(\s)*\([^\)]+\)(\s)*//g;
 	# converts and to comma
 	$string =~ s/(\s+|,)and\s+/,/g;
 	$string =~ s/,\s+/,/g;
