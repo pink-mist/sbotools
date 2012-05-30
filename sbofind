@@ -24,6 +24,7 @@ Usage: $self (search_term)
 Options:
   -h: this screen.
   -v: version information.
+  -r: show the README for each found item.
 
 Example:
   $self libsexy 
@@ -32,10 +33,12 @@ EOF
 }
 
 my %options;
-getopts ('hv', \%options);
+getopts ('hvr', \%options);
 
 show_usage () and exit (0) if (exists $options{h});
 show_version () and exit (0) if (exists $options{v});
+
+my $show_readme = exists $options{r} ? 'TRUE' : 'FALSE';
 
 show_usage () and exit (1) unless exists $ARGV[0];
 my $search = $ARGV[0];
@@ -73,14 +76,21 @@ if (exists $findings[0]) {
 	my @listing;
 	for my $hash (@findings) {
 		while (my ($key, $value) = each %{$hash}) {
-			push (@listing, "SBo: $key\n");
-			push (@listing, "Path: $value\n\n");
+			push (@listing, "SBo:    $key\n");
+			push (@listing, "Path:   $value\n");
+			if ($show_readme eq 'TRUE') {
+				open my $fh, '<', "$value/README";
+				my $readme = do {local $/; <$fh>};
+				$readme =~ s/\n/\n        /g;
+				push (@listing, "README: $readme");
+				close $readme;
+			}
+			push (@listing, "\n");
 		}
 	}
-	my $tab = new Text::Tabulate();
-	$tab->configure (tab => '\s');
-	my $output = $tab->format (@listing);
-	print "\n". $output;
+	for my $list (@listing) {
+		print $list;
+	}
 } else {
 	print "Nothing found for search term: $search\n";
 }
