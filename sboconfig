@@ -14,7 +14,6 @@ use File::Basename;
 use Getopt::Std;
 use File::Copy;
 use File::Path qw(make_path);
-use Fcntl;
 
 my %config = %SBO::Lib::config;
 my $self = basename ($0);
@@ -93,9 +92,8 @@ sub config_write {
 	if (-f $conf_file) {
 		# get a temp file and fill it with the contents of our config file
 		my ($fh, $filename) = make_temp_file ();
-		open my $reader, '<', $conf_file;
-		print {$fh} <$reader>;
 		close $fh;
+		copy ($conf_file, $filename)
 		# tie the file so that if $key is already there, we just change that
 		# line and untie it
 		tie my @temp, 'Tie::File', $filename;
