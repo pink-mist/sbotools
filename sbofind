@@ -10,7 +10,6 @@
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
-use Text::Tabulate;
 use strict;
 use warnings FATAL => 'all';
 

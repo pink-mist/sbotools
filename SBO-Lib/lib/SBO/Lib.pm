@@ -31,9 +31,7 @@ require Exporter;
 
 use warnings FATAL => 'all';
 use strict;
-use File::Basename;
 use Tie::File;
-use IO::File;
 use Sort::Versions;
 use Digest::MD5;
 use File::Copy;

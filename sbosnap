@@ -13,7 +13,6 @@
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
-use File::Path qw(make_path);
 use feature switch;
 use warnings FATAL => 'all';
 use strict;
