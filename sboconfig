@@ -96,7 +96,7 @@ sub config_write {
 		my ($fh, $filename) = make_temp_file ();
 		open my $reader, '<', $conf_file;
 		print {$fh} <$reader>;
-		close ($fh);
+		close $fh;
 		# tie the file so that if $key is already there, we just change that
 		# line and untie it
 		tie my @temp, 'Tie::File', $filename;
@@ -114,14 +114,14 @@ sub config_write {
 		if ($has eq 'FALSE') {
 			open (my $writer, '>>', $filename);
 			print {$writer} "$key=$val\n";
-			close ($writer);
+			close $writer;
 		}
 		move ($filename, $conf_file);
 	} else {
 		# no config file, easiest case of all.
 		open my $writer, '>', $conf_file;
 		print {$writer} "$key=$val\n";
-		close ($writer);
+		close $writer;
 	}
 }
 

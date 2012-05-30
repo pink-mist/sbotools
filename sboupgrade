@@ -168,7 +168,7 @@ sub readme_prompt {
 	my $readme = do {local $/; <$readme_file>};
 	unless (grok_readme ($sbo, $readme) ) {
 		print "\n". $readme;
-		close ($readme_file);
+		close $readme_file;
 		print "\nProceed with $sbo? [y]: ";
 		my $test = <STDIN>;
 		$test = 'y' if $test eq "\n";
