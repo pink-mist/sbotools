@@ -62,7 +62,7 @@ if (-f $conf_file) {
 	open my $reader, '<', $conf_file;
 	my $text = do {local $/; <$reader>};
 	%config = $text =~ /^(\w+)=(.*)$/mg;
-	close ($reader);
+	close $reader;
 }
 # undef any invalid $key=$value pairs
 for my $key (keys %config) {
@@ -112,7 +112,7 @@ sub get_slack_version {
 	if (-f '/etc/slackware-version') {
 		open my $slackver, '<', '/etc/slackware-version';
 		chomp (my $line = <$slackver>); 
-		close ($slackver);
+		close $slackver;
 		my $slk_version = split_line ($line, ' ', 1);
 		# for now, we may as well die if $slk_version ne '13.37', since it and
 		# current, which will also be '13.37' in this case, are the only
@@ -281,7 +281,7 @@ sub get_available_updates {
 				last SECOND;
 			}
 		}
-		close ($info);
+		close $info;
 	}
 	return @updates;
 }
@@ -331,7 +331,7 @@ sub find_download_info {
 			push (@return, $line);
 		}
 	}
-	close ($info);
+	close $info;
 	return @return if exists $return[0];
 	return;
 }
@@ -351,7 +351,7 @@ sub get_sbo_downloads {
 	my $arch = get_arch ();
 	my (@links, @md5s);
 	if ($arch eq 'x86_64') {
-		unless ($only32) {
+		unless ($only32 eq 'TRUE') {
 			@links = find_download_info ($sbo, $location, 'download', 1);
 			@md5s = find_download_info ($sbo, $location, 'md5sum', 1);
 		}
@@ -384,7 +384,7 @@ sub compute_md5sum {
 	my $md5 = Digest::MD5->new;
 	$md5->addfile ($reader);
 	my $md5sum = $md5->hexdigest;
-	close ($reader);
+	close $reader;
 	return $md5sum;
 }
 
@@ -433,7 +433,7 @@ sub get_sbo_version {
 			last FIRST;
 		}
 	}
-	close ($info);
+	close $info;
 	return $version;
 }
 
@@ -581,6 +581,7 @@ sub grok_temp_file {
 			}
 		}
 	}
+	close $fh;
 	return $out;
 }
 
@@ -597,38 +598,6 @@ sub get_pkg_name {
 	return grok_temp_file ($filename, 'pkg');
 }
 
-# do things necessary to run the .SlackBuild, and then do so.
-sub perform_sbo {
-	script_error ('perform_sbo requires five arguments') unless exists $_[4];
-	my ($jobs, $sbo, $location, $arch, $c32, $x32) = @_;
-	prep_sbo_file ($sbo, $location);
-	my $cmd;
-	my %changes;
-	unless ($jobs eq 'FALSE') {
-		$changes{make} = "-j $jobs";
-	}
-	if ($arch eq 'x86_64' and ($c32 || $x32) ) {
-		if ($c32) {
-			$changes{libdirsuffix} = '';
-		} elsif ($x32) {
-			$changes{arch_out} = 'i486';
-		}
-		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
-	} else {
-		$cmd = "$location/$sbo.SlackBuild";
-	}
-	my ($tempfh, $tempfn) = make_temp_file ();
-	close ($tempfh);
-	rewrite_slackbuild ("$location/$sbo.SlackBuild", $tempfn, %changes);
-	my $out = system ($cmd);
-	revert_slackbuild ("$location/$sbo.SlackBuild");
-	die unless $out == 0;
-	my $src = get_src_dir ($tempfn);
-	my $pkg = get_pkg_name ($tempfn);
-	unlink $tempfn;
-	return $pkg, $src;
-}
-
 # safely create a temp file
 sub make_temp_file {
 	make_path ('/tmp/sbotools') unless -d '/tmp/sbotools';
@@ -639,73 +608,83 @@ sub make_temp_file {
 	return ($fh, $filename);
 }
 
-# for compat32 slackbuilds
-# sb_compat32 and sb_normal should probably be refactored a bit.
-sub sb_compat32 {
-	script_error ('sb_compat32 requires six arguments.') unless exists $_[5];
-	my ($jobs, $sbo, $location, $arch, $version, @downloads) = @_;
-	unless ($arch eq 'x86_64') {
-		print 'You can only create compat32 packages on x86_64 systems.';
-		exit 1;
+# prep and run .SlackBuild
+sub perform_sbo {
+	script_error ('perform_sbo requires five arguments') unless exists $_[4];
+	my ($jobs, $sbo, $location, $arch, $c32, $x32) = @_;
+	prep_sbo_file ($sbo, $location);
+	my $cmd;
+	my %changes;
+	unless ($jobs eq 'FALSE') {
+		$changes{make} = "-j $jobs";
+	}
+	if ($arch eq 'x86_64' and ($c32 eq 'TRUE' || $x32) ) {
+		if ($c32 eq 'TRUE') {
+			$changes{libdirsuffix} = '';
+		} elsif ($x32) {
+			$changes{arch_out} = 'i486';
+		}
+		$cmd = ". /etc/profile.d/32dev.sh && $location/$sbo.SlackBuild";
 	} else {
-		if (! check_multilib () ) {
-			print "This system does not appear to be setup for multilib.\n";
-			exit 1;
-		}
-		if (! -f '/usr/sbin/convertpkg-compat32') {
-			print "compat32 pkgs require /usr/sbin/convertpkg-compat32.\n";
-			exit 1;
-		}
+		$cmd = "$location/$sbo.SlackBuild";
 	}
-	my @symlinks = create_symlinks ($location, @downloads);
-	my ($pkg, $src) = perform_sbo ($jobs, $sbo, $location, $arch, 1, 1);
 	my ($tempfh, $tempfn) = make_temp_file ();
-	close ($tempfh);
-	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $tempfn";
+	close $tempfh;
+	rewrite_slackbuild ("$location/$sbo.SlackBuild", $tempfn, %changes);
 	my $out = system ($cmd);
-	unlink ($_) for @symlinks;
+	revert_slackbuild ("$location/$sbo.SlackBuild");
 	die unless $out == 0;
-	unlink $pkg;
-	$pkg = get_pkg_name ($tempfn);
+	my $src = get_src_dir ($tempfn);
+	my $pkg = get_pkg_name ($tempfn);
+	unlink $tempfn;
 	return $pkg, $src;
 }
 
-sub sb_normal {
-	script_error ('sb_normal requires six arguments.') unless exists $_[5];
-	my ($jobs, $sbo, $location, $arch, $version, @downloads) = @_;
-	my $x32;
-	if ($arch eq 'x86_64') {
-		$x32 = check_x32 ($sbo, $location);
-		if ($x32) {
-			if (! check_multilib () ) {
-				print "$sbo is 32-bit only, however, this system does not appear 
-to be setup for multilib.\n";
-				exit 1
-			}
-		}
-	}
-	my @symlinks = create_symlinks ($location, @downloads);
-	my ($pkg, $src) = perform_sbo ($jobs, $sbo, $location, $arch, 0, $x32);
-	unlink ($_) for @symlinks;
-	return $pkg, $src;
-}
-
-# "public interface", sort of thing - calls sb_compat32 or sb_normal.
+# "public interface", sort of thing.
 sub do_slackbuild {
 	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
 	my ($jobs, $sbo, $location, $compat32) = @_;
 	my $arch = get_arch ();
 	my $version = get_sbo_version ($sbo, $location);
-	my $c32 = $compat32 eq 'TRUE' ? 1 : 0;
-	my @downloads = get_sbo_downloads ($sbo, $location, $c32);
-	my ($pkg, $src);
+	my @downloads = get_sbo_downloads ($sbo, $location, $compat32);
+	my $x32;
 	if ($compat32 eq 'TRUE') {
-		($pkg, $src) = sb_compat32
-			($jobs, $sbo, $location, $arch, $version, @downloads);
+		unless ($arch eq 'x86_64') {
+			print 'You can only create compat32 packages on x86_64 systems.';
+			exit 1;
+		} else {
+			if (! check_multilib () ) {
+				print "This system does not appear to be setup for multilib.\n";
+				exit 1;
+			}
+			if (! -f '/usr/sbin/convertpkg-compat32') {
+				print "compat32 pkgs require /usr/sbin/convertpkg-compat32.\n";
+				exit 1;
+			}
+		}
 	} else {
-		($pkg, $src) = sb_normal
-			($jobs, $sbo, $location, $arch, $version, @downloads);
+		if ($arch eq 'x86_64') {
+			$x32 = check_x32 ($sbo, $location);
+			if ($x32 && ! check_multilib () ) {
+				print "$sbo is 32-bit only, however, this system does not appear 
+to be setup for multilib.\n";
+				exit 1;
+			}
+		}
 	}
+	my @symlinks = create_symlinks ($location, @downloads);
+	my ($pkg, $src) = perform_sbo
+		($jobs, $sbo, $location, $arch, $compat32, $x32);
+	if ($compat32 eq 'TRUE') {
+		my ($tempfh, $tempfn) = make_temp_file ();
+		close $tempfh;
+		my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $tempfn";
+		my $out = system ($cmd);
+		die unless $out == 0;
+		unlink $pkg;
+		$pkg = get_pkg_name ($tempfn);
+	}
+	unlink ($_) for @symlinks;
 	return $version, $pkg, $src;
 }
 
