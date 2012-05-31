@@ -76,13 +76,12 @@ for my $sbo_name (@ARGV) {
 sub get_readme_path {
 	script_error ('get_readme_path requires an argument.') unless exists $_[0];
 	my $sbo = shift;
-	my $location = $locations{$sbo};
-	return $location .'/README';
+	return $locations{$sbo} .'/README';
 }
 
 # this subroutine may be getting a little out of hand.
-sub grok_readme {
-	script_error ('grok_readme requires two arguments') unless exists $_[1];
+sub grok_requirements {
+	script_error ('grok_requirements requires two arguments') unless exists $_[1];
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
 	# work around missing period at end of list of requirements (given 2 \ns),
@@ -141,7 +140,7 @@ sub readme_prompt {
 	my $readme_path = get_readme_path ($sbo);
 	open my $readme_file, '<', $readme_path;
 	my $readme = do {local $/; <$readme_file>};
-	unless (grok_readme ($sbo, $readme) ) {
+	unless (grok_requirements ($sbo, $readme) ) {
 		print "\n". $readme;
 		close $readme_file;
 		print "\nProceed with $sbo? [y]: ";
