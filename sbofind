@@ -89,14 +89,10 @@ if (exists $findings[0]) {
 		while (my ($key, $value) = each %{$hash}) {
 			push (@listing, "SBo:    $key\n");
 			push (@listing, "Path:   $value\n");
-			if ($show_info eq 'TRUE') {
-				push (@listing, "info:   ". get_file_contents
-					("$value/$key.info") );
-			}
-			if ($show_readme eq 'TRUE') {
-				push (@listing, "README: ". get_file_contents
-					("$value/README") );
-			}
+			push (@listing, "info:   ". get_file_contents
+				("$value/$key.info") ) if $show_info eq 'TRUE';
+			push (@listing, "README: ". get_file_contents ("$value/README") )
+				if $show_readme eq 'TRUE';
 			push (@listing, "\n");
 		}
 	}
