@@ -81,7 +81,8 @@ sub get_readme_path {
 
 # this subroutine may be getting a little out of hand.
 sub grok_requirements {
-	script_error ('grok_requirements requires two arguments') unless exists $_[1];
+	script_error ('grok_requirements requires two arguments')
+		unless exists $_[1];
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
 	# work around missing period at end of list of requirements (given 2 \ns),
@@ -115,8 +116,8 @@ sub grok_requirements {
 			next FIRST if $tempname eq $inst[$key]{name};
 		}
 		print "\n". $readme_orig;
-		print "\nIt looks this slackbuild requires $tempname; shall I attempt";
-		print " to install it first? [y] ";
+		print "\nIt looks like this slackbuild requires $tempname; shall I";
+		print " attempt to install it first? [y] ";
 		my $test = <STDIN>;
 		$test = 'y' if $test eq "\n";
 		if ($test =~ /^[Yy]/) {
@@ -131,6 +132,35 @@ sub grok_requirements {
 			system ($cmd, @args);
 		}
 	}
+	return 1;
+}
+
+sub grok_user_group {
+	script_error ('grok_user_group requires an argument') unless exists $_[0];
+	my $readme = shift;
+	my @readme_array = split (/\n/, $readme);
+	my @cmds;
+	my $cmd_regex = qr/^\s*#\s+((user|group)add.*)/;
+	for my $line (@readme_array) {
+		push (@cmds, $1) if $line =~ $cmd_regex;
+	}
+	return unless exists $cmds[0];
+	print "\n". $readme ."\n";;
+	print "\nIt looks like this slackbuild requires the following command(s)";
+	print " to be run first:\n";
+	print "    # $_\n" for @cmds;
+	print "Shall I run it/them now? [y] ";
+	my $test = <STDIN>;
+	$test = 'y' if $test eq "\n";
+	if ($test =~ /^[Yy]/) {
+		for my $cmd (@cmds) {
+			my @split = split (' ', $cmd);
+			my $command = shift (@split);
+			my $out = system ($command, @split);
+			warn "$cmd appears to have resulted in an error\n" unless $out == 0;
+		}
+	}
+	return 1;
 }
 
 # prompt for the readme, and grok the readme at this time also.
@@ -141,6 +171,7 @@ sub readme_prompt {
 	open my $readme_file, '<', $readme_path;
 	my $readme = do {local $/; <$readme_file>};
 	unless (grok_requirements ($sbo, $readme) ) {
+		grok_user_group ($readme);
 		print "\n". $readme;
 		close $readme_file;
 		print "\nProceed with $sbo? [y]: ";
@@ -200,7 +231,7 @@ my @failed;
 sub print_failures {
 	if (exists $failed[0]) {
 		print "Failures:\n";
-		print "  $_\n" for (@failed);
+		print "  $_\n" for @failed;
 		exit 1;
 	}
 }
@@ -212,9 +243,7 @@ unless ($only_new eq 'TRUE') {
 	my @updates unless $force eq 'TRUE';
 	unless ($force eq 'TRUE') {
 		my @updates_array = get_available_updates ();
-		for my $key (keys @updates_array) {
-			push (@updates, $updates_array[$key]{name});
-		}
+		push (@updates, $updates_array[$_]{name}) for keys @updates_array;
 	}
 	my @todo_upgrade;
 	# but without force, we only want to update what there are updates for
