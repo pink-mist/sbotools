@@ -50,9 +50,7 @@ show_version () and exit (0) if exists $options{v};
 
 if (exists $options{l}) {
 	my @keys = sort {$a cmp $b} keys %config;
-	for my $key (@keys) {
-		print "$key=$config{$key}\n";
-	}
+	print "$_=$config{$_}\n" for @keys;
 	exit 0;
 }
 

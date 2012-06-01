@@ -61,9 +61,7 @@ if (-f $conf_file) {
 }
 # undef any invalid $key=$value pairs
 for my $key (keys %config) {
-	unless ($key ~~ @valid_conf_keys) {
-		undef $config{$key};
-	}
+	undef $config{$key} unless $key ~~ @valid_conf_keys;
 }
 # ensure we have sane configs, and defaults for anything not in the conf file
 for my $key (@valid_conf_keys) {
@@ -320,9 +318,8 @@ sub get_sbo_downloads {
 		@md5s = find_download_info ($sbo, $location, 'md5sum', 0);
 	}
 	my @downloads;
-	for my $key (keys @links) {
-		push (@downloads, {link => $links[$key], md5sum => $md5s[$key]} );
-	}
+	push (@downloads, {link => $links[$_], md5sum => $md5s[$_]} )
+		for keys @links;
 	return @downloads;
 }
 

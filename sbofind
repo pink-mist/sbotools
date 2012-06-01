@@ -96,9 +96,7 @@ if (exists $findings[0]) {
 			push (@listing, "\n");
 		}
 	}
-	for my $list (@listing) {
-		print $list;
-	}
+	print $_ for @listing;
 } else {
 	print "Nothing found for search term: $search\n";
 }
