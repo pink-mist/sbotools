@@ -10,7 +10,7 @@
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
-use File::Path qr(remove_tree);
+use File::Path qw(remove_tree);
 use strict;
 use warnings FATAL => 'all';
 
@@ -51,14 +51,15 @@ sub remove_stuff {
 	my $dir = shift;
 	opendir (my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
-		next if /^\.[\.]{0,1}$/;
+		next if $ls =~ /^\.[\.]{0,1}$/;
+		my $full = "$dir/$ls";
 		if ($interactive eq 'TRUE') {
-			print "Remove $ls? [yn] ";
+			print "Remove $full? [yn] ";
 			my $test = <STDIN>;
 			next FIRST unless $test =~ /^[Yy]/;
 		}
-		unlink $ls if -f $ls;
-		remove_tree $ls if -d $ls;
+		unlink $full if -f $full;
+		remove_tree $full if -d $full;
 	}
 }
 
