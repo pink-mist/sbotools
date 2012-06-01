@@ -50,7 +50,7 @@ slackbuilds_or_fetch ();
 # find anything with $search in its name
 my (@findings, $name);
 my $found = 'FALSE';
-my $regex = qr/NAME:\s.*\Q$search\E.*/;
+my $regex = qr/NAME:\s.*\Q$search\E.*/i;
 open my $sb_txt, '<', "$config{SBO_HOME}/SLACKBUILDS.TXT";
 FIRST: while (my $line = <$sb_txt>) {
 	unless ($found eq 'TRUE') {
