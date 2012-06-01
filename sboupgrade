@@ -89,10 +89,12 @@ sub grok_requirements {
 	# or no period at end of whole thing.
 	my $endchar = $1 if $readme =~ /(.)$/;
 	$readme =~ s/.$/$endchar./;
+	# now this is a nasty hack.
+	$readme =~ s/[Oo]ptional/./g;
 	$readme =~ s/\n\n/./g;
 	$readme =~ s/\n//g;
 	my $string = $4 if $readme =~
-		/([Tt]his|\Q$sbo\E|)\s+[Rr]equire(s|)(|:)\s+([^\.]+)/;
+		/([Tt]his|\Q$sbo\E|)\s*[Rr]equire(s|)(|:)\s+([^\.]+)/;
 	return unless defined $string;
 	# remove anything in brackets or parens
 	$string =~ s/(\s)*\[[^\]]+\](\s)*//g;
@@ -108,7 +110,7 @@ sub grok_requirements {
 	}
 	splice (@deps, $remove, 1) if defined $remove;
 	return unless exists $deps[0];
-	FIRST: for my $need (@needed) {
+	FIRST: for my $need (@deps) {
 		# compare against installed slackbuilds
 		my $tempname = $compat32 eq 'TRUE' ? "$need-compat32" : $need;
 		my @inst = get_installed_sbos ();
@@ -132,9 +134,10 @@ sub grok_requirements {
 			system ($cmd, @args);
 		}
 	}
-	return 1;
+	return;
 }
 
+# look for any (user|group)add commands in the README
 sub grok_user_group {
 	script_error ('grok_user_group requires an argument') unless exists $_[0];
 	my $readme = shift;
@@ -163,6 +166,27 @@ sub grok_user_group {
 	return 1;
 }
 
+# see if the README mentions any options
+sub grok_options {
+	script_error ('grok_options requires an argument') unless exists $_[0];
+	my $readme = shift;
+	return 7 unless $readme =~ /[A-Z]+=[^\s]/;
+	my @readme_array = split (/\n/, $readme);
+	print "\n". $readme;
+	print "\nIt looks this slackbuilds has options; would you like to set any";
+	print " when the slackbuild is run? [n] ";
+	my $test = <STDIN>;
+	$test = 'n' if $test eq "\n";
+	if ($test =~ /^[Yy]/) {
+		print "\nPlease supply any desired options here: ";
+		chomp (my $opts = <STDIN>);
+		die "Invalid input received.\n"
+			unless $opts =~ /[A-Z]+=[^\s]+(|([A-Z]+=[^\s]+){0,})/;
+		return $opts;
+	}
+	return;
+}
+
 # prompt for the readme, and grok the readme at this time also.
 sub readme_prompt {
 	script_error ('readme_prompt requires an argument.') unless exists $_[0];
@@ -172,12 +196,14 @@ sub readme_prompt {
 	my $readme = do {local $/; <$readme_file>};
 	unless (grok_requirements ($sbo, $readme) ) {
 		grok_user_group ($readme);
-		print "\n". $readme;
+		my $opts = grok_options ($readme);
+		print "\n". $readme if $opts eq "7";
 		close $readme_file;
 		print "\nProceed with $sbo? [y]: ";
 		my $test = <STDIN>;
 		$test = 'y' if $test eq "\n";
 		exit (0) unless $test =~ /^[Yy]/;
+		return $opts if defined $opts;
 		return 1;
 	}
 }
@@ -188,14 +214,15 @@ sub process_sbos {
 	my @todo = @_;
 	my @failures;
 	for my $sbo (@todo) {
-		readme_prompt ($sbo) unless $no_readme eq 'TRUE';
+		my $opts = readme_prompt ($sbo) unless $no_readme eq 'TRUE';
+		$opts = 'FALSE' if $opts =~ /\d+/;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
 		my $version;
 		my $pkg;
 		my $src;
 		eval { ($version, $pkg, $src) = do_slackbuild
-			($jobs, $sbo, $locations{$sbo}, $compat32); };
+			($opts, $jobs, $sbo, $locations{$sbo}, $compat32); };
 		if ($@) {
 			push (@failures, $sbo);
 		} else {
