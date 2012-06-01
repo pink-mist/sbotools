@@ -7,8 +7,8 @@
 # date: Setting Orange, the 37th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
-package SBO::Lib 0.5;
-my $version = "0.5";
+package SBO::Lib 0.6;
+my $version = "0.6";
 
 require Exporter;
 
