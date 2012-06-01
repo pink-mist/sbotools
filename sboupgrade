@@ -107,10 +107,10 @@ sub grok_requirements {
 	$string =~ s/,\s+/,/g;
 	my @deps = split (/,/, $string);
 	# if anything has a space, we didn't parse correctly, so remove it, also
-	# remove anything that's blank
+	# remove anything that's blank or has an equal sign in
 	my @remove;
 	for my $key (keys @deps) {
-		push (@remove, $key) if ($deps[$key] =~ /\s+/ || $deps[$key] =~ /^$/);
+		push (@remove, $key) if ($deps[$key] =~ /[\s=]/ || $deps[$key] =~ /^$/);
 	}
 	if (exists $remove[0]) {
 		splice (@deps, $_, 1) for @remove;
