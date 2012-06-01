@@ -45,7 +45,7 @@ getopts ('hvacdfj:NriopR', \%options);
 
 show_usage () && exit (0) if exists $options{h};
 show_version () && exit (0) if exists $options{v};
-my $noclean = exists $options{c} ? 'FALSE' : $config{NOCLEAN};
+my $noclean = exists $options{c} ? 'TRUE' : $config{NOCLEAN};
 my $distclean = exists $options{d} ? 'TRUE' : $config{DISTCLEAN};
 my $force = exists $options{f} ? 'TRUE' : 'FALSE';
 my $install_new = exists $options{N} ? 'TRUE' : 'FALSE';
@@ -205,7 +205,7 @@ sub readme_prompt {
 		my $opts = grok_options ($readme);
 		print "\n". $readme if $opts eq "7";
 		close $readme_file;
-		$name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
+		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 		print "\nProceed with $name? [y]: ";
 		my $test = <STDIN>;
 		$test = 'y' if $test eq "\n";
