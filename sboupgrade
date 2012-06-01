@@ -31,6 +31,7 @@ Options:
   -j: specify "-j" setting to make, for multicore systems; overrides conf file.
   -N: install any new SBo's listed.
   -r: skip viewing of the SBo README.
+  -R: view the README but do not attempt to parse requirements.
 
 Example:
   $self -d libsexy
@@ -40,7 +41,7 @@ EOF
 }
 
 my %options;
-getopts ('hvacdfj:Nriop', \%options);
+getopts ('hvacdfj:NriopR', \%options);
 
 show_usage () && exit (0) if exists $options{h};
 show_version () && exit (0) if exists $options{v};
@@ -52,6 +53,7 @@ my $no_readme = exists $options{r} ? 'TRUE' : 'FALSE';
 my $no_install = exists $options{i} ? 'TRUE' : 'FALSE';
 my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
 my $compat32 = exists $options{p} ? 'TRUE' : 'FALSE';
+my $no_reqs = exists $options{R} ? 'TRUE' : 'FALSE';
 
 if (exists $options{j}) {
 	die "You have provided an invalid parameter for -j\n" unless
@@ -83,6 +85,7 @@ sub get_readme_path {
 sub grok_requirements {
 	script_error ('grok_requirements requires two arguments')
 		unless exists $_[1];
+	return if $no_reqs eq 'TRUE';
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
 	# work around missing period at end of list of requirements (given 2 \ns),

@@ -28,12 +28,13 @@ Options:
   -j: specify "-j" setting to make, for multicore systems; overrides conf file.
   -p: install an SBo as a -compat32 pkg on a multilib x86_64 system.
   -r: skip viewing of the SBo README.
+  -R: view the README but do not attempt to parse requirements.
 
 EOF
 }
 
 my %options;
-getopts ('hvcdripj:', \%options);
+getopts ('hvcdripj:R', \%options);
 
 show_usage () and exit (0) if exists $options{h};
 show_version () and exit (0) if exists $options{v};
@@ -41,7 +42,7 @@ show_version () and exit (0) if exists $options{v};
 show_usage () and exit (0) unless exists $ARGV[0];
 
 # setup any options which do not require arguments
-my @opts1 = ('c', 'd', 'r', 'i', 'p');
+my @opts1 = ('c', 'd', 'r', 'i', 'p', 'R');
 for my $opt (@opts1) {
 	unshift (@ARGV, "-$opt") if exists $options{$opt};
 }
