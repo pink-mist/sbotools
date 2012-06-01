@@ -1,0 +1,78 @@
+#!/usr/bin/env perl
+#
+# sboclean
+# script to clean stuff left around from sbotools.
+#
+# author: Jacob Pipkin <j@dawnrazor.net>
+# date: Boomtime, the 6th day of Confusion in the YOLD 3178
+# license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
+
+use SBO::Lib;
+use File::Basename;
+use Getopt::Std;
+use File::Path qr(remove_tree);
+use strict;
+use warnings FATAL => 'all';
+
+my %config = %SBO::Lib::config;
+my $self = basename ($0);
+
+sub show_usage {
+	print <<EOF
+Usage: $self (options) [package]
+
+Options:
+  -h: this screen.
+  -v: version information.
+  -d: clean distfiles.
+  -w: clean working directories.
+  -i: be interactive.
+
+EOF
+}
+
+my %options;
+getopts ('hvdwi', \%options);
+
+show_usage () && exit (0) if exists $options{h};
+show_version () && exit (0) if exists $options{v};
+my $clean_dist = exists $options{d} ? 'TRUE' : 'FALSE';
+my $clean_work = exists $options{w} ? 'TRUE' : 'FALSE';
+my $interactive = exists $options{i} ? 'TRUE' : 'FALSE';
+
+if ($clean_dist eq 'FALSE' && $clean_work eq 'FALSE') {
+	show_usage ();
+	die "You must specify at least one of -d or -w.\n";
+}
+
+sub remove_stuff {
+	script_error ('remove_stuff requires an argument') unless exists $_[0];
+	print "Nothing to do.\n" and return 1 unless -d $_[0];
+	my $dir = shift;
+	opendir (my $dh, $dir);
+	FIRST: while (my $ls = readdir $dh) {
+		next if /^\.[\.]{0,1}$/;
+		if ($interactive eq 'TRUE') {
+			print "Remove $ls? [yn] ";
+			my $test = <STDIN>;
+			next FIRST unless $test =~ /^[Yy]/;
+		}
+		unlink $ls if -f $ls;
+		remove_tree $ls if -d $ls;
+	}
+}
+
+sub clean_distfiles {
+	remove_stuff ($config{SBO_HOME} .'/distfiles');
+	return;
+}
+
+sub clean_workdirs {
+	remove_stuff ('/tmp/SBo');
+	return;
+}
+
+clean_distfiles () if $clean_dist eq 'TRUE';
+clean_workdirs () if $clean_work eq 'TRUE';
+
+exit 0;
