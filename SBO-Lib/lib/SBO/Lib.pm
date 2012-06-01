@@ -203,8 +203,9 @@ sub get_installed_sbos {
 		next if $ls =~ /\A\./;
 		if (index ($ls, "SBo") != -1) {
 			my @split = split (/-/, reverse ($ls), 4);
-			push (@installed, {name => reverse ($split[3]),
-				version => reverse ($split[2]) } );
+			my $name = reverse ($split[3]);
+			my $version = reverse ($split[2]);
+			push (@installed, {name => $name, version => $version} );
 		}
 	}
 	return @installed;
@@ -557,7 +558,7 @@ sub make_temp_file {
 # prep and run .SlackBuild
 sub perform_sbo {
 	script_error ('perform_sbo requires five arguments') unless exists $_[4];
-	my ($jobs, $sbo, $location, $arch, $c32, $x32) = @_;
+	my ($opts, $jobs, $sbo, $location, $arch, $c32, $x32) = @_;
 	prep_sbo_file ($sbo, $location);
 	my $cmd;
 	my %changes;
@@ -572,6 +573,7 @@ sub perform_sbo {
 	} else {
 		$cmd = "$location/$sbo.SlackBuild";
 	}
+	$cmd = "$opts $cmd" unless $opts eq 'FALSE';
 	my ($tempfh, $tempfn) = make_temp_file ();
 	close $tempfh;
 	rewrite_slackbuild ("$location/$sbo.SlackBuild", $tempfn, %changes);
@@ -587,7 +589,7 @@ sub perform_sbo {
 # "public interface", sort of thing.
 sub do_slackbuild {
 	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
-	my ($jobs, $sbo, $location, $compat32) = @_;
+	my ($opts, $jobs, $sbo, $location, $compat32) = @_;
 	my $arch = get_arch ();
 	my $version = get_sbo_version ($sbo, $location);
 	my @downloads = get_sbo_downloads ($sbo, $location, $compat32);
@@ -612,7 +614,7 @@ to be setup for multilib.\n";
 	}
 	my @symlinks = create_symlinks ($location, @downloads);
 	my ($pkg, $src) = perform_sbo
-		($jobs, $sbo, $location, $arch, $compat32, $x32);
+		($opts, $jobs, $sbo, $location, $arch, $compat32, $x32);
 	if ($compat32 eq 'TRUE') {
 		my ($tempfh, $tempfn) = make_temp_file ();
 		close $tempfh;
