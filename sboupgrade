@@ -106,12 +106,15 @@ sub grok_requirements {
 	$string =~ s/(\s+|,)and\s+/,/g;
 	$string =~ s/,\s+/,/g;
 	my @deps = split (/,/, $string);
-	# if anything has a space, we didn't parse correctly, so remove it
-	my $remove;
+	# if anything has a space, we didn't parse correctly, so remove it, also
+	# remove anything that's blank
+	my @remove;
 	for my $key (keys @deps) {
-		$remove = $key if $deps[$key] =~ /\s+/;
+		push (@remove, $key) if ($deps[$key] =~ /\s+/ || $deps[$key] =~ /^$/);
 	}
-	splice (@deps, $remove, 1) if defined $remove;
+	if (exists $remove[0]) {
+		splice (@deps, $_, 1) for @remove;
+	}
 	return unless exists $deps[0];
 	FIRST: for my $need (@deps) {
 		# compare against installed slackbuilds
@@ -202,7 +205,8 @@ sub readme_prompt {
 		my $opts = grok_options ($readme);
 		print "\n". $readme if $opts eq "7";
 		close $readme_file;
-		print "\nProceed with $sbo? [y]: ";
+		$name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
+		print "\nProceed with $name? [y]: ";
 		my $test = <STDIN>;
 		$test = 'y' if $test eq "\n";
 		exit (0) unless $test =~ /^[Yy]/;
@@ -306,6 +310,31 @@ if ($install_new eq 'TRUE') {
 			if ($name eq $installed[$key]{name}) {
 				$has = 'TRUE';
 				last SECOND;
+			}
+		}
+		# if compat32 is TRUE, we need to see if the non-compat version exists.
+		if ($compat32 eq 'TRUE') {
+			my $has64 = 'FALSE';
+			THIRD: for my $key (keys @installed) {
+				if ($sbo eq $installed[$key]{name}) {
+					$has64 = 'TRUE';
+					last THIRD;
+				}
+			}
+			unless ($has64 eq 'TRUE') {
+				print "\nYou are attempting to install $sbo-compat32, however,";
+				print " $sbo is not yet installed. Shall I install it first?";
+				print " [y] ";
+				my $test = <STDIN>;
+				$test = 'y' if $test eq "\n";
+				if ($test =~ /^[Yy]/) {
+					my $cmd = "/usr/sbin/sboupgrade";
+					my @args = ('-oN', $sbo);
+					my $out = system ($cmd, @args);
+					exit 1 if $out != 0;
+				} else {
+					print "Please install $sbo\n" and exit 0;
+				}
 			}
 		}
 		unless ($has eq 'TRUE') {
