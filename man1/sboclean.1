@@ -1,0 +1,44 @@
+.TH sboclean 1 "Pungenday, the 2nd day of Confusion in the YOLD 3178" "sbotools 0.5 fnord" dawnrazor.net
+.SH NAME
+.P
+sboclean - clean files left around by sbotools.
+.SH SYNAPSES
+.P
+sboclean [-hvdwi]
+.SH DESCRIPTION
+.P
+sboclean is used to clean files left around by sbotools, such as downloaded source files ("distfiles"), or work directories under /tmp/SBo. Note that if not run with the -i flag, sboclean will remove anything in the distfiles or /tmp/SBo folders with extreme prejudice. One of either -d or -w must be specified for this script to do anything.
+.SH OPTIONS
+.P
+-h
+.RS
+Show help information.
+.RE
+.P
+-v
+.RS
+Show sbotools version information.
+.RE
+.P
+-d
+.RS
+Clean distfiles, by default located at /usr/sbo/distfiles.
+.RE
+.P
+-w
+.RS
+Clean working directories, located under /tmp/SBo.
+.RE
+.P
+-i
+.RS
+Be interactive; sboclean will ask for confirmation for each item which it think should be removed.
+.SH BUGS
+.P
+None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+.SH SEE ALSO
+.P
+sbocheck(1), sboconfig(1), sbofind(1), sboinstall(1), sboupgrade(1), sbosnap(1), sbotools.conf(5)
+.SH AUTHOR
+.P
+Jacob Pipkin <j@dawnrazor.net>
