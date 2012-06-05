@@ -104,16 +104,16 @@ sub config_write {
 		untie @temp;
 		# otherwise, append our new $key=$value pair
 		if ($has eq 'FALSE') {
-			open (my $writer, '>>', $filename);
-			print {$writer} "$key=$val\n";
-			close $writer;
+			my $fh = open_fh ($filename, '>>');
+			print {$fh} "$key=$val\n";
+			close $fh;
 		}
 		move ($filename, $conf_file);
 	} else {
 		# no config file, easiest case of all.
-		open my $writer, '>', $conf_file;
-		print {$writer} "$key=$val\n";
-		close $writer;
+		my $fh = open_fh ($conf_file, '>');
+		print {$fh} "$key=$val\n";
+		close $fh;
 	}
 }
 

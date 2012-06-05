@@ -51,8 +51,8 @@ slackbuilds_or_fetch ();
 my (@findings, $name);
 my $found = 'FALSE';
 my $regex = qr/NAME:\s.*\Q$search\E.*/i;
-open my $sb_txt, '<', "$config{SBO_HOME}/SLACKBUILDS.TXT";
-FIRST: while (my $line = <$sb_txt>) {
+my $fh = open_read ("$config{SBO_HOME}/SLACKBUILDS.TXT");
+FIRST: while (my $line = <$fh>) {
 	unless ($found eq 'TRUE') {
 		if ($line =~ $regex) {
 			$found = 'TRUE';
@@ -74,8 +74,7 @@ FIRST: while (my $line = <$sb_txt>) {
 sub get_file_contents {
 	script_error ('get_file_contents requires an argument') unless exists $_[0];
 	script_error ('get_file_contents argument is not a file') unless -f $_[0];
-	my $file = shift;
-	open my $fh, '<', $file;
+	my $fh = open_read (shift);
 	my $contents = do {local $/; <$fh>};
 	$contents =~ s/\n/\n        /g;
 	$contents =~ s/        $//g;

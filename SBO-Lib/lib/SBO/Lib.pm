@@ -15,6 +15,8 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	script_error
+	open_fh
+	open_read
 	show_version
 	slackbuilds_or_fetch
 	fetch_tree
@@ -51,13 +53,36 @@ my @valid_conf_keys = (
 	'SBO_HOME',
 );
 
+# subroutine for throwing internal script errors
+sub script_error {
+	unless (exists $_[0]) {
+		die "A fatal script error has occured. Exiting.\n";
+	} else {
+		die "A fatal script error has occured:\n$_[0]\nExiting.\n";
+	}
+} 
+
+# sub for opening files, second arg is like '<','>', etc
+sub open_fh {
+	script_error ('open_fh requires two arguments') unless ($_[1]);
+	my ($file, $op) = @_;
+	open my $fh, $op, $file or die "Unable to open $file.\n";
+	return $fh;
+}
+
+sub open_read {
+	script_error ('open_read requires an argument') unless ($_[0]);
+	die "$_[0] cannot be opened for reading.\n" unless -f $_[0];
+	return open_fh (shift, '<');
+}
+
 our %config;
 # if the conf file exists, pull all the $key=$value pairs into a hash
 if (-f $conf_file) {
-	open my $reader, '<', $conf_file;
-	my $text = do {local $/; <$reader>};
+	my $fh = open_read ($conf_file);
+	my $text = do {local $/; <$fh>};
 	%config = $text =~ /^(\w+)=(.*)$/mg;
-	close $reader;
+	close $fh;
 }
 # undef any invalid $key=$value pairs
 for my $key (keys %config) {
@@ -82,15 +107,6 @@ my $distfiles = "$config{SBO_HOME}/distfiles";
 my $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
 
 my $name_regex = '\ASLACKBUILD\s+NAME:\s+';
-
-# subroutine for throwing internal script errors
-sub script_error {
-	unless (exists $_[0]) {
-		die "A fatal script error has occured. Exiting.\n";
-	} else {
-		die "A fatal script error has occured:\n$_[0]\nExiting.\n";
-	}
-} 
 
 sub show_version {
 	print "sbotools version $version\n";
@@ -121,19 +137,13 @@ sub split_line {
 }
 
 sub get_slack_version {
-	if (-f '/etc/slackware-version') {
-		open my $slackver, '<', '/etc/slackware-version';
-		chomp (my $line = <$slackver>); 
-		close $slackver;
-		my $version = split_line ($line, ' ', 1);
-		# only 13.37 and current supported, so die unless version is 13.37
-		die "Unsupported Slackware version: $version\n" unless $version eq
-			'13.37.0';
-		$version = '13.37';
-		return $version;
-	} else {
-		die "I am unable to locate your /etc/slackware-version file.\n";
-	}
+	my $fh = open_read ('/etc/slackware-version');
+	chomp (my $line = <$fh>); 
+	close $fh;
+	my $version = split_line ($line, ' ', 1);
+	# only 13.37 and current supported, so die unless version is 13.37
+	die "Unsupported Slackware version: $version\n" if $version ne '13.37.0';
+	return '13.37';
 }
 
 sub check_slackbuilds_txt {
@@ -239,19 +249,19 @@ sub get_available_updates {
 		# if we can't find a location, assume invalid and skip
 		next FIRST unless defined $location;
 		my $regex = qr/^VERSION=/;
-		open my $info, '<', "$location/$pkg_list[$key]{name}.info";
-		SECOND: while (my $line = <$info>) {
+		my $fh = open_read ("$location/$pkg_list[$key]{name}.info");
+		SECOND: while (my $line = <$fh>) {
 			if ($line =~ $regex) {
 				my $sbo_version = split_equal_one ($line);
 				if (versioncmp ($sbo_version, $pkg_list[$key]{version}) == 1) {
 					push (@updates, {name => $pkg_list[$key]{name},
-						installed => $pkg_list[$key]{version},
-						update => $sbo_version} );
+									installed => $pkg_list[$key]{version},
+									update => $sbo_version} );
 				}
 				last SECOND;
 			}
 		}
-		close $info;
+		close $fh;
 	}
 	return @updates;
 }
@@ -270,8 +280,8 @@ sub find_download_info {
 	# may be > 1 lines for a given key.
 	my $back_regex = qr/\\$/;
 	my $more = 'FALSE';
-	open my $info, '<', "$location/$sbo.info";
-	FIRST: while (my $line = <$info>) {
+	my $fh = open_read ("$location/$sbo.info");
+	FIRST: while (my $line = <$fh>) {
 		unless ($more eq 'TRUE') {
 			if ($line =~ $regex) {
 				last FIRST if $line =~ $empty_regex;
@@ -289,7 +299,7 @@ sub find_download_info {
 			push (@return, $line);
 		}
 	}
-	close $info;
+	close $fh;
 	return @return if exists $return[0];
 	return;
 }
@@ -336,11 +346,11 @@ sub compute_md5sum {
 	script_error ('compute_md5sum requires an argument.') unless exists $_[0];
 	script_error ('compute_md5sum argument is not a file.') unless -f $_[0];
 	my $filename = shift;
-	open my $reader, '<', $filename;
+	my $fh = open_read ($filename);
 	my $md5 = Digest::MD5->new;
-	$md5->addfile ($reader);
+	$md5->addfile ($fh);
 	my $md5sum = $md5->hexdigest;
-	close $reader;
+	close $fh;
 	return $md5sum;
 }
 
@@ -380,15 +390,15 @@ sub get_sbo_version {
 		unless exists $_[1];
 	my ($sbo, $location) = @_;
 	my $version;
-	open my $info, '<', "$location/$sbo.info";
+	my $fh = open_read ("$location/$sbo.info");
 	my $version_regex = qr/\AVERSION=/;
-	FIRST: while (my $line = <$info>) {
+	FIRST: while (my $line = <$fh>) {
 		if ($line =~ $version_regex) {
 			$version = split_equal_one ($line);
 			last FIRST;
 		}
 	}
-	close $info;
+	close $fh;
 	return $version;
 }
 
@@ -407,12 +417,13 @@ sub get_symlink_from_filename {
 sub check_x32 {
 	script_error ('check_x32 requires two arguments.') unless exists $_[1];
 	my ($sbo, $location) = @_;
-	open my $info, '<', "$location/$sbo.info";
+	my $fh = open_read ("$location/$sbo.info");
 	my $regex = qr/^DOWNLOAD_x86_64/;
-	while (my $line = <$info>) {
+	while (my $line = <$fh>) {
 		if ($line =~ $regex) {
 			return 1 if index ($line, 'UNSUPPORTED') != -1;
 		}
+	close $fh;
 	}
 	return;
 }
@@ -514,7 +525,7 @@ sub grok_temp_file {
 	script_error ('grok_temp_file requires two arguments') unless exists $_[1];
 	my ($tempfn, $find) = @_;
 	my $out;
-	open my $fh, '<', $tempfn;
+	my $fh = open_read ($tempfn);
 	FIRST: while (my $line = <$fh>) {
 		if ($find eq 'pkg') {
 			if ($line =~ /^Slackware\s+package\s+([^\s]+)\s+created\.$/) {
