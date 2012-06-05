@@ -205,10 +205,9 @@ sub slackbuilds_or_fetch {
 # currently installed. starting to think it might be better to only pull an
 # array of names, and have another sub to pull the versions.
 sub get_installed_sbos {
-	my @paths = </var/log/packages/*_SBo>;
-	$_ =~ s#.*/([^/]+)$#$1#g for @paths;
 	my @installed;
-	for my $path (@paths) {
+	for my $path (</var/log/packages/*_SBo>) {
+		$path =~ s#.*/([^/]+)$#$1#g;
 		my @split = split (/-/, reverse ($path), 4);
 		my $name = reverse ($split[3]);
 		my $version = reverse ($split[2]);
