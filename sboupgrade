@@ -126,9 +126,7 @@ sub grok_requirements {
 		print "\n". $readme_orig;
 		print "\nIt looks like this slackbuild requires $tempname; shall I";
 		print " attempt to install it first? [y] ";
-		my $test = <STDIN>;
-		$test = 'y' if $test eq "\n";
-		if ($test =~ /^[Yy]/) {
+		if (<STDIN> =~ /^[Yy\n]/) {
 			my $cmd = "/usr/sbin/sboupgrade";
 			my @args = ('-oN');
 			# populate args so that they carry over correctly
@@ -159,9 +157,7 @@ sub grok_user_group {
 	print " to be run first:\n";
 	print "    # $_\n" for @cmds;
 	print "Shall I run it/them now? [y] ";
-	my $test = <STDIN>;
-	$test = 'y' if $test eq "\n";
-	if ($test =~ /^[Yy]/) {
+	if (<STDIN> =~ /^[Yy\n]/) {
 		for my $cmd (@cmds) {
 			my @split = split (' ', $cmd);
 			my $command = shift (@split);
@@ -181,9 +177,7 @@ sub grok_options {
 	print "\n". $readme;
 	print "\nIt looks this slackbuilds has options; would you like to set any";
 	print " when the slackbuild is run? [n] ";
-	my $test = <STDIN>;
-	$test = 'n' if $test eq "\n";
-	if ($test =~ /^[Yy]/) {
+	if (<STDIN> =~ /^[Yy]/) {
 		print "\nPlease supply any desired options here: ";
 		chomp (my $opts = <STDIN>);
 		die "Invalid input received.\n"
@@ -204,12 +198,10 @@ sub readme_prompt {
 	unless (grok_requirements ($sbo, $readme) ) {
 		grok_user_group ($readme);
 		my $opts = grok_options ($readme);
-		print "\n". $readme if $opts eq "7";
+		print "\n". $readme if $opts == 7;
 		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 		print "\nProceed with $name? [y]: ";
-		my $test = <STDIN>;
-		$test = 'y' if $test eq "\n";
-		exit (0) unless $test =~ /^[Yy]/;
+		return unless <STDIN> =~ /^[Yy\n]/;
 		return $opts if defined $opts;
 		return 1;
 	}
@@ -220,8 +212,9 @@ sub process_sbos {
 	script_error ('process_sbos requires an argument.') unless exists $_[0];
 	my @todo = @_;
 	my @failures;
-	for my $sbo (@todo) {
+	FIRST: for my $sbo (@todo) {
 		my $opts = readme_prompt ($sbo) unless $no_readme eq 'TRUE';
+		next FIRST unless $opts;
 		$opts = 'FALSE' if $opts =~ /\d+/;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
@@ -325,9 +318,7 @@ if ($install_new eq 'TRUE') {
 				print "\nYou are attempting to install $sbo-compat32, however,";
 				print " $sbo is not yet installed. Shall I install it first?";
 				print " [y] ";
-				my $test = <STDIN>;
-				$test = 'y' if $test eq "\n";
-				if ($test =~ /^[Yy]/) {
+				if (<STDIN> =~ /^[Yy\n]/) {
 					my $cmd = "/usr/sbin/sboupgrade";
 					my @args = ('-oN', $sbo);
 					my $out = system ($cmd, @args);

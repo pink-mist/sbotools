@@ -193,9 +193,7 @@ sub slackbuilds_or_fetch {
 	unless (check_slackbuilds_txt () ) {
 		print "It looks like you haven't run \"sbosnap fetch\" yet.\n";
 		print "Would you like me to do this now? [y] ";
-		my $fetch = <STDIN>;
-		$fetch = 'y' if $fetch eq "\n";
-		if ($fetch =~ /^[Yy]/) {
+		if (<STDIN> =~ /^[Yy\n]/) {
 			fetch_tree ();
 		} else {
 			print "Please run \"sbosnap fetch\"\n" and exit 0;

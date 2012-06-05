@@ -51,12 +51,11 @@ sub remove_stuff {
 	my $dir = shift;
 	opendir (my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
-		next if $ls =~ /^\.[\.]{0,1}$/;
+		next FIRST if $ls =~ /^\.[\.]{0,1}$/;
 		my $full = "$dir/$ls";
 		if ($interactive eq 'TRUE') {
-			print "Remove $full? [yn] ";
-			my $test = <STDIN>;
-			next FIRST unless $test =~ /^[Yy]/;
+			print "Remove $full? [n] ";
+			next FIRST unless <STDIN> =~ /^[Yy]/;
 		}
 		unlink $full if -f $full;
 		remove_tree $full if -d $full;
