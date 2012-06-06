@@ -50,21 +50,18 @@ slackbuilds_or_fetch ();
 # find anything with $search in its name
 my (@findings, $name);
 my $found = 'FALSE';
-my $regex = qr/NAME:\s.*\Q$search\E.*/i;
+my $name_regex = qr/NAME:\s+(.*\Q$search\E.*)$/i;
+my $loc_regex = qr/LOCATION:\s+(.*)$/;
 my $fh = open_read ("$config{SBO_HOME}/SLACKBUILDS.TXT");
 FIRST: while (my $line = <$fh>) {
 	unless ($found eq 'TRUE') {
-		if ($line =~ $regex) {
+		if ($name = ($line =~ $name_regex)[0]) {
 			$found = 'TRUE';
-			my @split = split (' ', $line);
-			chomp ($name = $split[2]);
 			next FIRST;
 		}
 	} else {
-		if ($line =~ /LOCATION/) {
+		if (my ($location) = ($line =~ $loc_regex)[0]) {
 			$found = 'FALSE';
-			my @split = split (' ', $line);
-			chomp (my $location = $split[2]);
 			$location =~ s#^\.##;
 			push (@findings, {$name => $config{SBO_HOME} . $location} );
 		}
