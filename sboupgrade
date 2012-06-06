@@ -159,8 +159,7 @@ sub grok_user_group {
 		for my $cmd (@cmds) {
 			my @split = split (' ', $cmd);
 			my $command = shift (@split);
-			system ($command, @split);
-			warn "$cmd appears to have resulted in an error\n" if $? != 0;
+			warn "$cmd exited non-zero" if (system ($command, @split) != 0);
 		}
 	}
 	return 1;
@@ -320,8 +319,7 @@ if ($install_new eq 'TRUE') {
 				if (<STDIN> =~ /^[Yy\n]/) {
 					my $cmd = "/usr/sbin/sboupgrade";
 					my @args = ('-oN', $sbo);
-					system ($cmd, @args);
-					exit 1 if $? != 0;
+					exit 1 if (system ($cmd, @args) != 0);
 				} else {
 					print "Please install $sbo\n" and exit 0;
 				}

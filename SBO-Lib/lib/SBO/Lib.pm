@@ -370,12 +370,9 @@ sub get_distfile {
 	my $filename = get_filename_from_link ($link);
 	mkdir ($distfiles) unless -d $distfiles;
 	chdir ($distfiles);
-	my $out = system ("wget $link");
-	die "Unable to wget $link\n" unless $out == 0;
+	die "Unable to wget $link\n" unless (system ("wget $link") == 0);
 	my $md5sum = compute_md5sum ($filename);
-	if ($md5sum ne $expected_md5sum) {
-		die "md5sum failure for $filename.\n";
-	}
+	die "md5sum failure for $filename.\n" if $md5sum ne $expected_md5sum;
 	return 1;
 }
 
@@ -386,12 +383,9 @@ sub get_sbo_version {
 	my ($sbo, $location) = @_;
 	my $version;
 	my $fh = open_read ("$location/$sbo.info");
-	my $version_regex = qr/\AVERSION=/;
+	my $version_regex = qr/^VERSION="([^"]+)"/;
 	FIRST: while (my $line = <$fh>) {
-		if ($line =~ $version_regex) {
-			$version = split_equal_one ($line);
-			last FIRST;
-		}
+		last FIRST if $version = ($line =~ $version_regex)[0];
 	}
 	close $fh;
 	return $version;
@@ -413,11 +407,9 @@ sub check_x32 {
 	script_error ('check_x32 requires two arguments.') unless exists $_[1];
 	my ($sbo, $location) = @_;
 	my $fh = open_read ("$location/$sbo.info");
-	my $regex = qr/^DOWNLOAD_x86_64/;
+	my $regex = qr/^DOWNLOAD_x86_64="UNSUPPORTED"/;
 	while (my $line = <$fh>) {
-		if ($line =~ $regex) {
-			return 1 if index ($line, 'UNSUPPORTED') != -1;
-		}
+		return 1 if $line =~ $regex;
 	close $fh;
 	}
 	return;
@@ -449,22 +441,20 @@ sub rewrite_slackbuild {
 		if ($line =~ $tar_regex || $line =~ $makepkg_regex) {
 			$line = "$line | tee -a $tempfn";
 		}
-		if (%changes) {
-			while (my ($key, $value) = each %changes) {
-				if ($key eq 'libdirsuffix') {
-					if ($line =~ $libdir_regex) {
-						$line =~ s/64/$value/;
-					}
+		while (my ($key, $value) = each %changes) {
+			if ($key eq 'libdirsuffix') {
+				if ($line =~ $libdir_regex) {
+					$line =~ s/64/$value/;
 				}
-				if ($key eq 'make') {
-					if ($line =~ $make_regex) {
-						$line =~ s/make/make $value/;
-					}
+			}
+			if ($key eq 'make') {
+				if ($line =~ $make_regex) {
+					$line =~ s/make/make $value/;
 				}
-				if ($key eq 'arch_out') {
-					if ($line =~ $arch_out_regex) {
-						$line =~ s/\$ARCH/$value/;
-					}
+			}
+			if ($key eq 'arch_out') {
+				if ($line =~ $arch_out_regex) {
+					$line =~ s/\$ARCH/$value/;
 				}
 			}
 		}
@@ -520,18 +510,15 @@ sub grok_temp_file {
 	script_error ('grok_temp_file requires two arguments') unless exists $_[1];
 	my ($tempfn, $find) = @_;
 	my $out;
+	my $pkg_regex = qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/;
+	my $src_regex = qr/^([^\/]+)\/.*$/;
 	my $fh = open_read ($tempfn);
 	FIRST: while (my $line = <$fh>) {
 		if ($find eq 'pkg') {
-			if ($line =~ /^Slackware\s+package\s+([^\s]+)\s+created\.$/) {
-				$out = $1;
-				last FIRST;
-			}
+			last FIRST if $out =
+				($line =~ /^Slackware\s+package\s+([^\s]+)\s+created\.$/)[0];
 		} elsif ($find eq 'src') {
-			if ($line =~ /^([^\/]+)\/.*$/) {
-				$out = $1;
-				last FIRST;
-			}
+			last FIRST if $out = ($line =~ /^([^\/]+)\/.*$/)[0];
 		}
 	}
 	close $fh;
@@ -541,14 +528,12 @@ sub grok_temp_file {
 # wrappers around grok_temp_file
 sub get_src_dir {
 	script_error ('get_src_dir requires an argument') unless exists $_[0];
-	my $filename = shift;
-	return grok_temp_file ($filename, 'src');
+	return grok_temp_file (shift, 'src');
 }
 
 sub get_pkg_name {
 	script_error ('get_pkg_name requires an argument') unless exists $_[0];
-	my $filename = shift;
-	return grok_temp_file ($filename, 'pkg');
+	return grok_temp_file (shift, 'pkg');
 }
 
 # safely create a temp file
@@ -566,8 +551,7 @@ sub perform_sbo {
 	script_error ('perform_sbo requires five arguments') unless exists $_[4];
 	my ($opts, $jobs, $sbo, $location, $arch, $c32, $x32) = @_;
 	prep_sbo_file ($sbo, $location);
-	my $cmd;
-	my %changes;
+	my ($cmd, %changes);
 	$changes{make} = "-j $jobs" unless $jobs eq 'FALSE';
 	if ($arch eq 'x86_64' and ($c32 eq 'TRUE' || $x32) ) {
 		if ($c32 eq 'TRUE') {
@@ -625,8 +609,7 @@ to be setup for multilib.\n";
 		my ($tempfh, $tempfn) = make_temp_file ();
 		close $tempfh;
 		my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $tempfn";
-		my $out = system ($cmd);
-		die unless $out == 0;
+		die unless (system ($cmd) == 0);
 		unlink $pkg;
 		$pkg = get_pkg_name ($tempfn);
 	}
