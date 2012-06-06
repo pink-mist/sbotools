@@ -90,15 +90,13 @@ sub grok_requirements {
 	my $readme_orig = $readme;
 	# work around missing period at end of list of requirements (given 2 \ns),
 	# or no period at end of whole thing.
-	my $endchar = $1 if $readme =~ /(.)$/;
-	$readme =~ s/.$/$endchar./;
-	# now this is a nasty hack.
+	$readme =~ s/$/./;
+	# nasty hack.
 	$readme =~ s/[Oo]ptional/./g;
 	$readme =~ s/\n\n/./g;
 	$readme =~ s/\n//g;
-	my $string = $4 if $readme =~
-		/([Tt]his|\Q$sbo\E|)\s*[Rr]equire(s|)(|:)\s+([^\.]+)/;
-	return unless defined $string;
+	return unless my $string = 
+		($readme =~ /([Tt]his|\Q$sbo\E|)\s*[Rr]equire(s|)(|:)\s+([^\.]+)/)[3];
 	# remove anything in brackets or parens
 	$string =~ s/(\s)*\[[^\]]+\](\s)*//g;
 	$string =~ s/(\s)*\([^\)]+\)(\s)*//g;
@@ -161,8 +159,8 @@ sub grok_user_group {
 		for my $cmd (@cmds) {
 			my @split = split (' ', $cmd);
 			my $command = shift (@split);
-			my $out = system ($command, @split);
-			warn "$cmd appears to have resulted in an error\n" unless $out == 0;
+			system ($command, @split);
+			warn "$cmd appears to have resulted in an error\n" if $? != 0;
 		}
 	}
 	return 1;
@@ -178,10 +176,18 @@ sub grok_options {
 	print "\nIt looks this slackbuilds has options; would you like to set any";
 	print " when the slackbuild is run? [n] ";
 	if (<STDIN> =~ /^[Yy]/) {
-		print "\nPlease supply any desired options here: ";
-		chomp (my $opts = <STDIN>);
-		die "Invalid input received.\n"
-			unless $opts =~ /[A-Z]+=[^\s]+(|([A-Z]+=[^\s]+){0,})/;
+		my $ask = sub {
+			print "\nPlease supply any options here, or enter to skip: ";
+			chomp (my $opts = <STDIN>);
+			return 7 if $opts =~ /^$/;
+			return $opts; };
+		my $kv_regex = qr/[A-Z]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
+		my $opts = &$ask ();
+		FIRST: while ($opts !~ $kv_regex) {
+			warn "Invalid input received.\n";
+			$opts = &$ask ();
+			return 7 if $opts eq "7";
+		}
 		return $opts;
 	}
 	return;
@@ -190,15 +196,13 @@ sub grok_options {
 # prompt for the readme, and grok the readme at this time also.
 sub readme_prompt {
 	script_error ('readme_prompt requires an argument.') unless exists $_[0];
-	my $sbo = shift;
-	my $readme_path = get_readme_path ($sbo);
-	my $fh = open_read ($readme_path);
+	my $fh = open_read (get_readme_path (shift) );
 	my $readme = do {local $/; <$fh>};
 	close $fh;
 	unless (grok_requirements ($sbo, $readme) ) {
 		grok_user_group ($readme);
 		my $opts = grok_options ($readme);
-		print "\n". $readme if $opts == 7;
+		print "\n". $readme if ($opts == 7 || ! $opts);
 		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 		print "\nProceed with $name? [y]: ";
 		return unless <STDIN> =~ /^[Yy\n]/;
@@ -214,15 +218,12 @@ sub process_sbos {
 	my @failures;
 	FIRST: for my $sbo (@todo) {
 		my $opts = readme_prompt ($sbo) unless $no_readme eq 'TRUE';
-		next FIRST unless $opts;
 		$opts = 'FALSE' if $opts =~ /\d+/;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
-		my $version;
-		my $pkg;
-		my $src;
-		eval { ($version, $pkg, $src) = do_slackbuild
-			($opts, $jobs, $sbo, $locations{$sbo}, $compat32); };
+		my ($version, $pkg, $src);
+		my @sb_args = ($opts, $jobs, $sbo, $locations{$sbo}, $compat32;
+		eval { ($version, $pkg, $src) = do_slackbuild (@sb_args); };
 		if ($@) {
 			push (@failures, $sbo);
 		} else {
@@ -263,8 +264,8 @@ sub print_failures {
 	}
 }
 
-# deal with any updates prior to any new installs; no reason to bother with all
-# this if only_new is specified - ie, if we are run from sboinstall
+# deal with any updates prior to any new installs.
+# no reason to bother if only_new is specified, ie running from sboinstall.
 unless ($only_new eq 'TRUE') {
 	# doesn't matter what's updatable and what's not if force is specified
 	my @updates unless $force eq 'TRUE';
@@ -296,8 +297,6 @@ if ($install_new eq 'TRUE') {
 	my @todo_install;
 	my $has = 'FALSE';
 	FIRST: for my $sbo (@ARGV) {
-		# rename to -compat32 if appropriate, so that we can see if it's
-		# already installed
 		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 		SECOND: for my $key (keys @installed) {
 			if ($name eq $installed[$key]{name}) {
@@ -321,8 +320,8 @@ if ($install_new eq 'TRUE') {
 				if (<STDIN> =~ /^[Yy\n]/) {
 					my $cmd = "/usr/sbin/sboupgrade";
 					my @args = ('-oN', $sbo);
-					my $out = system ($cmd, @args);
-					exit 1 if $out != 0;
+					system ($cmd, @args);
+					exit 1 if $? != 0;
 				} else {
 					print "Please install $sbo\n" and exit 0;
 				}
