@@ -338,8 +338,7 @@ sub get_filename_from_link {
 }
 
 sub compute_md5sum {
-	script_error ('compute_md5sum requires an argument.') unless exists $_[0];
-	script_error ('compute_md5sum argument is not a file.') unless -f $_[0];
+	script_error ('compute_md5sum requires a file argument.') unless  -f $_[0];
 	my $filename = shift;
 	my $fh = open_read ($filename);
 	my $md5 = Digest::MD5->new;
@@ -511,14 +510,13 @@ sub grok_temp_file {
 	my ($tempfn, $find) = @_;
 	my $out;
 	my $pkg_regex = qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/;
-	my $src_regex = qr/^([^\/]+)\/.*$/;
+	my $src_regex = qr#^([^/]+)/.*$#;
 	my $fh = open_read ($tempfn);
 	FIRST: while (my $line = <$fh>) {
 		if ($find eq 'pkg') {
-			last FIRST if $out =
-				($line =~ /^Slackware\s+package\s+([^\s]+)\s+created\.$/)[0];
+			last FIRST if $out = ($line =~ $pkg_regex)[0];
 		} elsif ($find eq 'src') {
-			last FIRST if $out = ($line =~ /^([^\/]+)\/.*$/)[0];
+			last FIRST if $out = ($line =~ $src_regex)[0];
 		}
 	}
 	close $fh;

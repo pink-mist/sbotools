@@ -110,8 +110,9 @@ sub grok_requirements {
 	for my $key (keys @deps) {
 		push (@remove, $key) if ($deps[$key] =~ /[\s=]/ || $deps[$key] =~ /^$/);
 	}
-	if (exists $remove[0]) {
-		splice (@deps, $_, 1) for @remove;
+	for my $rem (@remove) {
+		splice (@deps, $rem, 1);
+		$_-- for @remove;
 	}
 	return unless exists $deps[0];
 	FIRST: for my $need (@deps) {
