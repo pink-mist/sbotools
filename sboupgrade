@@ -199,16 +199,15 @@ sub readme_prompt {
 	my $fh = open_read (get_readme_path (shift) );
 	my $readme = do {local $/; <$fh>};
 	close $fh;
-	unless (grok_requirements ($sbo, $readme) ) {
-		grok_user_group ($readme);
-		my $opts = grok_options ($readme);
-		print "\n". $readme if ($opts == 7 || ! $opts);
-		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
-		print "\nProceed with $name? [y]: ";
-		return unless <STDIN> =~ /^[Yy\n]/;
-		return $opts if defined $opts;
-		return 1;
-	}
+	grok_requirements ($sbo, $readme); 
+	grok_user_group ($readme);
+	my $opts = grok_options ($readme);
+	print "\n". $readme if ($opts == 7 || ! $opts);
+	my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
+	print "\nProceed with $name? [y]: ";
+	return unless <STDIN> =~ /^[Yy\n]/;
+	return $opts if defined $opts;
+	return 1;
 }
 
 # do the things with the provided sbos - whether upgrades or new installs.
