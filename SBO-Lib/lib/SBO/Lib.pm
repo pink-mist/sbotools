@@ -11,7 +11,6 @@ package SBO::Lib 0.6;
 my $version = "0.6";
 
 require Exporter;
-
 @ISA = qw(Exporter);
 @EXPORT = qw(
 	script_error
@@ -28,7 +27,6 @@ require Exporter;
 	make_distclean
 	do_upgradepkg
 	get_sbo_location
-	make_temp_file
 );
 
 use warnings FATAL => 'all';
@@ -40,8 +38,11 @@ use File::Copy;
 use File::Path qw(make_path remove_tree);
 use Fcntl;
 use File::Find;
+use File::Temp qw(tempdir tempfile);
 
 $< == 0 or die "This script requires root privileges.\n";
+
+our $tempdir = tempdir (CLEANUP => 1);
 
 # subroutine for throwing internal script errors
 sub script_error {
@@ -99,33 +100,11 @@ sub show_version {
 	print "<http://sam.zoy.org/wtfpl/COPYING>\n";
 }
 
-# take a line and get rid of newlines, spaces, double quotes, and backslashes
-sub clean_line {
-	script_error ('clean line requires an argument') unless exists $_[0];
-	chomp (my $line = shift);
-	$line =~ s/[\s"\\]//g;
-	return $line;
-}
-
-# given a line, pattern, and index, split the line on the pattern, and return
-# a clean_line'd version of the index
-sub split_line {
-	script_error ('split_line requires three arguments') unless exists $_[2];
-	my ($line, $pattern, $index) = @_;
-	my @split;
-	if ($pattern eq ' ') {
-		@split = split ("$pattern", $line);
-	} else {
-		@split = split (/$pattern/, $line);
-	}
-	return clean_line ($split[$index]);
-}
-
 sub get_slack_version {
 	my $fh = open_read ('/etc/slackware-version');
 	chomp (my $line = <$fh>); 
 	close $fh;
-	my $version = split_line ($line, ' ', 1);
+	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0]
 	# only 13.37 and current supported, so die unless version is 13.37
 	die "Unsupported Slackware version: $version\n" if $version ne '13.37.0';
 	return '13.37';
@@ -141,8 +120,8 @@ sub check_home {
 	my $sbo_home = $config{SBO_HOME};
 	if (-d $sbo_home) {
 		opendir (my $home_handle, $sbo_home);
-		while (readdir $home_handle) {
-			next if /^\.[\.]{0,1}$/;
+		FIRST: while (readdir $home_handle) {
+			next FIRST if /^\.[\.]{0,1}$/;
 			die "$sbo_home exists and is not empty. Exiting.\n";
 		}
 	} else {
@@ -178,11 +157,8 @@ sub slackbuilds_or_fetch {
 	unless (check_slackbuilds_txt () ) {
 		print "It looks like you haven't run \"sbosnap fetch\" yet.\n";
 		print "Would you like me to do this now? [y] ";
-		if (<STDIN> =~ /^[Yy\n]/) {
-			fetch_tree ();
-		} else {
-			print "Please run \"sbosnap fetch\"\n" and exit 0;
-		}
+		<STDIN> =~ /^[Yy\n]/ ? fetch_tree () :
+			die "Please run \"sbosnap fetch\"\n";
 	}
 }
 
@@ -192,19 +168,10 @@ sub slackbuilds_or_fetch {
 sub get_installed_sbos {
 	my @installed;
 	for my $path (</var/log/packages/*_SBo>) {
-		$path =~ s#.*/([^/]+)$#$1#g;
-		my @split = split (/-/, reverse ($path), 4);
-		my $name = reverse ($split[3]);
-		my $version = reverse ($split[2]);
-		push (@installed, {name => $name, version => $version} );
+		my ($name, $version) = (qr#/([^/]+)-([^-]+)-[^-]+-[^-]+$#)[0,1];
+		push (@installed, {name => $name, version => $version});
 	}
 	return @installed;
-}
-
-# pull a clean_line'd value from a $key=$value pair
-sub split_equal_one {
-	script_error ('split_equal_one requires an argument') unless exists $_[0];
-	return split_line ($_[0], '=', 1);
 }
 
 # search the tree for a given sbo's directory
@@ -228,11 +195,11 @@ sub get_available_updates {
 		my $location = get_sbo_location ($pkg_list[$key]{name});
 		# if we can't find a location, assume invalid and skip
 		next FIRST unless defined $location;
-		my $regex = qr/^VERSION=/;
+		my $regex = qr/^VERSION="([^"]+)"/;
 		my $fh = open_read ("$location/$pkg_list[$key]{name}.info");
 		SECOND: while (my $line = <$fh>) {
 			if ($line =~ $regex) {
-				my $sbo_version = split_equal_one ($line);
+				my $sbo_version = $1;
 				if (versioncmp ($sbo_version, $pkg_list[$key]{version}) == 1) {
 					push (@updates, {name => $pkg_list[$key]{name},
 									installed => $pkg_list[$key]{version},
@@ -254,8 +221,7 @@ sub find_download_info {
 	my ($sbo, $location, $type, $x64) = @_;
 	my @return;
 	$type =~ tr/[a-z]/[A-Z]/;
-	my $regex = qr/^$type/ if ($type eq 'DOWNLOAD' || $type eq 'MD5SUM');
-	$regex = $x64 ? qr/${regex}_x86_64=/ : qr/$regex=/;
+	my $regex = $x64 ? qr/${type}_x86_64="([^"]+)"/ : qr/$type="([^"]+)"/;
 	my $empty_regex = qr/=""$/;
 	# may be > 1 lines for a given key.
 	my $back_regex = qr/\\$/;
@@ -266,17 +232,12 @@ sub find_download_info {
 			if ($line =~ $regex) {
 				last FIRST if $line =~ $empty_regex;
 				# some sbos have UNSUPPORTED for the x86_64 info
-				unless (index ($line, 'UNSUPPORTED') != -1) {
-					push (@return, split_equal_one ($line) );
-					$more = 'TRUE' if $line =~ $back_regex;
-				} else {
-					last FIRST;
-				}
+				$1 eq 'UNSUPPORTED' ? last FIRST : push (@return, $1);
+				$more = 'TRUE' if $line =~ $back_regex;
 			}
 		} else {
 			$more = 'FALSE' unless $line =~ $back_regex;
-			$line = clean_line ($line);
-			push (@return, $line);
+			push (@return, ($line =~ /([^\s"]{6,})/)[0]); #atleast6charslong
 		}
 	}
 	close $fh;
@@ -317,9 +278,7 @@ sub get_sbo_downloads {
 sub get_filename_from_link {
 	script_error ('get_filename_from_link requires an argument')
 		unless exists $_[0];
-	my @split = split ('/', reverse (shift) , 2);
-	chomp (my $filename = $distfiles .'/'. reverse ($split[0]) );
-	return $filename;
+	return "$distfiles/". (shift =~ qr#/([^/]+)$#)[0];
 }
 
 sub compute_md5sum {
@@ -519,16 +478,6 @@ sub get_pkg_name {
 	return grok_temp_file (shift, 'pkg');
 }
 
-# safely create a temp file
-sub make_temp_file {
-	make_path ('/tmp/sbotools') unless -d '/tmp/sbotools';
-	my $temp_dir = -d '/tmp/sbotools' ? '/tmp/sbotools' : $ENV{TMPDIR} ||
-		$ENV{TEMP};
-	my $filename = sprintf "%s/%d-%d-0000", $temp_dir, $$, time;
-	sysopen my ($fh), $filename, O_WRONLY|O_EXCL|O_CREAT;
-	return ($fh, $filename);
-}
-
 # prep and run .SlackBuild
 sub perform_sbo {
 	script_error ('perform_sbo requires five arguments') unless exists $_[4];
@@ -547,7 +496,7 @@ sub perform_sbo {
 		$cmd = "$location/$sbo.SlackBuild";
 	}
 	$cmd = "$opts $cmd" unless $opts eq 'FALSE';
-	my ($tempfh, $tempfn) = make_temp_file ();
+	my ($tempfh, $tempfn) = tempfile (DIR => $tempdir);
 	close $tempfh;
 	rewrite_slackbuild ("$location/$sbo.SlackBuild", $tempfn, %changes);
 	my $out = system ($cmd);
@@ -561,7 +510,7 @@ sub perform_sbo {
 
 # "public interface", sort of thing.
 sub do_slackbuild {
-	script_error ('do_slackbuild requires two arguments.') unless exists $_[1];
+	script_error ('do_slackbuild requires five arguments.') unless exists $_[4];
 	my ($opts, $jobs, $sbo, $location, $compat32) = @_;
 	my $arch = get_arch ();
 	my $version = get_sbo_version ($sbo, $location);
@@ -589,14 +538,14 @@ to be setup for multilib.\n";
 	my ($pkg, $src) = perform_sbo
 		($opts, $jobs, $sbo, $location, $arch, $compat32, $x32);
 	if ($compat32 eq 'TRUE') {
-		my ($tempfh, $tempfn) = make_temp_file ();
+		my ($tempfh, $tempfn) = tempfile (DIR => $tempdir);
 		close $tempfh;
 		my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $tempfn";
 		die unless (system ($cmd) == 0);
 		unlink $pkg;
 		$pkg = get_pkg_name ($tempfn);
 	}
-	unlink ($_) for @symlinks;
+	unlink $_ for @symlinks;
 	return $version, $pkg, $src;
 }
 
@@ -613,8 +562,8 @@ sub make_clean {
 
 # remove distfiles
 sub make_distclean {
-	script_error ('make_distclean requires three arguments.')
-		unless exists $_[2];
+	script_error ('make_distclean requires four arguments.')
+		unless exists $_[3];
 	my ($sbo, $src, $version, $location) = @_;
 	make_clean ($sbo, $src, $version);
 	print "Distcleaning for $sbo-$version...\n";
@@ -629,8 +578,7 @@ sub make_distclean {
 # run upgradepkg for a created package
 sub do_upgradepkg {
 	script_error ('do_upgradepkg requires an argument.') unless exists $_[0];
-	my $pkg = shift;
-	system ("/sbin/upgradepkg --reinstall --install-new $pkg");
+	system ('/sbin/upgradepkg', '--reinstall', '--install-new', shift);
 	return 1;
 } 
 

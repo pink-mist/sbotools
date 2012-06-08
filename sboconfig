@@ -86,7 +86,7 @@ sub config_write {
 		mkdir ($conf_dir) or die "Unable to create $conf_dir. Exiting.\n";
 	}
 	if (-f $conf_file) {
-		my ($fh, $filename) = make_temp_file ();
+		my ($fh, $filename) = tempfile (DIR => $SBO::Lib::tempdir);
 		close $fh;
 		copy ($conf_file, $filename);
 		# tie the file so that if $key is already there, we just change that
