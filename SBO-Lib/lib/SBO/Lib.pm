@@ -43,16 +43,6 @@ use File::Find;
 
 $< == 0 or die "This script requires root privileges.\n";
 
-our $conf_dir = '/etc/sbotools';
-our $conf_file = "$conf_dir/sbotools.conf";
-my @valid_conf_keys = (
-	'NOCLEAN',
-	'DISTCLEAN',
-	'JOBS',
-	'PKG_DIR',
-	'SBO_HOME',
-);
-
 # subroutine for throwing internal script errors
 sub script_error {
 	unless (exists $_[0]) {
@@ -65,43 +55,38 @@ sub script_error {
 # sub for opening files, second arg is like '<','>', etc
 sub open_fh {
 	script_error ('open_fh requires two arguments') unless ($_[1]);
+	script_error ('open_fh first argument not a file') unless -f $_[0];
 	my ($file, $op) = @_;
 	open my $fh, $op, $file or die "Unable to open $file.\n";
 	return $fh;
 }
 
 sub open_read {
-	script_error ('open_read requires an argument') unless ($_[0]);
-	die "$_[0] cannot be opened for reading.\n" unless -f $_[0];
 	return open_fh (shift, '<');
 }
 
-our %config;
+# pull in configuration, set sane defaults, etc.
+our $conf_dir = '/etc/sbotools';
+our $conf_file = "$conf_dir/sbotools.conf";
+our %config = (
+	NOCLEAN => 'FALSE',
+	DISTCLEAN => 'FALSE',
+	JOBS => 'FALSE',
+	PKG_DIR => 'FALSE',
+	SBO_HOME => 'FALSE',
+)
+
 # if the conf file exists, pull all the $key=$value pairs into a hash
+my %conf_values;
 if (-f $conf_file) {
 	my $fh = open_read ($conf_file);
 	my $text = do {local $/; <$fh>};
-	%config = $text =~ /^(\w+)=(.*)$/mg;
+	%conf_values = $text =~ /^(\w+)=(.*)$/mg;
 	close $fh;
 }
-# undef any invalid $key=$value pairs
-for my $key (keys %config) {
-	undef $config{$key} unless $key ~~ @valid_conf_keys;
-}
-# ensure we have sane configs, and defaults for anything not in the conf file
-for my $key (@valid_conf_keys) {
-	if ($key eq 'SBO_HOME') {
-		$config{$key} = '/usr/sbo' unless exists $config{$key};
-	} elsif ($key eq 'JOBS') {
-		if (exists $config{$key}) {
-			$config{$key} = 'FALSE' unless $config{$key} =~ /^\d+$/;
-		} else {
-			$config{$key} = 'FALSE';
-		}
-	} else {
-		$config{$key} = 'FALSE' unless exists $config{$key};
-	}
-}
+$config{$_} = $conf_values{$_} for keys %config;
+$config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
+$config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
 
 my $distfiles = "$config{SBO_HOME}/distfiles";
 my $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
