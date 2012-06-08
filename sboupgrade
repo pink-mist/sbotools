@@ -202,7 +202,7 @@ sub readme_prompt {
 	grok_requirements ($sbo, $readme); 
 	grok_user_group ($readme);
 	my $opts = grok_options ($readme);
-	print "\n". $readme if ($opts == 7 || ! $opts);
+	print "\n". $readme if ($opts eq "7" || ! $opts);
 	my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 	print "\nProceed with $name? [y]: ";
 	return unless <STDIN> =~ /^[Yy\n]/;
