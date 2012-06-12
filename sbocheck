@@ -32,7 +32,7 @@ my @listing;
 for my $key (keys @updates) {
 	my $string = "$updates[$key]{name}-$updates[$key]{installed}";
 	$string .= "        <   needs updating (SBo has $updates[$key]{update})\n";
-	push (@listing, $string);
+	push @listing, $string;
 }
 
 if (exists $listing[0]) {
