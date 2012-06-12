@@ -66,8 +66,8 @@ FIRST: while (my $line = <$fh>) {
 }
 
 sub get_file_contents {
-	script_error ('get_file_contents requires an argument') unless exists $_[0];
-	script_error ('get_file_contents argument is not a file') unless -f $_[0];
+	exists $_[0] or script_error ('get_file_contents requires an argument');
+	-f $_[0] or script_error ('get_file_contents argument is not a file');
 	my $fh = open_read (shift);
 	my $contents = do {local $/; <$fh>};
 	$contents =~ s/\n/\n        /g;

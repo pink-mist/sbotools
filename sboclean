@@ -46,7 +46,7 @@ if ($clean_dist eq 'FALSE' && $clean_work eq 'FALSE') {
 }
 
 sub remove_stuff {
-	script_error ('remove_stuff requires an argument') unless exists $_[0];
+	exists $_[0] or script_error ('remove_stuff requires an argument');
 	print "Nothing to do.\n" and return 1 unless -d $_[0];
 	my $dir = shift;
 	opendir (my $dh, $dir);
@@ -58,7 +58,7 @@ sub remove_stuff {
 			next FIRST unless <STDIN> =~ /^[Yy]/;
 		}
 		unlink $full if -f $full;
-		remove_tree $full if -d $full;
+		remove_tree ($full) if -d $full;
 	}
 }
 

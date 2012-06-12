@@ -72,46 +72,49 @@ my %locations;
 for my $sbo_name (@ARGV) {
 	$locations{$sbo_name} = get_sbo_location ($sbo_name);
 	die "Unable to locate $sbo_name in the SlackBuilds.org tree.\n" unless
-		(defined $locations{$sbo_name});
+		defined $locations{$sbo_name};
 }
 
 sub get_readme_path {
-	script_error ('get_readme_path requires an argument.') unless exists $_[0];
+	exists $_[0] or script_error ('get_readme_path requires an argument.');
 	my $sbo = shift;
 	return $locations{$sbo} .'/README';
 }
 
 # this subroutine may be getting a little out of hand.
 sub grok_requirements {
-	script_error ('grok_requirements requires two arguments')
-		unless exists $_[1];
+	exists $_[1] or script_error ('grok_requirements requires two arguments');
 	return if $no_reqs eq 'TRUE';
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
-	# work around missing period at end of list of requirements (given 2 \ns),
-	# or no period at end of whole thing.
-	$readme =~ s/$/./;
-	# nasty hack.
-	$readme =~ s/[Oo]ptional/./g;
-	$readme =~ s/\n\n/./g;
-	$readme =~ s/\n//g;
+	for ($readme) {
+		# work around missing period at end of list of requirements (given 2
+		# \ns), or no period at end of whole thing.
+		s/$/./;
+		# yet another nasty hack. yanh!
+		s/[Oo]ptional/./g;
+		s/\n\n/./g;
+		s/\n//g;
+	}
 	return unless my $string = 
 		($readme =~ /([Tt]his|\Q$sbo\E|)\s*[Rr]equire(s|)(|:)\s+([^\.]+)/)[3];
-	# remove anything in brackets or parens
-	$string =~ s/(\s)*\[[^\]]+\](\s)*//g;
-	$string =~ s/(\s)*\([^\)]+\)(\s)*//g;
-	# convert and to comma
-	$string =~ s/(\s+|,)and\s+/,/g;
-	$string =~ s/,\s+/,/g;
-	my @deps = split (/,/, $string);
+	for ($string) {
+		# remove anything in brackets or parens
+		s/(\s)*\[[^\]]+\](\s)*//g;
+		s/(\s)*\([^\)]+\)(\s)*//g;
+		# convert and to comma
+		s/(\s+|,)and\s+/,/g;
+		s/,\s+/,/g;
+	}
+	my @deps = split /,/, $string;
 	# if anything has a space, we didn't parse correctly, so remove it, also
 	# remove anything that's blank or has an equal sign in
 	my @remove;
 	for my $key (keys @deps) {
-		push (@remove, $key) if ($deps[$key] =~ /[\s=]/ || $deps[$key] =~ /^$/);
+		push @remove, $key if ($deps[$key] =~ /[\s=]/ || $deps[$key] =~ /^$/);
 	}
 	for my $rem (@remove) {
-		splice (@deps, $rem, 1);
+		splice @deps, $rem, 1;
 		$_-- for @remove;
 	}
 	return unless exists $deps[0];
@@ -126,15 +129,14 @@ sub grok_requirements {
 		print "\nIt looks like this slackbuild requires $tempname; shall I";
 		print " attempt to install it first? [y] ";
 		if (<STDIN> =~ /^[Yy\n]/) {
-			my $cmd = "/usr/sbin/sboupgrade";
-			my @args = ('-oN');
+			my @args = ("/usr/sbin/sboupgrade", '-oN');
 			# populate args so that they carry over correctly
-			push (@args, "-c") if exists $options{c};
-			push (@args, "-d") if exists $options{d};
-			push (@args, "-j $options{j}") if exists $options{j};
-			push (@args, "-p") if $compat32 eq 'TRUE';
-			push (@args, $need);
-			system ($cmd, @args);
+			push @args, "-c" if exists $options{c};
+			push @args, "-d" if exists $options{d};
+			push @args, "-j $options{j}" if exists $options{j};
+			push @args, "-p" if $compat32 eq 'TRUE';
+			push @args, $need;
+			system @args;
 		}
 	}
 	return;
@@ -142,14 +144,12 @@ sub grok_requirements {
 
 # look for any (user|group)add commands in the README
 sub grok_user_group {
-	script_error ('grok_user_group requires an argument') unless exists $_[0];
+	exists $_[0] or script_error ('grok_user_group requires an argument');
 	my $readme = shift;
-	my @readme_array = split (/\n/, $readme);
+	my @readme_array = split /\n/, $readme;
 	my @cmds;
 	my $cmd_regex = qr/^\s*#\s+((user|group)add.*)/;
-	for my $line (@readme_array) {
-		push (@cmds, $1) if $line =~ $cmd_regex;
-	}
+	push @cmds, ($_ =~ $cmd_regex)[0] for @readme_array;
 	return unless exists $cmds[0];
 	print "\n". $readme ."\n";;
 	print "\nIt looks like this slackbuild requires the following command(s)";
@@ -158,9 +158,7 @@ sub grok_user_group {
 	print "Shall I run it/them now? [y] ";
 	if (<STDIN> =~ /^[Yy\n]/) {
 		for my $cmd (@cmds) {
-			my @split = split (' ', $cmd);
-			my $command = shift (@split);
-			warn "$cmd exited non-zero" if (system ($command, @split) != 0);
+			system $cmd == 0 or warn "\"$cmd\" exited non-zero\n";
 		}
 	}
 	return 1;
@@ -168,10 +166,10 @@ sub grok_user_group {
 
 # see if the README mentions any options
 sub grok_options {
-	script_error ('grok_options requires an argument') unless exists $_[0];
+	exists $_[0] or script_error ('grok_options requires an argument');
 	my $readme = shift;
 	return 7 unless $readme =~ /[A-Z]+=[^\s]/;
-	my @readme_array = split (/\n/, $readme);
+	my @readme_array = split /\n/, $readme;
 	print "\n". $readme;
 	print "\nIt looks this slackbuilds has options; would you like to set any";
 	print " when the slackbuild is run? [n] ";
@@ -195,8 +193,9 @@ sub grok_options {
 
 # prompt for the readme, and grok the readme at this time also.
 sub readme_prompt {
-	script_error ('readme_prompt requires an argument.') unless exists $_[0];
-	my $fh = open_read (get_readme_path (shift) );
+	exists $_[0] or script_error ('readme_prompt requires an argument.');
+	my $sbo = shift;
+	my $fh = open_read (get_readme_path ($sbo) );
 	my $readme = do {local $/; <$fh>};
 	close $fh;
 	grok_requirements ($sbo, $readme); 
@@ -212,19 +211,19 @@ sub readme_prompt {
 
 # do the things with the provided sbos - whether upgrades or new installs.
 sub process_sbos {
-	script_error ('process_sbos requires an argument.') unless exists $_[0];
+	exists $_[0] or script_error ('process_sbos requires an argument.');
 	my @todo = @_;
 	my @failures;
 	FIRST: for my $sbo (@todo) {
 		my $opts = readme_prompt ($sbo) unless $no_readme eq 'TRUE';
-		$opts = 'FALSE' if $opts =~ /\d+/;
+		$opts = 'FALSE' if ($opts =~ /\d+/ || ! $opts);
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
 		my ($version, $pkg, $src);
-		my @sb_args = ($opts, $jobs, $sbo, $locations{$sbo}, $compat32;
+		my @sb_args = ($opts, $jobs, $sbo, $locations{$sbo}, $compat32);
 		eval { ($version, $pkg, $src) = do_slackbuild (@sb_args); };
 		if ($@) {
-			push (@failures, $sbo);
+			push @failures, $sbo;
 		} else {
 			unless ($distclean eq 'TRUE') {
 				make_clean ($sbo, $src, $version) if $noclean eq 'FALSE';
@@ -234,16 +233,12 @@ sub process_sbos {
 			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
 			# move package to $config{PKG_DIR} if defined
 			unless ($config{PKG_DIR} eq 'FALSE') {
-				unless (-d $config{PKG_DIR}) {
-					mkdir ($config{PKG_DIR}) or 
-						warn "Unable to create $config{PKG_DIR}\n";
+				my $dir = $config{PKG_DIR};
+				unless (-d $dir) {
+					mkdir ($dir) or warn "Unable to create $dir\n";
 				}
-				if (-d $config{PKG_DIR}) {
-					move ($pkg, $config{PKG_DIR});
-					print "$pkg stored in $config{PKG_DIR}\n";
-				} else {
+				-d $dir ? move ($pkg, $dir), print "$pkg stored in $dir\n" :
 					warn "$pkg left in /tmp\n";
-				}
 			} elsif ($distclean eq 'TRUE') {
 				unlink ($pkg);
 			}
@@ -270,19 +265,19 @@ unless ($only_new eq 'TRUE') {
 	my @updates unless $force eq 'TRUE';
 	unless ($force eq 'TRUE') {
 		my @updates_array = get_available_updates ();
-		push (@updates, $updates_array[$_]{name}) for keys @updates_array;
+		push @updates, $updates_array[$_]{name} for keys @updates_array;
 	}
 	my @todo_upgrade;
 	# but without force, we only want to update what there are updates for
 	unless ($force eq 'TRUE') {
 		for my $sbo (@ARGV) {
-			push (@todo_upgrade, $sbo) if $sbo ~~ @updates;
+			push @todo_upgrade, $sbo if $sbo ~~ @updates;
 		}
 	} else {
 		FIRST: for my $sbo (@ARGV) {
 			SECOND: for my $key (keys @installed) {
 				if ($sbo eq $installed[$key]{name}) {
-					push (@todo_upgrade, $sbo);
+					push @todo_upgrade, $sbo;
 					last SECOND;
 				}
 			}
@@ -294,43 +289,32 @@ unless ($only_new eq 'TRUE') {
 
 if ($install_new eq 'TRUE') {
 	my @todo_install;
-	my $has = 'FALSE';
 	FIRST: for my $sbo (@ARGV) {
+		my $has = 'FALSE';
 		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 		SECOND: for my $key (keys @installed) {
-			if ($name eq $installed[$key]{name}) {
-				$has = 'TRUE';
-				last SECOND;
-			}
+			$has = 'TRUE', last SECOND if $name eq $installed[$key]{name};
 		}
 		# if compat32 is TRUE, we need to see if the non-compat version exists.
 		if ($compat32 eq 'TRUE') {
 			my $has64 = 'FALSE';
 			THIRD: for my $key (keys @installed) {
-				if ($sbo eq $installed[$key]{name}) {
-					$has64 = 'TRUE';
-					last THIRD;
-				}
+				$has = 'TRUE', last THIRD if $sbo eq $installed[$key]{name};
 			}
 			unless ($has64 eq 'TRUE') {
 				print "\nYou are attempting to install $sbo-compat32, however,";
 				print " $sbo is not yet installed. Shall I install it first?";
 				print " [y] ";
 				if (<STDIN> =~ /^[Yy\n]/) {
-					my $cmd = "/usr/sbin/sboupgrade";
-					my @args = ('-oN', $sbo);
-					exit 1 if (system ($cmd, @args) != 0);
+					my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
+					system @args == 0 or exit 1;
 				} else {
 					print "Please install $sbo\n" and exit 0;
 				}
 			}
 		}
-		unless ($has eq 'TRUE') {
-			push (@todo_install, $sbo);
-		} else {
-			print "$name already installed.\n";
-		}
-		$has = 'FALSE';
+		$has eq 'TRUE' ? warn "$name already installed.\n" :
+			push @todo_install, $sbo;
 	}
 	@failed = process_sbos (@todo_install) if exists $todo_install[0];
 	print_failures ();

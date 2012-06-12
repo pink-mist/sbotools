@@ -44,15 +44,15 @@ show_usage () and exit (0) unless exists $ARGV[0];
 # setup any options which do not require arguments
 my @opts1 = ('c', 'd', 'r', 'i', 'p', 'R');
 for my $opt (@opts1) {
-	unshift (@ARGV, "-$opt") if exists $options{$opt};
+	unshift @ARGV, "-$opt" if exists $options{$opt};
 }
 
 # setup any options which do require arguments
 my @opts2 = ('j');
 for my $opt (@opts2) {
-	unshift (@ARGV, "-$opt $options{$opt}") if exists $options{$opt};
+	unshift @ARGV, "-$opt $options{$opt}" if exists $options{$opt};
 }
 
-unshift (@ARGV, '-oN');
-system ('/usr/sbin/sboupgrade', @ARGV);
+unshift @ARGV, '/usr/sbin/sboupgrade', '-oN';
+system @ARGV;
 exit 0;

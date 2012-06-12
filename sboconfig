@@ -14,6 +14,7 @@ use File::Basename;
 use Getopt::Std;
 use File::Copy;
 use File::Path qw(make_path);
+use File::Temp qw(tempfile);;
 
 my %config = %SBO::Lib::config;
 my $self = basename ($0);
@@ -80,7 +81,7 @@ my $conf_file = $SBO::Lib::conf_file;
 # safely modify our conf file; copy to a temp location, edit the temp file,
 # move the edited file into place
 sub config_write {
-	script_error ('config_write requires two arguments.') unless exists $_[1];
+	exists $_[1] or script_error ('config_write requires two arguments.');
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
 		mkdir ($conf_dir) or die "Unable to create $conf_dir. Exiting.\n";
