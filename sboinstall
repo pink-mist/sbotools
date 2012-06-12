@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 #
+# vim: set ts=4:noet
+#
 # sboinstall
 # script to install a SlackBuild by name
 #

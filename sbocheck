@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 #
+# vim: set ts=4:noet
+#
 # sbocheck
 # script to update the local sbo tree and check for updates
 #

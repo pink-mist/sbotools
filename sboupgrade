@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 #
+# vim: set ts=4:noet
+#
 # sboupgrade
 # script to update an installed SlackBuild.
 #

@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 #
+# vim: set ts=4:noet
+#
 # sbolib.sh
 # shared functions for the sbo_ scripts.
 #

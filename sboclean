@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 #
+# vim: set ts=4:noet
+#
 # sboclean
 # script to clean stuff left around from sbotools.
 #

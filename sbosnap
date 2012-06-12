@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 #
+# vim: set ts=4:noet
+#
 # sbosnap
 # script to pull down / update a local copy of the
 # slackbuilds.org tree.
