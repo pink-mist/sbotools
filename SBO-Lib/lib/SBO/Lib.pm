@@ -107,9 +107,10 @@ sub get_slack_version {
 	chomp (my $line = <$fh>);
 	close $fh;
 	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
-	# only 13.37 and current supported, so die unless version is 13.37
-	$version eq '13.37.0' or die "Unsupported Slackware version: $version\n";
-	return '13.37';
+	my $ret_ver;
+	$ret_ver = '13.37' if ($version eq '13.37.0' || $version eq '14.0');
+	$ret_ver eq '13.37' or die "Unsupported Slackware version: $version\n";
+	return $ret_ver;
 }
 
 sub check_slackbuilds_txt {
@@ -259,7 +260,7 @@ sub get_arch {
 # assemble an array of hashes containing links and md5sums for a given sbo,
 # with the option of only checking for 32-bit links, for -compat32 packaging
 sub get_sbo_downloads {
-	exsits $_[2] or script_error
+	exists $_[2] or script_error
 		('get_sbo_downloads requires three arguments.');
 	-d $_[1] or script_error ('get_sbo_downloads given a non-directory.');
 	my ($sbo, $location, $only32) = @_;
