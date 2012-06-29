@@ -160,7 +160,7 @@ sub grok_user_group {
 	print "Shall I run it/them now? [y] ";
 	if (<STDIN> =~ /^[Yy\n]/) {
 		for my $cmd (@cmds) {
-			system $cmd == 0 or warn "\"$cmd\" exited non-zero\n";
+			system ($cmd == 0) or warn "\"$cmd\" exited non-zero\n";
 		}
 	}
 	return 1;
@@ -313,7 +313,7 @@ if ($install_new eq 'TRUE') {
 				print " [y] ";
 				if (<STDIN> =~ /^[Yy\n]/) {
 					my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
-					system @args == 0 or exit 1;
+					system (@args) == 0 or exit 1;
 				} else {
 					print "Please install $sbo\n" and exit 0;
 				}

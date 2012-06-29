@@ -318,7 +318,7 @@ sub get_distfile {
 	my $filename = get_filename_from_link ($link);
 	mkdir ($distfiles) unless -d $distfiles;
 	chdir ($distfiles);
-	system "wget $link" == 0 or die "Unable to wget $link\n";
+	system ("wget $link") == 0 or die "Unable to wget $link\n";
 	my $md5sum = compute_md5sum ($filename);
 	$md5sum eq $expected_md5sum or die "md5sum failure for $filename.\n";
 	return 1;
@@ -536,7 +536,7 @@ sub do_slackbuild {
 		my ($tempfh, $tempfn) = tempfile (DIR => $tempdir);
 		close $tempfh;
 		my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $tempfn";
-		system $cmd == 0 or die;
+		system ($cmd == 0) or die;
 		unlink $pkg;
 		$pkg = get_pkg_name ($tempfn);
 	}
