@@ -57,7 +57,7 @@ my $loc_regex = qr/LOCATION:\s+(.*)$/;
 my $fh = open_read ("$config{SBO_HOME}/SLACKBUILDS.TXT");
 FIRST: while (my $line = <$fh>) {
 	if ($found eq 'FALSE') {
-		$found eq 'TRUE', next FIRST if $name = ($line =~ $name_regex)[0];
+		$found = 'TRUE', next FIRST if $name = ($line =~ $name_regex)[0];
 	} else {
 		if (my ($location) = ($line =~ $loc_regex)[0]) {
 			$found = 'FALSE';
