@@ -144,13 +144,13 @@ sub rsync_sbo_tree {
 sub fetch_tree {
 	check_home ();
 	print "Pulling SlackBuilds tree...\n";
-	rsync_sbo_tree (), return;
+	rsync_sbo_tree (), return 1;
 }
 
 sub update_tree {
 	fetch_tree (), return unless check_slackbuilds_txt ();
 	print "Updating SlackBuilds tree...\n";
-	rsync_sbo_tree (), return;
+	rsync_sbo_tree (), return 1;
 }
 
 # if the SLACKBUILDS.TXT is not in $config{SBO_HOME}, we assume the tree has
