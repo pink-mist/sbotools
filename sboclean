@@ -53,7 +53,7 @@ sub remove_stuff {
 	my $dir = shift;
 	opendir (my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
-		next FIRST if $ls =~ /^\.[\.]{0,1}$/;
+		next FIRST if $ls =~ /^(\.){1,2}$/;
 		my $full = "$dir/$ls";
 		if ($interactive eq 'TRUE') {
 			print "Remove $full? [n] ";
