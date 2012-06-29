@@ -206,7 +206,7 @@ sub readme_prompt {
 	print "\n". $readme if ($opts eq "7" || ! $opts);
 	my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
 	print "\nProceed with $name? [y]: ";
-	return unless <STDIN> =~ /^[Yy\n]/;
+	exit 0 unless <STDIN> =~ /^[Yy\n]/;
 	return $opts if defined $opts;
 	return 1;
 }
@@ -217,7 +217,8 @@ sub process_sbos {
 	my @todo = @_;
 	my @failures;
 	FIRST: for my $sbo (@todo) {
-		my $opts = readme_prompt ($sbo) unless $no_readme eq 'TRUE';
+		my $opts = 0;
+		$opts = readme_prompt ($sbo) unless $no_readme eq 'TRUE';
 		$opts = 'FALSE' if ($opts =~ /\d+/ || ! $opts);
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
@@ -239,8 +240,11 @@ sub process_sbos {
 				unless (-d $dir) {
 					mkdir ($dir) or warn "Unable to create $dir\n";
 				}
-				-d $dir ? move ($pkg, $dir), print "$pkg stored in $dir\n" :
+				if (-d $dir) {
+					move ($pkg, $dir), print "$pkg stored in $dir\n";
+				} else {
 					warn "$pkg left in /tmp\n";
+				}
 			} elsif ($distclean eq 'TRUE') {
 				unlink ($pkg);
 			}
