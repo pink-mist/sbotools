@@ -113,7 +113,7 @@ sub get_slack_version {
 	close $fh;
 	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
 	die "Unsupported Slackware version: $version\n"
-		unless $version ~~ %supported;
+		unless $version + 0 ~~ %supported;
 	return $supported{$version};
 }
 
