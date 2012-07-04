@@ -87,7 +87,11 @@ if (-f $conf_file) {
 	%conf_values = $text =~ /^(\w+)=(.*)$/mg;
 	close $fh;
 }
-$config{$_} = $conf_values{$_} for keys %config;
+
+for my $key (keys %config) {
+	$config{$key} = $conf_values{$key} if exists $conf_values{$key};
+}
+#$config{$_} = $conf_values{$_} for keys %config;
 $config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
 $config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
 
@@ -105,13 +109,13 @@ sub show_version {
 # %supported maps what's in /etc/slackware-version to what's at SBo
 sub get_slack_version {
 	my %supported = (
-		13.37.0 => '13.37',
-		14.0 => '13.37',
+		'13.37.0' => '13.37',
+		'14.0' => '13.37',
 	);
 	my $fh = open_read ('/etc/slackware-version');
 	chomp (my $line = <$fh>);
 	close $fh;
-	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0] + 0;
+	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
 	die "Unsupported Slackware version: $version\n"
 		unless $version ~~ %supported;
 	return $supported{$version};
