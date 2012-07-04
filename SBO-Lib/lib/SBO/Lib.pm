@@ -102,15 +102,19 @@ sub show_version {
 	print "<http://sam.zoy.org/wtfpl/COPYING>\n";
 }
 
+# %supported maps what's in /etc/slackware-version to what's at SBo
 sub get_slack_version {
+	my %supported = (
+		13.37.0 => '13.37',
+		14.0 => '13.37',
+	);
 	my $fh = open_read ('/etc/slackware-version');
 	chomp (my $line = <$fh>);
 	close $fh;
 	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
-	my $ret_ver;
-	$ret_ver = '13.37' if ($version eq '13.37.0' || $version eq '14.0');
-	$ret_ver eq '13.37' or die "Unsupported Slackware version: $version\n";
-	return $ret_ver;
+	die "Unsupported Slackware version: $version\n"
+		unless $version ~~ %supported;
+	return $supported{$version};
 }
 
 sub check_slackbuilds_txt {
