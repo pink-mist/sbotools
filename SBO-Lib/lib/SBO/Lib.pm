@@ -111,9 +111,9 @@ sub get_slack_version {
 	my $fh = open_read ('/etc/slackware-version');
 	chomp (my $line = <$fh>);
 	close $fh;
-	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
+	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0] + 0;
 	die "Unsupported Slackware version: $version\n"
-		unless $version + 0 ~~ %supported;
+		unless $version ~~ %supported;
 	return $supported{$version};
 }
 
