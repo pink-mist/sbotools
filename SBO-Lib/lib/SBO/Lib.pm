@@ -544,7 +544,7 @@ sub do_slackbuild {
 		my ($tempfh, $tempfn) = tempfile (DIR => $tempdir);
 		close $tempfh;
 		my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $tempfn";
-		system ($cmd == 0) or die;
+		system ($cmd) == 0 or die;
 		unlink $pkg;
 		$pkg = get_pkg_name ($tempfn);
 	}
