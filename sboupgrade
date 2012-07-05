@@ -253,7 +253,6 @@ sub process_sbos {
 	return @failures;
 }
 
-my @installed = get_installed_sbos ();
 my @failed;
 
 sub print_failures {
@@ -280,9 +279,10 @@ unless ($only_new eq 'TRUE') {
 			push @todo_upgrade, $sbo if $sbo ~~ @updates;
 		}
 	} else {
+		my @inst = get_installed_sbos ();
 		FIRST: for my $sbo (@ARGV) {
-			SECOND: for my $key (keys @installed) {
-				if ($sbo eq $installed[$key]{name}) {
+			SECOND: for my $key (keys @inst) {
+				if ($sbo eq $inst[$key]{name}) {
 					push @todo_upgrade, $sbo;
 					last SECOND;
 				}
@@ -298,14 +298,16 @@ if ($install_new eq 'TRUE') {
 	FIRST: for my $sbo (@ARGV) {
 		my $has = 'FALSE';
 		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
-		SECOND: for my $key (keys @installed) {
-			$has = 'TRUE', last SECOND if $name eq $installed[$key]{name};
+		my @inst = get_installed_sbos ();
+		SECOND: for my $key (keys @inst) {
+			$has = 'TRUE', last SECOND if $name eq $inst[$key]{name};
 		}
 		# if compat32 is TRUE, we need to see if the non-compat version exists.
 		if ($compat32 eq 'TRUE') {
 			my $has64 = 'FALSE';
-			THIRD: for my $key (keys @installed) {
-				$has = 'TRUE', last THIRD if $sbo eq $installed[$key]{name};
+			my @inst = get_installed_sbos ();
+			THIRD: for my $key (keys @inst) {
+				$has64 = 'TRUE', last THIRD if $sbo eq $inst[$key]{name};
 			}
 			unless ($has64 eq 'TRUE') {
 				print "\nYou are attempting to install $sbo-compat32, however,";
