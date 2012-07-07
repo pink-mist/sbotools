@@ -90,6 +90,8 @@ sub grok_requirements {
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
 	for ($readme) {
+		# deal with and at end of line
+		s/and/and /g;
 		# work around missing period at end of list of requirements (given 2
 		# \ns), or no period at end of whole thing.
 		s/$/./;
