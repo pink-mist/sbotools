@@ -193,7 +193,7 @@ sub grok_options {
 		}
 		return $opts;
 	}
-	return;
+	return 7;
 }
 
 # prompt for the readme, and grok the readme at this time also.
