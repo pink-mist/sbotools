@@ -239,6 +239,7 @@ sub find_download_info {
 	my $empty_regex = qr/=""$/;
 	# may be > 1 lines for a given key.
 	my $back_regex = qr/\\$/;
+	my $un_regex = qr/^UN(SUPPOR|TES)TED$/;
 	my $more = 'FALSE';
 	my $fh = open_read ("$location/$sbo.info");
 	FIRST: while (my $line = <$fh>) {
@@ -246,7 +247,7 @@ sub find_download_info {
 			if ($line =~ $regex) {
 				last FIRST if $line =~ $empty_regex;
 				# some sbos have UNSUPPORTED for the x86_64 info
-				$1 eq 'UNSUPPORTED' ? last FIRST : push @return, $1;
+				$1 =~ $un_regex ? last FIRST : push @return, $1;
 				$more = 'TRUE' if $line =~ $back_regex;
 			}
 		} else {
@@ -326,7 +327,8 @@ sub get_distfile {
 	my $filename = get_filename_from_link ($link);
 	mkdir ($distfiles) unless -d $distfiles;
 	chdir ($distfiles);
-	system ("wget $link") == 0 or die "Unable to wget $link\n";
+	system ("wget --no-check-certificate $link") == 0 or
+		die "Unable to wget $link\n";
 	my $md5sum = compute_md5sum ($filename);
 	$md5sum eq $expected_md5sum or die "md5sum failure for $filename.\n";
 	return 1;
@@ -362,7 +364,7 @@ sub check_x32 {
 	exists $_[1] or script_error ('check_x32 requires two arguments.');
 	my ($sbo, $location) = @_;
 	my $fh = open_read ("$location/$sbo.info");
-	my $regex = qr/^DOWNLOAD_x86_64="UNSUPPORTED"/;
+	my $regex = qr/^DOWNLOAD_x86_64="UN(SUPPOR|TES)TED"/;
 	while (my $line = <$fh>) {
 		return 1 if $line =~ $regex;
 	}
