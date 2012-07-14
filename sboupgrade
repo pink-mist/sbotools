@@ -140,7 +140,8 @@ sub grok_requirements {
 			push @args, "-j $options{j}" if exists $options{j};
 			push @args, "-p" if $compat32 eq 'TRUE';
 			push @args, $need;
-			system @args;
+			system (@args) == 0 or
+				die "Requirement failure, unable to proceed.\n";
 		}
 	}
 	return;
@@ -330,4 +331,5 @@ if ($install_new eq 'TRUE') {
 	print_failures ();
 }
 
+exit 1 if exists $failed[0];
 exit 0;
