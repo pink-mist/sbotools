@@ -22,18 +22,18 @@ my $self = basename ($0);
 my %options;
 getopts ('v',\%options);
 
-show_version () && exit (0) if (exists $options{v});
+show_version && exit 0 if exists $options{v};
 
-update_tree ();
+update_tree;
 
-print "Checking for updated SlackBuilds...\n";
-my @updates = get_available_updates ();
+say "Checking for updated SlackBuilds...";
+my $updates = get_available_updates;
 
 # pretty formatting.
 my @listing;
-for my $key (keys @updates) {
-	my $string = "$updates[$key]{name}-$updates[$key]{installed}";
-	$string .= "        <   needs updating (SBo has $updates[$key]{update})\n";
+for my $up (@$updates) {
+	my $string = "$$up{name}-$$up{installed}";
+	$string .= "        <   needs updating (SBo has $$up{update})\n";
 	push @listing, $string;
 }
 
@@ -41,9 +41,9 @@ if (exists $listing[0]) {
 	my $tab = new Text::Tabulate ();
 	$tab->configure (tab => '\s');
 	my $output = $tab->format (@listing);
-	print "\n". $output ."\n";
+	say "\n". $output;
 } else {
-	print "\nNo updates available.\n";
+	say "\nNo updates available.";
 }
 
 exit 0;

@@ -19,7 +19,7 @@ use warnings FATAL => 'all';
 my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
-sub show_usage {
+sub show_usage () {
 	print <<EOF
 Usage: $self (options) [package]
 
@@ -36,26 +36,26 @@ EOF
 my %options;
 getopts ('hvdwi', \%options);
 
-show_usage () && exit (0) if exists $options{h};
-show_version () && exit (0) if exists $options{v};
-my $clean_dist = exists $options{d} ? 'TRUE' : 'FALSE';
-my $clean_work = exists $options{w} ? 'TRUE' : 'FALSE';
-my $interactive = exists $options{i} ? 'TRUE' : 'FALSE';
+show_usage && exit 0 if exists $options{h};
+show_version && exit 0 if exists $options{v};
+my $clean_dist = exists $options{d} ? 1 : 0;
+my $clean_work = exists $options{w} ? 1 : 0;
+my $interactive = exists $options{i} ? 1 : 0;
 
-if ($clean_dist eq 'FALSE' && $clean_work eq 'FALSE') {
-	show_usage ();
+unless ($clean_dist || $clean_work) {
+	show_usage;
 	die "You must specify at least one of -d or -w.\n";
 }
 
-sub remove_stuff {
+sub remove_stuff ($) {
 	exists $_[0] or script_error ('remove_stuff requires an argument');
-	print "Nothing to do.\n" and return 1 unless -d $_[0];
+	-d $_[0] or say "Nothing to do." and return 1;
 	my $dir = shift;
 	opendir (my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
 		next FIRST if $ls =~ /^(\.){1,2}$/;
 		my $full = "$dir/$ls";
-		if ($interactive eq 'TRUE') {
+		if ($interactive) {
 			print "Remove $full? [n] ";
 			next FIRST unless <STDIN> =~ /^[Yy]/;
 		}
@@ -64,7 +64,7 @@ sub remove_stuff {
 	}
 }
 
-remove_stuff ($config{SBO_HOME} . '/distfiles') if $clean_dist eq 'TRUE';
-remove_stuff ('/tmp/SBo') if $clean_work eq 'TRUE';
+remove_stuff ($config{SBO_HOME} . '/distfiles') if $clean_dist;
+remove_stuff ('/tmp/SBo') if $clean_work;
 
 exit 0;

@@ -19,7 +19,7 @@ use warnings FATAL => 'all';
 my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
-sub show_usage {
+sub show_usage () {
 	print <<EOF
 Usage: $self (options) [package]
 
@@ -45,17 +45,17 @@ EOF
 my %options;
 getopts ('hvacdfj:NriopR', \%options);
 
-show_usage () && exit (0) if exists $options{h};
-show_version () && exit (0) if exists $options{v};
+show_usage && exit 0 if exists $options{h};
+show_version && exit 0 if exists $options{v};
 my $noclean = exists $options{c} ? 'TRUE' : $config{NOCLEAN};
 my $distclean = exists $options{d} ? 'TRUE' : $config{DISTCLEAN};
-my $force = exists $options{f} ? 'TRUE' : 'FALSE';
-my $install_new = exists $options{N} ? 'TRUE' : 'FALSE';
-my $no_readme = exists $options{r} ? 'TRUE' : 'FALSE';
-my $no_install = exists $options{i} ? 'TRUE' : 'FALSE';
-my $only_new = exists $options{o} ? 'TRUE' : 'FALSE';
-my $compat32 = exists $options{p} ? 'TRUE' : 'FALSE';
-my $no_reqs = exists $options{R} ? 'TRUE' : 'FALSE';
+my $force = exists $options{f} ? 1 : 0;
+my $install_new = exists $options{N} ? 1 : 0;
+my $no_readme = exists $options{r} ? 1 : 0;
+my $no_install = exists $options{i} ? 1 : 0;
+my $only_new = exists $options{o} ? 1 : 0;
+my $compat32 = exists $options{p} ? 1 : 0;
+my $no_reqs = exists $options{R} ? 1 : 0;
 
 if (exists $options{j}) {
 	die "You have provided an invalid parameter for -j\n" unless
@@ -63,30 +63,30 @@ if (exists $options{j}) {
 }
 my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
 
-show_usage () and exit (1) unless exists $ARGV[0];
+show_usage and exit 1 unless exists $ARGV[0];
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
-slackbuilds_or_fetch ();
+slackbuilds_or_fetch;
 
 # build a hash of locations for each item provided on command line, at the same
 # time verifying each item is a valid slackbuild
 my %locations;
 for my $sbo_name (@ARGV) {
-	$locations{$sbo_name} = get_sbo_location ($sbo_name);
+	$locations{$sbo_name} = get_sbo_location $sbo_name;
 	die "Unable to locate $sbo_name in the SlackBuilds.org tree.\n" unless
 		defined $locations{$sbo_name};
 }
 
-sub get_readme_path {
-	exists $_[0] or script_error ('get_readme_path requires an argument.');
+sub get_readme_path ($) {
+	exists $_[0] or script_error 'get_readme_path requires an argument.';
 	my $sbo = shift;
 	return $locations{$sbo} .'/README';
 }
 
 # this subroutine may be getting a little out of hand.
-sub grok_requirements {
-	exists $_[1] or script_error ('grok_requirements requires two arguments');
-	return if $no_reqs eq 'TRUE';
+sub grok_requirements ($$) {
+	exists $_[1] or script_error 'grok_requirements requires two arguments';
+	return if $no_reqs;
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
 	for ($readme) {
@@ -125,10 +125,9 @@ sub grok_requirements {
 	FIRST: for my $need (@deps) {
 		# compare against installed slackbuilds
 		my $tempname = $compat32 eq 'TRUE' ? "$need-compat32" : $need;
-		my @inst = get_installed_sbos ();
-		SECOND: for my $key (keys @inst) {
-			next FIRST if $tempname eq $inst[$key]{name};
-		}
+		my $inst = get_installed_sbos;
+		my $inst_names = get_inst_names $inst;
+		next FIRST if $tempname ~~ @$inst_names;
 		print "\n". $readme_orig;
 		print "\nIt looks like this slackbuild requires $tempname; shall I";
 		print " attempt to install it first? [y] ";
@@ -138,7 +137,7 @@ sub grok_requirements {
 			push @args, "-c" if exists $options{c};
 			push @args, "-d" if exists $options{d};
 			push @args, "-j $options{j}" if exists $options{j};
-			push @args, "-p" if $compat32 eq 'TRUE';
+			push @args, "-p" if $compat32;
 			push @args, $need;
 			system (@args) == 0 or
 				die "Requirement failure, unable to proceed.\n";
@@ -148,18 +147,18 @@ sub grok_requirements {
 }
 
 # look for any (user|group)add commands in the README
-sub grok_user_group {
-	exists $_[0] or script_error ('grok_user_group requires an argument');
+sub grok_user_group ($) {
+	exists $_[0] or script_error 'grok_user_group requires an argument';
 	my $readme = shift;
-	my @readme_array = split /\n/, $readme;
+	my $readme_array = [split /\n/, $readme];
 	my @cmds;
 	my $cmd_regex = qr/^\s*#\s+((user|group)add.*)/;
-	push @cmds, ($_ =~ $cmd_regex)[0] for @readme_array;
+	push @cmds, ($_ =~ $cmd_regex)[0] for @$readme_array;
 	return unless exists $cmds[0];
-	print "\n". $readme ."\n";;
+	say "\n". $readme;
 	print "\nIt looks like this slackbuild requires the following command(s)";
-	print " to be run first:\n";
-	print "    # $_\n" for @cmds;
+	say ' to be run first:';
+	say "    # $_" for @cmds;
 	print "Shall I run it/them now? [y] ";
 	if (<STDIN> =~ /^[Yy\n]/) {
 		for my $cmd (@cmds) {
@@ -170,8 +169,8 @@ sub grok_user_group {
 }
 
 # see if the README mentions any options
-sub grok_options {
-	exists $_[0] or script_error ('grok_options requires an argument');
+sub grok_options ($) {
+	exists $_[0] or script_error 'grok_options requires an argument';
 	my $readme = shift;
 	return 7 unless $readme =~ /[A-Z]+=[^\s]/;
 	my @readme_array = split /\n/, $readme;
