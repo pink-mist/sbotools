@@ -9,6 +9,7 @@
 # date: Sweetmorn, the 38th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
+use 5.16.0;
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
@@ -22,18 +23,18 @@ my $self = basename ($0);
 my %options;
 getopts ('v',\%options);
 
-show_version () && exit (0) if (exists $options{v});
+show_version && exit 0 if (exists $options{v});
 
-update_tree ();
+update_tree; 
 
 print "Checking for updated SlackBuilds...\n";
-my @updates = get_available_updates ();
+my $updates = get_available_updates; 
 
 # pretty formatting.
 my @listing;
-for my $key (keys @updates) {
-	my $string = "$updates[$key]{name}-$updates[$key]{installed}";
-	$string .= "        <   needs updating (SBo has $updates[$key]{update})\n";
+for my $key (keys @$updates) {
+	my $string = "$$updates[$key]{name}-$$updates[$key]{installed}";
+	$string .= "        <   needs updating (SBo has $$updates[$key]{update})\n";
 	push @listing, $string;
 }
 
@@ -41,9 +42,9 @@ if (exists $listing[0]) {
 	my $tab = new Text::Tabulate ();
 	$tab->configure (tab => '\s');
 	my $output = $tab->format (@listing);
-	print "\n". $output ."\n";
+	say "\n". $output;
 } else {
-	print "\nNo updates available.\n";
+	say "\nNo updates available.";
 }
 
 exit 0;

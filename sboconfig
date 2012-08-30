@@ -9,6 +9,7 @@
 # date: Pungenday, the 40th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
+use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
@@ -21,7 +22,7 @@ use File::Temp qw(tempfile);;
 my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
-sub show_usage {
+sub show_usage () {
 	print <<EOF
 Usage: $self [options] [arguments]
 
@@ -48,16 +49,8 @@ EOF
 my %options;
 getopts ('hvlc:d:p:s:j:', \%options);
 
-show_usage () and exit (0) if exists $options{h};
-show_version () and exit (0) if exists $options{v};
-
-if (exists $options{l}) {
-	my @keys = sort {$a cmp $b} keys %config;
-	print "$_=$config{$_}\n" for @keys;
-	exit 0;
-}
-
-show_usage () and exit (0) unless %options;
+show_usage and exit 0 if exists $options{h};
+show_version and exit 0 if exists $options{v};
 
 my %valid_confs = (
 	c => 'NOCLEAN',
@@ -66,7 +59,17 @@ my %valid_confs = (
 	p => 'PKG_DIR',
 	s => 'SBO_HOME',
 );
-	
+
+my %params = reverse %valid_confs;
+
+if (exists $options{l}) {
+	my @keys = sort {$a cmp $b} keys %config;
+	say "sboconfig -$params{$_}:\n    $_=$config{$_}" for @keys;
+	exit 0;
+}
+
+show_usage and exit 0 unless %options;
+
 # setup what's being changed.
 my %changes;
 while (my ($key, $value) = each %valid_confs) {
@@ -77,52 +80,48 @@ if (exists $changes{JOBS}) {
 		($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE');
 }
 
-my $conf_dir = $SBO::Lib::conf_dir;;
+my $conf_dir = $SBO::Lib::conf_dir;
 my $conf_file = $SBO::Lib::conf_file;
 
 # safely modify our conf file; copy to a temp location, edit the temp file,
 # move the edited file into place
-sub config_write {
-	exists $_[1] or script_error ('config_write requires two arguments.');
+sub config_write ($$) {
+	exists $_[1] or script_error 'config_write requires two arguments.';
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
-		mkdir ($conf_dir) or die "Unable to create $conf_dir. Exiting.\n";
+		mkdir $conf_dir or die "Unable to create $conf_dir. Exiting.\n";
 	}
 	if (-f $conf_file) {
-		my ($fh, $filename) = tempfile (DIR => $SBO::Lib::tempdir);
-		close $fh;
-		copy ($conf_file, $filename);
+		my $tempfh = tempfile (DIR => $SBO::Lib::tempdir);
+		my $tempfn = get_tmp_perlfn $tempfh;
+		copy ($conf_file, $tempfn);
 		# tie the file so that if $key is already there, we just change that
 		# line and untie it
-		tie my @temp, 'Tie::File', $filename;
-		my $has = 'FALSE';
+		tie my @temp, 'Tie::File', $tempfn;
+		my $has = 0;
 		my $regex = qr/\A\Q$key\E=/;
 		FIRST: for my $tmpline (@temp) {
-			if ($tmpline =~ $regex) {
-				$has = 'TRUE';
-				$tmpline = "$key=$val";
-				last FIRST;
-			}
+			$has++, $tmpline = "$key=$val", last FIRST if $tmpline =~ $regex;;
 		}
 		untie @temp;
 		# otherwise, append our new $key=$value pair
-		if ($has eq 'FALSE') {
-			my $fh = open_fh ($filename, '>>');
+		unless ($has) {
+			my $fh = open_fh ($tempfn, '>>');
 			print {$fh} "$key=$val\n";
 			close $fh;
 		}
-		move ($filename, $conf_file);
+		move ($tempfn, $conf_file);
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh ($conf_file, '>');
-		print {$fh} "$key=$val\n";
+		my $fh = open_fh $conf_file, '>';
+		say {$fh} "$key=$val";
 		close $fh;
 	}
 }
 
 while (my ($key, $value) = each %changes) {
 	print "Setting $key to $value...\n";
-	config_write ($key, $value);
+	config_write $key, $value;
 }
 
 exit 0;

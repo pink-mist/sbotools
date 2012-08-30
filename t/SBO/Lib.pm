@@ -18,7 +18,7 @@ my $version = "1.0";
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(
+our @EXPORT = qw(get_slack_version chk_slackbuilds_txt check_home rsync_sbo_tree get_sbo_from_loc get_sbo_version get_download_info get_arch get_sbo_downloads get_filename_from_link compute_md5sum compare_md5s verify_distfile get_distfile get_symlink_from_filename check_x32 check_multilib rewrite_slackbuild revert_slackbuild check_distfiles create_symlinks grok_temp_file get_src_dir get_pkg_name perform_sbo do_convertpkg
 	script_error
 	open_fh
 	open_read
@@ -34,11 +34,10 @@ our @EXPORT = qw(
 	do_upgradepkg
 	get_sbo_location
 	get_from_info
-	get_tmp_extfn
-	get_tmp_perlfn
+	get_tmp_fn
 );
 
-$< == 0 or die "This script requires root privileges.\n";
+#$< == 0 or die "This script requires root privileges.\n";
 
 use Tie::File;
 use Sort::Versions;
@@ -62,9 +61,7 @@ sub script_error (;$) {
 # sub for opening files, second arg is like '<','>', etc
 sub open_fh ($$) {
 	exists $_[1] or script_error 'open_fh requires two arguments';
-	unless ($_[1] eq '>') {
-		-f $_[0] or script_error 'open_fh first argument not a file';
-	}
+	-f $_[0] or script_error 'open_fh first argument not a file';
 	my ($file, $op) = @_;
 	open my $fh, $op, $file or die "Unable to open $file.\n";
 	return $fh;
@@ -519,23 +516,11 @@ sub get_pkg_name ($) {
 		REGEX => qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/);
 }
 
-sub clear_coe_bit ($) {
-	exists $_[0] or script_error 'clear_coe_bit requires an argument';
+sub get_tmp_fn ($) {
+	exists $_[0] or script_error 'get_tmp_fn requires an argument.';
 	my $fh = shift;
 	fcntl ($fh, F_SETFD, 0) or die "no unset exec-close thingy\n";
-	return $fh;
-}
-
-sub get_tmp_extfn ($) {
-	exists $_[0] or script_error 'get_tmp_extfn requires an argument.';
-	my $fh = clear_coe_bit shift;
-	return '/dev/fd/'. fileno $fh;
-}
-
-sub get_tmp_perlfn ($) {
-	exists $_[0] or script_error 'get_tmp_perlfn requires an argument.';
-	my $fh = clear_coe_bit shift;
-	return '+<=&'. fileno $fh;
+	return "/dev/fd/". fileno $fh;
 }
 
 # prep and run .SlackBuild
@@ -568,7 +553,7 @@ sub perform_sbo (%) {
 	$cmd .= "/bin/sh $location/$sbo.SlackBuild";
 	$cmd = "$args{OPTS} $cmd" if $args{OPTS};
 	my $tempfh = tempfile (DIR => $tempdir);
-	my $fn = get_tmp_extfn $tempfh;
+	my $fn = get_tmp_fn $tempfh;
 	rewrite_slackbuild "$location/$sbo.SlackBuild", $fn, %changes;
 	chdir $location, my $out = system $cmd;
 	revert_slackbuild "$location/$sbo.SlackBuild";
@@ -583,7 +568,7 @@ sub do_convertpkg ($) {
 	exists $_[0] or script_error 'do_convertpkg requires an argument.';
 	my $pkg = shift;
 	my $tempfh = tempfile (DIR => $tempdir);
-	my $fn = get_tmp_extfn $tempfh;
+	my $fn = get_tmp_fn $tempfh;
 	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $fn";
 	system ($cmd) == 0 or die;
 	unlink $pkg;
