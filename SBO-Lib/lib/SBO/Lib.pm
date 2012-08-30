@@ -48,7 +48,6 @@ use File::Path qw(make_path remove_tree);
 use Fcntl;
 use File::Find;
 use File::Temp qw(tempdir tempfile);
-use Data::Dumper;
 use Fcntl qw(F_SETFD F_GETFD);
 
 our $tempdir = tempdir (CLEANUP => 1);
@@ -157,13 +156,13 @@ sub rsync_sbo_tree () {
 sub fetch_tree () {
 	check_home; 
 	say 'Pulling SlackBuilds tree...';
-	rsync_sbo_tree, return $?;
+	rsync_sbo_tree, return 1;
 }
 
 sub update_tree () {
 	fetch_tree, return unless chk_slackbuilds_txt; 
 	say 'Updating SlackBuilds tree...';
-	rsync_sbo_tree, return $?;
+	rsync_sbo_tree, return 1;
 }
 
 # if the SLACKBUILDS.TXT is not in $config{SBO_HOME}, we assume the tree has
@@ -448,7 +447,7 @@ sub revert_slackbuild ($) {
 	my $slackbuild = shift;
 	if (-f "$slackbuild.orig") {
 		unlink $slackbuild if -f $slackbuild;
-		rename ("$slackbuild.orig", $slackbuild);
+		rename "$slackbuild.orig", $slackbuild;
 	}
 	return 1;
 }
@@ -503,7 +502,6 @@ sub grok_temp_file (%) {
 			last FIRST;
 		}
 	}
-#	close $fh;
 	return $out;
 }
 
@@ -519,6 +517,7 @@ sub get_pkg_name ($) {
 		REGEX => qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/);
 }
 
+# clear the close-on-exec bit from a temp file handle
 sub clear_coe_bit ($) {
 	exists $_[0] or script_error 'clear_coe_bit requires an argument';
 	my $fh = shift;
@@ -526,12 +525,14 @@ sub clear_coe_bit ($) {
 	return $fh;
 }
 
+# return a filename from a temp fh for use externally
 sub get_tmp_extfn ($) {
 	exists $_[0] or script_error 'get_tmp_extfn requires an argument.';
 	my $fh = clear_coe_bit shift;
 	return '/dev/fd/'. fileno $fh;
 }
 
+# return a filename from a temp fh for use internally
 sub get_tmp_perlfn ($) {
 	exists $_[0] or script_error 'get_tmp_perlfn requires an argument.';
 	my $fh = clear_coe_bit shift;
@@ -681,3 +682,4 @@ sub do_upgradepkg ($) {
 	system ('/sbin/upgradepkg', '--reinstall', '--install-new', shift);
 	return 1;
 }
+

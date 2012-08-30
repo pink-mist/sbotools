@@ -89,9 +89,7 @@ sub get_readme_path ($) {
 sub get_inst_names ($) {
 	exists $_[0] or script_error 'get_inst_names requires an argument.';
 	my $inst = shift;
-	my $installed;
-	push @$installed, $$_{name} for @$inst;
-	return $installed;
+	return [$$_{name} for @$inst];
 }
 
 # pull list of requirements, offer to install them
@@ -184,13 +182,13 @@ sub readme_prompt ($$) {
 }
 
 # do the things with the provided sbos - whether upgrades or new installs.
-sub process_sbos {
+sub process_sbos ($) {
 	exists $_[0] or script_error 'process_sbos requires an argument.';
 	my $todo = shift;
 	my @failures;
-	FIRST: for my $sbo (keys %$todo) {
+	FIRST: for my $sbo (@$todo) {
 		my $opts = 0;
-		$opts = readme_prompt $sbo, $$todo{$sbo} unless $no_readme;
+		$opts = readme_prompt $sbo, $locations{$sbo} unless $no_readme;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 1 if $sbo =~ /-compat32$/;
 		my ($version, $pkg, $src);
@@ -226,7 +224,7 @@ sub process_sbos {
 					warn "$pkg left in /tmp\n";
 				}
 			} elsif ($distclean eq 'TRUE') {
-				unlink ($pkg);
+				unlink $pkg;
 			}
 		}
 	}
@@ -255,18 +253,16 @@ my $todo_upgrade;
 # but without force, we only want to update what there are updates for
 unless ($force) {
 	for my $sbo (@ARGV) {
-		$$todo_upgrade{$sbo} = $locations{$sbo} if $sbo ~~ @updates;
+		push $$todo_upgrades, $sbo if $sbo ~~ @updates;
 	}
 } else {
 	my $inst = get_installed_sbos; 
-	my $inst_names= get_inst_names $inst;;
+	my $inst_names= get_inst_names $inst;
 	FIRST: for my $sbo (@ARGV) {
-		if ($sbo ~~ @$inst_names) {
-			$$todo_upgrade{$sbo} = $locations{$sbo};
-		}
+		push $todo_upgrade, $sbo if $sbo ~~ @$inst_names;
 	}
 }
-my @failures = process_sbos $todo_upgrade if keys %$todo_upgrade > 0;
+my @failures = process_sbos $todo_upgrade if exists $todo_upgrade[0];
 print_failures @failures;
 
 INSTALL_NEW:
@@ -292,9 +288,9 @@ FIRST: for my $sbo (@ARGV) {
 			}
 		}
 	}
-	$$todo_install{$sbo} = $locations{$sbo};
+	push $todo_install, $sbo;
 }
-@failures = process_sbos $todo_install if keys %$todo_install > 0;
+@failures = process_sbos $todo_install if exists $todo_install[0];
 print_failures @failures;
 
 exit 0;
