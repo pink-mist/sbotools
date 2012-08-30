@@ -18,7 +18,7 @@ my $version = "1.0";
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(get_slack_version chk_slackbuilds_txt check_home rsync_sbo_tree get_sbo_from_loc get_sbo_version get_download_info get_arch get_sbo_downloads get_filename_from_link compute_md5sum compare_md5s verify_distfile get_distfile get_symlink_from_filename check_x32 check_multilib rewrite_slackbuild revert_slackbuild check_distfiles create_symlinks grok_temp_file get_src_dir get_pkg_name perform_sbo do_convertpkg
+our @EXPORT = qw(get_slack_version chk_slackbuilds_txt check_home rsync_sbo_tree get_sbo_from_loc get_sbo_version get_download_info get_arch get_sbo_downloads get_filename_from_link compute_md5sum compare_md5s verify_distfile get_distfile get_symlink_from_filename check_x32 check_multilib rewrite_slackbuild revert_slackbuild check_distfiles create_symlinks grok_temp_file get_src_dir get_pkg_name clear_coe_bit perform_sbo do_convertpkg
 	script_error
 	open_fh
 	open_read
@@ -34,7 +34,8 @@ our @EXPORT = qw(get_slack_version chk_slackbuilds_txt check_home rsync_sbo_tree
 	do_upgradepkg
 	get_sbo_location
 	get_from_info
-	get_tmp_fn
+	get_tmp_extfn
+	get_tmp_perlfn
 );
 
 #$< == 0 or die "This script requires root privileges.\n";
@@ -47,7 +48,6 @@ use File::Path qw(make_path remove_tree);
 use Fcntl;
 use File::Find;
 use File::Temp qw(tempdir tempfile);
-use Data::Dumper;
 use Fcntl qw(F_SETFD F_GETFD);
 
 our $tempdir = tempdir (CLEANUP => 1);
@@ -61,7 +61,9 @@ sub script_error (;$) {
 # sub for opening files, second arg is like '<','>', etc
 sub open_fh ($$) {
 	exists $_[1] or script_error 'open_fh requires two arguments';
-	-f $_[0] or script_error 'open_fh first argument not a file';
+	unless ($_[1] eq '>') {
+		-f $_[0] or script_error 'open_fh first argument not a file';
+	}
 	my ($file, $op) = @_;
 	open my $fh, $op, $file or die "Unable to open $file.\n";
 	return $fh;
@@ -154,13 +156,13 @@ sub rsync_sbo_tree () {
 sub fetch_tree () {
 	check_home; 
 	say 'Pulling SlackBuilds tree...';
-	rsync_sbo_tree, return $?;
+	rsync_sbo_tree, return 1;
 }
 
 sub update_tree () {
 	fetch_tree, return unless chk_slackbuilds_txt; 
 	say 'Updating SlackBuilds tree...';
-	rsync_sbo_tree, return $?;
+	rsync_sbo_tree, return 1;
 }
 
 # if the SLACKBUILDS.TXT is not in $config{SBO_HOME}, we assume the tree has
@@ -445,7 +447,7 @@ sub revert_slackbuild ($) {
 	my $slackbuild = shift;
 	if (-f "$slackbuild.orig") {
 		unlink $slackbuild if -f $slackbuild;
-		rename ("$slackbuild.orig", $slackbuild);
+		rename "$slackbuild.orig", $slackbuild;
 	}
 	return 1;
 }
@@ -500,7 +502,6 @@ sub grok_temp_file (%) {
 			last FIRST;
 		}
 	}
-#	close $fh;
 	return $out;
 }
 
@@ -516,11 +517,26 @@ sub get_pkg_name ($) {
 		REGEX => qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/);
 }
 
-sub get_tmp_fn ($) {
-	exists $_[0] or script_error 'get_tmp_fn requires an argument.';
+# clear the close-on-exec bit from a temp file handle
+sub clear_coe_bit ($) {
+	exists $_[0] or script_error 'clear_coe_bit requires an argument';
 	my $fh = shift;
 	fcntl ($fh, F_SETFD, 0) or die "no unset exec-close thingy\n";
-	return "/dev/fd/". fileno $fh;
+	return $fh;
+}
+
+# return a filename from a temp fh for use externally
+sub get_tmp_extfn ($) {
+	exists $_[0] or script_error 'get_tmp_extfn requires an argument.';
+	my $fh = clear_coe_bit shift;
+	return '/dev/fd/'. fileno $fh;
+}
+
+# return a filename from a temp fh for use internally
+sub get_tmp_perlfn ($) {
+	exists $_[0] or script_error 'get_tmp_perlfn requires an argument.';
+	my $fh = clear_coe_bit shift;
+	return '+<=&'. fileno $fh;
 }
 
 # prep and run .SlackBuild
@@ -553,7 +569,7 @@ sub perform_sbo (%) {
 	$cmd .= "/bin/sh $location/$sbo.SlackBuild";
 	$cmd = "$args{OPTS} $cmd" if $args{OPTS};
 	my $tempfh = tempfile (DIR => $tempdir);
-	my $fn = get_tmp_fn $tempfh;
+	my $fn = get_tmp_extfn $tempfh;
 	rewrite_slackbuild "$location/$sbo.SlackBuild", $fn, %changes;
 	chdir $location, my $out = system $cmd;
 	revert_slackbuild "$location/$sbo.SlackBuild";
@@ -568,7 +584,7 @@ sub do_convertpkg ($) {
 	exists $_[0] or script_error 'do_convertpkg requires an argument.';
 	my $pkg = shift;
 	my $tempfh = tempfile (DIR => $tempdir);
-	my $fn = get_tmp_fn $tempfh;
+	my $fn = get_tmp_extfn $tempfh;
 	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $fn";
 	system ($cmd) == 0 or die;
 	unlink $pkg;
@@ -666,3 +682,4 @@ sub do_upgradepkg ($) {
 	system ('/sbin/upgradepkg', '--reinstall', '--install-new', shift);
 	return 1;
 }
+

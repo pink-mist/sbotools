@@ -1,4 +1,4 @@
-#!/usr/bin/perl -I/home/d4wnr4z0r/projects/sbotools/t
+#!/usr/bin/perl -I/home/d4wnr4z0r/projects/slack14/sbotools/t
 
 use 5.16.0;
 use strict;
@@ -10,21 +10,21 @@ use SBO::Lib;
 ok (defined $SBO::Lib::tempdir, '$tempdir is defined');
 
 my $fh = open_read ('/home/d4wnr4z0r/projects/sbotools/t/test.t');
-ok (ref ($fh) eq 'GLOB', 'open_read works');
+is (ref $fh, 'GLOB', 'open_read works');
 close $fh;
 
-ok ($SBO::Lib::config{DISTCLEAN} eq 'FALSE', 'config{DISTCLEAN} is good');
-ok ($SBO::Lib::config{JOBS} == 2, 'config{JOBS} is good');
-ok ($SBO::Lib::config{NOCLEAN} eq 'TRUE', 'config{NOCLEAN} is good');
-ok ($SBO::Lib::config{PKG_DIR} eq 'FALSE', 'config{PKG_DIR} is good');
-ok ($SBO::Lib::config{SBO_HOME} eq '/usr/sbo', 'config{SBO_HOME} is good');
+is ($SBO::Lib::config{DISTCLEAN}, 'FALSE', 'config{DISTCLEAN} is good');
+is ($SBO::Lib::config{JOBS}, 2, 'config{JOBS} is good');
+is ($SBO::Lib::config{NOCLEAN}, 'FALSE', 'config{NOCLEAN} is good');
+is ($SBO::Lib::config{PKG_DIR}, 'FALSE', 'config{PKG_DIR} is good');
+is ($SBO::Lib::config{SBO_HOME}, '/usr/sbo', 'config{SBO_HOME} is good');
 
-ok (show_version == 1, 'show_version is good');
-ok (get_slack_version eq '14.0', 'get_slack_version is good');
-ok (chk_slackbuilds_txt == 1, 'check_slackbuilds_txt is good');
+is (show_version, 1, 'show_version is good');
+is (get_slack_version, '14.0', 'get_slack_version is good');
+is (chk_slackbuilds_txt, 1, 'check_slackbuilds_txt is good');
 #ok (rsync_sbo_tree == 1, 'rsync_sbo_tree is good');
 #ok (update_tree == 1, 'update_tree is good');
-ok (slackbuilds_or_fetch == 1, 'slackbuilds_or_fetch is good');
+is (slackbuilds_or_fetch, 1, 'slackbuilds_or_fetch is good');
 
 print "pseudo-random sampling of get_installed_sbos output...\n";
 my $installed = get_installed_sbos; 
@@ -46,7 +46,7 @@ for my $key (keys @$updates) {
 	is ($$updates[$key]{update}, '1.20', '$$updates[$key]{update} good for mutagen') if $$updates[$key]{name} eq 'mutagen';
 }
 
-ok (get_arch eq 'x86_64', 'get_arch is good');
+is (get_arch, 'x86_64', 'get_arch is good');
 
 my %dl_info = get_download_info (LOCATION => '/usr/sbo/system/wine', X64 => 0);
 my $link = 'http://downloads.sf.net/wine/source/1.4/wine-1.4.1.tar.bz2';

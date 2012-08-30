@@ -7,7 +7,7 @@ use Tie::File;
 
 chomp (my $pwd = `pwd`);
 mkdir "$pwd/SBO" unless -d "$pwd/SBO";
-copy ('/home/d4wnr4z0r/projects/sbotools/SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
+copy ('/home/d4wnr4z0r/projects/slack14/sbotools/SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
 my @subs;
 open my $file_h, '<', "$pwd/SBO/Lib.pm";
 my $regex = qr/^sub\s+([^\s]+)\s+/;
