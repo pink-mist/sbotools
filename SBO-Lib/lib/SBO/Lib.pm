@@ -169,7 +169,7 @@ sub update_tree () {
 # if the SLACKBUILDS.TXT is not in $config{SBO_HOME}, we assume the tree has
 # not been populated there; prompt the user to automagickally pull the tree.
 sub slackbuilds_or_fetch () {
-	unless (check_slackbuilds_txt) {
+	unless (chk_slackbuilds_txt) {
 		say 'It looks like you haven\'t run "sbosnap fetch" yet.';
 		print "Would you like me to do this now? [y] ";
 		<STDIN> =~ /^[Yy\n]/ ? fetch_tree () :
