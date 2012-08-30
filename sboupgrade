@@ -63,6 +63,7 @@ if (exists $options{j}) {
 		($options{j} =~ /^\d+$/ || $options{j} eq 'FALSE');
 }
 my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
+$jobs = 0 if $jobs eq 'FALSE';
 
 show_usage and exit 1 unless exists $ARGV[0];
 
@@ -89,7 +90,9 @@ sub get_readme_path ($) {
 sub get_inst_names ($) {
 	exists $_[0] or script_error 'get_inst_names requires an argument.';
 	my $inst = shift;
-	return [$$_{name} for @$inst];
+	my @installed;
+	push @installed, $$_{name} for @$inst;
+	return \@installed;
 }
 
 # pull list of requirements, offer to install them

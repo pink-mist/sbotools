@@ -101,7 +101,7 @@ sub config_write ($$) {
 		my $has = 0;
 		my $regex = qr/\A\Q$key\E=/;
 		FIRST: for my $tmpline (@temp) {
-			$has++, $tmpline = "$key=$val", last FIRST if $tmpline =~ $regex;;
+			$has++, $tmpline = "$key=$val", last FIRST if $tmpline =~ $regex;
 		}
 		untie @temp;
 		# otherwise, append our new $key=$value pair
