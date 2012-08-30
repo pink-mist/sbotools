@@ -9,6 +9,7 @@
 # date: Pungenday, the 40th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
+use 5.12.3;
 use SBO::Lib;
 use Getopt::Std;
 use File::Basename;

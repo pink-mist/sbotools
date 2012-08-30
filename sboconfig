@@ -9,6 +9,7 @@
 # date: Pungenday, the 40th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
+use 5.12.3;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
@@ -85,7 +86,7 @@ my $conf_file = $SBO::Lib::conf_file;
 # safely modify our conf file; copy to a temp location, edit the temp file,
 # move the edited file into place
 sub config_write ($$) {
-	exists $_[1] or script_error ('config_write requires two arguments.');
+	exists $_[1] or script_error 'config_write requires two arguments.';
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
 		mkdir ($conf_dir) or die "Unable to create $conf_dir. Exiting.\n";
@@ -112,7 +113,7 @@ sub config_write ($$) {
 		move ($tempfn, $conf_file);
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh ($conf_file, '>');
+		my $fh = open_fh $conf_file, '>';
 		print {$fh} "$key=$val\n";
 		close $fh;
 	}

@@ -9,6 +9,7 @@
 # date: Boomtime, the 39th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
+use 5.12.3;
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
@@ -83,6 +84,14 @@ sub get_readme_path ($) {
 	return $locations{$sbo} .'/README';
 }
 
+# for a ref to an array of hashes of installed packages, return an array ref
+# consisting of just their names
+sub get_inst_names ($) {
+	exists $_[0] or script_error 'get_inst_names requires an argument.';
+	my $inst = shift;
+	return [$$_{name} for @$inst];
+}
+
 # this subroutine may be getting a little out of hand.
 sub grok_requirements ($$) {
 	exists $_[1] or script_error 'grok_requirements requires two arguments';
@@ -151,8 +160,8 @@ sub grok_user_group ($) {
 	exists $_[0] or script_error 'grok_user_group requires an argument';
 	my $readme = shift;
 	my $readme_array = [split /\n/, $readme];
-	my @cmds;
 	my $cmd_regex = qr/^\s*#\s+((user|group)add.*)/;
+	my @cmds;
 	push @cmds, ($_ =~ $cmd_regex)[0] for @$readme_array;
 	return unless exists $cmds[0];
 	say "\n". $readme;
@@ -172,70 +181,78 @@ sub grok_user_group ($) {
 sub grok_options ($) {
 	exists $_[0] or script_error 'grok_options requires an argument';
 	my $readme = shift;
-	return 7 unless $readme =~ /[A-Z]+=[^\s]/;
-	my @readme_array = split /\n/, $readme;
-	print "\n". $readme;
+	return unless $readme =~ /[A-Z]+=[^\s]/;
+	say "\n". $readme;
 	print "\nIt looks this slackbuilds has options; would you like to set any";
 	print " when the slackbuild is run? [n] ";
 	if (<STDIN> =~ /^[Yy]/) {
-		my $ask = sub {
+		my $ask = sub () {
 			print "\nPlease supply any options here, or enter to skip: ";
 			chomp (my $opts = <STDIN>);
-			return 7 if $opts =~ /^$/;
-			return $opts; };
+			return if $opts =~ /^$/;
+			return $opts;
+		};
 		my $kv_regex = qr/[A-Z]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
 		my $opts = &$ask ();
 		FIRST: while ($opts !~ $kv_regex) {
 			warn "Invalid input received.\n";
 			$opts = &$ask ();
-			return 7 if $opts eq "7";
 		}
 		return $opts;
 	}
-	return 7;
+	return;
 }
 
 # prompt for the readme, and grok the readme at this time also.
-sub readme_prompt {
-	exists $_[0] or script_error ('readme_prompt requires an argument.');
+sub readme_prompt ($$) {
+	exists $_[0] or script_error 'readme_prompt requires an argument.';
 	my $sbo = shift;
-	my $fh = open_read (get_readme_path ($sbo) );
+	my $fh = open_read (get_readme_path $sbo);
 	my $readme = do {local $/; <$fh>};
 	close $fh;
-	grok_requirements ($sbo, $readme); 
-	grok_user_group ($readme);
-	my $opts = grok_options ($readme);
-	print "\n". $readme if ($opts eq "7" || ! $opts);
-	my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
+	# check for requirements, useradd/groupadd, options
+	grok_requirements $sbo, $readme; 
+	grok_user_group $readme;
+	my $opts = grok_options $readme;
+	print "\n". $readme unless $opts
+	# present the name as -compat32 if appropriate
+	my $name = $compat32 ? "$sbo-compat32" : $sbo;
 	print "\nProceed with $name? [y]: ";
 	exit 0 unless <STDIN> =~ /^[Yy\n]/;
-	return $opts if defined $opts;
-	return 1;
+	return $opts;
 }
 
 # do the things with the provided sbos - whether upgrades or new installs.
-sub process_sbos {
-	exists $_[0] or script_error ('process_sbos requires an argument.');
-	my @todo = @_;
+sub process_sbos ($) {
+	exists $_[0] or script_error 'process_sbos requires an argument.';
+	my $todo = shift;
 	my @failures;
-	FIRST: for my $sbo (@todo) {
+	FIRST: for my $sbo (@$todo) {
 		my $opts = 0;
-		$opts = readme_prompt ($sbo) unless $no_readme eq 'TRUE';
-		$opts = 'FALSE' if ($opts =~ /\d+/ || ! $opts);
+		$opts = readme_prompt $sbo unless $no_readme;
 		# switch compat32 on if upgrading a -compat32
-		$compat32 = 'TRUE' if $sbo =~ /-compat32$/;
+		$compat32 = 1 if $sbo =~ /-compat32$/;
 		my ($version, $pkg, $src);
-		my @sb_args = ($opts, $jobs, $sbo, $locations{$sbo}, $compat32);
-		eval { ($version, $pkg, $src) = do_slackbuild (@sb_args); };
+		eval { ($version, $pkg, $src) = do_slackbuild (
+			OPTS		=> $opts,
+			JOBS		=> $jobs,
+			LOCATION	=> $locations{$sbo},
+			COMPAT32	=> $compat32,
+		); };
 		if ($@) {
 			push @failures, $sbo;
 		} else {
 			unless ($distclean eq 'TRUE') {
-				make_clean ($sbo, $src, $version) if $noclean eq 'FALSE';
+				make_clean $sbo, $src, $version unless $noclean eq 'TRUE';
 			} else {
-				make_distclean ($sbo, $src, $version, $locations{$sbo});
+				make_distclean (
+					SBO			=> $sbo,
+					SRC			=> $src,
+					VERSION		=> $version,
+					LOCATION	=> $locations{$sbo},
+				);
 			}
-			do_upgradepkg ($pkg) unless $no_install eq 'TRUE';
+			do_upgradepkg $pkg unless $no_install;
 			# move package to $config{PKG_DIR} if defined
 			unless ($config{PKG_DIR} eq 'FALSE') {
 				my $dir = $config{PKG_DIR};
@@ -243,92 +260,78 @@ sub process_sbos {
 					mkdir ($dir) or warn "Unable to create $dir\n";
 				}
 				if (-d $dir) {
-					move ($pkg, $dir), print "$pkg stored in $dir\n";
+					move ($pkg, $dir), say "$pkg stored in $dir";
 				} else {
 					warn "$pkg left in /tmp\n";
 				}
 			} elsif ($distclean eq 'TRUE') {
-				unlink ($pkg);
+				unlink $pkg;
 			}
 		}
 	}
 	return @failures;
 }
 
-my @failed;
-
-sub print_failures {
-	if (exists $failed[0]) {
-		print "Failures:\n";
-		print "  $_\n" for @failed;
+sub print_failures (;@) {
+	if (exists $_[0]) {
+		say "Failures:";
+		say "  $_" for @_;
 		exit 1;
 	}
 }
 
 # deal with any updates prior to any new installs.
 # no reason to bother if only_new is specified, ie running from sboinstall.
-unless ($only_new eq 'TRUE') {
-	# doesn't matter what's updatable and what's not if force is specified
-	my @updates unless $force eq 'TRUE';
-	unless ($force eq 'TRUE') {
-		my @updates_array = get_available_updates ();
-		push @updates, $updates_array[$_]{name} for keys @updates_array;
-	}
-	my @todo_upgrade;
-	# but without force, we only want to update what there are updates for
-	unless ($force eq 'TRUE') {
-		for my $sbo (@ARGV) {
-			push @todo_upgrade, $sbo if $sbo ~~ @updates;
-		}
-	} else {
-		my @inst = get_installed_sbos ();
-		FIRST: for my $sbo (@ARGV) {
-			SECOND: for my $key (keys @inst) {
-				if ($sbo eq $inst[$key]{name}) {
-					push @todo_upgrade, $sbo;
-					last SECOND;
-				}
-			}
-		}
-	}
-	@failed = process_sbos (@todo_upgrade) if exists $todo_upgrade[0];
-	print_failures () unless $install_new eq 'TRUE';
-}
+goto INSTALL_NEW if $only_new;
 
-if ($install_new eq 'TRUE') {
-	my @todo_install;
+# doesn't matter what's updatable and what's not if force is specified
+my @updates unless $force;
+unless ($force) {
+	my $updates = get_available_updates;
+	push @updates, $$_{name} for @$updates;
+}
+my $todo_upgrade;
+# but without force, we only want to update what there are updates for
+unless ($force) {
+	for my $sbo (@ARGV) {
+		push @todo_upgrade, $sbo if $sbo ~~ @updates;
+	}
+} else {
+	my @inst = get_installed_sbos;
+	my $inst_names = get_inst_names $inst;
 	FIRST: for my $sbo (@ARGV) {
-		my $has = 'FALSE';
-		my $name = $compat32 eq 'TRUE' ? "$sbo-compat32" : $sbo;
-		my @inst = get_installed_sbos ();
-		SECOND: for my $key (keys @inst) {
-			$has = 'TRUE', last SECOND if $name eq $inst[$key]{name};
-		}
-		# if compat32 is TRUE, we need to see if the non-compat version exists.
-		if ($compat32 eq 'TRUE') {
-			my $has64 = 'FALSE';
-			my @inst = get_installed_sbos ();
-			THIRD: for my $key (keys @inst) {
-				$has64 = 'TRUE', last THIRD if $sbo eq $inst[$key]{name};
-			}
-			unless ($has64 eq 'TRUE') {
-				print "\nYou are attempting to install $sbo-compat32, however,";
-				print " $sbo is not yet installed. Shall I install it first?";
-				print " [y] ";
-				if (<STDIN> =~ /^[Yy\n]/) {
-					my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
-					system (@args) == 0 or exit 1;
-				} else {
-					print "Please install $sbo\n" and exit 0;
-				}
-			}
-		}
-		$has eq 'TRUE' ? warn "$name already installed.\n" :
-			push @todo_install, $sbo;
+		push $todo_upgrade, $sbo if $sbo ~~ @$inst_names;
 	}
-	@failed = process_sbos (@todo_install) if exists $todo_install[0];
-	print_failures ();
 }
+my @failures = process_sbos $todo_upgrade if exists $todo_upgrade[0];
+print_failures @failures;
 
-exit 1 if exists $failed[0];
+INSTALL_NEW:
+exit 0 unless $install_new;
+my $todo_install;
+FIRST: for my $sbo (@ARGV) {
+	my $name = $compat32 ? "$sbo-compat32" : $sbo;
+	my $inst = get_installed_sbos; 
+	my $inst_names = get_inst_names $inst;;
+	warn "$name already installed\n", next FIRST if $name ~~ @$inst_names;
+	# if compat32 is TRUE, we need to see if the non-compat version exists.
+	if ($compat32) {
+		my $inst = get_installed_sbos; 
+		my $inst_names = get_inst_names $inst;
+		unless ($sbo ~~ @$inst_names) {
+			print "\nYou are attempting to install $name, however, $sbo is not";
+			print " yet installed. Shall I install it first? [y] ";
+			if (<STDIN> =~ /^[Yy\n]/) {
+				my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
+				system (@args) == 0 or exit 1;
+			} else {
+				warn "Please install $sbo\n" and exit 0;
+			}
+		}
+	}
+	push $todo_install, $sbo;
+}
+@failures = process_sbos $todo_install if exists $todo_install[0];
+print_failures @failures;
+
 exit 0;

@@ -9,6 +9,7 @@
 # date: Boomtime, the 39th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
+use 5.12.3;
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
@@ -50,7 +51,7 @@ my $search = $ARGV[0];
 slackbuilds_or_fetch;
 
 # find anything with $search in its name
-my (@findings, $name);
+my ($findings, $name);
 my $found = 0;
 my $name_regex = qr/NAME:\s+(.*\Q$search\E.*)$/i;
 my $loc_regex = qr/LOCATION:\s+(.*)$/;
@@ -62,12 +63,12 @@ FIRST: while (my $line = <$fh>) {
 		if (my ($location) = ($line =~ $loc_regex)[0]) {
 			$found = 0;
 			$location =~ s#^\.##;
-			push @findings, {$name => $config{SBO_HOME} . $location};
+			push @$findings, {$name => $config{SBO_HOME} . $location};
 		}
 	}
 }
 
-sub get_file_contents {
+sub get_file_contents ($) {
 	exists $_[0] or script_error 'get_file_contents requires an argument';
 	-f $_[0] or script_error 'get_file_contents argument is not a file';
 	my $fh = open_read shift;
@@ -78,10 +79,10 @@ sub get_file_contents {
 }
 
 # pretty formatting
-if (exists $findings[0]) {
+if (exists $$findings[0]) {
 	my @listing = ("\n");
-	for my $hash (@findings) {
-		while (my ($key, $value) = each %{$hash}) {
+	for my $hash (@$findings) {
+		while (my ($key, $value) = each %$hash) {
 			push @listing, "SBo:    $key\n";
 			push @listing, "Path:   $value\n";
 			push @listing, "info:   ". get_file_contents ("$value/$key.info")
@@ -93,7 +94,7 @@ if (exists $findings[0]) {
 	}
 	print $_ for @listing;
 } else {
-	print "Nothing found for search term: $search\n";
+	say "Nothing found for search term: $search";
 }
 
 exit 0;

@@ -12,10 +12,10 @@
 # changelog:
 #    .01: initial creation.
 
+use 5.12.3;
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
-use feature switch;
 use warnings FATAL => 'all';
 use strict;
 
