@@ -63,6 +63,7 @@ if (exists $options{j}) {
 		($options{j} =~ /^\d+$/ || $options{j} eq 'FALSE');
 }
 my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
+$jobs = 0 if $jobs eq 'FALSE';
 
 show_usage and exit 1 unless exists $ARGV[0];
 
@@ -89,7 +90,9 @@ sub get_readme_path ($) {
 sub get_inst_names ($) {
 	exists $_[0] or script_error 'get_inst_names requires an argument.';
 	my $inst = shift;
-	return [$$_{name} for @$inst];
+	my @installed;
+	push @installed, $$_{name} for @$inst;
+	return \@installed;
 }
 
 # this subroutine may be getting a little out of hand.
@@ -204,7 +207,7 @@ sub grok_options ($) {
 }
 
 # prompt for the readme, and grok the readme at this time also.
-sub readme_prompt ($$) {
+sub readme_prompt ($) {
 	exists $_[0] or script_error 'readme_prompt requires an argument.';
 	my $sbo = shift;
 	my $fh = open_read (get_readme_path $sbo);
@@ -214,7 +217,7 @@ sub readme_prompt ($$) {
 	grok_requirements $sbo, $readme; 
 	grok_user_group $readme;
 	my $opts = grok_options $readme;
-	print "\n". $readme unless $opts
+	print "\n". $readme unless $opts;
 	# present the name as -compat32 if appropriate
 	my $name = $compat32 ? "$sbo-compat32" : $sbo;
 	print "\nProceed with $name? [y]: ";
@@ -294,16 +297,16 @@ my $todo_upgrade;
 # but without force, we only want to update what there are updates for
 unless ($force) {
 	for my $sbo (@ARGV) {
-		push @todo_upgrade, $sbo if $sbo ~~ @updates;
+		push @$todo_upgrade, $sbo if $sbo ~~ @updates;
 	}
 } else {
-	my @inst = get_installed_sbos;
+	my $inst = get_installed_sbos;
 	my $inst_names = get_inst_names $inst;
 	FIRST: for my $sbo (@ARGV) {
-		push $todo_upgrade, $sbo if $sbo ~~ @$inst_names;
+		push @$todo_upgrade, $sbo if $sbo ~~ @$inst_names;
 	}
 }
-my @failures = process_sbos $todo_upgrade if exists $todo_upgrade[0];
+my @failures = process_sbos $todo_upgrade if exists $$todo_upgrade[0];
 print_failures @failures;
 
 INSTALL_NEW:
@@ -329,9 +332,9 @@ FIRST: for my $sbo (@ARGV) {
 			}
 		}
 	}
-	push $todo_install, $sbo;
+	push @$todo_install, $sbo;
 }
-@failures = process_sbos $todo_install if exists $todo_install[0];
+@failures = process_sbos $todo_install if exists $$todo_install[0];
 print_failures @failures;
 
 exit 0;
