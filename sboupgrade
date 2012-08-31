@@ -101,20 +101,29 @@ sub grok_requirements ($$$) {
 	my ($sbo, $location, $readme) = @_;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	return unless $$requires[0];
+	# do nothing if a req list contains %README%
+	return if '%README%' ~~ @$requires;
+	# do nothing if there's a circular requirement
+	FIRST: for my $req (@$requires) {
+		my $req_req = get_from_info (LOCATION => get_sbo_location $req,
+			GET => 'REQUIRES');
+		return if $sbo ~~ @$req_req;
+	}
+	# else proceed
 	for my $req (@$requires) {
 		my $inst = get_installed_sbos;
-		my $inst_names= get_inst_names $inst;;
+		my $inst_names= get_inst_names $inst;
 		unless ($req ~~ @$inst_names) {
 			say $readme;
 			say "$sbo has $req listed as a requirement.";
 			print "Shall I attempt to install it first? [y] ";
 			if (<STDIN> =~ /^[Yy\n]/) {
-				my @cmd = ('/usr/sbin/sboupgrade', '-oN', $req);
-				system (@cmd) == 0 or die "$req failed to install.\n";
+				system ('/usr/sbin/sboupgrade', '-oN', $req) == 0 or
+					die "$req failed to install.\n";
 			}
 		}
 	}
-	return 1;
+	return;
 }
 
 # look for any (user|group)add commands in the README

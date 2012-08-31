@@ -46,7 +46,6 @@ use Digest::MD5;
 use File::Copy;
 use File::Path qw(make_path remove_tree);
 use Fcntl;
-use File::Find;
 use File::Temp qw(tempdir tempfile);
 use Fcntl qw(F_SETFD F_GETFD);
 
@@ -73,7 +72,7 @@ sub open_read ($) {
 	return open_fh shift, '<';
 }
 
-# pull in configuration, set sane defaults, etc.
+# global config variables
 our $conf_dir = '/etc/sbotools';
 our $conf_file = "$conf_dir/sbotools.conf";
 our %config = (
@@ -84,20 +83,23 @@ our %config = (
 	SBO_HOME => 'FALSE',
 );
 
-# if the conf file exists, pull all the $key=$value pairs into a hash
-my %conf_values;
-if (-f $conf_file) {
-	my $fh = open_read $conf_file;
-	my $text = do {local $/; <$fh>};
-	%conf_values = $text =~ /^(\w+)=(.*)$/mg;
-	close $fh;
+# subroutine to suck in config in order to facilitate unit testing
+sub read_config () {
+	my %conf_values;
+	if (-f $conf_file) {
+		my $fh = open_read $conf_file;
+		my $text = do {local $/; <$fh>};
+		%conf_values = $text =~ /^(\w+)=(.*)$/mg;
+		close $fh;
+	}
+	for my $key (keys %config) {
+		$config{$key} = $conf_values{$key} if exists $conf_values{$key};
+	}
+	$config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
+	$config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
 }
 
-for my $key (keys %config) {
-	$config{$key} = $conf_values{$key} if exists $conf_values{$key};
-}
-$config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
-$config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
+read_config;
 
 # some stuff we'll need later.
 my $distfiles = "$config{SBO_HOME}/distfiles";
@@ -141,6 +143,7 @@ sub check_home () {
 	} else {
 		make_path ($sbo_home) or die "Unable to create $sbo_home.\n";
 	}
+	return 1;
 }
 
 # rsync the sbo tree from slackbuilds.org to $config{SBO_HOME}
@@ -286,9 +289,9 @@ sub get_download_info (%) {
 	if ($args{X64}) {
 		my $nothing;
 		if (! $$downs[0]) {
-			$nothing = 1;
+			$nothing++;
 		} elsif ($$downs[0] =~ qr/^UN(SUPPOR|TES)TED$/) {
-			$nothing = 1;
+			$nothing++;
 		}
 		if ($nothing) {
 			$args{X64} = 0;
@@ -335,7 +338,9 @@ sub get_sbo_downloads (%) {
 # given a link, grab the filename from the end of it
 sub get_filename_from_link ($) {
 	exists $_[0] or script_error 'get_filename_from_link requires an argument';
-	return "$distfiles/". (shift =~ qr#/([^/]+)$#)[0];
+	my $fn = shift;
+	my $regex = qr#/([^/]+)$#;
+	return $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
 }
 
 # for a given file, computer its md5sum
