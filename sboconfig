@@ -98,7 +98,7 @@ sub config_write ($$) {
 		# tie the file so that if $key is already there, we just change that
 		# line and untie it
 		tie my @temp, 'Tie::File', $tempfn;
-		my $has = 0;
+		my $has;
 		my $regex = qr/\A\Q$key\E=/;
 		FIRST: for my $tmpline (@temp) {
 			$has++, $tmpline = "$key=$val", last FIRST if $tmpline =~ $regex;
@@ -110,18 +110,19 @@ sub config_write ($$) {
 			print {$fh} "$key=$val\n";
 			close $fh;
 		}
-		move ($tempfn, $conf_file);
+		move ($tempfn, $conf_file) || return;
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh $conf_file, '>';
+		my $fh = open_fh $conf_file, '>' || return;
 		say {$fh} "$key=$val";
 		close $fh;
 	}
+	return 1;
 }
 
 while (my ($key, $value) = each %changes) {
 	print "Setting $key to $value...\n";
-	config_write $key, $value;
+	config_write $key, $value or warn "Unable to write to $conf_file\n";
 }
 
 exit 0;

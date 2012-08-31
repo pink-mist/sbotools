@@ -95,10 +95,10 @@ sub get_inst_names ($) {
 	return \@installed;
 }
 
-# pull list of requirements, offer to install them
-sub grok_requirements ($$$) {
-	exists $_[1] or script_error 'grok_requirements requires an argument.';
-	my ($sbo, $location, $readme) = @_;
+# pull list of requirements
+sub get_requires ($$) {
+	exists $_[1] or script_error 'get_requires requires an argument.';
+	my ($sbo, $location) = @_;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	return unless $$requires[0];
 	# do nothing if a req list contains %README%
@@ -109,7 +109,13 @@ sub grok_requirements ($$$) {
 			GET => 'REQUIRES');
 		return if $sbo ~~ @$req_req;
 	}
-	# else proceed
+	return $requires;
+}
+
+# ask to install any requirements found
+sub ask_requires ($$$) {
+	exists $_[2] or script_error 'ask_requires requires three arguments.';
+	my ($requires, $readme, $sbo) = shift;
 	for my $req (@$requires) {
 		my $inst = get_installed_sbos;
 		my $inst_names= get_inst_names $inst;
@@ -123,36 +129,43 @@ sub grok_requirements ($$$) {
 			}
 		}
 	}
-	return;
 }
 
 # look for any (user|group)add commands in the README
-sub grok_user_group ($) {
+sub get_user_group ($) {
 	exists $_[0] or script_error 'grok_user_group requires an argument';
 	my $readme = shift;
-	my $readme_array = [split /\n/, $readme];
-	my $cmd_regex = qr/^\s*#\s+((user|group)add.*)/;
-	my @cmds;
-	push @cmds, ($_ =~ $cmd_regex)[0] for @$readme_array;
-	return unless exists $cmds[0];
+	my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
+	return @cmds;
+}
+
+# offer to run any user/group add commands
+sub ask_user_group ($$) {
+	exists $_[1] or script_error 'ask_user_group requires two arguments';
+	my ($cmds, $readme) = shift;
 	say "\n". $readme;
-	print "\nIt looks like this slackbuild requires the following command(s)";
-	say " to be run first:";
-	say "    # $_" for @cmds;
+	print "\nIt looks like this slackbuild requires the following";
+	say " command(s) to be run first:";
+	say "    # $_" for @$cmds;
 	print "Shall I run it/them now? [y] ";
 	if (<STDIN> =~ /^[Yy\n]/) {
-		for my $cmd (@cmds) {
-			system ($cmd == 0) or warn "\"$cmd\" exited non-zero\n";
+		for my $cmd (@$cmds) {
+			system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
 		}
 	}
-	return 1;
 }
 
 # see if the README mentions any options
-sub grok_options ($) {
+sub get_opts ($) {
 	exists $_[0] or script_error 'grok_options requires an argument';
 	my $readme = shift;
-	return unless $readme =~ /[A-Z]+=[^\s]/;
+	return $readme =~ /[A-Z]+=[^\s]/ ? 1 : undef;
+}
+
+# provide an opportunity to set options
+sub ask_opts ($) {
+	exists $_[0] or script_error 'ask_opts requires an argument';
+	my $readme = shift;
 	say "\n". $readme;
 	print "\nIt looks this slackbuilds has options; would you like to set any";
 	print " when the slackbuild is run? [n] ";
@@ -181,10 +194,15 @@ sub readme_prompt ($$) {
 	my $fh = open_read (get_readme_path $sbo);
 	my $readme = do {local $/; <$fh>};
 	close $fh;
-	# check for requirements, useradd/groupadd, options
-	grok_requirements $sbo, $location, $readme;
-	grok_user_group $readme;
-	my $opts = grok_options $readme;
+	# check for requirements, offer to install any found
+	my $requires = get_requires $sbo, $location;
+	ask_requires $requires, $readme, $sbo if ref $requires eq 'ARRAY';
+	# check for user/group add commands, offer to run any found
+	my $user_group = get_user_group $readme;
+	ask_user_group $user_group, $readme  if ref $user_group eq 'ARRAY';
+	# check for options mentioned in the README
+	my $opts;
+	$opts = ask_opts $readme if get_opts $readme;
 	print "\n". $readme unless $opts;
 	# present the name as -compat32 if appropriate
 	my $name = $compat32 ? "$sbo-compat32" : $sbo;
@@ -197,7 +215,7 @@ sub readme_prompt ($$) {
 sub process_sbos ($) {
 	exists $_[0] or script_error 'process_sbos requires an argument.';
 	my $todo = shift;
-	my @failures;
+	my %failures;
 	FIRST: for my $sbo (@$todo) {
 		my $opts = 0;
 		$opts = readme_prompt $sbo, $locations{$sbo} unless $no_readme;
@@ -211,7 +229,7 @@ sub process_sbos ($) {
 			COMPAT32	=> $compat32,
 		); };
 		if ($@) {
-			push @failures, $sbo;
+			$failures{$sbo} = $@;
 		} else {
 			unless ($distclean eq 'TRUE') {
 				make_clean $sbo, $src, $version unless $noclean eq 'TRUE';
@@ -240,13 +258,16 @@ sub process_sbos ($) {
 			}
 		}
 	}
-	return @failures;
+	return %failures;
 }
 
-sub print_failures (;@) {
+sub print_failures (;%) {
 	if (exists $_[0]) {
+		my %failures = @_;
 		say "Failures:";
-		say "  $_" for @_;
+		while (my ($key, $val) = each %failures) {
+			say "  $key: $val";
+		}
 		exit 1;
 	}
 }
@@ -274,8 +295,8 @@ unless ($force) {
 		push $todo_upgrade, $sbo if $sbo ~~ @$inst_names;
 	}
 }
-my @failures = process_sbos $todo_upgrade if exists $todo_upgrade[0];
-print_failures @failures;
+my %failures = process_sbos $todo_upgrade if exists $todo_upgrade[0];
+print_failures %failures;
 
 INSTALL_NEW:
 exit 0 unless $install_new;
@@ -302,7 +323,7 @@ FIRST: for my $sbo (@ARGV) {
 	}
 	push $todo_install, $sbo;
 }
-@failures = process_sbos $todo_install if exists $todo_install[0];
-print_failures @failures;
+%failures = process_sbos $todo_install if exists $todo_install[0];
+print_failures %failures;
 
 exit 0;

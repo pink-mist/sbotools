@@ -464,9 +464,7 @@ sub check_distfiles (%) {
 	my %dists = @_;
 	for my $link (keys %dists) {
 		my $md5sum = $dists{$link};
-		unless (verify_distfile $link, $md5sum) {
-			die unless get_distfile $link, $md5sum;
-		}
+		get_distfile $link, $md5sum unless verify_distfile $link, $md5sum;
 	}
 	return 1;
 }
@@ -561,7 +559,7 @@ sub perform_sbo (%) {
 	my $location = $args{LOCATION};
 	my $sbo = get_sbo_from_loc $location;
 	my ($cmd, %changes);
-	# figure out any changes we need to make to the .SlackBuild
+	# set any changes we need to make to the .SlackBuild, setup the command
 	$changes{make} = "-j $args{JOBS}" if $args{JOBS};
 	if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
 		if ($args{C32}) {
@@ -578,7 +576,7 @@ sub perform_sbo (%) {
 	rewrite_slackbuild "$location/$sbo.SlackBuild", $fn, %changes;
 	chdir $location, my $out = system $cmd;
 	revert_slackbuild "$location/$sbo.SlackBuild";
-	die unless $out == 0;
+	die "$sbo.SlackBuild returned non-zero ext status\n" unless $out == 0;
 	my $pkg = get_pkg_name $tempfh;
 	my $src = get_src_dir $tempfh;
 	return $pkg, $src;
@@ -591,7 +589,8 @@ sub do_convertpkg ($) {
 	my $tempfh = tempfile (DIR => $tempdir);
 	my $fn = get_tmp_extfn $tempfh;
 	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $fn";
-	system ($cmd) == 0 or die;
+	system ($cmd) == 0 or
+		die "convertpkg-compt32 returned non-zero exit status\n";
 	unlink $pkg;
 	return get_pkg_name $tempfh;
 }

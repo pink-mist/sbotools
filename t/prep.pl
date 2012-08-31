@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use File::Copy;
@@ -8,6 +9,49 @@ use Tie::File;
 chomp (my $pwd = `pwd`);
 mkdir "$pwd/SBO" unless -d "$pwd/SBO";
 copy ('/home/d4wnr4z0r/projects/slack14/sbotools/SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
+
+open my $write, '>>', "$pwd/SBO/Lib.pm";
+
+print {$write} "my \$interactive = 1;\n";
+print {$write} "my \%locations;";
+print {$write} "my \$compat32 = 1;\n";
+print {$write} "my \$no_readme = 1;\n";
+print {$write} "my \$jobs = 1;\n";
+print {$write} "my \$distclean = 1;\n";
+print {$write} "my \$noclean = 1;\n";
+print {$write} "my \$no_install = 1;\n";
+
+sub get_subs ($) {
+	my $read = shift;
+	my $begin_regex = qr/^sub\s+[a-z0-9_]+/;
+	my $usage_regex = qr/^sub\s+show_usage/;
+	my $end_regex = qr/^}$/;
+	my $begin = 0;
+	my $end = 0;
+	while (my $line = <$read>) {
+		if (! $begin) {
+			if ($line =~ $begin_regex) {
+				if ($line !~ $usage_regex) {
+					$end = 0, $begin++, print {$write} $line;
+				}
+			}
+		} elsif (! $end) {
+			if ($line =~ $end_regex) {
+				$begin = 0, $end++, print {$write} $line;
+			} else {
+				print {$write} $line;
+			}
+		}
+	}
+}
+
+for my $file (qw(sbocheck sboclean sboconfig sbofind sboupgrade)) {
+	open my $read, '<', "../$file";
+	get_subs $read;
+	close $read;
+}
+close $write;
+
 my @subs;
 open my $file_h, '<', "$pwd/SBO/Lib.pm";
 my $regex = qr/^sub\s+([^\s]+)\s+/;

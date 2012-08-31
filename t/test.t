@@ -4,7 +4,7 @@ use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use File::Temp qw(tempdir tempfile);
-use Test::More tests => 61;
+use Test::More tests => 87;
 use File::Copy;
 use Text::Diff;
 use SBO::Lib;
@@ -210,5 +210,74 @@ is ($$info[0], 'http://www.libimobiledevice.org', 'get_from_info GET => HOMEPAGE
 $info = get_from_info (%params, GET => 'DOWNLOAD_x86_64');
 is ($$info[0], "", 'get_from_info GET => DOWNLOAD_x86_64 is good');
 
+# 62-64, get_update_list tests
+my $listing = get_update_list;
+s/\s//g for @$listing;
+for my $item (@$listing) {
+	is ($item, 'zdoom-2.5.0<needsupdating(SBohas2.6.0)', 'get_update_list output good for zdoom') if $item =~ /^zdoom/;
+	is ($item, 'ffmpeg-0.8.7<needsupdating(SBohas0.11.1)', 'get_update_list output good for ffmpeg') if $item =~ /^ffmpeg/;
+	is ($item, 'atkmm-2.22.4<needsupdating(SBohas2.22.6)', 'get_update_list output good for atkmm') if $item =~ /^atkmm/;
+}
 
-#is (do_convertpkg ($package), "$package-compat32", 'do_convertpkg good');
+# 65, remove_stuff test - can only really test for invalid input
+is (remove_stuff '/omg/wtf/bbq', 1, 'remove_stuff good for invalid input');
+
+# 66, config_write test
+is (config_write ('OMG', 'WTF'), undef, 'config_write returned undef correctly');
+
+# 67-74, perform_search tests
+my $findings = perform_search 'desktop';
+for my $found (@$findings) {
+	for my $key (keys %$found) {
+		my $section = 'desktop';;
+		if ($key eq 'libdesktop-agnostic') {
+			$section = 'libraries';
+		} elsif ($key eq 'mendeleydesktop') {
+			$section = 'academic';
+		} elsif ($key eq 'gtk-recordmydesktop' || $key eq 'huludesktop') {
+			$section = 'multimedia';
+		} elsif ($key eq 'gnome-python-desktop') {
+			$section = 'python';
+		}
+		is ($$found{$key}, "$sbo_home/$section/$key", 'perform_search good for $search eq desktop');
+	}
+}
+
+# 75, get_inst_names test
+$installed = get_installed_sbos;
+my $inst_names = get_inst_names $installed;
+ok ('zdoom' ~~ @$inst_names, 'get_inst_names is good');
+
+# 76-81, get_reqs tests
+ok (! (get_requires 'stops', "$sbo_home/audio/stops"), 'get_requires good for circular requirements');
+ok (! (get_requires 'smc', "$sbo_home/games/smc"), 'get_requires good for REQUIRES="%README%"');
+ok (! (get_requires 'krb5', "$sbo_home/network/krb5"), 'get_requires good for REQUIRES=""');
+my $reqs = get_requires 'matchbox-desktop', "$sbo_home/desktop/matchbox-desktop";
+my $say = 'get_requires good for normal req list';
+is ($$reqs[0], 'libmatchbox', $say);
+is ($$reqs[1], 'matchbox-window-manager', $say);
+is ($$reqs[2], 'matchbox-common', $say);
+
+# 82-85, get_user_group tests
+$fh = open_read "$sbo_home/network/nagios/README";
+my $readme = do {local $/; <$fh>};
+close $fh;
+my @cmds = get_user_group $readme;
+is ($cmds[0], 'groupadd -g 213 nagios', 'get_user_group good for # groupadd');
+is ($cmds[1], 'useradd -u 213 -d /dev/null -s /bin/false -g nagios nagios', 'get_user_group for # useradd');
+$fh = open_read "$sbo_home/network/havp/README";
+$readme = do {local $/; <$fh>};
+close $fh;
+@cmds = get_user_group $readme;
+is ($cmds[0], 'groupadd -g 210 clamav', 'get_user_group good for groupadd');
+is ($cmds[1], 'useradd -u 256 -d /dev/null -s /bin/false -g clamav havp', 'get_user_group good for useradd');
+
+# 86-87, get_opts test
+$fh = open_read "$sbo_home/games/vbam/README";
+$readme = do {local $/; <$fh>};
+close $fh;
+ok (get_opts $readme, 'get_opts good where README defines opts');
+$fh = open_read "$sbo_home/libraries/libmatchbox/README";
+$readme = do {local $/; <$fh>};
+close $fh;
+ok (! (get_opts $readme), 'get_opts good where README does not define opts');

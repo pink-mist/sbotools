@@ -49,7 +49,7 @@ unless ($clean_dist || $clean_work) {
 
 sub remove_stuff ($) {
 	exists $_[0] or script_error 'remove_stuff requires an argument';
-	-d $[0] or say "Nothing to do." and return 1;
+	-d $_[0] or say "Nothing to do." and return 1;
 	my $dir = shift;
 	opendir (my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {

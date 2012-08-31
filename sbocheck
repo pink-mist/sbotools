@@ -27,24 +27,35 @@ show_version && exit 0 if (exists $options{v});
 
 update_tree; 
 
-print "Checking for updated SlackBuilds...\n";
-my $updates = get_available_updates; 
-
-# pretty formatting.
-my @listing;
-for my $key (keys @$updates) {
-	my $string = "$$updates[$key]{name}-$$updates[$key]{installed}";
-	$string .= "        <   needs updating (SBo has $$updates[$key]{update})\n";
-	push @listing, $string;
+# retrieve and format list of available updates
+sub get_update_list () {
+	print "Checking for updated SlackBuilds...\n";
+	my $updates = get_available_updates; 
+	# pretty formatting.
+	my @listing;
+	for my $update (@$updates) {
+		my $string = "$$update{name}-$$update{installed}";
+		$string .= "        <   needs updating (SBo has $$update{update})\n";
+		push @listing, $string;
+	}
+	return \@listing;
 }
 
-if (exists $listing[0]) {
-	my $tab = new Text::Tabulate ();
-	$tab->configure (tab => '\s');
-	my $output = $tab->format (@listing);
-	say "\n". $output;
-} else {
-	say "\nNo updates available.";
+# Text::Tabulate and print list of updates
+sub print_output ($) {
+	exists $_[0] or script_error 'print_output requires an argument';
+	my $listing = shift;
+	if (exists $$listing[0]) {
+		my $tab = new Text::Tabulate ();
+		$tab->configure (tab => '\s');
+		my $output = $tab->format (@$listing);
+		say "\n". $output;
+	} else {
+		say "\nNo updates available.";
+	}
 }
+
+my $output = get_update_list;
+print_output $output;
 
 exit 0;
