@@ -416,9 +416,18 @@ sub check_multilib () {
 }
 
 # make a backup of the existent SlackBuild, and rewrite the original as needed
-sub rewrite_slackbuild ($$%) {
-	exists $_[1] or script_error 'rewrite_slackbuild requires two arguments.';
-	my ($slackbuild, $tempfn, %changes) = @_;
+sub rewrite_slackbuild (%) {
+	my %args = (
+		SLACKBUILD	=> '',
+		TEMPFN		=> '',
+		CHANGES		=> {}, 
+		@_
+	);
+	unless ($args{SLACKBUILD} && $args{TEMPFN}) {
+		script_error 'rewrite_slackbuild requires SLACKBUILD and TEMPFN.';
+	}
+	my $slackbuild = $args{SLACKBUILD};
+	my $changes = $args{CHANGES};
 	copy ($slackbuild, "$slackbuild.orig") or
 		die "Unable to backup $slackbuild to $slackbuild.orig\n";
 	my $tar_regex = qr/(un|)tar .*$/;
@@ -432,17 +441,17 @@ sub rewrite_slackbuild ($$%) {
 		# get the output of the tar and makepkg commands. hope like hell that v
 		# is specified among tar's arguments
 		if ($line =~ $tar_regex || $line =~ $makepkg_regex) {
-			$line = "$line | tee -a $tempfn";
+			$line = "$line | tee -a $args{TEMPFN}";
 		}
-		# then check for and apply any other %changes
-		if (exists $changes{libdirsuffix}) {
-			$line =~ s/64/$changes{libdirsuffix}/ if $line =~ $libdir_regex;
+		# then check for and apply any other %$changes
+		if (exists $$changes{libdirsuffix}) {
+			$line =~ s/64/$$changes{libdirsuffix}/ if $line =~ $libdir_regex;
 		}
-		if (exists $changes{make}) {
-			$line =~ s/make/make $changes{make}/ if $line =~ $make_regex;
+		if (exists $$changes{make}) {
+			$line =~ s/make/make $$changes{make}/ if $line =~ $make_regex;
 		}
-		if (exists $changes{arch_out}) {
-			$line =~ s/\$ARCH/$changes{arch_out}/ if $line =~ $arch_regex;
+		if (exists $$changes{arch_out}) {
+			$line =~ s/\$ARCH/$$changes{arch_out}/ if $line =~ $arch_regex;
 		}
 	}
 	untie @sb_file;
@@ -562,7 +571,11 @@ sub perform_sbo (%) {
 	$cmd = "$args{OPTS} $cmd" if $args{OPTS};
 	my $tempfh = tempfile (DIR => $tempdir);
 	my $fn = get_tmp_extfn $tempfh;
-	rewrite_slackbuild "$location/$sbo.SlackBuild", $fn, %changes;
+	rewrite_slackbuild (
+		SLACKBUILD => "$location/$sbo.SlackBuild",
+		TEMPFN => $fn,
+		CHANGES => \%changes,
+	);
 	chdir $location, my $out = system $cmd;
 	revert_slackbuild "$location/$sbo.SlackBuild";
 	die "$sbo.SlackBuild returned non-zero ext status\n" unless $out == 0;
@@ -636,13 +649,21 @@ sub do_slackbuild (%) {
 }
 
 # remove work directories (source and packaging dirs under /tmp/SBo)
-sub make_clean ($$$) {
-	exists $_[2] or script_error 'make_clean requires three arguments.';
-	my ($sbo, $src, $version) = @_;
-	say "Cleaning for $sbo-$version...";
+sub make_clean (%) {
+	my %args = (
+		SBO		=> '',
+		SRC		=> '',
+		VERSION	=> '',
+		@_
+	);
+	unless ($args{SBO} && $args{SRC} && $args{VERSION}) {
+		script_error 'make_clean requires three arguments.';
+	}
+	say "Cleaning for $args{SBO}-$args{VERSION}...";
 	my $tmpsbo = "/tmp/SBo";
-	remove_tree ("$tmpsbo/$src") if -d "$tmpsbo/$src";
-	remove_tree ("$tmpsbo/package-$sbo") if -d "$tmpsbo/package-$sbo";
+	remove_tree ("$tmpsbo/$args{SRC}") if -d "$tmpsbo/$args{SRC}";
+	remove_tree ("$tmpsbo/package-$args{SBO}") if
+		-d "$tmpsbo/package-$args{SBO}";
 	return 1;
 }
 

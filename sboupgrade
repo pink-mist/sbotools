@@ -113,25 +113,32 @@ sub get_requires ($$) {
 }
 
 # ask to install any requirements found
-sub ask_requires ($$$) {
-	exists $_[2] or script_error 'ask_requires requires three arguments.';
-	my ($requires, $readme, $sbo) = shift;
-	FIRST: for my $req (@$requires) {
+sub ask_requires (%) {
+	my %args = (
+		REQUIRES	=> '',
+		README		=> '',
+		SBO			=> '',
+		@_
+	);
+	unless ($args{REQUIRES} && $args{README} && $args{SBO}) {
+		script_error 'ask_requires requires three arguments.';
+	}
+	FIRST: for my $req (@{$args{REQUIRES}}) {
 		my $name = $compat32 ? "$req-compat32" : $req;
 		my $inst = get_installed_sbos;
 		my $inst_names = get_inst_names $inst;
 		next FIRST if $name ~~ @$inst_names;
-		say $readme;
-		say "$sbo has $name listed as a requirement.";
+		say $args{README};
+		say "$args{SBO} has $name listed as a requirement.";
 		print "Shall I attempt to install it first? [y] ";
 		if (<STDIN> =~ /^[Yy\n]/) {
-			my @args = ('/usr/sbin/sboupgrade', '-oN');
+			my @cmd_args = ('/usr/sbin/sboupgrade', '-oN');
 			# populate args so that they carry over correctly
 			for my $arg (qw(c d p)) {
-				push @args, "-$arg" if exists $options{$arg};
+				push @cmd_args, "-$arg" if exists $options{$arg};
 			}
-			push @args, "-j $options{j}" if exists $options{j};
-			system (@args, $req) == 0 or die "$name failed to install.\n";
+			push @cmd_args, "-j $options{j}" if exists $options{j};
+			system (@cmd_args, $req) == 0 or die "$name failed to install.\n";
 		}
 	}
 	return;
@@ -321,7 +328,12 @@ FIRST: for my $sbo (@ARGV) {
 			print " yet installed. Shall I install it first? [y] ";
 			if (<STDIN> =~ /^[Yy\n]/) {
 				my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
-				system (@args) == 0 or exit 1;
+				# populate args so that they carry over correctly
+				for my $arg (qw(c d)) {
+					push @args, "-$arg" if exists $options{$arg};
+				}
+				push @args, "-j $options{j}" if exists $options{j};
+				system (@args) == 0 or die "$sbo failed to install.\n";
 			} else {
 				warn "Please install $sbo\n" and exit 0;
 			}
