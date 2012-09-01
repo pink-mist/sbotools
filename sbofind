@@ -77,12 +77,14 @@ sub get_file_contents ($) {
 	-f $_[0] or return "$_[0] doesn't exist.\n";
 	my $fh = open_read shift;
 	my $contents = do {local $/; <$fh>};
-	$contents =~ s/\n/\n        /g;
-	$contents =~ s/        $//g;
+	for ($contents) {
+		s/\n/\n        /g;
+		s/        $//g;
+	}
 	return $contents;
 }
 
-perform_search $search;
+my $findings = perform_search $search;
 
 # pretty formatting
 if (exists $$findings[0]) {

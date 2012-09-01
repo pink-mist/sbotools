@@ -680,7 +680,7 @@ sub make_distclean (%) {
 	}
 	my $sbo = get_sbo_from_loc $args{LOCATION};
 	make_clean $sbo, $args{SRC}, $args{VERSION};
-	say "Distcleaning for $sbo-$args{VERSION}...";
+	say "Distcleaning for $sbo-$args{VERSION}...\n";
 	# remove any distfiles for this particular SBo.
 	my %downloads = get_sbo_downloads (LOCATION => $args{LOCATION});
 	for my $key (keys %downloads) {
