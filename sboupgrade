@@ -17,7 +17,6 @@ use File::Basename;
 use Getopt::Std;
 use File::Copy;
 
-#my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
 sub show_usage () {

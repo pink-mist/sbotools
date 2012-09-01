@@ -19,7 +19,6 @@ use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
 
-#my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
 sub show_usage () {
@@ -80,9 +79,6 @@ if (exists $changes{JOBS}) {
 		($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE');
 }
 
-#my $conf_dir = $SBO::Lib::conf_dir;
-#my $conf_file = $SBO::Lib::conf_file;
-
 # safely modify our conf file; write its contents to a temp file, modify the
 # temp file, write the contents of the temp file back to the conf file
 sub config_write ($$) {
@@ -92,7 +88,6 @@ sub config_write ($$) {
 		mkdir $conf_dir or die "Unable to create $conf_dir. Exiting.\n";
 	}
 	if (-f $conf_file) {
-#		my $tempfh = tempfile (DIR => $SBO::Lib::tempdir);
 		my $tempfh = tempfile (DIR => $tempdir);
 		my $conffh = open_read $conf_file;
 		my $conftents = do {local $/; <$conffh>};
@@ -108,7 +103,7 @@ sub config_write ($$) {
 		untie @temp;
 		# otherwise, append our new $key=$value pair
 		print {$tempfh} "$key=$val\n" unless $has;
-		# then over the conf file with the contents of the temp file
+		# then over write the conf file with the contents of the temp file
 		seek $tempfh, 0, 0;
 		my $contents = do {local $/; <$tempfh>};
 		close $conffh;

@@ -35,7 +35,6 @@ our @EXPORT = qw(
 	get_sbo_location
 	get_from_info
 	get_tmp_extfn
-	get_tmp_perlfn
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -524,26 +523,12 @@ sub get_pkg_name ($) {
 		REGEX => qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/);
 }
 
-# clear the close-on-exec bit from a temp file handle
-sub clear_coe_bit ($) {
-	exists $_[0] or script_error 'clear_coe_bit requires an argument';
-	my $fh = shift;
-	fcntl ($fh, F_SETFD, 0) or die "no unset exec-close thingy\n";
-	return $fh;
-}
-
 # return a filename from a temp fh for use externally
 sub get_tmp_extfn ($) {
 	exists $_[0] or script_error 'get_tmp_extfn requires an argument.';
-	my $fh = clear_coe_bit shift;
+	my $fh = shift;
+	fcntl ($fh, F_SETFD, 0) or die "Can't unset exec-on-close bit\n";
 	return '/dev/fd/'. fileno $fh;
-}
-
-# return a filename from a temp fh for use internally
-sub get_tmp_perlfn ($) {
-	exists $_[0] or script_error 'get_tmp_perlfn requires an argument.';
-	my $fh = clear_coe_bit shift;
-	return "+<=&". fileno $fh;
 }
 
 # prep and run .SlackBuild
