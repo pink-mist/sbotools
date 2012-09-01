@@ -59,4 +59,3 @@ for my $opt (@opts2) {
 system '/usr/sbin/sboupgrade', '-oN', @ARGV;
 
 exit 0;
-

@@ -10,8 +10,8 @@
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
-use warnings FATAL => 'all';
 use strict;
+use warnings FATAL => 'all';
 
 package SBO::Lib 1.0;
 my $version = "1.0";
@@ -56,8 +56,8 @@ our $tempdir = tempdir (CLEANUP => 1);
 
 # subroutine for throwing internal script errors
 sub script_error (;$) {
-	exists $_[0] ? die "A fatal script error has occured:\n$_[0]\nExiting.\n"
-				 : die "A fatal script error has occured. Exiting.\n";
+	exists $_[0] ? die "A fatal script error has occurred:\n$_[0]\nExiting.\n"
+				 : die "A fatal script error has occurred. Exiting.\n";
 }
 
 # sub for opening files, second arg is like '<','>', etc
@@ -131,7 +131,7 @@ sub get_slack_version () {
 
 # does the SLACKBUILDS.TXT file exist in the sbo tree?
 sub chk_slackbuilds_txt () {
-	return -f $slackbuilds_txt ? 1 : 0;
+	return -f $slackbuilds_txt ? 1 : undef;
 }
 
 # check for the validity of new $config{SBO_HOME}
@@ -151,7 +151,7 @@ sub check_home () {
 
 # rsync the sbo tree from slackbuilds.org to $config{SBO_HOME}
 sub rsync_sbo_tree () {
-	my $slk_version = get_slack_version; 
+	my $slk_version = get_slack_version;
 	my @arg = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
 	push @arg, "rsync://slackbuilds.org/slackbuilds/$slk_version/*";
 	my $out = system @arg, $config{SBO_HOME};
@@ -160,13 +160,13 @@ sub rsync_sbo_tree () {
 
 # wrappers for differing checks and output
 sub fetch_tree () {
-	check_home; 
+	check_home;
 	say 'Pulling SlackBuilds tree...';
 	rsync_sbo_tree, return 1;
 }
 
 sub update_tree () {
-	fetch_tree, return unless chk_slackbuilds_txt; 
+	fetch_tree, return unless chk_slackbuilds_txt;
 	say 'Updating SlackBuilds tree...';
 	rsync_sbo_tree, return 1;
 }
@@ -184,7 +184,7 @@ sub slackbuilds_or_fetch () {
 }
 
 # pull an array of hashes, each hash containing the name and version of an sbo
-# currently installed. 
+# currently installed.
 sub get_installed_sbos () {
 	my @installed;
 	# $1 == name, $2 == version
@@ -245,14 +245,14 @@ sub get_from_info (%) {
 			$$vars{$key} = [$$vars{$key}];
 		}
 	}
-	return exists $$vars{$args{GET}} ? $$vars{$args{GET}} : 0;
+	return exists $$vars{$args{GET}} ? $$vars{$args{GET}} : undef;
 }
 
 # find the version in the tree for a given sbo (provided a location)
 sub get_sbo_version ($) {
 	exists $_[0] or script_error 'get_sbo_version requires an argument.';
 	my $version = get_from_info (LOCATION => shift, GET => 'VERSION');
-	return $$version[0] ? $$version[0] : 0;
+	return $$version[0] ? $$version[0] : undef;
 }
 
 # for each installed sbo, find out whether or not the version in the tree is
@@ -360,7 +360,7 @@ sub compute_md5sum ($) {
 sub compare_md5s ($$) {
 	exists $_[1] or script_error 'compare_md5s requires two arguments.';
 	my ($first, $second) = @_;
-	return $first eq $second ? 1 : 0;
+	return $first eq $second ? 1 : undef;
 }
 
 # for a given distfile, see whether or not it exists, and if so, if its md5sum
@@ -405,7 +405,7 @@ sub get_symlink_from_filename ($$) {
 sub check_x32 ($) {
 	exists $_[0] or script_error 'check_x32 requires an argument.';
 	my $dl = get_from_info (LOCATION => shift, GET => 'DOWNLOAD_x86_64');
-	return $$dl[0] =~ /UN(SUPPOR|TES)TED/ ? 1 : 0;
+	return $$dl[0] =~ /UN(SUPPOR|TES)TED/ ? 1 : undef;
 }
 
 # can't do 32-bit on x86_64 without this file, so we'll use it as the test to
@@ -649,7 +649,7 @@ sub make_clean ($$$) {
 # remove distfiles
 sub make_distclean (%) {
 	my %args = (
-		SRC 		=> '',
+		SRC			=> '',
 		VERSION		=> '',
 		LOCATION	=> '',
 		@_

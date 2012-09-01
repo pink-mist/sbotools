@@ -121,7 +121,7 @@ sub config_write ($$) {
 }
 
 while (my ($key, $value) = each %changes) {
-	print "Setting $key to $value...\n";
+	say "Setting $key to $value...";
 	config_write $key, $value or warn "Unable to write to $conf_file\n";
 }
 

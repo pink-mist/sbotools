@@ -67,7 +67,7 @@ $jobs = 0 if $jobs eq 'FALSE';
 show_usage and exit 1 unless exists $ARGV[0];
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
-slackbuilds_or_fetch; 
+slackbuilds_or_fetch;
 
 # build a hash of locations for each item provided on command line, at the same
 # time verifying each item is a valid slackbuild
@@ -96,7 +96,8 @@ sub get_inst_names ($) {
 
 # pull list of requirements
 sub get_requires ($$) {
-	exists $_[1] or script_error 'get_requires requires an argument.';
+	return if $no_reqs;
+	exists $_[1] or script_error 'get_requires requires two arguments.';
 	my ($sbo, $location) = @_;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	return unless $$requires[0];
@@ -115,27 +116,33 @@ sub get_requires ($$) {
 sub ask_requires ($$$) {
 	exists $_[2] or script_error 'ask_requires requires three arguments.';
 	my ($requires, $readme, $sbo) = shift;
-	for my $req (@$requires) {
+	FIRST: for my $req (@$requires) {
+		my $name = $compat32 ? "$req-compat32" : $req;
 		my $inst = get_installed_sbos;
-		my $inst_names= get_inst_names $inst;
-		unless ($req ~~ @$inst_names) {
-			say $readme;
-			say "$sbo has $req listed as a requirement.";
-			print "Shall I attempt to install it first? [y] ";
-			if (<STDIN> =~ /^[Yy\n]/) {
-				system ('/usr/sbin/sboupgrade', '-oN', $req) == 0 or
-					die "$req failed to install.\n";
+		my $inst_names = get_inst_names $inst;
+		next FIRST if $name ~~ @$inst_names;
+		say $readme;
+		say "$sbo has $name listed as a requirement.";
+		print "Shall I attempt to install it first? [y] ";
+		if (<STDIN> =~ /^[Yy\n]/) {
+			my @args = ('/usr/sbin/sboupgrade', '-oN');
+			# populate args so that they carry over correctly
+			for my $arg (qw(c d p)) {
+				push @args, "-$arg" if exists $options{$arg};
 			}
+			push @args, "-j $options{j}" if exists $options{j};
+			system (@args, $req) == 0 or die "$name failed to install.\n";
 		}
 	}
+	return;
 }
 
 # look for any (user|group)add commands in the README
 sub get_user_group ($) {
-	exists $_[0] or script_error 'grok_user_group requires an argument';
+	exists $_[0] or script_error 'get_user_group requires an argument';
 	my $readme = shift;
 	my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
-	return @cmds;
+	return \@cmds;
 }
 
 # offer to run any user/group add commands
@@ -156,7 +163,7 @@ sub ask_user_group ($$) {
 
 # see if the README mentions any options
 sub get_opts ($) {
-	exists $_[0] or script_error 'grok_options requires an argument';
+	exists $_[0] or script_error 'get_opts requires an argument';
 	my $readme = shift;
 	return $readme =~ /[A-Z]+=[^\s]/ ? 1 : undef;
 }
@@ -278,23 +285,23 @@ goto INSTALL_NEW if $only_new;
 # doesn't matter what's updatable and what's not if force is specified
 my @updates unless $force;
 unless ($force) {
-	my $updates = get_available_updates; 
+	my $updates = get_available_updates;
 	push @updates, $$_{name} for @$updates;
 }
 my $todo_upgrade;
 # but without force, we only want to update what there are updates for
 unless ($force) {
 	for my $sbo (@ARGV) {
-		push $$todo_upgrades, $sbo if $sbo ~~ @updates;
+		push @$todo_upgrade, $sbo if $sbo ~~ @updates;
 	}
 } else {
-	my $inst = get_installed_sbos; 
-	my $inst_names= get_inst_names $inst;
+	my $inst = get_installed_sbos;
+	my $inst_names = get_inst_names $inst;
 	FIRST: for my $sbo (@ARGV) {
-		push $todo_upgrade, $sbo if $sbo ~~ @$inst_names;
+		push @$todo_upgrade, $sbo if $sbo ~~ @$inst_names;
 	}
 }
-my %failures = process_sbos $todo_upgrade if exists $todo_upgrade[0];
+my %failures = process_sbos $todo_upgrade if exists $$todo_upgrade[0];
 print_failures %failures;
 
 INSTALL_NEW:
@@ -302,12 +309,12 @@ exit 0 unless $install_new;
 my $todo_install;
 FIRST: for my $sbo (@ARGV) {
 	my $name = $compat32 ? "$sbo-compat32" : $sbo;
-	my $inst = get_installed_sbos; 
+	my $inst = get_installed_sbos;
 	my $inst_names = get_inst_names $inst;;
 	warn "$name already installed\n", next FIRST if $name ~~ @$inst_names;
 	# if compat32 is TRUE, we need to see if the non-compat version exists.
 	if ($compat32) {
-		my $inst = get_installed_sbos; 
+		my $inst = get_installed_sbos;
 		my $inst_names = get_inst_names $inst;
 		unless ($sbo ~~ @$inst_names) {
 			print "\nYou are attempting to install $name, however, $sbo is not";
@@ -320,9 +327,9 @@ FIRST: for my $sbo (@ARGV) {
 			}
 		}
 	}
-	push $todo_install, $sbo;
+	push @$todo_install, $sbo;
 }
-%failures = process_sbos $todo_install if exists $todo_install[0];
+%failures = process_sbos $todo_install if exists $$todo_install[0];
 print_failures %failures;
 
 exit 0;

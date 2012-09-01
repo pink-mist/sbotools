@@ -34,7 +34,7 @@ is (get_slack_version, '14.0', 'get_slack_version is good');
 # 10-11, chk_slackbuilds_txt tests
 is (chk_slackbuilds_txt, 1, 'chk_slackbuilds_txt is good');
 move ("$sbo_home/SLACKBUILDS.TXT", "$sbo_home/SLACKBUILDS.TXT.moved");
-is (chk_slackbuilds_txt, 0, 'chk_slackbuilds_txt returns false with no SLACKBUILDS.TXT');
+is (chk_slackbuilds_txt, undef, 'chk_slackbuilds_txt returns false with no SLACKBUILDS.TXT');
 move ("$sbo_home/SLACKBUILDS.TXT.moved", "$sbo_home/SLACKBUILDS.TXT");
 
 #ok (rsync_sbo_tree == 1, 'rsync_sbo_tree is good');
@@ -148,7 +148,7 @@ ok (! get_sbo_from_loc 'omg_wtf_bbq', 'get_sbo_from_loc returns false with inval
 
 # 48-49, compare_md5s tests
 is (compare_md5s ('omgwtf123456789', 'omgwtf123456789'), 1, 'compare_md5s returns true for matching parameters');
-is (compare_md5s ('omgwtf123456788', 'somethingelsebbq'), 0, 'compare_md5s returns false for not-matching parameters');
+is (compare_md5s ('omgwtf123456788', 'somethingelsebbq'), undef, 'compare_md5s returns false for not-matching parameters');
 
 # 50, get_distfile tests
 my $distfile = "$sbo_home/distfiles/Sort-Versions-1.5.tar.gz";
@@ -250,6 +250,7 @@ my $inst_names = get_inst_names $installed;
 ok ('zdoom' ~~ @$inst_names, 'get_inst_names is good');
 
 # 76-81, get_reqs tests
+$SBO::Lib::no_reqs = 0;
 ok (! (get_requires 'stops', "$sbo_home/audio/stops"), 'get_requires good for circular requirements');
 ok (! (get_requires 'smc', "$sbo_home/games/smc"), 'get_requires good for REQUIRES="%README%"');
 ok (! (get_requires 'krb5', "$sbo_home/network/krb5"), 'get_requires good for REQUIRES=""');
@@ -263,15 +264,15 @@ is ($$reqs[2], 'matchbox-common', $say);
 $fh = open_read "$sbo_home/network/nagios/README";
 my $readme = do {local $/; <$fh>};
 close $fh;
-my @cmds = get_user_group $readme;
-is ($cmds[0], 'groupadd -g 213 nagios', 'get_user_group good for # groupadd');
-is ($cmds[1], 'useradd -u 213 -d /dev/null -s /bin/false -g nagios nagios', 'get_user_group for # useradd');
+my $cmds = get_user_group $readme;
+is ($$cmds[0], 'groupadd -g 213 nagios', 'get_user_group good for # groupadd');
+is ($$cmds[1], 'useradd -u 213 -d /dev/null -s /bin/false -g nagios nagios', 'get_user_group for # useradd');
 $fh = open_read "$sbo_home/network/havp/README";
 $readme = do {local $/; <$fh>};
 close $fh;
-@cmds = get_user_group $readme;
-is ($cmds[0], 'groupadd -g 210 clamav', 'get_user_group good for groupadd');
-is ($cmds[1], 'useradd -u 256 -d /dev/null -s /bin/false -g clamav havp', 'get_user_group good for useradd');
+$cmds = get_user_group $readme;
+is ($$cmds[0], 'groupadd -g 210 clamav', 'get_user_group good for groupadd');
+is ($$cmds[1], 'useradd -u 256 -d /dev/null -s /bin/false -g clamav havp', 'get_user_group good for useradd');
 
 # 86-87, get_opts test
 $fh = open_read "$sbo_home/games/vbam/README";

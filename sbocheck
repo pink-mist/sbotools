@@ -19,7 +19,7 @@ use Text::Tabulate;
 my %options;
 getopts ('v',\%options);
 
-show_version && exit 0 if (exists $options{v});
+show_version && exit 0 if exists $options{v};
 
 update_tree; 
 

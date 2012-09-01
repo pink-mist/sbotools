@@ -94,7 +94,7 @@ if (exists $$findings[0]) {
 			push @listing, "info:   ". get_file_contents "$value/$key.info"
 				if $show_info;
 			push @listing, "README: ". get_file_contents "$value/README"
-				if $show_readme; 
+				if $show_readme;
 			push @listing, "\n";
 		}
 	}

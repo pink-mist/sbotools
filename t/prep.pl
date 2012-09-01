@@ -12,14 +12,17 @@ copy ('/home/d4wnr4z0r/projects/slack14/sbotools/SBO-Lib/lib/SBO/Lib.pm', "$pwd/
 
 open my $write, '>>', "$pwd/SBO/Lib.pm";
 
-print {$write} "my \$interactive = 1;\n";
-print {$write} "my \%locations;";
-print {$write} "my \$compat32 = 1;\n";
-print {$write} "my \$no_readme = 1;\n";
-print {$write} "my \$jobs = 1;\n";
-print {$write} "my \$distclean = 1;\n";
-print {$write} "my \$noclean = 1;\n";
-print {$write} "my \$no_install = 1;\n";
+sub pr ($) {
+	my $thing = shift;
+	print {$write} "our \$$thing = 1;\n";
+}
+
+for my $thing (qw(interactive compat32 no_readme jobs distclean noclean no_install no_reqs)) {
+	pr $thing;
+}
+
+print {$write} "my \%locations;\n";
+print {$write} "my \%options = (nothing => 'to see here');\n";
 
 sub get_subs ($) {
 	my $read = shift;
