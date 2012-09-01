@@ -1,4 +1,4 @@
-.TH sboconfig 1 "Setting Orange, the 34th day of Confusion in the YOLD 3178" "sbotools 0.7 fnord" dawnrazor.net
+.TH sboconfig 1 "Prickle-Prickle, the 25th day of Bureaucracy in the YOLD 3178" "sbotools 0.8 fnord" dawnrazor.net
 .SH NAME
 .P
 sboconfig - set sbotools configuration options.
@@ -7,7 +7,7 @@ sboconfig - set sbotools configuration options.
 sboconfig [-h] [-l] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-p /path|FALSE] [-s /path|/usr/sbo] [-v]
 .SH DESCRIPTION
 .P
-sboconfig is a front-end for managing sbotools configuration options. The sbotools.conf(5) file can also be manually edited; any fields not relevant to sbotools configuration will be ignored. Note that more options may be added in the future, so you should not add garbage to the sbotools.conf(5) file.
+sboconfig is a front-end for managing sbotools configuration options. The sbotools.conf(5) file can also be manually edited; any fields not relevant to sbotools configuration will be ignored.
 .SH OPTIONS
 .P
 -h
@@ -17,7 +17,7 @@ Show help information.
 .P
 -l
 .RS
-List out current configuration options, including unmodified default configuration options (meaning that if a given option is not set in the sbotools.conf(5) file, the default will be shown for that option).
+List out current configuration options, including unmodified default configuration options (meaning that if a given option is not set in the sbotools.conf(5) file, the default will be shown for that option). Also shows the flag to sboconfig used to set each option.
 .RE
 .P
 -d (TRUE|FALSE)
@@ -51,7 +51,7 @@ Show sbotools version information.
 .RE
 .SH BUGS
 .P
-None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome.
 .SH SEE ALSO
 .P
 sbocheck(1), sboclean(1), sbofind(1), sboinstall(1), sboupgrade(1), sbosnap(1), sbotools.conf(5)
