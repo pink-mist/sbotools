@@ -97,8 +97,8 @@ sub config_write ($$) {
 		my $conffh = open_read $conf_file;
 		my $conftents = do {local $/; <$conffh>};
 		print {$tempfh} $conftents;
-		# tie the file so that if $key is already there, we just change that
-		# line and untie it
+		# tie the temp file so that if $key is already there, we just change 
+		# that line and untie it
 		tie my @temp, 'Tie::File', $tempfh;
 		my $has;
 		my $regex = qr/\A\Q$key\E=/;
@@ -108,11 +108,12 @@ sub config_write ($$) {
 		untie @temp;
 		# otherwise, append our new $key=$value pair
 		print {$tempfh} "$key=$val\n" unless $has;
+		# then over the conf file with the contents of the temp file
 		seek $tempfh, 0, 0;
 		my $contents = do {local $/; <$tempfh>};
 		close $conffh;
-		eval { $conffh = open_fh $conf_file, '>>' };
-		warn "Cannot write configuration: $@\n", return if $@;
+		eval { $conffh = open_fh $conf_file, '>' };
+		warn "Cannot write configuration: $@\n" and return if $@;
 		print {$conffh} $contents or return;
 		close $conffh, close $tempfh;
 	} else {
