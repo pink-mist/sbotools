@@ -51,6 +51,7 @@ use File::Path qw(make_path remove_tree);
 use Fcntl;
 use File::Temp qw(tempdir tempfile);
 use Fcntl qw(F_SETFD F_GETFD);
+use feature 'say';
 
 our $tempdir = tempdir (CLEANUP => 1);
 
@@ -660,7 +661,7 @@ sub make_clean (%) {
 	unless ($args{SBO} && $args{SRC} && $args{VERSION}) {
 		script_error 'make_clean requires three arguments.';
 	}
-	say "Cleaning for $args{SBO}-$args{VERSION}...";
+	say "Cleaning for $args{SBO}-$args{VERSION}...\n";
 	my $tmpsbo = "/tmp/SBo";
 	remove_tree ("$tmpsbo/$args{SRC}") if -d "$tmpsbo/$args{SRC}";
 	remove_tree ("$tmpsbo/package-$args{SBO}") if

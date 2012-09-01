@@ -133,6 +133,7 @@ sub get_requires ($$) {
 		$_-- for @remove;
 	}
 	return \@deps;
+}
 
 # ask to install any requirements found
 sub ask_requires (%) {
@@ -177,7 +178,7 @@ sub get_user_group ($) {
 # offer to run any user/group add commands
 sub ask_user_group ($$) {
 	exists $_[1] or script_error 'ask_user_group requires two arguments';
-	my ($cmds, $readme) = shift;
+	my ($cmds, $readme) = @_;
 	say "\n". $readme;
 	print "\nIt looks like this slackbuild requires the following";
 	say " command(s) to be run first:";
@@ -231,10 +232,11 @@ sub readme_prompt ($) {
 	close $fh;
 	# check for requirements, offer to install any found
 	my $requires = get_requires $sbo, $readme;
-	ask_requires $requires, $readme, $sbo if ref $requires eq 'ARRAY';
+	ask_requires (REQUIRES => $requires, README => $readme, SBO => $sbo) if
+		ref $requires eq 'ARRAY';
 	# check for user/group add commands, offer to run any found
 	my $user_group = get_user_group $readme;
-	ask_user_group $user_group, $readme  if ref $user_group eq 'ARRAY';
+	ask_user_group $user_group, $readme  if $$user_group[0];
 	# check for options mentioned in the README
 	my $opts;
 	$opts = ask_opts $readme if get_opts $readme;
@@ -266,8 +268,10 @@ sub process_sbos ($) {
 		if ($@) {
 			$failures{$sbo} = $@;
 		} else {
+			do_upgradepkg $pkg unless $no_install;
 			unless ($distclean eq 'TRUE') {
-				make_clean $sbo, $src, $version unless $noclean eq 'TRUE';
+				make_clean (SBO => $sbo, SRC => $src, VERSION => $version)
+					unless $noclean eq 'TRUE';
 			} else {
 				make_distclean (
 					SBO			=> $sbo,
@@ -276,7 +280,6 @@ sub process_sbos ($) {
 					LOCATION	=> $locations{$sbo},
 				);
 			}
-			do_upgradepkg $pkg unless $no_install;
 			# move package to $config{PKG_DIR} if defined
 			unless ($config{PKG_DIR} eq 'FALSE') {
 				my $dir = $config{PKG_DIR};
