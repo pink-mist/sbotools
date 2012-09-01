@@ -10,15 +10,11 @@
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
+use strict;
+use warnings FATAL => 'all';
 use SBO::Lib;
-use File::Basename;
 use Getopt::Std;
 use Text::Tabulate;
-use warnings FATAL => 'all';
-use strict;
-
-my %config = %SBO::Lib::config;
-my $self = basename ($0);
 
 my %options;
 getopts ('v',\%options);

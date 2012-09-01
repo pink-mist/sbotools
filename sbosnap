@@ -13,13 +13,13 @@
 #    .01: initial creation.
 
 use 5.16.0;
+use strict;
+use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
-use warnings FATAL => 'all';
-use strict;
 
-my %config = %SBO::Lib::config;
+#my %config = %SBO::Lib::config;
 my $sbo_home = $config{SBO_HOME};
 my $self = basename ($0);
 

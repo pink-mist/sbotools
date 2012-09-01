@@ -10,14 +10,14 @@
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
+use strict;
+use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
 use File::Copy;
-use strict;
-use warnings FATAL => 'all';
 
-my %config = %SBO::Lib::config;
+#my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
 sub show_usage () {

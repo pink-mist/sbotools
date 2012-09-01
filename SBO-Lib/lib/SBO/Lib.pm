@@ -36,6 +36,10 @@ our @EXPORT = qw(
 	get_from_info
 	get_tmp_extfn
 	get_tmp_perlfn
+	$tempdir
+	$conf_dir
+	$conf_file
+	%config
 );
 
 $< == 0 or die "This script requires root privileges.\n";
@@ -539,7 +543,7 @@ sub get_tmp_extfn ($) {
 sub get_tmp_perlfn ($) {
 	exists $_[0] or script_error 'get_tmp_perlfn requires an argument.';
 	my $fh = clear_coe_bit shift;
-	return '+<=&'. fileno $fh;
+	return "+<=&". fileno $fh;
 }
 
 # prep and run .SlackBuild

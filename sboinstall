@@ -10,11 +10,11 @@
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
+use strict;
+use warnings FATAL => 'all';
 use SBO::Lib;
 use Getopt::Std;
 use File::Basename;
-use strict;
-use warnings FATAL => 'all';
 
 my $self = basename ($0);
 
