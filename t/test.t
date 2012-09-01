@@ -1,4 +1,4 @@
-#!/usr/bin/perl -I/home/d4wnr4z0r/projects/slack14/sbotools/t
+#!/usr/bin/env perl
 
 use 5.16.0;
 use strict;
@@ -7,6 +7,7 @@ use File::Temp qw(tempdir tempfile);
 use Test::More tests => 87;
 use File::Copy;
 use Text::Diff;
+use lib ".";
 use SBO::Lib;
 
 my $sbo_home = '/home/d4wnr4z0r/sbo.git/slackbuilds';
