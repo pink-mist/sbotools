@@ -10,8 +10,8 @@
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;
-use warnings FATAL => 'all';
 use strict;
+use warnings FATAL => 'all';
 
 package SBO::Lib 0.7;
 my $version = "0.7";
@@ -35,7 +35,10 @@ our @EXPORT = qw(
 	get_sbo_location
 	get_from_info
 	get_tmp_extfn
-	get_tmp_perlfn
+	$tempdir
+	$conf_dir
+	$conf_file
+	%config
 );
 
 $< == 0 or die "This script requires root privileges.\n";
@@ -46,7 +49,6 @@ use Digest::MD5;
 use File::Copy;
 use File::Path qw(make_path remove_tree);
 use Fcntl;
-use File::Find;
 use File::Temp qw(tempdir tempfile);
 use Fcntl qw(F_SETFD F_GETFD);
 
@@ -55,12 +57,12 @@ our $tempdir = tempdir (CLEANUP => 1);
 # subroutine for throwing internal script errors
 sub script_error (;$) {
 	exists $_[0] ? die "A fatal script error has occurred:\n$_[0]\nExiting.\n"
-				 : die "A fatal script error has occurred: Exiting.\n";
+				 : die "A fatal script error has occurred. Exiting.\n";
 }
 
 # sub for opening files, second arg is like '<','>', etc
-sub open_fh {
-	exists $_[1] or script_error ('open_fh requires two arguments');
+sub open_fh ($$) {
+	exists $_[1] or script_error 'open_fh requires two arguments';
 	unless ($_[1] eq '>') {
 		-f $_[0] or script_error 'open_fh first argument not a file';
 	}
@@ -73,7 +75,7 @@ sub open_read ($) {
 	return open_fh shift, '<';
 }
 
-# pull in configuration, set sane defaults, etc.
+# global config variables
 our $conf_dir = '/etc/sbotools';
 our $conf_file = "$conf_dir/sbotools.conf";
 our %config = (
@@ -84,20 +86,23 @@ our %config = (
 	SBO_HOME => 'FALSE',
 );
 
-# if the conf file exists, pull all the $key=$value pairs into a hash
-my %conf_values;
-if (-f $conf_file) {
-	my $fh = open_read ($conf_file);
-	my $text = do {local $/; <$fh>};
-	%conf_values = $text =~ /^(\w+)=(.*)$/mg;
-	close $fh;
+# subroutine to suck in config in order to facilitate unit testing
+sub read_config () {
+	my %conf_values;
+	if (-f $conf_file) {
+		my $fh = open_read $conf_file;
+		my $text = do {local $/; <$fh>};
+		%conf_values = $text =~ /^(\w+)=(.*)$/mg;
+		close $fh;
+	}
+	for my $key (keys %config) {
+		$config{$key} = $conf_values{$key} if exists $conf_values{$key};
+	}
+	$config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
+	$config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
 }
 
-for my $key (keys %config) {
-	$config{$key} = $conf_values{$key} if exists $conf_values{$key};
-}
-$config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
-$config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
+read_config;
 
 # some stuff we'll need later.
 my $distfiles = "$config{SBO_HOME}/distfiles";
@@ -106,8 +111,8 @@ my $name_regex = '\ASLACKBUILD\s+NAME:\s+';
 
 sub show_version () {
 	say "sbotools version $version";
-	say "licensed under the WTFPL";
-	say "<http://sam.zoy.org/wtfpl/COPYING>";
+	say 'licensed under the WTFPL';
+	say '<http://sam.zoy.org/wtfpl/COPYING>';
 }
 
 # %supported maps what's in /etc/slackware-version to what's at SBo
@@ -127,7 +132,7 @@ sub get_slack_version () {
 
 # does the SLACKBUILDS.TXT file exist in the sbo tree?
 sub chk_slackbuilds_txt () {
-	return -f $slackbuilds_txt ? 1 : 0;
+	return -f $slackbuilds_txt ? 1 : undef;
 }
 
 # check for the validity of new $config{SBO_HOME}
@@ -140,8 +145,9 @@ sub check_home () {
 			die "$sbo_home exists and is not empty. Exiting.\n";
 		}
 	} else {
-		make_path ($sbo_home) or die "Unable to create $sbo_home.\n"; 
+		make_path ($sbo_home) or die "Unable to create $sbo_home.\n";
 	}
+	return 1;
 }
 
 # rsync the sbo tree from slackbuilds.org to $config{SBO_HOME}
@@ -150,19 +156,19 @@ sub rsync_sbo_tree () {
 	my @arg = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
 	push @arg, "rsync://slackbuilds.org/slackbuilds/$slk_version/*";
 	my $out = system @arg, $config{SBO_HOME};
-	say "Finished." and return $out;
+	say 'Finished.' and return $out;
 }
 
 # wrappers for differing checks and output
 sub fetch_tree () {
 	check_home;
-	say "Pulling SlackBuilds tree...";
+	say 'Pulling SlackBuilds tree...';
 	rsync_sbo_tree, return 1;
 }
 
 sub update_tree () {
 	fetch_tree, return unless chk_slackbuilds_txt;
-	say "Updating SlackBuilds tree...";
+	say 'Updating SlackBuilds tree...';
 	rsync_sbo_tree, return 1;
 }
 
@@ -171,8 +177,8 @@ sub update_tree () {
 sub slackbuilds_or_fetch () {
 	unless (chk_slackbuilds_txt) {
 		say 'It looks like you haven\'t run "sbosnap fetch" yet.';
-		print "Would you like me to do this now? [y] ";
-		<STDIN> =~ /^[Yy\n]/ ? fetch_tree () :
+		print 'Would you like me to do this now? [y] ';
+		<STDIN> =~ /^[Yy\n]/ ? fetch_tree :
 			die "Please run \"sbosnap fetch\"\n";
 	}
 	return 1;
@@ -240,14 +246,14 @@ sub get_from_info (%) {
 			$$vars{$key} = [$$vars{$key}];
 		}
 	}
-	return exists $$vars{$args{GET}} ? $$vars{$args{GET}} : 0;
+	return exists $$vars{$args{GET}} ? $$vars{$args{GET}} : undef;
 }
 
 # find the version in the tree for a given sbo (provided a location)
 sub get_sbo_version ($) {
-	exists $_[0] or script_error 'get_sbo_version requires an arguments';
+	exists $_[0] or script_error 'get_sbo_version requires an argument.';
 	my $version = get_from_info (LOCATION => shift, GET => 'VERSION');
-	return $$version[0] ? $$version[0] : 0;
+	return $$version[0] ? $$version[0] : undef;
 }
 
 # for each installed sbo, find out whether or not the version in the tree is
@@ -287,9 +293,9 @@ sub get_download_info (%) {
 	if ($args{X64}) {
 		my $nothing;
 		if (! $$downs[0]) {
-			$nothing = 1;
+			$nothing++;
 		} elsif ($$downs[0] =~ qr/^UN(SUPPOR|TES)TED$/) {
-			$nothing = 1;
+			$nothing++;
 		}
 		if ($nothing) {
 			$args{X64} = 0;
@@ -336,7 +342,9 @@ sub get_sbo_downloads (%) {
 # given a link, grab the filename from the end of it
 sub get_filename_from_link ($) {
 	exists $_[0] or script_error 'get_filename_from_link requires an argument';
-	return "$distfiles/". (shift =~ qr#/([^/]+)$#)[0];
+	my $fn = shift;
+	my $regex = qr#/([^/]+)$#;
+	return $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
 }
 
 # for a given file, computer its md5sum
@@ -353,7 +361,7 @@ sub compute_md5sum ($) {
 sub compare_md5s ($$) {
 	exists $_[1] or script_error 'compare_md5s requires two arguments.';
 	my ($first, $second) = @_;
-	return $first eq $second ? 1 : 0;
+	return $first eq $second ? 1 : undef;
 }
 
 # for a given distfile, see whether or not it exists, and if so, if its md5sum
@@ -384,7 +392,7 @@ sub get_distfile ($$) {
 	return 1;
 }
 
-# for a given distfile, what will be the full path of the symlink?
+# for a given distfile, figure out what the full path to its symlink will be
 sub get_symlink_from_filename ($$) {
 	exists $_[1] or script_error
 		'get_symlink_from_filename requires two arguments';
@@ -398,12 +406,12 @@ sub get_symlink_from_filename ($$) {
 sub check_x32 ($) {
 	exists $_[0] or script_error 'check_x32 requires an argument.';
 	my $dl = get_from_info (LOCATION => shift, GET => 'DOWNLOAD_x86_64');
-	return $$dl[0] =~ /UN(SUPPOR|TES)TED/ ? 1 : 0;
+	return $$dl[0] =~ /UN(SUPPOR|TES)TED/ ? 1 : undef;
 }
 
 # can't do 32-bit on x86_64 without this file, so we'll use it as the test to
 # to determine whether or not an x86_64 system is setup for multilib
-sub check_multilib {
+sub check_multilib () {
 	return 1 if -f '/etc/profile.d/32dev.sh';
 	return;
 }
@@ -419,7 +427,7 @@ sub rewrite_slackbuild ($$%) {
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	my $make_regex = qr/^\s*make(| \Q||\E exit 1)$/;
 	my $arch_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
-	# tie the slackbuilds, because this is the easiest way to handle this.
+	# tie the slackbuild, because this is the easiest way to handle this.
 	tie my @sb_file, 'Tie::File', $slackbuild;
 	for my $line (@sb_file) {
 		# get the output of the tar and makepkg commands. hope like hell that v
@@ -427,7 +435,7 @@ sub rewrite_slackbuild ($$%) {
 		if ($line =~ $tar_regex || $line =~ $makepkg_regex) {
 			$line = "$line | tee -a $tempfn";
 		}
-		# then check for and apply any %changes
+		# then check for and apply any other %changes
 		if (exists $changes{libdirsuffix}) {
 			$line =~ s/64/$changes{libdirsuffix}/ if $line =~ $libdir_regex;
 		}
@@ -460,9 +468,7 @@ sub check_distfiles (%) {
 	my %dists = @_;
 	for my $link (keys %dists) {
 		my $md5sum = $dists{$link};
-		unless (verify_distfile $link, $md5sum) {
-			die unless get_distfile $link, $md5sum;
-		}
+		get_distfile $link, $md5sum unless verify_distfile $link, $md5sum;
 	}
 	return 1;
 }
@@ -518,26 +524,12 @@ sub get_pkg_name ($) {
 		REGEX => qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/);
 }
 
-# clear the close-on-exec bit from a temp file handle
-sub clear_coe_bit ($) {
-	exists $_[0] or script_error 'clear_coe_bit requires an argument';
-	my $fh = shift;
-	fcntl ($fh, F_SETFD, 0) or die "no unset exec-close thingy\n";
-	return $fh;
-}
-
 # return a filename from a temp fh for use externally
 sub get_tmp_extfn ($) {
 	exists $_[0] or script_error 'get_tmp_extfn requires an argument.';
-	my $fh = clear_coe_bit shift;
+	my $fh = shift;
+	fcntl ($fh, F_SETFD, 0) or die "Can't unset exec-on-close bit\n";
 	return '/dev/fd/'. fileno $fh;
-}
-
-# return a filename from a temp fh for use internally
-sub get_tmp_perlfn ($) {
-	exists $_[0] or script_error 'get_tmp_perlfn requires an argument.';
-	my $fh = clear_coe_bit shift;
-	return '+<=&'. fileno $fh;
 }
 
 # prep and run .SlackBuild
@@ -557,7 +549,7 @@ sub perform_sbo (%) {
 	my $location = $args{LOCATION};
 	my $sbo = get_sbo_from_loc $location;
 	my ($cmd, %changes);
-	# figure out any changes we need to make to the .SlackBuild
+	# set any changes we need to make to the .SlackBuild, setup the command
 	$changes{make} = "-j $args{JOBS}" if $args{JOBS};
 	if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
 		if ($args{C32}) {
@@ -574,7 +566,7 @@ sub perform_sbo (%) {
 	rewrite_slackbuild "$location/$sbo.SlackBuild", $fn, %changes;
 	chdir $location, my $out = system $cmd;
 	revert_slackbuild "$location/$sbo.SlackBuild";
-	die unless $out == 0;
+	die "$sbo.SlackBuild returned non-zero ext status\n" unless $out == 0;
 	my $pkg = get_pkg_name $tempfh;
 	my $src = get_src_dir $tempfh;
 	return $pkg, $src;
@@ -587,7 +579,8 @@ sub do_convertpkg ($) {
 	my $tempfh = tempfile (DIR => $tempdir);
 	my $fn = get_tmp_extfn $tempfh;
 	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $fn";
-	system ($cmd) == 0 or die;
+	system ($cmd) == 0 or
+		die "convertpkg-compt32 returned non-zero exit status\n";
 	unlink $pkg;
 	return get_pkg_name $tempfh;
 }
@@ -645,7 +638,7 @@ sub do_slackbuild (%) {
 
 # remove work directories (source and packaging dirs under /tmp/SBo)
 sub make_clean ($$$) {
-	exists $_[1] or script_error 'make_clean requires two arguments.';
+	exists $_[2] or script_error 'make_clean requires three arguments.';
 	my ($sbo, $src, $version) = @_;
 	say "Cleaning for $sbo-$version...";
 	my $tmpsbo = "/tmp/SBo";
@@ -667,8 +660,8 @@ sub make_distclean (%) {
 	}
 	my $sbo = get_sbo_from_loc $args{LOCATION};
 	make_clean $sbo, $args{SRC}, $args{VERSION};
-	say "Distcleaning for $sbo-$version...";
-	# remove any distfiles for this particular SBo
+	say "Distcleaning for $sbo-$args{VERSION}...";
+	# remove any distfiles for this particular SBo.
 	my %downloads = get_sbo_downloads (LOCATION => $args{LOCATION});
 	for my $key (keys %downloads) {
 		my $filename = get_filename_from_link $key;

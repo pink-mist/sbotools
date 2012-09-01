@@ -10,15 +10,11 @@
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;
+use strict;
+use warnings FATAL => 'all';
 use SBO::Lib;
-use File::Basename;
 use Getopt::Std;
 use Text::Tabulate;
-use warnings FATAL => 'all';
-use strict;
-
-my %config = %SBO::Lib::config;
-my $self = basename ($0);
 
 my %options;
 getopts ('v',\%options);
@@ -27,24 +23,35 @@ show_version && exit 0 if exists $options{v};
 
 update_tree;
 
-say "Checking for updated SlackBuilds...";
-my $updates = get_available_updates;
-
-# pretty formatting.
-my @listing;
-for my $up (@$updates) {
-	my $string = "$$up{name}-$$up{installed}";
-	$string .= "        <   needs updating (SBo has $$up{update})\n";
-	push @listing, $string;
+# retrieve and format list of available updates
+sub get_update_list () {
+	print "Checking for updated SlackBuilds...\n";
+	my $updates = get_available_updates; 
+	# pretty formatting.
+	my @listing;
+	for my $update (@$updates) {
+		my $string = "$$update{name}-$$update{installed}";
+		$string .= "        <   needs updating (SBo has $$update{update})\n";
+		push @listing, $string;
+	}
+	return \@listing;
 }
 
-if (exists $listing[0]) {
-	my $tab = new Text::Tabulate ();
-	$tab->configure (tab => '\s');
-	my $output = $tab->format (@listing);
-	say "\n". $output;
-} else {
-	say "\nNo updates available.";
+# Text::Tabulate and print list of updates
+sub print_output ($) {
+	exists $_[0] or script_error 'print_output requires an argument';
+	my $listing = shift;
+	if (exists $$listing[0]) {
+		my $tab = new Text::Tabulate ();
+		$tab->configure (tab => '\s');
+		my $output = $tab->format (@$listing);
+		say "\n". $output;
+	} else {
+		say "\nNo updates available.";
+	}
 }
+
+my $output = get_update_list;
+print_output $output;
 
 exit 0;

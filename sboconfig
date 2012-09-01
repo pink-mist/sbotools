@@ -19,7 +19,6 @@ use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
 
-my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
 sub show_usage () {
@@ -80,48 +79,50 @@ if (exists $changes{JOBS}) {
 		($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE');
 }
 
-my $conf_dir = $SBO::Lib::conf_dir;;
-my $conf_file = $SBO::Lib::conf_file;
-
-# safely modify our conf file; copy to a temp location, edit the temp file,
-# move the edited file into place
+# safely modify our conf file; write its contents to a temp file, modify the
+# temp file, write the contents of the temp file back to the conf file
 sub config_write ($$) {
 	exists $_[1] or script_error 'config_write requires two arguments.';
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
-		mkdir ($conf_dir) or die "Unable to create $conf_dir. Exiting.\n";
+		mkdir $conf_dir or die "Unable to create $conf_dir. Exiting.\n";
 	}
 	if (-f $conf_file) {
-		my $tempfh = tempfile (DIR => $SBO::Lib::tempdir);
-		my $tempfn = get_tmp_perlfn $tempfh;
-		copy ($conf_file, $tempfn);
-		# tie the file so that if $key is already there, we just change that
-		# line and untie it
-		tie my @temp, 'Tie::File', $tempfn;
-		my $has = 0;
+		my $tempfh = tempfile (DIR => $tempdir);
+		my $conffh = open_read $conf_file;
+		my $conftents = do {local $/; <$conffh>};
+		print {$tempfh} $conftents;
+		# tie the temp file so that if $key is already there, we just change 
+		# that line and untie it
+		tie my @temp, 'Tie::File', $tempfh;
+		my $has;
 		my $regex = qr/\A\Q$key\E=/;
 		FIRST: for my $tmpline (@temp) {
 			$has++, $tmpline = "$key=$val", last FIRST if $tmpline =~ $regex;
 		}
 		untie @temp;
 		# otherwise, append our new $key=$value pair
-		unless ($has) {
-			my $fh = open_fh ($tempfn, '>>');
-			print {$fh} "$key=$val\n";
-			close $fh;
-		}
-		move ($tempfn, $conf_file);
+		print {$tempfh} "$key=$val\n" unless $has;
+		# then over write the conf file with the contents of the temp file
+		seek $tempfh, 0, 0;
+		my $contents = do {local $/; <$tempfh>};
+		close $conffh;
+		eval { $conffh = open_fh $conf_file, '>' };
+		warn "Cannot write configuration: $@\n" and return if $@;
+		print {$conffh} $contents or return;
+		close $conffh, close $tempfh;
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh $conf_file, '>';
+		my $fh = open_fh $conf_file, '>' or return;
 		print {$fh} "$key=$val\n";
 		close $fh;
 	}
+	return 1;
 }
 
 while (my ($key, $value) = each %changes) {
 	say "Setting $key to $value...";
-	config_write $key, $value;
+	config_write $key, $value or warn "Unable to write to $conf_file\n";
 }
 
 exit 0;

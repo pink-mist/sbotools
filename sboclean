@@ -10,14 +10,13 @@
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;
+use strict;
+use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
 use Getopt::Std;
 use File::Path qw(remove_tree);
-use strict;
-use warnings FATAL => 'all';
 
-my %config = %SBO::Lib::config;
 my $self = basename ($0);
 
 sub show_usage () {
@@ -64,7 +63,7 @@ sub remove_stuff ($) {
 	}
 }
 
-remove_stuff ($config{SBO_HOME} . '/distfiles') if $clean_dist;
-remove_stuff ('/tmp/SBo') if $clean_work;
+remove_stuff $config{SBO_HOME} . '/distfiles' if $clean_dist;
+remove_stuff '/tmp/SBo' if $clean_work;
 
 exit 0;
