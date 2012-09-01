@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use 5.16.0;
+use 5.12.3;
 use strict;
 use warnings FATAL => 'all';
 use File::Copy;
