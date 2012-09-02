@@ -48,8 +48,8 @@ use Sort::Versions;
 use Digest::MD5;
 use File::Copy;
 use File::Path qw(make_path remove_tree);
-use Fcntl;
 use File::Temp qw(tempdir tempfile);
+use File::Find;
 use Fcntl qw(F_SETFD F_GETFD);
 
 our $tempdir = tempdir (CLEANUP => 1);
@@ -155,6 +155,11 @@ sub rsync_sbo_tree () {
 	my @arg = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
 	push @arg, "rsync://slackbuilds.org/slackbuilds/$slk_version/*";
 	my $out = system @arg, $config{SBO_HOME};
+	my $wanted = sub {
+		$File::Find::name ? chown 0, 0, $File::Find::name
+						  : chown 0, 0, $File::Find::dir;
+	);
+	find ($wanted, $config{SBO_HOME});
 	say 'Finished.' and return $out;
 }
 
