@@ -74,9 +74,23 @@ my %changes;
 while (my ($key, $value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
 }
+
+my $die = "You have provided an invalid parameter for";
+
+if (exists $changes{NOCLEAN}) {
+	die "$die -c\n" unless $changes{NOCLEAN} =~ /^(TRUE|FALSE)$/;
+}
+if (exists $changes{DISTCLEAN}) {
+	die "$die -d\n" unless $changes{DISTCLEAN} =~ /^(TRUE|FALSE)$/;
+}
 if (exists $changes{JOBS}) {
-	die "You have provided an invalid parameter for -j\n" unless
-		($changes{JOBS} =~ /^\d+$/ || $changes{JOBS} eq 'FALSE');
+	die "$die -j\n" unless $changes{JOBS} =~ /^(\d+|FALSE)$/;
+}
+if (exists $changes{PKG_DIR}) {
+	die "$die -p\n" unless $changes{PKG_DIR} =~ qr#^(/|FALSE$)#;
+}
+if (exists $changes{SBO_HOME}) {
+	die "$die -s\n" unless $changes{SBO_HOME} =~ qr#^/#;
 }
 
 # safely modify our conf file; write its contents to a temp file, modify the
