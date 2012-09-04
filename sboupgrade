@@ -34,6 +34,7 @@ Options:
   -N: install any new SBo's listed.
   -r: skip viewing of the SBo README.
   -R: view the README but do not attempt to parse requirements.
+  -w: when used with -f, will force rebuilding an SBo's requirements as well.
 
 Example:
   $self -d libsexy
@@ -43,7 +44,7 @@ EOF
 }
 
 my %options;
-getopts ('hvacdfj:NriopR', \%options);
+getopts ('hvacdfj:NriopRw', \%options);
 
 show_usage && exit 0 if exists $options{h};
 show_version && exit 0 if exists $options{v};
@@ -56,6 +57,7 @@ my $no_install = exists $options{i} ? 1 : 0;
 my $only_new = exists $options{o} ? 1 : 0;
 my $compat32 = exists $options{p} ? 1 : 0;
 my $no_reqs = exists $options{R} ? 1 : 0;
+my $force_reqs = exists $options{w} ? 1 : 0;
 
 if (exists $options{j}) {
 	die "You have provided an invalid parameter for -j\n" unless
@@ -135,6 +137,20 @@ sub get_requires ($$) {
 	return \@deps;
 }
 
+# remove any installed requirements from req list
+sub clean_reqs ($) {
+	exists $_[0] or script_error 'clean_reqs requires an argument.';
+	my $reqs = shift;
+	my $inst = get_installed_sbos;
+	my $inst_names = get_inst_names $inst;
+	my @new_reqs;
+	for my $req (@$reqs) {
+		$req = $compat32 ? "$req-compat32" : $req;
+		push @new_reqs, $req unless $req ~~ @$inst_names;
+	}
+	return \@new_reqs;
+}
+
 # ask to install any requirements found
 sub ask_requires (%) {
 	my %args = (
@@ -146,18 +162,18 @@ sub ask_requires (%) {
 	unless ($args{REQUIRES} && $args{README} && $args{SBO}) {
 		script_error 'ask_requires requires three arguments.';
 	}
-	FIRST: for my $req (@{$args{REQUIRES}}) {
+	my $reqs = $args{REQUIRES};
+	$reqs = clean_reqs $reqs unless ($force && $force_reqs);
+	FIRST: for my $req (@$reqs) {
 		my $name = $compat32 ? "$req-compat32" : $req;
-		my $inst = get_installed_sbos;
-		my $inst_names = get_inst_names $inst;
-		next FIRST if $name ~~ @$inst_names;
 		say $args{README};
 		print "\nIt looks like $args{SBO} requires $name; shall I";
 		print " attempt to install it first? [y] ";
 		if (<STDIN> =~ /^[Yy\n]/) {
-			my @cmd_args = ('/usr/sbin/sboupgrade', '-oN');
+			my @cmd_args = ('/usr/sbin/sboupgrade');
+			push @cmd_args, $force_reqs ? '-N' : '-oN';
 			# populate args so that they carry over correctly
-			for my $arg (qw(c d p)) {
+			for my $arg (qw(c d p f)) {
 				push @cmd_args, "-$arg" if exists $options{$arg};
 			}
 			push @cmd_args, "-j $options{j}" if exists $options{j};
