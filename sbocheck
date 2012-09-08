@@ -13,13 +13,13 @@ use 5.12.3;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
-use Getopt::Std;
+use Getopt::Long qw(:config bundling);
 use Text::Tabulate;
 
-my %options;
-getopts ('v',\%options);
+my $vers;
+GetOptions ('version|v'	=> \$vers);
 
-show_version && exit 0 if exists $options{v};
+show_version && exit 0 if $vers;
 
 update_tree;
 
