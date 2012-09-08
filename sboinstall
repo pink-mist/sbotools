@@ -13,7 +13,7 @@ use 5.12.3;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
-use Getopt::Std;
+use Getopt::Long qw(:config bundling);
 use File::Basename;
 
 my $self = basename ($0);
@@ -36,25 +36,36 @@ Options:
 EOF
 }
 
-my %options;
-getopts ('hvcdripj:R', \%options);
+my $clean = $config{NOCLEAN} eq 'TRUE' ? 1 : 0;                                 
+my $distclean = $config{DISTCLEAN} eq 'TRUE' ? 1 : 0;                           
+my $jobs = $config{JOBS};
+my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32);
 
-show_usage and exit 0 if exists $options{h};
-show_version and exit 0 if exists $options{v};
+GetOptions (
+	'help|h'			=> \$help,
+	'version|v'			=> \$vers,
+	'clean|c!'			=> \$clean,
+	'distclean|d!'		=> \$distclean,
+	'noinstall|n'		=> \$no_install,
+	'nointeractive|i'	=> \$non_int,
+	'norequirements|R'	=> \$no_reqs,
+	'compat32|p'		=> \$compat32,
+	'jobs|j=s'			=> \$jobs,
+);
+
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
 
 show_usage and exit 0 unless exists $ARGV[0];
 
-# setup any options which do not require arguments
-my @opts1 = ('c', 'd', 'r', 'i', 'p', 'R');
-for my $opt (@opts1) {
-	unshift @ARGV, "-$opt" if exists $options{$opt};
-}
-
-# setup any options which do require arguments
-my @opts2 = ('j');
-for my $opt (@opts2) {
-	unshift @ARGV, "-$opt $options{$opt}" if exists $options{$opt};
-}
+# setup any options
+unshift @ARGV, $clean ? '-c' : '--noclean';
+unshift @ARGV, $distclean ? '-d' : '--distclean';
+unshift @ARGV, '-n' if $no_install;
+unshift @ARGV, '-i' if $non_int;
+unshift @ARGV, '-R' if $no_reqs;
+unshift @ARGV, '-p' if $compat32;
+unshift @ARGV, "-j $jobs" if $jobs;
 
 system '/usr/sbin/sboupgrade', '-oN', @ARGV;
 
