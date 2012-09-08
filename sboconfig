@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Std;
+use Getopt::Long;
 use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
@@ -45,34 +45,45 @@ Config options (defaults shown):
 EOF
 }
 
-my %options;
-getopts ('hvlc:d:p:s:j:', \%options);
+my ($help, $vers, $list);
+my %settings;
 
-show_usage and exit 0 if exists $options{h};
-show_version and exit 0 if exists $options{v};
+GetOptions (
+	'help|h'		=> \$help,
+	'version|v'		=> \$version,
+	'list|l'		=> \$list,
+	\%settings		=> 'noclean|c=s',
+	\%settings		=> 'distclean|d=s',
+	\%settings		=> 'jobs|j=s',
+	\%settings		=> 'pkg-dir|p=s',
+	\%settings		=> 'sbo-home|s=s',
+);
+
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
 
 my %valid_confs = (
-	c => 'NOCLEAN',
-	d => 'DISTCLEAN',
-	j => 'JOBS',
-	p => 'PKG_DIR',
-	s => 'SBO_HOME',
+	noclean		=> 'NOCLEAN',
+	distclean	=> 'DISTCLEAN',
+	jobs		=> 'JOBS',
+	'pkg-dir'	=> 'PKG_DIR',
+	'sbo-home'	=> 'SBO_HOME',
 );
 
 my %params = reverse %valid_confs;
 
-if (exists $options{l}) {
+if ($list) {
 	my @keys = sort {$a cmp $b} keys %config;
 	say "sboconfig -$params{$_}:\n    $_=$config{$_}" for @keys;
 	exit 0;
 }
 
-show_usage and exit 0 unless %options;
+show_usage and exit 0 unless %settings;
 	
 # setup what's being changed, sanity check.
 my %changes;
 while (my ($key, $value) = each %valid_confs) {
-	$changes{$value} = $options{$key} if exists $options{$key};
+	$changes{$value} = $settings{$key} if exists $settings{$key};
 }
 
 my $die = "You have provided an invalid parameter for";
