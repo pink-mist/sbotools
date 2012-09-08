@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Std;
+use Getopt::Long qw(:config bundling);
 
 my $self = basename ($0);
 
@@ -34,14 +34,17 @@ Example:
 EOF
 }
 
-my %options;
-getopts ('hvir', \%options);
+my ($help, $vers, $show_info, $show_readme);
 
-show_usage and exit 0 if exists $options{h};
-show_version and exit 0 if exists $options{v};
+GetOptions (
+	'help|h'	=> \$help,
+	'version|v'	=> \$vers,
+	'info|i'	=> \$show_info,
+	'readme|r'	=> \$show_readme,
+);
 
-my $show_readme = exists $options{r} ? 1 : 0;
-my $show_info = exists $options{i} ? 1 : 0;
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
 
 show_usage and exit 1 unless exists $ARGV[0];
 my $search = $ARGV[0];
