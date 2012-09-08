@@ -36,7 +36,7 @@ If TRUE, then DO remove the source code after building the slackbuild. By defaul
 Force an upgrade, even if the installed version is equal to or less than the slackbuilds.org version.
 .RE
 .P
--i
+-n
 .RS
 Do not actually install the package created at the end of the build process. So, the slackbuild will be run, and the package will be left in /tmp, or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
 .RE
@@ -50,7 +50,7 @@ If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to m
 Install any new slackbuilds specified. So, if you want to upgrade some things and install new things with the same command, then you would use the -N flag. Note that upgrades are handled prior to new installs.
 .RE
 .P
--r
+-i
 .RS
 Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade is run, the first thing the command will attempt to do is show you the README for a given slackbuild and ask whether or not you wish to proceed; this option skips the README and bypasses the question. If multiple slackbuilds are specified, this option bypasses them all.
 .RE
@@ -60,7 +60,7 @@ Skip viewing of the README and the yes or no question which accompanies it. Anyt
 This option causes sboupgrade to skip requirement parsing, but still show the README and prompt the user to proceed.
 .RE
 .P
--w
+-r
 .RS
 When used in combination with the -f option, to force a slackbuild even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements that it can grok. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt.
 .RE
