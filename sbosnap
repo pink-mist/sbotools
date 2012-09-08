@@ -15,7 +15,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Std;
+use Getopt::Long;
 
 my $sbo_home = $config{SBO_HOME};
 my $self = basename ($0);
@@ -38,11 +38,12 @@ EOF
 
 show_usage and exit 1 unless exists $ARGV[0];
 
-my %options;
-getopts ('hv', \%options);
+my ($help, $vers);
 
-show_usage and exit 0 if exists $options{h};
-show_version and exit 0 if exists $options{v};
+GetOptions ('help|h' => \$help, 'version|v' => \$version);
+
+show_usage and exit 0 if $help;
+show_version and exit 0 if $version;
 
 # check for a command and, if found, execute it
 my $command;
