@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Std;
+use Getopt::Long qw(:config bundling);
 use File::Copy;
 
 my $self = basename ($0);
@@ -29,41 +29,48 @@ Options:
   -c: do not clean working files/directories after the build.
   -d: clean distfiles afterward.
   -f: force an update, even if the "upgrade" version is the same or lower.
-  -i: do not run installpkg at the end of the build process.
+  -n: do not run installpkg at the end of the build process.
   -j: specify "-j" setting to make, for multicore systems; overrides conf file.
   -N: install any new SBo's listed.
-  -r: skip viewing of the SBo README.
+  -i: skip viewing of the SBo README.
   -R: view the README but do not attempt to parse requirements.
-  -w: when used with -f, will force rebuilding an SBo's requirements as well.
+  -r: when used with -f, will force rebuilding an SBo's requirements as well.
 
 Example:
   $self -d libsexy
-  $self -ca
 
 EOF
 }
 
-my %options;
-getopts ('hvacdfj:NriopRw', \%options);
+my $clean = $config{NOCLEAN} eq 'TRUE' ? 1 : 0;
+my $distclean = $config{DISTCLEAN} eq 'TRUE' ? 1 : 0;
+my $jobs = $config{JOBS};
+my ($help, $vers, $force, $no_install, $install_new, $non_int, $no_reqs,
+	$force_reqs, $only_new, $compat32);
 
-show_usage && exit 0 if exists $options{h};
-show_version && exit 0 if exists $options{v};
-my $noclean = exists $options{c} ? 'TRUE' : $config{NOCLEAN};
-my $distclean = exists $options{d} ? 'TRUE' : $config{DISTCLEAN};
-my $force = exists $options{f} ? 1 : 0;
-my $install_new = exists $options{N} ? 1 : 0;
-my $no_readme = exists $options{r} ? 1 : 0;
-my $no_install = exists $options{i} ? 1 : 0;
-my $only_new = exists $options{o} ? 1 : 0;
-my $compat32 = exists $options{p} ? 1 : 0;
-my $no_reqs = exists $options{R} ? 1 : 0;
-my $force_reqs = exists $options{w} ? 1 : 0;
+GetOptions (
+	'help|h'			=> \$help,
+	'version|v'			=> \$vers,
+	'clean|c!'			=> \$clean,
+	'distclean|d!'		=> \$distclean,
+	'force|f'			=> \$force,
+	'noinstall|n'		=> \$no_install,
+	'installnew|N'		=> \$install_new,
+	'nointeractive|i'	=> \$non_int,
+	'norequirements|R'	=> \$no_reqs,
+	'force-reqs|r'		=> \$force_reqs,
+	'only-new|o'		=> \$only_new,
+	'compat32|p'		=> \$compat32,
+	'jobs|j=s'			=> \$jobs,
+);
 
-if (exists $options{j}) {
+show_usage && exit 0 if $help;
+show_version && exit 0 if $vers;
+
+if ($jobs) {
 	die "You have provided an invalid parameter for -j\n" unless
-		($options{j} =~ /^\d+$/ || $options{j} eq 'FALSE');
+		($jobs =~ /^\d+$/ || $jobs eq 'FALSE');
 }
-my $jobs = exists $options{j} ? $options{j} : $config{JOBS};
 $jobs = 0 if $jobs eq 'FALSE';
 
 show_usage and exit 1 unless exists $ARGV[0];
@@ -168,15 +175,17 @@ sub ask_requires (%) {
 		my $name = $compat32 ? "$req-compat32" : $req;
 		say $args{README};
 		print "\nIt looks like $args{SBO} requires $name; shall I";
-		print " attempt to install it first? [y] ";
+		print ' attempt to install it first? [y] ';
 		if (<STDIN> =~ /^[Yy\n]/) {
 			my @cmd_args = ('/usr/sbin/sboupgrade');
 			push @cmd_args, $force_reqs ? '-N' : '-oN';
 			# populate args so that they carry over correctly
-			for my $arg (qw(c d p f)) {
-				push @cmd_args, "-$arg" if exists $options{$arg};
-			}
-			push @cmd_args, "-j $options{j}" if exists $options{j};
+			push @cmd_args, $clean ? '-c' : '--noclean';
+			push @cmd_args, $distclean ? '-d' : '--nodistclean';
+			push @cmd_args, '-p' if $compat32;
+			push @cmd_args, '-f' if $force;
+			push @cmd_args, '-r' if $force_reqs;
+			push @cmd_args, "-j $jobs" if $jobs;
 			system (@cmd_args, $req) == 0 or die "$name failed to install.\n";
 		}
 	}
@@ -211,7 +220,7 @@ sub ask_user_group ($$) {
 sub get_opts ($) {
 	exists $_[0] or script_error 'get_opts requires an argument';
 	my $readme = shift;
-	return $readme =~ /[A-Z]+=[^\s]/ ? 1 : undef;
+	return $readme =~ /[A-Z0-9]+=[^\s]/ ? 1 : undef;
 }
 
 # provide an opportunity to set options
@@ -225,11 +234,12 @@ sub ask_opts ($) {
 		my $ask = sub () {
 			print "\nPlease supply any options here, or enter to skip: ";
 			chomp (my $opts = <STDIN>);
-			return if $opts =~ /^$/;
+			return if $opts =~ /^\n/;
 			return $opts;
 		};
-		my $kv_regex = qr/[A-Z]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
+		my $kv_regex = qr/[A-Z0-9]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
 		my $opts = &$ask; 
+		return unless $opts;
 		FIRST: while ($opts !~ $kv_regex) {
 			warn "Invalid input received.\n";
 			$opts = &$ask; 
@@ -271,7 +281,7 @@ sub process_sbos ($) {
 	my %failures;
 	FIRST: for my $sbo (@$todo) {
 		my $opts = 0;
-		$opts = readme_prompt $sbo unless $no_readme;
+		$opts = readme_prompt $sbo unless $non_int;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 1 if $sbo =~ /-compat32$/;
 		my ($version, $pkg, $src);
@@ -285,9 +295,9 @@ sub process_sbos ($) {
 			$failures{$sbo} = $@;
 		} else {
 			do_upgradepkg $pkg unless $no_install;
-			unless ($distclean eq 'TRUE') {
+			unless ($distclean) {
 				make_clean (SBO => $sbo, SRC => $src, VERSION => $version)
-					unless $noclean eq 'TRUE';
+					unless $clean;
 			} else {
 				make_distclean (
 					SBO			=> $sbo,
@@ -307,7 +317,7 @@ sub process_sbos ($) {
 				} else {
 					warn "$pkg left in /tmp\n";
 				}
-			} elsif ($distclean eq 'TRUE') {
+			} elsif ($distclean) {
 				unlink $pkg;
 			}
 		}
@@ -370,10 +380,9 @@ FIRST: for my $sbo (@ARGV) {
 			if (<STDIN> =~ /^[Yy\n]/) {
 				my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
 				# populate args so that they carry over correctly
-				for my $arg (qw(c d)) {
-					push @args, "-$arg" if exists $options{$arg};
-				}
-				push @args, "-j $options{j}" if exists $options{j};
+				push @args, $clean ? '-c' : '--noclean';
+				push @args, $distclean ? '-d' : '--nodistclean';
+				push @args, "-j $jobs" if $jobs;
 				system (@args, $sbo) == 0 or die "$sbo failed to install.\n";
 			} else {
 				warn "Please install $sbo\n" and exit 0;
