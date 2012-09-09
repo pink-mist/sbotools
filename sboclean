@@ -24,11 +24,16 @@ sub show_usage () {
 Usage: $self (options) [package]
 
 Options:
-  -h: this screen.
-  -v: version information.
-  -d: clean distfiles.
-  -w: clean working directories.
-  -i: be interactive.
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+  -d|--clean-dist:
+    clean distfiles.
+  -w|--clean-work:
+    clean working directories.
+  -i|--interactive:
+    be interactive.
 
 EOF
 }
