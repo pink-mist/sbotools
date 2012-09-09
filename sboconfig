@@ -30,16 +30,16 @@ Options:
   -v: version information.
   -l: show current options.
 
-Config options (defaults shown):
-  -c FALSE:
+Config options:
+  -c|--clean FALSE:
       NOCLEAN: if TRUE, do NOT clean up after building by default.
-  -d FALSE:
+  -d|--distclean FALSE:
       DISTCLEAN: if TRUE, DO clean distfiles by default after building.
-  -j FALSE:
+  -j|--jobs FALSE:
       JOBS: numeric -j setting to feed to make for multicore systems.
-  -p FALSE:
+  -p|--pkg-dir FALSE:
       PKG_DIR: set a directory to store packages in. 
-  -s /usr/sbo:
+  -s|--sbo-home /usr/sbo:
       SBO_HOME: set the SBo directory.
 
 EOF
