@@ -61,7 +61,13 @@ my %valid_confs = (
 	'sbo-home'	=> 'SBO_HOME',
 );
 
-my %params = reverse %valid_confs;
+my %params = (
+	NOCLEAN		=> 'c|--noclean',
+	DISTCLEAN	=> 'd|--distclean',
+	JOBS		=> 'j|--jobs',
+	PKG_DIR		=> 'p|--pkg-dir',
+	SBO_HOME	=> 's|--sbo-home',
+);
 
 if (exists $options{list}) {
 	my @keys = sort {$a cmp $b} keys %config;
