@@ -120,10 +120,12 @@ sub get_requires ($$) {
 		s/$/./;
 		# yet another nasty hack. yanh!
 		s/[Oo]ptional/./g;
+		# yanh.
+		s/not\s+require//g;
 		s/\n\n/./g;
 		s/\n//g;
 	}
-	return unless my $string = 
+	return unless my $string =
 		($readme =~ /([Tt]his|\Q$sbo\E|)\s*[Rr]equire(s|)(|:)\s+([^\.]+)/)[3];
 	for ($string) {
 		# remove anything in brackets or parens
@@ -177,7 +179,7 @@ sub ask_requires (%) {
 	FIRST: for my $req (@$reqs) {
 		my $name = $compat32 ? "$req-compat32" : $req;
 		say $args{README};
-		print "\nIt looks like $args{SBO} requires $name; shall I";
+		print "It looks like $args{SBO} requires $name; shall I";
 		print ' attempt to install it first? [y] ';
 		if (<STDIN> =~ /^[Yy\n]/) {
 			my @cmd_args = ('/usr/sbin/sboupgrade');
@@ -351,15 +353,32 @@ unless ($force) {
 }
 my $todo_upgrade;
 # but without force, we only want to update what there are updates for
+my @remove;
 unless ($force) {
-	for my $sbo (@ARGV) {
-		push @$todo_upgrade, $sbo if $sbo ~~ @updates;
+	for my $key (keys @ARGV) {
+		if ($ARGV[$key] ~~ @updates) {
+			push @$todo_upgrade, $ARGV[$key];
+			push @remove, $key;
+		}
+	}
+	# don't pass upgradable stuff to the install code
+	for my $rem (@remove) {
+		splice @ARGV, $rem, 1;
+		$_-- for @remove;
 	}
 } else {
 	my $inst = get_installed_sbos;
 	my $inst_names = get_inst_names $inst;
-	FIRST: for my $sbo (@ARGV) {
-		push @$todo_upgrade, $sbo if $sbo ~~ @$inst_names;
+	for my $key (keys @ARGV) {
+		if ($ARGV[$key] ~~ @$inst_names) {
+			push @$todo_upgrade, $ARGV[$key];
+			push @remove, $key;
+		}
+	}
+	# don't pass upgradable stuff to the install code
+	for my $rem (@remove) {
+		splice @ARGV, $rem, 1;
+		$_-- for @remove;
 	}
 }
 my %failures = process_sbos $todo_upgrade if exists $$todo_upgrade[0];
