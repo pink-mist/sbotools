@@ -45,22 +45,13 @@ Config options (defaults shown):
 EOF
 }
 
-my ($help, $vers, $list);
-my %settings;
+my %options;
 
-GetOptions (
-	'help|h'		=> \$help,
-	'version|v'		=> \$vers,
-	'list|l'		=> \$list,
-	\%settings		=> 'noclean|c=s',
-	\%settings		=> 'distclean|d=s',
-	\%settings		=> 'jobs|j=s',
-	\%settings		=> 'pkg-dir|p=s',
-	\%settings		=> 'sbo-home|s=s',
-);
+GetOptions (\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
+	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s');
 
-show_usage and exit 0 if $help;
-show_version and exit 0 if $vers;
+show_usage and exit 0 if exists $options{help};
+show_version and exit 0 if exists $options{version};
 
 my %valid_confs = (
 	noclean		=> 'NOCLEAN',
@@ -78,7 +69,7 @@ if ($list) {
 	exit 0;
 }
 
-show_usage and exit 0 unless %settings;
+show_usage and exit 0 unless keys %options > 0;
 	
 # setup what's being changed, sanity check.
 my %changes;
