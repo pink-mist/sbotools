@@ -23,20 +23,20 @@ sub show_usage () {
 	print <<EOF
 Usage: $self (options) [package]
 
-Options:
+Options (defaults shown first where applicable):
   -h|--help:
     this screen.
   -v|--version:
     version information.
-  -c|--(no)clean:
+  -c|--noclean (FALSE|TRUE):
     set whether or not to clean working directories after building.
-  -d|--(no)distclean:
+  -d|--distclean (TRUE|FALSE):
     set whether or not to clean distfiles afterward.
   -f|--force:
     force an update, even if the "upgrade" version is the same or lower.
   -i|--noinstall:
     do not run installpkg at the end of the build process.
-  -j|--jobs:
+  -j|--jobs (FALSE|#):
     specify "-j" setting to make, for multicore systems; overrides conf file.
   -N|--installnew:
     install any new SBo's listed.
@@ -53,8 +53,8 @@ Example:
 EOF
 }
 
-my $clean = $config{NOCLEAN} eq 'TRUE' ? 1 : 0;
-my $distclean = $config{DISTCLEAN} eq 'TRUE' ? 1 : 0;
+my $noclean = $config{NOCLEAN};
+my $distclean = $config{DISTCLEAN};
 my $jobs = $config{JOBS};
 my ($help, $vers, $force, $no_install, $install_new, $non_int, $no_reqs,
 	$force_reqs, $only_new, $compat32);
@@ -62,8 +62,8 @@ my ($help, $vers, $force, $no_install, $install_new, $non_int, $no_reqs,
 GetOptions (
 	'help|h'			=> \$help,
 	'version|v'			=> \$vers,
-	'clean|c!'			=> \$clean,
-	'distclean|d!'		=> \$distclean,
+	'noclean|c=s'		=> \$noclean,
+	'distclean|d=s'		=> \$distclean,
 	'force|f'			=> \$force,
 	'noinstall|i'		=> \$no_install,
 	'jobs|j=s'			=> \$jobs,
@@ -77,6 +77,9 @@ GetOptions (
 
 show_usage && exit 0 if $help;
 show_version && exit 0 if $vers;
+
+$noclean = $noclean eq 'TRUE' ? 1 : 0;
+$distclean = $distclean eq 'TRUE' ? 1 : 0;
 
 if ($jobs) {
 	die "You have provided an invalid parameter for -j\n" unless
@@ -196,8 +199,8 @@ sub ask_requires (%) {
 			my @cmd_args = ('/usr/sbin/sboupgrade');
 			push @cmd_args, $force_reqs ? '-N' : '-oN';
 			# populate args so that they carry over correctly
-			push @cmd_args, $clean ? '-c' : '--noclean';
-			push @cmd_args, $distclean ? '-d' : '--nodistclean';
+			push @cmd_args, $noclean ? '-cTRUE' : '-cFALSE';
+			push @cmd_args, $distclean ? '-dTRUE' : '-dFALSE';
 			push @cmd_args, '-p' if $compat32;
 			push @cmd_args, '-f' if $force;
 			push @cmd_args, '-r' if $force_reqs;
@@ -313,7 +316,7 @@ sub process_sbos ($) {
 			do_upgradepkg $pkg unless $no_install;
 			unless ($distclean) {
 				make_clean (SBO => $sbo, SRC => $src, VERSION => $version)
-					unless $clean;
+					unless $noclean;
 			} else {
 				make_distclean (
 					SBO			=> $sbo,
@@ -413,8 +416,8 @@ FIRST: for my $sbo (@ARGV) {
 			if (<STDIN> =~ /^[Yy\n]/) {
 				my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
 				# populate args so that they carry over correctly
-				push @args, $clean ? '-c' : '--noclean';
-				push @args, $distclean ? '-d' : '--nodistclean';
+				push @args, $noclean ? '-cTRUE' : '-cFALSE';
+				push @args, $distclean ? '-dTRUE' : '-dFALSE';
 				push @args, "-j$jobs" if $jobs;
 				system (@args, $sbo) == 0 or die "$sbo failed to install.\n";
 			} else {
