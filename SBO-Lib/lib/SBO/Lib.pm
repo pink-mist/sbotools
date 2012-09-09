@@ -657,7 +657,7 @@ sub do_slackbuild (%) {
 
 # remove work directories (source and packaging dirs under /tmp/SBo)
 sub make_clean (%) {
-		my %args = (
+	my %args = (
 		SBO		=> '',
 		SRC		=> '',
 		VERSION	=> '',
