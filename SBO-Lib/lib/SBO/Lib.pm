@@ -666,7 +666,7 @@ sub make_clean (%) {
 	unless ($args{SBO} && $args{SRC} && $args{VERSION}) {
 		script_error 'make_clean requires three arguments.';
 	}
-	say "Cleaning for $args{SBO}-$args{VERSION}...\n";
+	say "Cleaning for $args{SBO}-$args{VERSION}...";
 	my $tmpsbo = "/tmp/SBo";
 	remove_tree ("$tmpsbo/$args{SRC}") if -d "$tmpsbo/$args{SRC}";
 	remove_tree ("$tmpsbo/package-$args{SBO}") if
@@ -686,7 +686,7 @@ sub make_distclean (%) {
 		script_error 'make_distclean requires four arguments.';
 	}
 	my $sbo = get_sbo_from_loc $args{LOCATION};
-	make_clean $sbo, $args{SRC}, $args{VERSION};
+	make_clean (SBO => $sbo, SRC => $args{SRC}, VERSION => $args{VERSION});
 	say "Distcleaning for $sbo-$args{VERSION}...";
 	# remove any distfiles for this particular SBo.
 	my %downloads = get_sbo_downloads (LOCATION => $args{LOCATION});
