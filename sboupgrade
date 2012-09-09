@@ -372,7 +372,7 @@ FIRST: for my $sbo (@ARGV) {
 	my $name = $compat32 ? "$sbo-compat32" : $sbo;
 	my $inst = get_installed_sbos;
 	my $inst_names = get_inst_names $inst;
-	warn "$name already installed\n", next FIRST if $name ~~ @$inst_names;
+	warn "$name already installed.\n" and next FIRST if $name ~~ @$inst_names;
 	# if compat32 is TRUE, we need to see if the non-compat version exists.
 	if ($compat32) {
 		my $inst = get_installed_sbos;
