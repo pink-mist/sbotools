@@ -4,7 +4,7 @@
 sboupgrade - install or upgrade slackbuilds
 .SH SYNAPSES
 .P
-sboupgrade [-h] [-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-f] [-N] [-r] [-R] [-i] [-w] sbo_name (sbo_name)
+sboupgrade [-h] [-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-f] [-N] [-r] [-R] [-i] [-z] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
 sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will attempt to grok a list of requirements in the README for a given slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. Note that this method is FAR from foolproof, which is part of the reason this does not happen if the README is bypassed. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set such options.
