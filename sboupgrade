@@ -29,12 +29,12 @@ Options:
   -c: do not clean working files/directories after the build.
   -d: clean distfiles afterward.
   -f: force an update, even if the "upgrade" version is the same or lower.
-  -n: do not run installpkg at the end of the build process.
+  -i: non-interactive; skips README and all prompts.
   -j: specify "-j" setting to make, for multicore systems; overrides conf file.
+  -n: do not run installpkg at the end of the build process.
   -N: install any new SBo's listed.
-  -i: skip viewing of the SBo README.
-  -R: view the README but do not attempt to parse requirements.
   -r: when used with -f, will force rebuilding an SBo's requirements as well.
+  -R: view the README but do not parse requirements, commands, or options.
 
 Example:
   $self -d libsexy
