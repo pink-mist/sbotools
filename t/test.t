@@ -290,16 +290,17 @@ close $fh;
 ok (! (get_opts $readme), 'get_opts good where README does not define opts');
 
 # 88-90, clean_reqs tests
+$SBO::Lib::compat32 = 0;
 $fh = open_read "$sbo_home/system/wine/README";
 $readme = do {local $/; <$fh>};
 close $fh;
-$reqs = get_requires "wine", $readme;
+$reqs = get_requires 'wine', $readme;
 $reqs = clean_reqs $reqs;
 ok (! $$reqs[0], 'clean_reqs good for already installed reqs');
 $fh = open_read "$sbo_home/games/pingus/README";
 $readme = do {local $/; <$fh>};
 close $fh;
-$reqs = get_requires "pingus", $readme;
+$reqs = get_requires 'pingus', $readme;
 $reqs = clean_reqs $reqs;
 ok ($$reqs[0] eq 'scons', 'clean_reqs good for un/installed reqs.');
 ok ($$reqs[1] eq 'physfs', 'clean_reqs good for un/installed reqs.');
