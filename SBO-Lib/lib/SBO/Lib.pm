@@ -623,7 +623,6 @@ sub do_slackbuild (%) {
 	my $x32;
 	# ensure x32 stuff is set correctly, or that we're setup for it
 	if ($args{COMPAT32}) {
-		die "compat32 only works on x86_64.\n" unless $arch eq 'x86_64';
 		die "compat32 requires multilib.\n" unless $multi;
 		die "compat32 requires /usr/sbin/convertpkg-compat32.\n"
 				unless -f '/usr/sbin/convertpkg-compat32';
