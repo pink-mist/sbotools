@@ -30,7 +30,7 @@ Options:
   -v: version information.
   -l: show current options.
 
-Config options:
+Config options (defaults shown):
   -c|--clean FALSE:
       NOCLEAN: if TRUE, do NOT clean up after building by default.
   -d|--distclean FALSE:
