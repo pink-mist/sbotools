@@ -35,6 +35,7 @@ our @EXPORT = qw(
 	get_sbo_location
 	get_from_info
 	get_tmp_extfn
+	get_arch
 	$tempdir
 	$conf_dir
 	$conf_file
