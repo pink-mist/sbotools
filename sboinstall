@@ -23,15 +23,24 @@ sub show_usage () {
 Usage: $self [options] sbo
 
 Options:
-  -h: this screen.
-  -v: version information.
-  -c: do not clean working files/directories after the build.                   
-  -d: clean distfiles afterward. 
-  -i: non-interactive; skips README and all prompts.
-  -j: specify "-j" setting to make, for multicore systems; overrides conf file.
-  -n: do not run installpkg at the end of the build process.
-  -p: install an SBo as a -compat32 pkg on a multilib x86_64 system.
-  -R: view the README but do not parse requirements, commands, or options.
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+  -c|--(no)clean:
+    set whether or not to clean working files/directories after the build.                   
+  -d|--(no)distclean:
+   set whether or not to clean distfiles afterward. 
+  -i|--noinstall:
+    do not run installpkg at the end of the build process.
+  -j|--jobs:
+    specify "-j" setting to make, for multicore systems; overrides conf file.
+  -p|--compat32:
+    install an SBo as a -compat32 pkg on a multilib x86_64 system.
+  -r|--nointeractive:
+    non-interactive; skips README and all prompts.
+  -R|--norequirements:
+    view the README but do not parse requirements, commands, or options.
 
 EOF
 }
@@ -46,11 +55,11 @@ GetOptions (
 	'version|v'			=> \$vers,
 	'clean|c!'			=> \$clean,
 	'distclean|d!'		=> \$distclean,
-	'noinstall|n'		=> \$no_install,
-	'nointeractive|i'	=> \$non_int,
-	'norequirements|R'	=> \$no_reqs,
-	'compat32|p'		=> \$compat32,
+	'noinstall|i'		=> \$no_install,
 	'jobs|j=s'			=> \$jobs,
+	'compat32|p'		=> \$compat32,
+	'nointeractive|r'	=> \$non_int,
+	'norequirements|R'	=> \$no_reqs,
 );
 
 show_usage and exit 0 if $help;
