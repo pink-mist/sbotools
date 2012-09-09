@@ -190,7 +190,7 @@ sub ask_requires (%) {
 			push @cmd_args, '-p' if $compat32;
 			push @cmd_args, '-f' if $force;
 			push @cmd_args, '-r' if $force_reqs;
-			push @cmd_args, "-j $jobs" if $jobs;
+			push @cmd_args, "-j$jobs" if $jobs;
 			system (@cmd_args, $req) == 0 or die "$name failed to install.\n";
 		}
 	}
@@ -404,7 +404,7 @@ FIRST: for my $sbo (@ARGV) {
 				# populate args so that they carry over correctly
 				push @args, $clean ? '-c' : '--noclean';
 				push @args, $distclean ? '-d' : '--nodistclean';
-				push @args, "-j $jobs" if $jobs;
+				push @args, "-j$jobs" if $jobs;
 				system (@args, $sbo) == 0 or die "$sbo failed to install.\n";
 			} else {
 				warn "Please install $sbo\n" and exit 0;
