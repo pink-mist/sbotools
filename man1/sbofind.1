@@ -10,22 +10,22 @@ sbofind [-hvir] search_term
 sbofind searches the names of all slackbuilds for a given term. It reports back any slackbuilds found along with the path for each. This is equivalent to running "cd /usr/ports; make search name=$search_term display=name,path" on a FreeBSD system. For a more general search, the slackbuilds.org site should be consulted, where tags also exist and are included in the searched fields.
 .SH OPTIONS
 .P
--h
+-h|--help
 .RS
 Show help information.
 .RE
 .P
--v
+-v|--version
 .RS
 Show sbotools version information.
 .RE
 .P
--i
+-i|--info
 .RS
 Show the contents of a the .info file for each slackbuild found.
 .RE
 .P
--r
+-r|--readme
 .RS
 Show the contents of the README file for each slackbuild found.
 .RE

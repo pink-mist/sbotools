@@ -10,6 +10,17 @@ sbosnap [-v] (fetch|update)
 sbosnap is used to download and update a local copy of the slackbuilds.org tree, minus the .tar.gz{,.asc} files. Note that sbocheck(1) will also update the tree, and will then also check for updated slackbuilds. rsync is used for both operations.
 .SH OPTIONS
 .P
+-h|--help
+.RS
+Show help information.
+.RE
+.P
+-v|--version
+.RS
+Show version information.
+.RE
+.SH COMMANDS
+.P
 fetch
 .RS
 Download a local copy of the slackbuilds.org tree. The copy will be downloaded to the SBO_HOME setting (see sboconfig(1) and sbotools.conf(5)), which, by default, is /usr/sbo
@@ -19,12 +30,6 @@ update
 .RS
 Update a previously fetch'd copy of the slackbuilds.org tree.
 .RE
-.P
--v
-.RS
-Show sbotools version information.
-.RE
-
 .SH BUGS
 .P
 None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome.
