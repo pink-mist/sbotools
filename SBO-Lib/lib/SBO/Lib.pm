@@ -208,7 +208,7 @@ sub get_installed_sbos () {
 sub get_sbo_location ($) {
 	exists $_[0] or script_error 'get_sbo_location requires an argument.';
 	my $sbo = shift;
-	my $regex = qr#LOCATION:\s+\.(/[^/]+/$sbo)$#;
+	my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
 	my $fh = open_read $slackbuilds_txt;
 	while (my $line = <$fh>) {
 		if (my $loc = ($line =~ $regex)[0]) {
