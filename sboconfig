@@ -50,7 +50,7 @@ my %settings;
 
 GetOptions (
 	'help|h'		=> \$help,
-	'version|v'		=> \$version,
+	'version|v'		=> \$vers,
 	'list|l'		=> \$list,
 	\%settings		=> 'noclean|c=s',
 	\%settings		=> 'distclean|d=s',
