@@ -27,11 +27,11 @@ Options:
   -v: version information.
   -c: do not clean working files/directories after the build.                   
   -d: clean distfiles afterward. 
-  -i: do not run installpkg at the end of the build process.
+  -i: non-interactive; skips README and all prompts.
   -j: specify "-j" setting to make, for multicore systems; overrides conf file.
+  -n: do not run installpkg at the end of the build process.
   -p: install an SBo as a -compat32 pkg on a multilib x86_64 system.
-  -r: skip viewing of the SBo README.
-  -R: view the README but do not attempt to parse requirements.
+  -R: view the README but do not parse requirements, commands, or options.
 
 EOF
 }
