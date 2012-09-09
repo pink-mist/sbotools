@@ -65,7 +65,7 @@ unshift @ARGV, '-n' if $no_install;
 unshift @ARGV, '-i' if $non_int;
 unshift @ARGV, '-R' if $no_reqs;
 unshift @ARGV, '-p' if $compat32;
-unshift @ARGV, "-j $jobs" if $jobs;
+unshift @ARGV, "-j$jobs" if $jobs;
 
 system '/usr/sbin/sboupgrade', '-oN', @ARGV;
 
