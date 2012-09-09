@@ -23,10 +23,14 @@ sub show_usage () {
 Usage: $self (search_term)
 
 Options:
-  -h: this screen.
-  -v: version information.
-  -i: show the .info for each found item.
-  -r: show the README for each found item.
+  -h|--help:
+    this screen.
+  -v|--verison:
+    version information.
+  -i|--info:
+    show the .info for each found item.
+  -r|--readme:
+    show the README for each found item.
 
 Example:
   $self libsexy 
