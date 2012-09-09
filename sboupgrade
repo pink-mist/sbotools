@@ -24,17 +24,28 @@ sub show_usage () {
 Usage: $self (options) [package]
 
 Options:
-  -h: this screen.
-  -v: version information.
-  -c: do not clean working files/directories after the build.
-  -d: clean distfiles afterward.
-  -f: force an update, even if the "upgrade" version is the same or lower.
-  -i: non-interactive; skips README and all prompts.
-  -j: specify "-j" setting to make, for multicore systems; overrides conf file.
-  -n: do not run installpkg at the end of the build process.
-  -N: install any new SBo's listed.
-  -r: when used with -f, will force rebuilding an SBo's requirements as well.
-  -R: view the README but do not parse requirements, commands, or options.
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+  -c|--(no)clean:
+    set whether or not to clean working directories after building.
+  -d|--(no)distclean:
+    set whether or not to clean distfiles afterward.
+  -f|--force:
+    force an update, even if the "upgrade" version is the same or lower.
+  -i|--noinstall:
+    do not run installpkg at the end of the build process.
+  -j|--jobs:
+    specify "-j" setting to make, for multicore systems; overrides conf file.
+  -N|--installnew:
+    install any new SBo's listed.
+  -r|--nointeractive:
+    non-interactive; skips README and all prompts.
+  -R|--norequirements:
+    view the README but do not parse requirements, commands, or options.
+  -z|--force-reqs:
+    when used with -f, will force rebuilding an SBo's requirements as well.
 
 Example:
   $self -d libsexy
@@ -54,14 +65,14 @@ GetOptions (
 	'clean|c!'			=> \$clean,
 	'distclean|d!'		=> \$distclean,
 	'force|f'			=> \$force,
-	'noinstall|n'		=> \$no_install,
+	'noinstall|i'		=> \$no_install,
+	'jobs|j=s'			=> \$jobs,
 	'installnew|N'		=> \$install_new,
-	'nointeractive|i'	=> \$non_int,
+	'nointeractive|r'	=> \$non_int,
 	'norequirements|R'	=> \$no_reqs,
-	'force-reqs|r'		=> \$force_reqs,
+	'force-reqs|z'		=> \$force_reqs,
 	'only-new|o'		=> \$only_new,
 	'compat32|p'		=> \$compat32,
-	'jobs|j=s'			=> \$jobs,
 );
 
 show_usage && exit 0 if $help;
