@@ -59,7 +59,7 @@ show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
 # setup any options
-unshift @ARGV, $clean ? '-c' : '--noclean';
+unshift @ARGV, $clean ? '--noclean' : '-c';
 unshift @ARGV, $distclean ? '-d' : '--distclean';
 unshift @ARGV, '-n' if $no_install;
 unshift @ARGV, '-i' if $non_int;
