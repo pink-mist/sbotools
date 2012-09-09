@@ -63,7 +63,7 @@ my %valid_confs = (
 
 my %params = reverse %valid_confs;
 
-if ($list) {
+if (exists $options{list}) {
 	my @keys = sort {$a cmp $b} keys %config;
 	say "sboconfig -$params{$_}:\n    $_=$config{$_}" for @keys;
 	exit 0;
@@ -74,7 +74,7 @@ show_usage and exit 0 unless keys %options > 0;
 # setup what's being changed, sanity check.
 my %changes;
 while (my ($key, $value) = each %valid_confs) {
-	$changes{$value} = $settings{$key} if exists $settings{$key};
+	$changes{$value} = $options{$key} if exists $options{$key};
 }
 
 my $die = "You have provided an invalid parameter for";
