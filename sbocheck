@@ -15,10 +15,28 @@ use warnings FATAL => 'all';
 use SBO::Lib;
 use Getopt::Long qw(:config);
 use Text::Tabulate;
+use File::Basename;
 
-my $vers;
-GetOptions ('version|v'	=> \$vers);
+my $self = basename ($0);
 
+sub show_usage () {
+    print <<EOF                                                                 
+Usage: $self
+
+Options:
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+
+EOF
+}
+
+my ($help, $vers);
+
+GetOptions ('help|h' => \$help, 'version|v'	=> \$vers);
+
+show_usage && exit 0 if $help;
 show_version && exit 0 if $vers;
 
 update_tree;
