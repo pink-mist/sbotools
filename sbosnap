@@ -40,10 +40,10 @@ show_usage and exit 1 unless exists $ARGV[0];
 
 my ($help, $vers);
 
-GetOptions ('help|h' => \$help, 'version|v' => \$version);
+GetOptions ('help|h' => \$help, 'version|v' => \$vers);
 
 show_usage and exit 0 if $help;
-show_version and exit 0 if $version;
+show_version and exit 0 if $vers;
 
 # check for a command and, if found, execute it
 my $command;
