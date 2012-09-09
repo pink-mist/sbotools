@@ -40,7 +40,7 @@ GetOptions (
 	'version|v'		=> \$vers,
 	'clean-dist|d'	=> \$clean_dist,
 	'clean-work|w'	=> \$clean_work,
-	'interactive|i'	=> \$interactiv,
+	'interactive|i'	=> \$interactive,
 );
 
 show_usage && exit 0 if $help;
