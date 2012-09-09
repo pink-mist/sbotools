@@ -22,18 +22,18 @@ sub show_usage () {
 	print <<EOF
 Usage: $self [options] sbo
 
-Options:
+Options (defaults shown first where applicable):
   -h|--help:
     this screen.
   -v|--version:
     version information.
-  -c|--(no)clean:
+  -c|--noclean (FALSE|TRUE):
     set whether or not to clean working files/directories after the build.                   
-  -d|--(no)distclean:
+  -d|--distclean (TRUE|FALSE):
    set whether or not to clean distfiles afterward. 
   -i|--noinstall:
     do not run installpkg at the end of the build process.
-  -j|--jobs:
+  -j|--jobs (FALSE|#):
     specify "-j" setting to make, for multicore systems; overrides conf file.
   -p|--compat32:
     install an SBo as a -compat32 pkg on a multilib x86_64 system.
@@ -45,16 +45,16 @@ Options:
 EOF
 }
 
-my $clean = $config{NOCLEAN} eq 'TRUE' ? 1 : 0;                                 
-my $distclean = $config{DISTCLEAN} eq 'TRUE' ? 1 : 0;                           
+my $noclean = $config{NOCLEAN};
+my $distclean = $config{DISTCLEAN};
 my $jobs = $config{JOBS};
 my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32);
 
 GetOptions (
 	'help|h'			=> \$help,
 	'version|v'			=> \$vers,
-	'clean|c!'			=> \$clean,
-	'distclean|d!'		=> \$distclean,
+	'noclean|c=s'		=> \$noclean,
+	'distclean|d=s'		=> \$distclean,
 	'noinstall|i'		=> \$no_install,
 	'jobs|j=s'			=> \$jobs,
 	'compat32|p'		=> \$compat32,
@@ -64,16 +64,18 @@ GetOptions (
 
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
-
 show_usage and exit 0 unless exists $ARGV[0];
 
+$noclean = $noclean eq 'TRUE' ? 1 : 0;
+$distclean = $distclean eq 'TRUE' ? 1 : 0;
+
 # setup any options
-unshift @ARGV, $clean ? '--noclean' : '-c';
-unshift @ARGV, $distclean ? '-d' : '--distclean';
-unshift @ARGV, '-n' if $no_install;
-unshift @ARGV, '-i' if $non_int;
-unshift @ARGV, '-R' if $no_reqs;
+unshift @ARGV, $noclean ? '-cTRUE' : '-cFALSE';
+unshift @ARGV, $distclean ? '-dTRUE' : '-dFALSE';
+unshift @ARGV, '-i' if $no_install;
 unshift @ARGV, '-p' if $compat32;
+unshift @ARGV, '-r' if $non_int;
+unshift @ARGV, '-R' if $no_reqs;
 unshift @ARGV, "-j$jobs" if $jobs;
 
 system '/usr/sbin/sboupgrade', '-oN', @ARGV;
