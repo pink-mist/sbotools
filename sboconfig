@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Long;
+use Getopt::Long qw(:config bundling);
 use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
@@ -76,7 +76,7 @@ if (exists $options{list}) {
 }
 
 show_usage and exit 0 unless keys %options > 0;
-	
+
 # setup what's being changed, sanity check.
 my %changes;
 while (my ($key, $value) = each %valid_confs) {
