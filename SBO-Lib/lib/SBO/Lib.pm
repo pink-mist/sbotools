@@ -35,6 +35,7 @@ our @EXPORT = qw(
 	get_sbo_location
 	get_from_info
 	get_tmp_extfn
+	get_arch
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -158,7 +159,7 @@ sub rsync_sbo_tree () {
 	my $wanted = sub {
 		$File::Find::name ? chown 0, 0, $File::Find::name
 						  : chown 0, 0, $File::Find::dir;
-	);
+	};
 	find ($wanted, $config{SBO_HOME});
 	say 'Finished.' and return $out;
 }
@@ -205,7 +206,7 @@ sub get_installed_sbos () {
 sub get_sbo_location ($) {
 	exists $_[0] or script_error 'get_sbo_location requires an argument.';
 	my $sbo = shift;
-	my $regex = qr#LOCATION:\s+\.(/[^/]+/$sbo)$#;
+	my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
 	my $fh = open_read $slackbuilds_txt;
 	while (my $line = <$fh>) {
 		if (my $loc = ($line =~ $regex)[0]) {
@@ -371,7 +372,7 @@ sub compare_md5s ($$) {
 # for a given distfile, see whether or not it exists, and if so, if its md5sum
 # matches the sbo's .info file
 sub verify_distfile ($$) {
-	exists $_[1] or script_error 'check_distfile requires two arguments.';
+	exists $_[1] or script_error 'verify_distfile requires two arguments.';
 	my ($link, $info_md5sum) = @_;
 	my $filename = get_filename_from_link $link;
 	return unless -d $distfiles;
@@ -583,7 +584,7 @@ sub perform_sbo (%) {
 	);
 	chdir $location, my $out = system $cmd;
 	revert_slackbuild "$location/$sbo.SlackBuild";
-	die "$sbo.SlackBuild returned non-zero ext status\n" unless $out == 0;
+	die "$sbo.SlackBuild returned non-zero exit status\n" unless $out == 0;
 	my $pkg = get_pkg_name $tempfh;
 	my $src = get_src_dir $tempfh;
 	return $pkg, $src;
@@ -620,7 +621,6 @@ sub do_slackbuild (%) {
 	my $x32;
 	# ensure x32 stuff is set correctly, or that we're setup for it
 	if ($args{COMPAT32}) {
-		die "compat32 only works on x86_64.\n" unless $arch eq 'x86_64';
 		die "compat32 requires multilib.\n" unless $multi;
 		die "compat32 requires /usr/sbin/convertpkg-compat32.\n"
 				unless -f '/usr/sbin/convertpkg-compat32';
@@ -684,8 +684,8 @@ sub make_distclean (%) {
 		script_error 'make_distclean requires four arguments.';
 	}
 	my $sbo = get_sbo_from_loc $args{LOCATION};
-	make_clean $sbo, $args{SRC}, $args{VERSION};
-	say "Distcleaning for $sbo-$args{VERSION}...\n";
+	make_clean (SBO => $sbo, SRC => $args{SRC}, VERSION => $args{VERSION});
+	say "Distcleaning for $sbo-$args{VERSION}...";
 	# remove any distfiles for this particular SBo.
 	my %downloads = get_sbo_downloads (LOCATION => $args{LOCATION});
 	for my $key (keys %downloads) {
