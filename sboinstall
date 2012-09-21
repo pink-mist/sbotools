@@ -13,7 +13,7 @@ use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
-use Getopt::Std;
+use Getopt::Long qw(:config bundling);
 use File::Basename;
 
 my $self = basename ($0);
@@ -22,39 +22,61 @@ sub show_usage () {
 	print <<EOF
 Usage: $self [options] sbo
 
-Options:
-  -h: this screen.
-  -v: version information.
-  -c: do not clean working files/directories after the build.                   
-  -d: clean distfiles afterward. 
-  -i: do not run installpkg at the end of the build process.
-  -j: specify "-j" setting to make, for multicore systems; overrides conf file.
-  -p: install an SBo as a -compat32 pkg on a multilib x86_64 system.
-  -r: skip viewing of the SBo README.
-  -R: view the README but do not attempt to parse requirements.
+Options (defaults shown first where applicable):
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+  -c|--noclean (FALSE|TRUE):
+    set whether or not to clean working files/directories after the build.
+  -d|--distclean (TRUE|FALSE):
+   set whether or not to clean distfiles afterward. 
+  -i|--noinstall:
+    do not run installpkg at the end of the build process.
+  -j|--jobs (FALSE|#):
+    specify "-j" setting to make, for multicore systems; overrides conf file.
+  -p|--compat32:
+    install an SBo as a -compat32 pkg on a multilib x86_64 system.
+  -r|--nointeractive:
+    non-interactive; skips README and all prompts.
+  -R|--norequirements:
+    view the README but do not parse requirements, commands, or options.
 
 EOF
 }
 
-my %options;
-getopts ('hvcdripj:R', \%options);
+my $noclean = $config{NOCLEAN};
+my $distclean = $config{DISTCLEAN};
+my $jobs = $config{JOBS};
+my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32);
 
-show_usage and exit 0 if exists $options{h};
-show_version and exit 0 if exists $options{v};
+GetOptions (
+	'help|h'			=> \$help,
+	'version|v'			=> \$vers,
+	'noclean|c=s'		=> \$noclean,
+	'distclean|d=s'		=> \$distclean,
+	'noinstall|i'		=> \$no_install,
+	'jobs|j=s'			=> \$jobs,
+	'compat32|p'		=> \$compat32,
+	'nointeractive|r'	=> \$non_int,
+	'norequirements|R'	=> \$no_reqs,
+);
 
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
-# setup any options which do not require arguments
-my @opts1 = ('c', 'd', 'r', 'i', 'p', 'R');
-for my $opt (@opts1) {
-	unshift @ARGV, "-$opt" if exists $options{$opt};
-}
+$noclean = $noclean eq 'TRUE' ? 1 : 0;
+$distclean = $distclean eq 'TRUE' ? 1 : 0;
 
-# setup any options which do require arguments
-my @opts2 = ('j');
-for my $opt (@opts2) {
-	unshift @ARGV, "-$opt $options{$opt}" if exists $options{$opt};
-}
+# setup any options
+unshift @ARGV, $noclean ? '-cTRUE' : '-cFALSE';
+unshift @ARGV, $distclean ? '-dTRUE' : '-dFALSE';
+unshift @ARGV, '-i' if $no_install;
+unshift @ARGV, '-p' if $compat32;
+unshift @ARGV, '-r' if $non_int;
+unshift @ARGV, '-R' if $no_reqs;
+unshift @ARGV, "-j$jobs" if $jobs;
 
 system '/usr/sbin/sboupgrade', '-oN', @ARGV;
 
