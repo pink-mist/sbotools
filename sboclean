@@ -57,7 +57,7 @@ unless ($clean_dist || $clean_work) {
 
 sub remove_stuff ($) {
 	exists $_[0] or script_error 'remove_stuff requires an argument';
-	-d $_[0] or say "Nothing to do." and return 1;
+	-d $_[0] or say 'Nothing to do.' and return 1;
 	my $dir = shift;
 	opendir (my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
@@ -72,7 +72,7 @@ sub remove_stuff ($) {
 	}
 }
 
-remove_stuff $config{SBO_HOME} . '/distfiles' if $clean_dist;
+remove_stuff $config{SBO_HOME} .'/distfiles' if $clean_dist;
 remove_stuff '/tmp/SBo' if $clean_work;
 
 exit 0;
