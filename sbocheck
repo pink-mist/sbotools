@@ -13,14 +13,14 @@ use 5.12.3;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
-use Getopt::Long qw(:config);
+use Getopt::Long;
 use Text::Tabulate;
 use File::Basename;
 
 my $self = basename ($0);
 
 sub show_usage () {
-    print <<EOF                                                                 
+	print <<EOF
 Usage: $self
 
 Options:
@@ -34,7 +34,7 @@ EOF
 
 my ($help, $vers);
 
-GetOptions ('help|h' => \$help, 'version|v'	=> \$vers);
+GetOptions ('help|h' => \$help, 'version|v' => \$vers);
 
 show_usage && exit 0 if $help;
 show_version && exit 0 if $vers;
