@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Std;
+use Getopt::Long;
 use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
@@ -31,45 +31,53 @@ Options:
   -l: show current options.
 
 Config options (defaults shown):
-  -c FALSE:
+  -c|--clean FALSE:
       NOCLEAN: if TRUE, do NOT clean up after building by default.
-  -d FALSE:
+  -d|--distclean FALSE:
       DISTCLEAN: if TRUE, DO clean distfiles by default after building.
-  -j FALSE:
+  -j|--jobs FALSE:
       JOBS: numeric -j setting to feed to make for multicore systems.
-  -p FALSE:
+  -p|--pkg-dir FALSE:
       PKG_DIR: set a directory to store packages in. 
-  -s /usr/sbo:
+  -s|--sbo-home /usr/sbo:
       SBO_HOME: set the SBo directory.
 
 EOF
 }
 
 my %options;
-getopts ('hvlc:d:p:s:j:', \%options);
 
-show_usage and exit 0 if exists $options{h};
-show_version and exit 0 if exists $options{v};
+GetOptions (\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
+	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s');
+
+show_usage and exit 0 if exists $options{help};
+show_version and exit 0 if exists $options{version};
 
 my %valid_confs = (
-	c => 'NOCLEAN',
-	d => 'DISTCLEAN',
-	j => 'JOBS',
-	p => 'PKG_DIR',
-	s => 'SBO_HOME',
+	noclean		=> 'NOCLEAN',
+	distclean	=> 'DISTCLEAN',
+	jobs		=> 'JOBS',
+	'pkg-dir'	=> 'PKG_DIR',
+	'sbo-home'	=> 'SBO_HOME',
 );
 
-my %params = reverse %valid_confs;
+my %params = (
+	NOCLEAN		=> 'c|--noclean',
+	DISTCLEAN	=> 'd|--distclean',
+	JOBS		=> 'j|--jobs',
+	PKG_DIR		=> 'p|--pkg-dir',
+	SBO_HOME	=> 's|--sbo-home',
+);
 
-if (exists $options{l}) {
+if (exists $options{list}) {
 	my @keys = sort {$a cmp $b} keys %config;
 	say "sboconfig -$params{$_}:\n    $_=$config{$_}" for @keys;
 	exit 0;
 }
 
-show_usage and exit 0 unless %options;
+show_usage and exit 0 unless keys %options > 0;
 
-# setup what's being changed.
+# setup what's being changed, sanity check.
 my %changes;
 while (my ($key, $value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
