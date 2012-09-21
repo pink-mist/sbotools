@@ -17,7 +17,8 @@ sub pr ($) {
 	print {$write} "our \$$thing = 1;\n";
 }
 
-for my $thing (qw(interactive compat32 no_readme jobs distclean noclean no_install no_reqs)) {
+for my $thing (qw(interactive compat32 no_readme jobs distclean noclean
+	no_install no_reqs force force_reqs clean non_int)) {
 	pr $thing;
 }
 
