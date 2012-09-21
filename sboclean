@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Std;
+use Getopt::Long qw(:config bundling);
 use File::Path qw(remove_tree);
 
 my $self = basename ($0);
@@ -24,23 +24,32 @@ sub show_usage () {
 Usage: $self (options) [package]
 
 Options:
-  -h: this screen.
-  -v: version information.
-  -d: clean distfiles.
-  -w: clean working directories.
-  -i: be interactive.
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+  -d|--clean-dist:
+    clean distfiles.
+  -w|--clean-work:
+    clean working directories.
+  -i|--interactive:
+    be interactive.
 
 EOF
 }
 
-my %options;
-getopts ('hvdwi', \%options);
+my ($help, $vers, $clean_dist, $clean_work, $interactive);
 
-show_usage && exit 0 if exists $options{h};
-show_version && exit 0 if exists $options{v};
-my $clean_dist = exists $options{d} ? 1 : 0;
-my $clean_work = exists $options{w} ? 1 : 0;
-my $interactive = exists $options{i} ? 1 : 0;
+GetOptions (
+	'help|h'		=> \$help,
+	'version|v'		=> \$vers,
+	'clean-dist|d'	=> \$clean_dist,
+	'clean-work|w'	=> \$clean_work,
+	'interactive|i'	=> \$interactive,
+);
+
+show_usage && exit 0 if $help;
+show_version && exit 0 if $vers;
 
 unless ($clean_dist || $clean_work) {
 	show_usage, die "You must specify at least one of -d or -w.\n";
@@ -48,7 +57,7 @@ unless ($clean_dist || $clean_work) {
 
 sub remove_stuff ($) {
 	exists $_[0] or script_error 'remove_stuff requires an argument';
-	-d $_[0] or say "Nothing to do." and return 1;
+	-d $_[0] or say 'Nothing to do.' and return 1;
 	my $dir = shift;
 	opendir (my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
