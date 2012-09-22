@@ -122,7 +122,7 @@ sub get_inst_names ($) {
 
 # this subroutine may be getting a little out of hand.
 sub get_requires ($$) {
-	exists $_[1] or script_error 'get_requires requires two arguments';
+	exists $_[1] or script_error 'get_requires requires two arguments.';
 	return if $no_reqs;
 	my ($sbo, $readme) = @_;
 	my $readme_orig = $readme;
