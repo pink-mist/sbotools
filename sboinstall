@@ -28,7 +28,7 @@ Options (defaults shown first where applicable):
   -v|--version:
     version information.
   -c|--noclean (FALSE|TRUE):
-    set whether or not to clean working files/directories after the build.                   
+    set whether or not to clean working files/directories after the build.
   -d|--distclean (TRUE|FALSE):
    set whether or not to clean distfiles afterward. 
   -i|--noinstall:
