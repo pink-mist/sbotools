@@ -389,7 +389,7 @@ FIRST: for my $sbo (@ARGV) {
 			print "\nYou are attempting to install $name, however, $sbo is not";
 			print " yet installed. Shall I install it first? [y] ";
 			if (<STDIN> =~ /^[Yy\n]/) {
-				my @args = ('/usr/sbin/sboupgrade', '-oN', $sbo);
+				my @args = ('/usr/sbin/sboupgrade', '-oN');
 				# populate args so that they carry over correctly
 				push @args, $noclean ? '-cTRUE' : '-cFALSE';
 				push @args, $distclean ? '-dTRUE' : '-dFALSE';
