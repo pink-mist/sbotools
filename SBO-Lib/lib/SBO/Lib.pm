@@ -648,7 +648,7 @@ sub do_slackbuild (%) {
 		C32 => $args{COMPAT32},
 		X32 => $x32,
 	);
-	do_convertpkg $pkg if $args{COMPAT32};
+	$pkg = do_convertpkg $pkg if $args{COMPAT32};
 	unlink $_ for @symlinks;
 	return $version, $pkg, $src;
 }
