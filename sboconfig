@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use File::Basename;
-use Getopt::Long qw(:config bundling);
+use Getopt::Long;
 use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
