@@ -119,10 +119,7 @@ sub show_version () {
 
 # %supported maps what's in /etc/slackware-version to what's at SBo
 sub get_slack_version () {
-	my %supported = (
-		'13.37.0' => '13.37',
-		'14.0' => '13.37',
-	);
+	my %supported = ('13.37.0' => '13.37');
 	my $fh = open_read '/etc/slackware-version';
 	chomp (my $line = <$fh>);
 	close $fh;
@@ -374,7 +371,7 @@ sub compare_md5s ($$) {
 # for a given distfile, see whether or not it exists, and if so, if its md5sum
 # matches the sbo's .info file
 sub verify_distfile ($$) {
-	exists $_[1] or script_error 'check_distfile requires two arguments.';
+	exists $_[1] or script_error 'verify_distfile requires two arguments.';
 	my ($link, $info_md5sum) = @_;
 	my $filename = get_filename_from_link $link;
 	return unless -d $distfiles;
@@ -586,7 +583,7 @@ sub perform_sbo (%) {
 	);
 	chdir $location, my $out = system $cmd;
 	revert_slackbuild "$location/$sbo.SlackBuild";
-	die "$sbo.SlackBuild returned non-zero ext status\n" unless $out == 0;
+	die "$sbo.SlackBuild returned non-zero exit status\n" unless $out == 0;
 	my $pkg = get_pkg_name $tempfh;
 	my $src = get_src_dir $tempfh;
 	return $pkg, $src;
@@ -650,7 +647,7 @@ sub do_slackbuild (%) {
 		C32 => $args{COMPAT32},
 		X32 => $x32,
 	);
-	do_convertpkg $pkg if $args{COMPAT32};
+	$pkg = do_convertpkg $pkg if $args{COMPAT32};
 	unlink $_ for @symlinks;
 	return $version, $pkg, $src;
 }
