@@ -183,7 +183,7 @@ sub ask_requires (%) {
 			push @cmd_args, $distclean ? '-dTRUE' : '-dFALSE';
 			push @cmd_args, '-p' if $compat32;
 			push @cmd_args, '-f' if $force;
-			push @cmd_args, '-r' if $force_reqs;
+			push @cmd_args, '-z' if $force_reqs;
 			push @cmd_args, "-j$jobs" if $jobs;
 			system (@cmd_args, $req) == 0 or die "$name failed to install.\n";
 		}
