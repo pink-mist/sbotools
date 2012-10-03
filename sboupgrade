@@ -133,7 +133,12 @@ sub get_requires ($$) {
 	FIRST: for my $req (@$requires) {
 		my $req_req = get_from_info (LOCATION => get_sbo_location $req,
 			GET => 'REQUIRES');
-		return if $sbo ~~ @$req_req;
+		if ($sbo ~~ @$req_req) {
+			say "I am seeing circular requirements between $sbo and $req.";
+			say "Therefore, I am not going to handle requirements for $sbo.";
+			print 'Do you still wish to proceed? [n] ';
+			<STDIN> ~ /^[Yy\n]/ ? return : exit 0;
+		}
 	}
 	return $requires;
 }
