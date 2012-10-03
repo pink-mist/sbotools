@@ -237,7 +237,7 @@ sub ask_opts ($) {
 			return $opts;
 		};
 		my $kv_regex = qr/[A-Z0-9]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
-		my $opts = &$ask; 
+		my $opts = &$ask;
 		return unless $opts;
 		FIRST: while ($opts !~ $kv_regex) {
 			warn "Invalid input received.\n";
