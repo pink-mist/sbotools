@@ -4,34 +4,34 @@
 sbofind - search slackbuilds.org tree for a given name
 .SH SYNAPSES
 .P
-sbofind [-hvir] search_term
+sbofind [-h|-v] [-ir] search_term
 .SH DESCRIPTION
 .P
 sbofind searches the names of all slackbuilds for a given term. It reports back any slackbuilds found along with the path for each. This is equivalent to running "cd /usr/ports; make search name=$search_term display=name,path" on a FreeBSD system. For a more general search, the slackbuilds.org site should be consulted, where tags also exist and are included in the searched fields.
 .SH OPTIONS
 .P
--h
+-h|--help
 .RS
 Show help information.
 .RE
 .P
--v
+-v|--version
 .RS
-Show sbotools version information.
+Show version information.
 .RE
 .P
--i
+-i|--info
 .RS
-Show the contents of a the .info file for each slackbuild found.
+Show the contents of the .info file for each slackbuild found.
 .RE
 .P
--r
+-r|--readme
 .RS
 Show the contents of the README file for each slackbuild found.
 .RE
 .SH BUGS
 .P
-None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome.
 .SH SEE ALSO
 .P
 sbocheck(1), sboclean(1), sboconfig(1), sboinstall(1), sboupgrade(1), sbosnap(1), sbotools.conf(5)

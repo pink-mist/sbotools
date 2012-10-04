@@ -4,73 +4,72 @@
 sboupgrade - install or upgrade slackbuilds
 .SH SYNAPSES
 .P
-sboupgrade [-h] [-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-f] [-N] [-r] [-R] [-i] sbo_name (sbo_name)
+sboupgrade [-h|-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-fNrRiz] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
-sboupgrade is used to upgrade packages installed from slackbuilds. If the -i flag is NOT specified, sboupgrade will pull a list of requirements for any specified SlackBuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options.
-
+sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboupgrade will refuse to handle circular requirements. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options.
 .SH OPTIONS
 .P
--h
+-h|--help
 .RS
 Show help information.
 .RE
 .P
--v
+-v|--version
 .RS
 Show sbotools version information.
 .RE
 .P
--c (TRUE|FALSE)
+-c|--noclean (FALSE|TRUE)
 .RS
 If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an slackbuild. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
 .RE
 .P
--d (TRUE|FALSE)
+-d|--distclean (FALSE|TRUE)
 .RS
 If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles; this option can be set as default via the sboconfig(1) command. See also sbotools.conf(5). This option overrides the default.
 .RE
 .P
--f
+-f|--force
 .RS
 Force an upgrade, even if the installed version is equal to or less than the slackbuilds.org version.
 .RE
 .P
--n
+-i|--noinstall
 .RS
 Do not actually install the package created at the end of the build process. So, the slackbuild will be run, and the package will be left in /tmp, or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
 .RE
 .P
--j (#|FALSE)
+-j|--jobs (FALSE|#)
 .RS
 If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a slackbuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
 .RE
 .P
--N
+-N|--installnew
 .RS
 Install any new slackbuilds specified. So, if you want to upgrade some things and install new things with the same command, then you would use the -N flag. Note that upgrades are handled prior to new installs.
 .RE
 .P
--i
+-r|--nointeractive
 .RS
 Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade is run, the first thing the command will attempt to do is show you the README for a given slackbuild and ask whether or not you wish to proceed; this option skips the README and bypasses the question. If multiple slackbuilds are specified, this option bypasses them all.
 .RE
 .P
--R
+-R|--norequirements
 .RS
-This option causes sboupgrade to skip requirement parsing, but still show the README and prompt the user to proceed.
+This option causes sboupgrade to skip requirement handling, but still show the README and prompt the user to proceed.
 .RE
 .P
--r
+-z|--force-reqs
 .RS
-When used in combination with the -f option, to force a slackbuild even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements that it can grok. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt.
+When used in combination with the -f option, to force an update even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt. This allows for recursive upgrades, among other things.
 .RE
 .SH BUGS
 .P
 None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome.
 .SH SEE ALSO
 .P
-sbocheck(1), sboclean(1), sboconfig(1), sbofind(1), sbosnap(1), sbotools.conf(5)
+sbocheck(1), sboclean(1), sboconfig(1), sbofind(1), sboinstall(1), sbosnap(1), sbotools.conf(5)
 .SH AUTHOR
 .P
 Jacob Pipkin <j@dawnrazor.net>

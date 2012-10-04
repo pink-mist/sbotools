@@ -4,54 +4,54 @@
 sboconfig - set sbotools configuration options.
 .SH SYNAPSES
 .P
-sboconfig [-h] [-l] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-p /path|FALSE] [-s /path|/usr/sbo] [-v]
+sboconfig [-h|-v] [-l] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-p /path|FALSE] [-s /path|/usr/sbo]
 .SH DESCRIPTION
 .P
-sboconfig is a front-end for managing sbotools configuration options. The sbotools.conf(5) file can also be manually edited; any fields not relevant to sbotools configuration will be ignored. Note that more options may be added in the future, so you should not add garbage to the sbotools.conf(5) file.
+sboconfig is a front-end for managing sbotools configuration options. The sbotools.conf(5) file can also be manually edited; any fields not relevant to sbotools configuration will be ignored.
 .SH OPTIONS
 .P
--h
+-h|--help
 .RS
 Show help information.
 .RE
 .P
--l
+-v|--version
 .RS
-List out current configuration options, including unmodified default configuration options (meaning that if a given option is not set in the sbotools.conf(5) file, the default will be shown for that option).
+Show version information.
 .RE
 .P
--d (TRUE|FALSE)
+-l|--list
 .RS
-DISTCLEAN: If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+List out current configuration options, including unmodified default configuration options (meaning that if a given option is not set in the sbotools.conf(5) file, the default will be shown for that option). Also shows the flag to sboconfig used to set each option.
 .RE
 .P
--j (#|FALSE)
-.RS
-JOBS: If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a slackbuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
-.RE
-.P
--c (TRUE|FALSE)
+-c|--noclean (FALSE|TRUE)
 .RS
 NOCLEAN: If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an slackbuild. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
 .P
--p (/path|FALSE)
+-d|--distclean (FALSE|TRUE)
+.RS
+DISTCLEAN: If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+.RE
+.P
+-j|--jobs (FALSE|#)
+.RS
+JOBS: If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a slackbuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
+.RE
+.P
+-p|--pkg-dir (FALSE|/path)
 .RS
 PKG_DIR: If set to a path, packages will be stored at the given location after building and installing. By default, packages are left where they are deposited by slackbuilds, which is typically (probably always) /tmp. If PKG_DIR is FALSE and DISTCLEAN is TRUE (either in sbotools.conf(5) or at sboupgrade/sboinstall runtime), the package will be deleted. If this option is set to a path in the filesystem, the package will be stored in that directory, regardless of any DISTCLEAN option.
 .RE
 .P
--s (/path|/usr/sbo)
+-s|--sbo-home (/usr/sbo|/path)
 .RS
 SBO_HOME: If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
 .RE
-.P
--v
-.RS
-Show sbotools version information.
-.RE
 .SH BUGS
 .P
-None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome. In the future sbotools may exist in a public git repository and this section may change to reflect that.
+None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome.
 .SH SEE ALSO
 .P
 sbocheck(1), sboclean(1), sbofind(1), sboinstall(1), sboupgrade(1), sbosnap(1), sbotools.conf(5)
