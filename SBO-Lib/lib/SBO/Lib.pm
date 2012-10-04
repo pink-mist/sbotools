@@ -349,7 +349,8 @@ sub get_filename_from_link ($) {
 	exists $_[0] or script_error 'get_filename_from_link requires an argument';
 	my $fn = shift;
 	my $regex = qr#/([^/]+)$#;
-	return $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
+	my $filename = $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
+	return $filename;
 }
 
 # for a given file, computer its md5sum
