@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package SBO::Lib 1.0;
-my $version = "1.0";
+my $version = '1.0';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -571,7 +571,7 @@ sub perform_sbo (%) {
 		} elsif ($args{X32}) {
 			$changes{arch_out} = 'i486';
 		}
-		$cmd = ". /etc/profile.d/32dev.sh &&";
+		$cmd = '. /etc/profile.d/32dev.sh &&';
 	}
 	$cmd .= "/bin/sh $location/$sbo.SlackBuild";
 	$cmd = "$args{OPTS} $cmd" if $args{OPTS};
@@ -665,7 +665,7 @@ sub make_clean (%) {
 		script_error 'make_clean requires three arguments.';
 	}
 	say "Cleaning for $args{SBO}-$args{VERSION}...";
-	my $tmpsbo = "/tmp/SBo";
+	my $tmpsbo = '/tmp/SBo';
 	remove_tree ("$tmpsbo/$args{SRC}") if -d "$tmpsbo/$args{SRC}";
 	remove_tree ("$tmpsbo/package-$args{SBO}") if
 		-d "$tmpsbo/package-$args{SBO}";
