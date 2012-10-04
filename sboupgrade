@@ -6,7 +6,6 @@
 # script to update an installed SlackBuild.
 #
 # author: Jacob Pipkin <j@dawnrazor.net>
-# date: Boomtime, the 39th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
@@ -47,9 +46,6 @@ Options (defaults shown first where applicable):
   -z|--force-reqs:
     when used with -f, will force rebuilding an SBo's requirements as well.
 
-Example:
-  $self -d libsexy
-
 EOF
 }
 
@@ -75,8 +71,8 @@ GetOptions (
 	'compat32|p'		=> \$compat32,
 );
 
-show_usage && exit 0 if $help;
-show_version && exit 0 if $vers;
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
@@ -205,9 +201,9 @@ sub ask_user_group ($$) {
 	my ($cmds, $readme) = @_;
 	say "\n". $readme;
 	print "\nIt looks like this slackbuild requires the following";
-	say " command(s) to be run first:";
+	say ' command(s) to be run first:';
 	say "    # $_" for @$cmds;
-	print "Shall I run it/them now? [y] ";
+	print 'Shall I run it/them now? [y] ';
 	if (<STDIN> =~ /^[Yy\n]/) {
 		for my $cmd (@$cmds) {
 			system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
@@ -228,7 +224,7 @@ sub ask_opts ($) {
 	my $readme = shift;
 	say "\n". $readme;
 	print "\nIt looks this slackbuilds has options; would you like to set any";
-	print " when the slackbuild is run? [n] ";
+	print ' when the slackbuild is run? [n] ';
 	if (<STDIN> =~ /^[Yy]/) {
 		my $ask = sub () {
 			print "\nPlease supply any options here, or enter to skip: ";
@@ -327,7 +323,7 @@ sub process_sbos ($) {
 sub print_failures (;%) {
 	if (exists $_[0]) {
 		my %failures = @_;
-		say "Failures:";
+		say 'Failures:';
 		while (my ($key, $val) = each %failures) {
 			say "  $key: $val";
 		}
@@ -392,7 +388,7 @@ FIRST: for my $sbo (@ARGV) {
 		my $inst_names = get_inst_names $inst;
 		unless ($sbo ~~ @$inst_names) {
 			print "\nYou are attempting to install $name, however, $sbo is not";
-			print " yet installed. Shall I install it first? [y] ";
+			print ' yet installed. Shall I install it first? [y] ';
 			if (<STDIN> =~ /^[Yy\n]/) {
 				my @args = ('/usr/sbin/sboupgrade', '-oN');
 				# populate args so that they carry over correctly
