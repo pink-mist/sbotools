@@ -1,4 +1,4 @@
-.TH sbotools.conf 5 "Pungenday, Bureaucracy 29, 3178 YOLD" "sbotools 0.7 fnord" dawnrazor.net
+.TH sbotools.conf 5 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 1.0 fnord" dawnrazor.net
 .SH NAME
 .P
 sbotools.conf - configuration file for sbotools commands.
@@ -8,28 +8,27 @@ This file, location at /etc/sbotools/sbotools.conf, contains KEY=VALUE configura
 .P
 The current configuration keys are as follows:
 .P
-DISTCLEAN=(TRUE|FALSE)
+DISTCLEAN=(FALSE|TRUE)
 .RS
 If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
 .P
-JOBS=(#|FALSE)
+JOBS=(FALSE|#)
 .RS
 If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a SlackBuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
 .RE
 .P
-NOCLEAN=(TRUE|FALSE)
+NOCLEAN=(FALSE|TRUE)
 .RS
 If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building a slackbuild. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
-
 .P
-PKG_DIR=(/path|FALSE)
+PKG_DIR=(FALSE|/path)
 .RS
 If set to a path, packages will be stored at the given location after building and installing. By default, packages are left where they are deposited by SlackBuilds, which is typically (probably always) /tmp. If PKG_DIR is FALSE and DISTCLEAN is TRUE (either in sbotools.conf(5) or at sboupgrade/sboinstall runtime), the package will be deleted. If this option is set to a path in the filesystem, the package will be stored in that directory, regardless of any DISTCLEAN option.
 .RE
 .P
-SBO_HOME=(/path|/usr/sbo)
+SBO_HOME=(/usr/sbo|/path)
 .RS
 If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
 .RE
