@@ -4,7 +4,7 @@
 sboinstall - install slackbuilds
 .SH SYNAPSES
 .P
-sboinstall [-h] [-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-N] [-r] [-R] [-i] [-p] sbo_name (sbo_name)
+sboinstall [-h|-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-NrRip] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
 sboinstall is equivalent to sboupgrade -N, but is faster, so is preferred if only installing one or more new packages. If the -r flag is NOT specified, sboinstall will attempt to grok a list of requirements in the README for a given slackbuild. If such a list exists, sboinstall will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. Note that this method is FAR from foolproof, which is why this does not happen if the README is bypassed. sboinstall will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboinstall will offer the opportunity to set options.

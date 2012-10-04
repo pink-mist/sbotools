@@ -39,6 +39,7 @@ Force an upgrade, even if the installed version is equal to or less than the sla
 .RS
 Do not actually install the package created at the end of the build process. So, the slackbuild will be run, and the package will be left in /tmp, or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
 .RE
+.P
 -j|--jobs (FALSE|#)
 .RS
 If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to make when a slackbuild which invokes "make" is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
@@ -61,7 +62,7 @@ This option causes sboupgrade to skip requirement parsing, but still show the RE
 .P
 -z|--force-reqs
 .RS
-When used in combination with the -f option, to force a slackbuild even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements that it can grok. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt.
+When used in combination with the -f option, to force an update even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements that it can grok. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt. This allows for recursive upgrades, among other things.
 .RE
 .SH BUGS
 .P
