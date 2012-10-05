@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package SBO::Lib 0.9;
-my $version = "0.9";
+my $version = '0.9';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -348,7 +348,9 @@ sub get_filename_from_link ($) {
 	exists $_[0] or script_error 'get_filename_from_link requires an argument';
 	my $fn = shift;
 	my $regex = qr#/([^/]+)$#;
-	return $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
+	my $filename = $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
+	$filename = s/%2B/+/g;
+	return $filename;
 }
 
 # for a given file, computer its md5sum
@@ -494,6 +496,7 @@ sub create_symlinks ($%) {
 	my @symlinks;
 	for my $link (keys %downloads) {
 		my $filename = get_filename_from_link $link;
+		
 		my $symlink = get_symlink_from_filename $filename, $location;
 		push @symlinks, $symlink;
 		symlink $filename, $symlink;
@@ -570,7 +573,7 @@ sub perform_sbo (%) {
 		} elsif ($args{X32}) {
 			$changes{arch_out} = 'i486';
 		}
-		$cmd = ". /etc/profile.d/32dev.sh &&";
+		$cmd = '. /etc/profile.d/32dev.sh &&';
 	}
 	$cmd .= "/bin/sh $location/$sbo.SlackBuild";
 	$cmd = "$args{OPTS} $cmd" if $args{OPTS};
@@ -664,7 +667,7 @@ sub make_clean (%) {
 		script_error 'make_clean requires three arguments.';
 	}
 	say "Cleaning for $args{SBO}-$args{VERSION}...";
-	my $tmpsbo = "/tmp/SBo";
+	my $tmpsbo = '/tmp/SBo';
 	remove_tree ("$tmpsbo/$args{SRC}") if -d "$tmpsbo/$args{SRC}";
 	remove_tree ("$tmpsbo/package-$args{SBO}") if
 		-d "$tmpsbo/package-$args{SBO}";
