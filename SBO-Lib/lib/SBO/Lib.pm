@@ -13,8 +13,8 @@ use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 
-package SBO::Lib 1.0;
-my $version = '1.0';
+package SBO::Lib 1.1;
+my $version = '1.1';
 
 require Exporter;
 our @ISA = qw(Exporter);
