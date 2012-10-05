@@ -1,13 +1,13 @@
-.TH sboupgrade 1 "Sweetmorn, Bureaucracy 57, 3178 YOLD" "sbotools 0.9 fnord" dawnrazor.net
+.TH sboupgrade 1 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 0.10 fnord" dawnrazor.net
 .SH NAME
 .P
 sboupgrade - install or upgrade slackbuilds
 .SH SYNAPSES
 .P
-sboupgrade [-h] [-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-f] [-N] [-r] [-R] [-i] [-z] sbo_name (sbo_name)
+sboupgrade [-h|-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-fNrRiz] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
-sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will attempt to grok a list of requirements in the README for a given slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. Note that this method is FAR from foolproof, which is part of the reason this does not happen if the README is bypassed. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set such options.
+sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will attempt to grok a list of requirements in the README for a given slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. Note that this method is FAR from foolproof, which is part of the reason this does not happen if the README is bypassed. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set such options.
 .SH OPTIONS
 .P
 -h|--help
@@ -66,10 +66,10 @@ When used in combination with the -f option, to force an update even if it would
 .RE
 .SH BUGS
 .P
-Requirement parsing is not foolproof; there are corner cases where it does not function as expected. If any such cases are found, please report this to j@dawnrazor.net; patches are always welcome as well.
+Requirement parsing is not foolproof; there are corner cases where it does not function as expected.
 .SH SEE ALSO
 .P
-sbocheck(1), sboclean(1), sboconfig(1), sbofind(1), sbosnap(1), sbotools.conf(5)
+sbocheck(1), sboclean(1), sboconfig(1), sbofind(1), sboinstall(1), sbosnap(1), sbotools.conf(5)
 .SH AUTHOR
 .P
 Jacob Pipkin <j@dawnrazor.net>
