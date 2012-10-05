@@ -6,7 +6,6 @@
 # script to clean stuff left around from sbotools.
 #
 # author: Jacob Pipkin <j@dawnrazor.net>
-# date: Boomtime, the 6th day of Confusion in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;
@@ -48,12 +47,11 @@ GetOptions (
 	'interactive|i'	=> \$interactive,
 );
 
-show_usage && exit 0 if $help;
-show_version && exit 0 if $vers;
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
 
-unless ($clean_dist || $clean_work) {
-	show_usage, die "You must specify at least one of -d or -w.\n";
-}
+show_usage, die "You must specify at least one of -d or -w.\n" unless
+	($clean_dist || $clean_work);
 
 sub remove_stuff ($) {
 	exists $_[0] or script_error 'remove_stuff requires an argument';

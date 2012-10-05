@@ -3,11 +3,9 @@
 # vim: set ts=4:noet
 #
 # sbosnap
-# script to pull down / update a local copy of the
-# slackbuilds.org tree.
+# script to pull down / update a local copy of the slackbuilds.org tree.
 #
 # author: Jacob Pipkin <j@dawnrazor.net>
-# date: Setting Orange, the 37th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;

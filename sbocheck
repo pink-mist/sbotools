@@ -6,7 +6,6 @@
 # script to update the local sbo tree and check for updates
 #
 # author: Jacob Pipkin <j@dawnrazor.net>
-# date: Sweetmorn, the 38th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;
@@ -36,8 +35,8 @@ my ($help, $vers);
 
 GetOptions ('help|h' => \$help, 'version|v' => \$vers);
 
-show_usage && exit 0 if $help;
-show_version && exit 0 if $vers;
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
 
 update_tree;
 

@@ -6,7 +6,6 @@
 # script to handle sbotools configuration
 #
 # author: Jacob Pipkin <j@dawnrazor.net>
-# date: Pungenday, the 40th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;
@@ -83,7 +82,7 @@ while (my ($key, $value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
 }
 
-my $die = "You have provided an invalid parameter for";
+my $die = 'You have provided an invalid parameter for';
 
 if (exists $changes{NOCLEAN}) {
 	die "$die -c\n" unless $changes{NOCLEAN} =~ /^(TRUE|FALSE)$/;
@@ -125,7 +124,7 @@ sub config_write ($$) {
 		untie @temp;
 		# otherwise, append our new $key=$value pair
 		print {$tempfh} "$key=$val\n" unless $has;
-		# then over write the conf file with the contents of the temp file
+		# then overwrite the conf file with the contents of the temp file
 		seek $tempfh, 0, 0;
 		my $contents = do {local $/; <$tempfh>};
 		close $conffh;

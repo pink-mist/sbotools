@@ -6,7 +6,6 @@
 # script to install a SlackBuild by name
 #
 # author: Jacob Pipkin <j@dawnrazor.net>
-# date: Pungenday, the 40th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.12.3;
