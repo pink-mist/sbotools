@@ -1,4 +1,4 @@
-.TH sboinstall 1 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 1.0 fnord" dawnrazor.net
+.TH sboinstall 1 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 1.1 fnord" dawnrazor.net
 .SH NAME
 .P
 sboinstall - install slackbuilds
@@ -7,7 +7,7 @@ sboinstall - install slackbuilds
 sboinstall [-h|-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-NrRip] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
-sboinstall is equivalent to sboupgrade -N, but is faster since it only installs new slackbuidls, so is preferred for installs. If the -r flag is NOT specified, sboinstall will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboinstall will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboinstall will refuse to handle circular requirements. sboinstall will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboinstall will offer the opportunity to set options.
+sboinstall is equivalent to sboupgrade -N, but is faster since it only installs new slackbuilds, so is preferred for installs. If the -r flag is NOT specified, sboinstall will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboinstall will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboinstall will refuse to handle circular requirements. sboinstall will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboinstall will offer the opportunity to set options.
 .SH OPTIONS
 .P
 -h|--help
@@ -20,12 +20,12 @@ Show help information.
 Show version information.
 .RE
 .P
--c|--noclean (TRUE|FALSE)
+-c|--noclean (FALSE|TRUE)
 .RS
 If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an slackbuild. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
 .RE
 .P
--d|--distclean (TRUE|FALSE)
+-d|--distclean (FALSE|TRUE)
 .RS
 If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles; this option can be set as default via the sboconfig(1) command. See also sbotools.conf(5). This option overrides the default.
 .RE

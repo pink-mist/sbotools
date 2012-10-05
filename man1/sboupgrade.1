@@ -1,10 +1,10 @@
-.TH sboupgrade 1 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 1.0 fnord" dawnrazor.net
+.TH sboupgrade 1 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 1.1 fnord" dawnrazor.net
 .SH NAME
 .P
 sboupgrade - install or upgrade slackbuilds
 .SH SYNAPSES
 .P
-sboupgrade [-h|-v] [-d TRUE|FALSE] [-j #|FALSE] [-c TRUE|FALSE] [-fNrRiz] sbo_name (sbo_name)
+sboupgrade [-h|-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-fNrRiz] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
 sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboupgrade will refuse to handle circular requirements. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options.
@@ -17,7 +17,7 @@ Show help information.
 .P
 -v|--version
 .RS
-Show sbotools version information.
+Show version information.
 .RE
 .P
 -c|--noclean (FALSE|TRUE)
