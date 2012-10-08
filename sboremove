@@ -52,6 +52,10 @@ show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
+my $test = get_sbo_location $ARGV[0];
+die "Unable to locate $sbo_name in the SlackBuilds.org tree.\n" unless
+	defined $test;
+
 my $remove_queue;
 push(@$remove_queue, $ARGV[0]);
 my %ignore;
@@ -63,7 +67,6 @@ unless ($no_reqs) {
 	$remove_queue = get_build_queue($ARGV[0]);
 	my $installed = get_installed_sbos;
 	my $inst_names = get_inst_names $installed;
-	#print files...
 	for my $pkg (@$inst_names) {
 		unless ($pkg ~~ @$remove_queue) {
 			my $location = get_sbo_location($pkg);
@@ -73,6 +76,13 @@ unless ($no_reqs) {
 				if ($req ~~ @$remove_queue) {
 					$ignore{$req}="required by $pkg";
 					push(@excluded, $req);
+					my $depqueue = get_build_queue($req);
+					for my $i (@$depqueue) {
+						unless($ignore{$i}) {
+							$ignore{$i}="required by $req";
+							push(@excluded, $i);
+						}
+					}
 				}		
 			}	
 		}
