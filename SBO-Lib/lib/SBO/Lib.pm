@@ -36,6 +36,7 @@ our @EXPORT = qw(
 	get_from_info
 	get_tmp_extfn
 	get_arch
+	get_build_queue
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -704,3 +705,40 @@ sub do_upgradepkg ($) {
 	return 1;
 }
 
+# add slackbuild to build queue.
+sub add_to_queue (%);
+sub add_to_queue (%) {
+	my %args = %{$_[0]};
+	my $infopath = get_sbo_location($args{NAME});
+	push(@{$_[0]}{QUEUE}, $args{NAME});
+	return 1 unless $args{RECURSIVE};
+	my $requires = get_from_info (LOCATION => $infopath, GET => 'REQUIRES');
+	return unless $$requires[0];
+	for my $req (@$requires) {
+		unless (( $req eq "%README%") or ($req eq $args{NAME})) {
+			$args{NAME} = $req;
+			add_to_queue(\%args)
+		}
+	}	
+}
+
+# get full build queue and prepare it for output.
+sub get_build_queue ($) {
+	exists $_[0] or script_error 'get_build_queue requires an argument.';
+	my @temp_queue = ();
+	my @build_queue = ();
+	my %args = (
+		QUEUE 	  => \@temp_queue, 
+		NAME 	  => $_[0], 
+		RECURSIVE => 1
+	);
+	add_to_queue(\%args);
+	@temp_queue = reverse(@temp_queue);
+	# Remove duplicate entries (leaving first occurance)
+	my %seen = ();
+	for my $sb( @temp_queue ) {
+		 next if $seen{ $sb }++;
+		 push @build_queue, $sb;
+	}    
+	return @build_queue;
+}

@@ -93,38 +93,10 @@ sub get_file_contents ($) {
 	return $contents;
 }
 
-# get full build queue and prepare it for output.
-sub get_build_queue ($) {
-	exists $_[0] or script_error 'get_build_queue requires an argument.';
-	my @temp_queue = ();
-	my @build_queue = ();
-	my %seen = ();
-	&add_to_queue(\@temp_queue,"$_[0]",1);
-	@temp_queue = reverse(@temp_queue);
-	# Remove duplicate entries (leaving first occurance)
-	for my $sb( @temp_queue ) {
-		 next if $seen{ $sb }++;
-		 push @build_queue, $sb;
-	}    
-	return join(" ", @build_queue);
-}
-
-# add slackbuild to build queue.
-# args: @queue(array), $sbname(string), $recursive(boolean) 
-sub add_to_queue () {
-	my $queue = \@{$_[0]};
-	my $sbname = $_[1];
-	my $recursive = $_[2];
-	my $sbpath = get_sbo_location($sbname);
-	push(@{$queue}, $sbname);
-	return 1 unless $recursive; 
-	for my $line (split("\n", get_file_contents("$sbpath/$sbname.info"))) {
-		if ($line =~ /REQUIRES="(.*?)"/) {
-			for my $req (split(" ", $1)) {
-				&add_to_queue($queue,"$req",1) unless ( $req eq "%README%" );
-			}
-		}
-	}
+sub show_build_queue ($) {
+	exists $_[0] or script_error 'prepare_queue requires an argument.';
+	my $queue = join(" ", get_build_queue($_[0]));
+	return "$queue";
 }
 
 my $findings = perform_search $search;
@@ -138,7 +110,7 @@ if (exists $$findings[0]) {
 			say "Path:   $val";
 			say "info:   ". get_file_contents "$val/$key.info" if $show_info;
 			say "README: ". get_file_contents "$val/README" if $show_readme;
-			say "Queue:  ". get_build_queue "$key" if $show_queue;
+			say "Queue:  ". show_build_queue "$key" if $show_queue;
 			say '';
 		}
 	}
