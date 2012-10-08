@@ -108,13 +108,13 @@ sub get_readme_path ($) {
 
 # for a ref to an array of hashes of installed packages, return an array ref
 # consisting of just their names
-sub get_inst_names ($) {
-	exists $_[0] or script_error 'get_inst_names requires an argument.';
-	my $inst = shift;
-	my @installed;
-	push @installed, $$_{name} for @$inst;
-	return \@installed;
-}
+# sub get_inst_names ($) {
+# 	exists $_[0] or script_error 'get_inst_names requires an argument.';
+# 	my $inst = shift;
+# 	my @installed;
+# 	push @installed, $$_{name} for @$inst;
+# 	return \@installed;
+# }
 
 # pull list of requirements
 sub get_requires ($$) {
@@ -289,7 +289,9 @@ sub process_sbos ($) {
 		if ($@) {
 			$failures{$sbo} = $@;
 		} else {
-			do_upgradepkg $pkg unless $no_install;
+			
+			do_upgradepkg $pkg unless $no_install;			
+
 			unless ($distclean) {
 				make_clean (SBO => $sbo, SRC => $src, VERSION => $version)
 					unless $noclean;

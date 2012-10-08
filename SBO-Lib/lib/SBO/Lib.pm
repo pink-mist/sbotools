@@ -8,6 +8,8 @@
 # author: Jacob Pipkin <j@dawnrazor.net>
 # date: Setting Orange, the 37th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
+#
+# modified by: Luke Williams <xocel@iquidus.org>
 
 use 5.16.0;
 use strict;
@@ -27,6 +29,7 @@ our @EXPORT = qw(
 	fetch_tree
 	update_tree
 	get_installed_sbos
+	get_inst_names
 	get_available_updates
 	do_slackbuild
 	make_clean
@@ -200,6 +203,16 @@ sub get_installed_sbos () {
 		my ($name, $version) = ($path =~ $regex)[0,1];
 		push @installed, {name => $name, version => $version};
 	}
+	return \@installed;
+}
+
+# for a ref to an array of hashes of installed packages, return an array ref
+# consisting of just their names
+sub get_inst_names ($) {
+	exists $_[0] or script_error 'get_inst_names requires an argument.';
+	my $inst = shift;
+	my @installed;
+	push @installed, $$_{name} for @$inst;
 	return \@installed;
 }
 
@@ -705,14 +718,14 @@ sub do_upgradepkg ($) {
 	return 1;
 }
 
-# add slackbuild to build queue.
+# add slackbuild plus reqs to build queue.
 sub add_to_queue (%);
 sub add_to_queue (%) {
 	my %args = %{$_[0]};
-	my $infopath = get_sbo_location($args{NAME});
+	my $location = get_sbo_location($args{NAME});
 	push(@{$_[0]}{QUEUE}, $args{NAME});
 	return 1 unless $args{RECURSIVE};
-	my $requires = get_from_info (LOCATION => $infopath, GET => 'REQUIRES');
+	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	return unless $$requires[0];
 	for my $req (@$requires) {
 		unless (( $req eq "%README%") or ($req eq $args{NAME})) {
@@ -722,7 +735,7 @@ sub add_to_queue (%) {
 	}	
 }
 
-# get full build queue and prepare it for output.
+# get full build queue.
 sub get_build_queue ($) {
 	exists $_[0] or script_error 'get_build_queue requires an argument.';
 	my @temp_queue = ();
@@ -740,5 +753,5 @@ sub get_build_queue ($) {
 		 next if $seen{ $sb }++;
 		 push @build_queue, $sb;
 	}    
-	return @build_queue;
+	return \@build_queue;
 }

@@ -1,0 +1,133 @@
+#!/usr/bin/env perl
+#
+# vim: set ts=4:noet
+#
+# sboremove
+# script to remove an installed SlackBuild.
+#
+# author: Luke Williams <xocel@iquidus.org>
+# license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
+
+use 5.16.0;
+use strict;
+use warnings FATAL => 'all';
+use SBO::Lib;
+use Getopt::Long qw(:config bundling);
+use File::Basename;
+
+my $self = basename ($0);
+
+sub show_usage () {
+	print <<EOF
+Usage: $self [options] sbo
+
+Options (defaults shown first where applicable):
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+  -r|--nointeractive:
+    non-interactive; skips all prompts.
+  -R|--norequirements:
+    do not parse requirements.
+  -e|--exclude (package):
+    exclude package (do not remove).
+  -f|--force:
+    force remove, even if required by other packages on system. 
+
+EOF
+}
+
+my ($help, $vers, $non_int, $no_reqs, @excluded);
+
+GetOptions (
+	'help|h'		=> \$help,
+	'version|v'		=> \$vers,
+	'nointeractive|r'	=> \$non_int,
+	'norequirements|R'	=> \$no_reqs,
+	'exclude|e=s'		=> \@excluded,
+);
+
+show_usage and exit 0 if $help;
+show_version and exit 0 if $vers;
+show_usage and exit 0 unless exists $ARGV[0];
+
+my $remove_queue;
+push(@$remove_queue, $ARGV[0]);
+my %ignore;
+
+unless ($no_reqs) {
+	for my $ex (@excluded) {
+		$ignore{$ex}="excluded by user";
+	}
+	$remove_queue = get_build_queue($ARGV[0]);
+	my $installed = get_installed_sbos;
+	my $inst_names = get_inst_names $installed;
+	#print files...
+	for my $pkg (@$inst_names) {
+		unless ($pkg ~~ @$remove_queue) {
+			my $location = get_sbo_location($pkg);
+			my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
+			next unless $$requires[0];
+			for my $req (@$requires) {
+				if ($req ~~ @$remove_queue) {
+					$ignore{$req}="required by $pkg";
+					push(@excluded, $req);
+				}		
+			}	
+		}
+	}
+}
+my $queue = join(" ", @$remove_queue);
+say "Remove: $queue\n";
+# Removed excluded
+my $exclude;
+my @new = ();
+for my $sb (@$remove_queue) {
+ 	$exclude = 0;
+ 	foreach (@excluded) {
+ 		if ( $_ eq $sb ) {
+ 			$exclude = 1;
+ 		}
+ 	}
+ 		unless ($exclude) {
+		push(@new, $sb);
+	}
+}
+
+$remove_queue = \@new;
+
+# Show ignored
+my $ignore_count = keys(%ignore);
+if ($ignore_count) {
+	say "Ignoring $ignore_count package(s).";
+	while ( my ($key, $value) = each(%ignore) ) {
+    		say "$key : $value";
+	}
+	print "\n";
+}
+
+# Show remove queue
+my $remove_count = @$remove_queue;
+if ($remove_count) {
+	say "Removing $remove_count package(s).";
+	for my $i (@$remove_queue) {
+		print "$i\n";
+	}
+	print "\n";	
+} else {
+	say "Nothing to remove.";
+	exit 0;
+}
+
+print 'Do you wish to proceed? [n] ';
+unless (<STDIN> =~ /^[Yy]/) {
+	say "Exiting.";
+	exit 0;
+} 
+	
+for my $instpkg (@$remove_queue) {
+	system("/sbin/removepkg $instpkg");
+}
+
+say "All operations completed successfully."
