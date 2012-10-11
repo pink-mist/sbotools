@@ -17,12 +17,6 @@ use File::Basename;
 
 my $self = basename ($0);
 
-sub get_requires ($) {
-	my $location = get_sbo_location($_[0]);
-	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
-	return $requires;
-}
-
 sub show_usage () {
 	print <<EOF
 Usage: $self [options] sbo
@@ -43,6 +37,8 @@ Note: optional dependencies need to be removed separately.
 
 EOF
 }
+
+
 
 my ($help, $vers, $non_int, $no_reqs, $force, @excluded);
 
@@ -67,7 +63,31 @@ my $remove_queue;
 my %required_by;
 my @confirmed;
 
-# Determine dependencies
+sub get_requires ($) {
+	my $location = get_sbo_location($_[0]);
+	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
+	return $requires;
+}
+
+sub get_required_by ($) {
+	my $pkg = $_[0];
+	my @dep_of = ();
+	if ( $required_by{$pkg} ) {
+		for my $req_by (@{$required_by{$pkg}}) {
+			unless ($req_by ~~ @confirmed) {
+				push (@dep_of, $req_by);
+			}
+		}
+	}
+	return join(" ", @dep_of);
+}
+
+sub confirm_remove ($) {
+	unless ($_[0] ~~ @confirmed) {
+		push(@confirmed, $_[0]);
+	}
+}
+# Determine dependencies of root package
 unless ($no_reqs) {
 	$remove_queue = get_build_queue($rootpkg);
 	@$remove_queue = reverse(@$remove_queue);
@@ -75,9 +95,8 @@ unless ($no_reqs) {
 	push(@$remove_queue, $rootpkg);
 }
 
-
 my $inst_names;
-# Determine required by
+# Determine required by for all installed sbo's
 unless ($force) {
 	my $installed = get_installed_sbos;
 	$inst_names = get_inst_names $installed;
@@ -104,52 +123,52 @@ if ($inst_names) {
 	}
 	$remove_queue = \@temp;
 }
-
-my $queue = join(" ", @$remove_queue);
-say "Remove: $queue\n";
-
-# separate ignored packages from confirmed. 
-my $ignore;
-my %ignore_data;
-for my $pkg (@$remove_queue) {
-	$ignore = 0;
-	while ( my ($key, $value) = each(%required_by) ) {
-		if ( $key eq $pkg ) {
-			for my $v (@$value) {
-				unless ($v ~~ @confirmed) {
-					$ignore = 1;
-					push(@{$ignore_data{$key}}, $v);
-				}
-			}
+if ( $non_int) {
+	my $ignore;
+	for my $pkg (@$remove_queue) {
+		$ignore = 0;
+		while ( my ($key, $value) = each(%required_by) ) {
+			if ( $key eq $pkg ) {
+	      			for my $v (@$value) {
+	        			unless ($v ~~ @confirmed) {
+	          				$ignore = 1;
+	        			}
+	      			}
+	    		}
+	  	}
+	  	unless ($ignore) {
+	    		confirm_remove $pkg;
+	  	}
+	}
+} else {
+	for my $pkg (@$remove_queue) {
+		say $pkg;
+		my $req_by_line = get_required_by $pkg;
+		my $default = "y";
+		if ( $req_by_line ) {
+			say "required by : $req_by_line";
+			$default = "n"; 
+		}
+		print "Remove? [$default] : ";
+		my $userin = <STDIN>;
+		chomp($userin);
+		$userin = $default unless $userin;
+		if ($userin =~ /^[Yy]/) {
+			confirm_remove $pkg;
+			say "* added $pkg to remove queue\n";
+		} else {
+			say "* ignoring $pkg\n"
 		}
 	}
-	unless ($ignore) {
-		push(@confirmed, $pkg);
-	}
 }
-
-# Show ignored packages
-my $ignore_count = keys(%ignore_data);
-if ($ignore_count) {
-	say "Ignoring $ignore_count package(s)";
-	while ( my ($key, $value) = each(%ignore_data) ) {
-		print "$key : required by";
-		for my $v (@$value) {
-			print " $v";
-		}
-		print "\n";
-	}
-	print "\n";
-}
-
 # Show remove queue
 my $remove_count = @confirmed;
 if ($remove_count) {
 	say "Removing $remove_count package(s)";
 	for my $pkg (@confirmed) {
-		print "$pkg\n";
+		print "$pkg ";
 	}
-	print "\n";	
+	say "\n";	
 } else {
 	say "Nothing to remove.";
 	exit 0;
