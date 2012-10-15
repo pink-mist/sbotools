@@ -15,6 +15,7 @@ use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 
+
 package SBO::Lib 1.1;
 my $version = '1.1';
 
@@ -55,6 +56,7 @@ use File::Copy;
 use File::Path qw(make_path remove_tree);
 use File::Temp qw(tempdir tempfile);
 use File::Find;
+use File::Basename;
 use Fcntl qw(F_SETFD F_GETFD);
 
 our $tempdir = tempdir (CLEANUP => 1);
@@ -718,38 +720,48 @@ sub do_upgradepkg ($) {
 	return 1;
 }
 
-# add slackbuild plus reqs to build queue.
-sub add_to_queue (%);
-sub add_to_queue (%) {
-	my %args = %{$_[0]};
-	my $location = get_sbo_location($args{NAME});
-	push(@{$_[0]}{QUEUE}, $args{NAME});
-	return 1 unless $args{RECURSIVE};
+
+# avoid being called to early to check prototype when add_to_queue calls itself
+sub add_to_queue ($);
+# used by get_build_queue. 
+sub add_to_queue ($) {
+	my $args = shift;
+	my $sbo = \${$args}{NAME};
+	return unless $$sbo;
+	push(@{$args}{QUEUE}, $$sbo);
+	my @locations = get_sbo_location $$sbo;
+	my $location;
+	for my $loc (@locations) {
+		$location = $loc if basename($loc) eq $$sbo;
+	}
+	return unless $location;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
-	return unless $$requires[0];
 	for my $req (@$requires) {
-		unless (( $req eq "%README%") or ($req eq $args{NAME})) {
-			$args{NAME} = $req;
-			add_to_queue(\%args)
+		next if $req eq $$sbo;
+		if ($req eq "%README%") {
+			${$args}{WARNINGS}{$$sbo}="%README%";
+		} else {
+			$$sbo = $req;
+			add_to_queue($args);
 		}
 	}	
 }
 
-# get full build queue.
-sub get_build_queue ($) {
-	exists $_[0] or script_error 'get_build_queue requires an argument.';
-	my @temp_queue = ();
-	my @build_queue = ();
+# recursively add a sbo's requirements to the build queue.
+sub get_build_queue ($$) {
+	unless ($_[0] && $_[1]) { 
+		script_error 'get_build_queue requires two arguments.';
+	}
+	my (@temp_queue, @build_queue);
 	my %args = (
 		QUEUE 	  => \@temp_queue, 
 		NAME 	  => $_[0], 
-		RECURSIVE => 1
+		WARNINGS  => \%{$_[1]} 
 	);
 	add_to_queue(\%args);
-	@temp_queue = reverse(@temp_queue);
-	# Remove duplicate entries (leaving first occurance)
-	my %seen = ();
-	for my $sb( @temp_queue ) {
+	# Remove duplicate entries (leaving first occurrence)
+	my %seen;
+	for my $sb( reverse(@temp_queue) ) {
 		 next if $seen{ $sb }++;
 		 push @build_queue, $sb;
 	}    

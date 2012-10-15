@@ -7,6 +7,8 @@
 #
 # author: Jacob Pipkin <j@dawnrazor.net>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
+#
+# modified by: Luke Williams <xocel@iquidus.org>
 
 use 5.16.0;
 use strict;
@@ -93,10 +95,12 @@ sub get_file_contents ($) {
 	return $contents;
 }
 
+# get build queue and return it as a single line. 
 sub show_build_queue ($) {
-	exists $_[0] or script_error 'prepare_queue requires an argument.';
-	my $queue = join(" ", get_build_queue($_[0]));
-	return "$queue";
+	exists $_[0] or script_error 'show_build_queue requires an argument.';
+	my %warnings;
+	my $queue = get_build_queue($_[0], \%warnings);
+	return join(" ", @$queue);
 }
 
 my $findings = perform_search $search;

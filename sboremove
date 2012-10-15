@@ -3,7 +3,7 @@
 # vim: set ts=4:noet
 #
 # sboremove
-# script to remove an installed SlackBuild and any unused dependencies
+# script to remove an installed SlackBuild
 #
 # author: Luke Williams <xocel@iquidus.org>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
@@ -26,26 +26,21 @@ Options (defaults shown first where applicable):
     this screen.
   -v|--version:
     version information.
-  -r|--nointeractive:
-    non-interactive; skips all prompts.
   -R|--norequirements:
     do not parse requirements.
   -f|--force:
-    force remove, even if required by other packages on system.
+    prompt to remove, even if required by other packages on system.
 
 Note: optional dependencies need to be removed separately. 
 
 EOF
 }
 
-
-
 my ($help, $vers, $non_int, $no_reqs, $force, @excluded);
 
 GetOptions (
 	'help|h'		=> \$help,
 	'version|v'		=> \$vers,
-	'nointeractive|r'	=> \$non_int,
 	'norequirements|R'	=> \$no_reqs,
 	'force|f'		=> \$force,
 );
@@ -61,19 +56,20 @@ die "Unable to locate $rootpkg in the SlackBuilds.org tree.\n" unless
 
 my $remove_queue;
 my %required_by;
+my %warnings;
 my @confirmed;
 
 sub get_requires ($) {
-	my $location = get_sbo_location($_[0]);
+	my $location = get_sbo_location(shift);
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	return $requires;
 }
 
 sub get_required_by ($) {
-	my $pkg = $_[0];
-	my @dep_of = ();
-	if ( $required_by{$pkg} ) {
-		for my $req_by (@{$required_by{$pkg}}) {
+	my $sbo = shift;
+	my @dep_of;
+	if ( $required_by{$sbo} ) {
+		for my $req_by (@{$required_by{$sbo}}) {
 			unless ($req_by ~~ @confirmed) {
 				push (@dep_of, $req_by);
 			}
@@ -83,76 +79,83 @@ sub get_required_by ($) {
 }
 
 sub confirm_remove ($) {
-	unless ($_[0] ~~ @confirmed) {
-		push(@confirmed, $_[0]);
+	my $sbo = shift;
+	unless ($sbo ~~ @confirmed) {
+		push(@confirmed, $sbo);
 	}
 }
-# Determine dependencies of root package
-unless ($no_reqs) {
-	$remove_queue = get_build_queue($rootpkg);
-	@$remove_queue = reverse(@$remove_queue);
-} else {
+
+# Determine dependencies & warnings of root package
+$remove_queue = get_build_queue($rootpkg, \%warnings);
+@$remove_queue = reverse(@$remove_queue);
+if ($no_reqs) {
+	@$remove_queue = ();
 	push(@$remove_queue, $rootpkg);
 }
 
-my $inst_names;
 # Determine required by for all installed sbo's
-unless ($force) {
-	my $installed = get_installed_sbos;
-	$inst_names = get_inst_names $installed;
-	for my $inst (@$inst_names) {
-		my $requires = get_requires "$inst";
-		next unless $$requires[0];
-		for my $req (@$requires) {
-			unless ( $req eq "%README%" ) {
-				if ( $req ~~ $inst_names ) {
-					push(@{$required_by{$req}}, $inst);
-				}
-			}		
-		}	
-	}
+my $installed = get_installed_sbos;
+my $inst_names = get_inst_names $installed;
+for my $inst (@$inst_names) {
+	my $requires = get_requires "$inst";
+	next unless $$requires[0];
+	for my $req (@$requires) {
+		unless ( $req eq "%README%" ) {
+			if ( $req ~~ $inst_names ) {
+				push(@{$required_by{$req}}, $inst);
+			}
+		}		
+	}	
 }
 
-# Make sure packages in remove queue are installed on system. 
+# Check if packages in queue are actually installed on system 
 my @temp;
 if ($inst_names) {
-	for my $i (@$remove_queue) {
-		if ($i ~~ $inst_names) {
-			push(@temp, $i);
+	for my $sbo (@$remove_queue) {
+		if ($sbo ~~ $inst_names) {
+			push(@temp, $sbo);
 		}
 	}
 	$remove_queue = \@temp;
 }
-if ( $non_int) {
-	my $ignore;
-	for my $pkg (@$remove_queue) {
-		$ignore = 0;
-		while ( my ($key, $value) = each(%required_by) ) {
-			if ( $key eq $pkg ) {
-	      			for my $v (@$value) {
-	        			unless ($v ~~ @confirmed) {
-	          				$ignore = 1;
-	        			}
-	      			}
-	    		}
-	  	}
-	  	unless ($ignore) {
-	    		confirm_remove $pkg;
-	  	}
+
+# Gather instructions from user
+my ($req_by_line, @req_by, $req_count, $cnf_count);
+my $is_rootpkg = 1;
+for my $pkg (@$remove_queue) {
+	$req_by_line = get_required_by $pkg;
+	@req_by = split(" ", $req_by_line);
+	$req_count = @req_by;
+	$cnf_count = 0;
+	for my $val (@req_by) {
+		if ( $val ~~ @confirmed ) { $cnf_count++; }  
 	}
-} else {
-	for my $pkg (@$remove_queue) {
+	if ($cnf_count == $req_count or $is_rootpkg or $force) {  
 		say $pkg;
-		my $req_by_line = get_required_by $pkg;
-		my $default = "y";
 		if ( $req_by_line ) {
-			say "required by : $req_by_line";
-			$default = "n"; 
+			say "Required by: $req_by_line";
+		} else {
+			unless ($is_rootpkg) {
+				say "It appears $pkg is no longer required on your system";
+			}
 		}
-		print "Remove? [$default] : ";
-		my $userin = <STDIN>;
-		chomp($userin);
-		$userin = $default unless $userin;
+		$is_rootpkg = 0;
+		if ( exists $warnings{$pkg} ) {
+			say "$pkg suggests you view its README before proceeding,";
+			print "view now? [y] : ";
+			chomp(my $viewrm = <STDIN>);
+			if ($viewrm =~ /^[Yy]/) {
+				print "\n";
+				my $locrm = get_sbo_location $pkg;
+				$locrm .= '/README';
+				open(README, '<', $locrm) or die "could not open $locrm";
+				for my $line (<README>) {
+					print $line;
+				}
+			}
+		}
+		print "Remove $pkg? [n] : ";
+		chomp(my $userin = <STDIN>);
 		if ($userin =~ /^[Yy]/) {
 			confirm_remove $pkg;
 			say "* added $pkg to remove queue\n";
@@ -161,6 +164,7 @@ if ( $non_int) {
 		}
 	}
 }
+
 # Show remove queue
 my $remove_count = @confirmed;
 if ($remove_count) {
@@ -170,16 +174,16 @@ if ($remove_count) {
 	}
 	say "\n";	
 } else {
-	say "Nothing to remove.";
+	say 'Nothing to remove.';
 	exit 0;
 }
-unless ($non_int) {
-	print 'Do you wish to proceed? [n] ';
-	unless (<STDIN> =~ /^[Yy]/) {
-		say "Exiting.";
-		exit 0;
-	}
+
+print 'Are you sure you want to continue? [n] : ';
+unless (<STDIN> =~ /^[Yy]/) {
+	say 'Exiting.';
+	exit 0;
 }
+
 	
 for my $instpkg (@confirmed) {
 	system("/sbin/removepkg $instpkg");
