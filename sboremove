@@ -28,21 +28,21 @@ Options (defaults shown first where applicable):
     version information.
   -R|--norequirements:
     do not parse requirements.
-  -f|--force:
-    prompt to remove, even if required by other packages on system.
+  -a|--alwaysask:
+    always ask to remove, even if required by other packages on system.
 
 Note: optional dependencies need to be removed separately. 
 
 EOF
 }
 
-my ($help, $vers, $non_int, $no_reqs, $force, @excluded);
+my ($help, $vers, $non_int, $no_reqs, $alwaysask, @excluded);
 
 GetOptions (
 	'help|h'		=> \$help,
 	'version|v'		=> \$vers,
 	'norequirements|R'	=> \$no_reqs,
-	'force|f'		=> \$force,
+	'alwaysask|a'		=> \$alwaysask,
 );
 
 show_usage and exit 0 if $help;
@@ -130,7 +130,7 @@ for my $pkg (@$remove_queue) {
 	for my $val (@req_by) {
 		if ( $val ~~ @confirmed ) { $cnf_count++; }  
 	}
-	if ($cnf_count == $req_count or $is_rootpkg or $force) {  
+	if ($cnf_count == $req_count or $is_rootpkg or $alwaysask) {  
 		say $pkg;
 		if ( $req_by_line ) {
 			say "Required by: $req_by_line";
