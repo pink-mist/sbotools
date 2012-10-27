@@ -136,7 +136,7 @@ for my $pkg (@$remove_queue) {
 			say "Required by: $req_by_line";
 		} else {
 			unless ($is_rootpkg) {
-				say "It appears $pkg is no longer required on your system";
+				say "It appears $pkg will no longer be required on your system";
 			}
 		}
 		$is_rootpkg = 0;
@@ -189,4 +189,6 @@ for my $instpkg (@confirmed) {
 	system("/sbin/removepkg $instpkg");
 }
 
-say "All operations completed successfully."
+say "All operations have completed successfully."
+
+exit 0;
