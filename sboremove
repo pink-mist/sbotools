@@ -189,6 +189,6 @@ for my $instpkg (@confirmed) {
 	system("/sbin/removepkg $instpkg");
 }
 
-say "All operations have completed successfully."
+say "All operations have completed successfully.";
 
 exit 0;
