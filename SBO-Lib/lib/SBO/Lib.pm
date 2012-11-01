@@ -578,11 +578,16 @@ sub perform_sbo (%) {
 	unless ($args{LOCATION} && $args{ARCH}) {
 		script_error 'perform_sbo requires LOCATION and ARCH.';
 	}
+
 	my $location = $args{LOCATION};
 	my $sbo = get_sbo_from_loc $location;
 	my ($cmd, %changes);
 	# set any changes we need to make to the .SlackBuild, setup the command
+	
+	$args{JOBS} = 0 if $args{JOBS} eq 'FALSE';
 	$changes{make} = "-j $args{JOBS}" if $args{JOBS};
+
+
 	if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
 		if ($args{C32}) {
 			$changes{libdirsuffix} = '';
