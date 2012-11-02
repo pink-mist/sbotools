@@ -351,3 +351,11 @@ $reqs = clean_reqs $reqs;
 ok ($$reqs[0] eq 'gob2', 'clean_reqs good for un/installed reqs.');
 ok ($$reqs[1] eq 'libmpd', 'clean_reqs good for un/installed reqs.');
 
+my %warnings;
+my $queue = get_build_queue 'zdoom', \%warnings;
+my $count = @$queue;
+ok ($count == 5, 'get_build_queue returns correct amount of sbos');
+ok ($$queue[0] eq 'p7zip', 'get_build_queue first entry correct');
+ok ($$queue[1] eq 'fmodapi', 'get_build_queue second entry correct');
+ok ($$queue[4] eq 'zdoom', 'get_build_queue last entry correct');
+
