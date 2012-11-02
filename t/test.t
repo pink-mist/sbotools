@@ -342,11 +342,10 @@ close $fh;
 ok (! (get_opts $readme), 'get_opts good where README does not define opts');
 
 # 88-90, clean_reqs tests
-#$reqs = get_requires "wine", "$sbo_home/system/wine";
-#$reqs = clean_reqs $reqs;
-#print $_,"\n" for @$reqs;
-#ok (! $$reqs[0], 'clean_reqs good for already installed reqs');
 $SBO::Lib::compat32 = 0;
+$reqs = get_requires "zdoom", "$sbo_home/games/zdoom";
+$reqs = clean_reqs $reqs;
+ok (! $$reqs[0], 'clean_reqs good for already installed reqs');
 $reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
 $reqs = clean_reqs $reqs;
 ok ($$reqs[0] eq 'gob2', 'clean_reqs good for un/installed reqs.');
