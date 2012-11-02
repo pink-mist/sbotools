@@ -366,7 +366,7 @@ sub get_filename_from_link ($) {
 	my $fn = shift;
 	my $regex = qr#/([^/]+)$#;
 	my $filename = $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
-	$filename =~ s/%2B/+/g;
+	$filename =~ s/%2B/+/g if $filename;
 	return $filename;
 }
 
