@@ -360,7 +360,7 @@ ok ($$queue[2] eq 'OpenAL', 'get_build_queue third entry correct for multiple sb
 ok ($$queue[4] eq 'spring', 'get_build_queue fifth entry correct for multiple sbos');
 ok ($$queue[6] eq 'fmodapi', 'get_build_queue seventh entry correct for multiple sbos');
 ok ($$queue[8] eq 'TiMidity++', 'get_build_queue ninth entry correct for multiple sbos');
-$queue = get_build_queue ['zdoom'], $warnings, 1;
+$queue = get_build_queue ['zdoom'], $warnings;
 $count = @$queue;
 ok ($count == 5, 'get_build_queue returns correct amount for single sbo');
 ok ($$queue[0] eq 'p7zip', 'get_build_queue first entry correct for single sbo');
