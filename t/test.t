@@ -58,7 +58,7 @@ for my $key (keys @$installed) {
 		'libmodplug';
 	is ($$installed[$key]{version}, '3.12.4') if $$installed[$key]{name} eq
 		'mozilla-nss';
-	is ($$installed[$key]{version}, '2.5.0') if $$installed[$key]{name} eq
+	is ($$installed[$key]{version}, '2.6.0') if $$installed[$key]{name} eq
 		'zdoom';
 }
 print "completed pseudo-random testing of get_installed_sbos \n";
