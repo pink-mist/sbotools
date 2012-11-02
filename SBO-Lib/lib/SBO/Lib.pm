@@ -734,11 +734,7 @@ sub add_to_queue ($) {
 	my $sbo = \${$args}{NAME};
 	return unless $$sbo;
 	push(@{$args}{QUEUE}, $$sbo);
-	my @locations = get_sbo_location $$sbo;
-	my $location;
-	for my $loc (@locations) {
-		$location = $loc if basename($loc) eq $$sbo;
-	}
+	my $location = get_sbo_location $$sbo;
 	return unless $location;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	for my $req (@$requires) {
