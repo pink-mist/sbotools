@@ -754,16 +754,18 @@ sub add_to_queue ($) {
 
 # recursively add a sbo's requirements to the build queue.
 sub get_build_queue ($$) {
-	unless ($_[0] && $_[1]) { 
-		script_error 'get_build_queue requires two arguments.';
+	exists $_[1] or script_error 'get_build_queue requires two arguments.';
+	my ($sbos, $warnings) = @_;
+	state $temp_queue = [''];
+	my @build_queue;
+	for my $sbo (@$sbos) {
+		my %args = (
+			QUEUE 	  => \@temp_queue, 
+			NAME 	  => $sbo, 
+			WARNINGS  => $warnings
+		);
+		add_to_queue(\%args);
 	}
-	my (@temp_queue, @build_queue);
-	my %args = (
-		QUEUE 	  => \@temp_queue, 
-		NAME 	  => $_[0], 
-		WARNINGS  => \%{$_[1]} 
-	);
-	add_to_queue(\%args);
 	# Remove duplicate entries (leaving first occurrence)
 	my %seen;
 	for my $sb( reverse(@temp_queue) ) {
