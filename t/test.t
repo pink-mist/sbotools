@@ -354,11 +354,15 @@ ok ($$reqs[1] eq 'libmpd', 'clean_reqs good for un/installed reqs.');
 my $warnings = {()};;
 my $queue = get_build_queue ['zdoom', 'bsnes', 'spring'], $warnings;
 my $count = @$queue;
-ok ($count == 10, 'get_build_queue returns correct amount of sbos');
-ok ($$queue[0] eq 'jdk', 'get_build_queue first entry correct');
-ok ($$queue[2] eq 'OpenAL', 'get_build_queue third entry correct');
-ok ($$queue[4] eq 'spring', 'get_build_queue fifth entry correct');
-ok ($$queue[6] eq 'fmodapi', 'get_build_queue seventh entry correct');
-ok ($$queue[8] eq 'TiMidity++', 'get_build_queue ninth entry correct');
-
-
+ok ($count == 10, 'get_build_queue returns correct amount for multiple sbos');
+ok ($$queue[0] eq 'jdk', 'get_build_queue first entry correct for multiple sbos');
+ok ($$queue[2] eq 'OpenAL', 'get_build_queue third entry correct for multiple sbos');
+ok ($$queue[4] eq 'spring', 'get_build_queue fifth entry correct for multiple sbos');
+ok ($$queue[6] eq 'fmodapi', 'get_build_queue seventh entry correct for multiple sbos');
+ok ($$queue[8] eq 'TiMidity++', 'get_build_queue ninth entry correct for multiple sbos');
+$queue = get_build_queue ['zdoom'], $warnings, 1;
+$count = @$queue;
+ok ($count == 5, 'get_build_queue returns correct amount for single sbo');
+ok ($$queue[0] eq 'p7zip', 'get_build_queue first entry correct for single sbo');
+ok ($$queue[2] eq 'eawpats', 'get_build_queue third entry correct for single sbo');
+ok ($$queue[4] eq 'zdoom', 'get_build_queue fifth entry correct for single sbo');
