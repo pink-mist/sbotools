@@ -301,8 +301,9 @@ ok ('zdoom' ~~ @$inst_names, 'get_inst_names is good');
 
 # 76-81, get_reqs tests
 $SBO::Lib::no_reqs = 0;
-ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
-	'get_requires good for circular requirements');
+# no longer valid - there are no longer any circular requirements.
+#ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
+#	'get_requires good for circular requirements');
 ok (! (get_requires 'smc', "$sbo_home/games/smc"),
 	'get_requires good for REQUIRES="%README%"');
 ok (! (get_requires 'krb5', "$sbo_home/network/krb5"),
