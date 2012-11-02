@@ -10,7 +10,7 @@ use Text::Diff;
 use lib ".";
 use SBO::Lib;
 
-my $sbo_home = '/home/d4wnr4z0r/sbo.git/slackbuilds';
+my $sbo_home = '/usr/sbo';
 
 # 1, open_read, open_fh tests
 my $fh = open_read ('./test.t');
