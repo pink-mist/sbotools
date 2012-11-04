@@ -226,21 +226,22 @@ sub get_sbo_location {
 		my $tmp = $sbos[0];
 		@sbos = @$tmp;
 	}
-	state $loc_store = {};
+	state $store = {};
 	# if scalar context and we've already have the location, return it now.
 	unless (wantarray) {
-		return $$loc_store{$sbos[0]} if exists $$loc_store{$sbos[0]};
+		return $$store{$sbos[0]} if exists $$store{$sbos[0]};
 	}
 	my %locations;
 	my $fh = open_read $slackbuilds_txt;
-	for my $sbo (@sbos) {
+	FIRST: for my $sbo (@sbos) {
+		$locations{$sbo} = $store{$sbo}, next FIRST if exists $$store{$sbo};
 		my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
 		while (my $line = <$fh>) {
 			if (my $loc = ($line =~ $regex)[0]) {
 				# save what we found for later requests
-				$$loc_store{$sbo} = "$config{SBO_HOME}$loc";
-				return $$loc_store{$sbo} unless wantarray;
-				$locations{$sbo} = $$loc_store{$sbo};
+				$$store{$sbo} = "$config{SBO_HOME}$loc";
+				return $$store{$sbo} unless wantarray;
+				$locations{$sbo} = $$store{$sbo};
 			}
 		}
 		seek $fh, 0, 0;
