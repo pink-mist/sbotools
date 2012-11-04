@@ -226,7 +226,7 @@ sub get_sbo_location {
 	state $loc_store = {};
 	# if scalar context and we've already have the location, return it now.
 	unless (wantarray) {
-		return $loc_store{$sbos[0]} if exists $loc_store{$sbos[0]};
+		return $$loc_store{$sbos[0]} if exists $$loc_store{$sbos[0]};
 	}
 	my %locations;
 	my $fh = open_read $slackbuilds_txt;
@@ -235,9 +235,9 @@ sub get_sbo_location {
 		while (my $line = <$fh>) {
 			if (my $loc = ($line =~ $regex)[0]) {
 				# save what we found for later requests
-				$loc_store{$sbo} = "$config{SBO_HOME}$loc";
-				return $loc_store{$sbo} unless wantarray;
-				$locations{$sbo} = $loc_store{$sbo};
+				$$loc_store{$sbo} = "$config{SBO_HOME}$loc";
+				return $$loc_store{$sbo} unless wantarray;
+				$locations{$sbo} = $$loc_store{$sbo};
 			}
 		}
 		seek $fh, 0, 0;
