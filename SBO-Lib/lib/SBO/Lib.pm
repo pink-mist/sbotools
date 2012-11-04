@@ -243,7 +243,7 @@ sub get_sbo_location {
 		seek $fh, 0, 0;
 	}
 	close $fh;
-	return %locations > 0 ? %locations : undef;
+	return keys %locations > 0 ? %locations : undef;
 }
 
 # pull the sbo name from a $location: $config{SBO_HOME}/system/wine, etc.
