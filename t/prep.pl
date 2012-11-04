@@ -8,7 +8,7 @@ use Tie::File;
 
 chomp (my $pwd = `pwd`);
 mkdir "$pwd/SBO" unless -d "$pwd/SBO";
-copy ('/home/d4wnr4z0r/projects/xocel/sbotools/SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
+copy ('../SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
 
 open my $write, '>>', "$pwd/SBO/Lib.pm";
 
