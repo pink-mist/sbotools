@@ -329,13 +329,7 @@ sub get_download_info (%) {
 	$downs = get_from_info (LOCATION => $args{LOCATION}, GET => $get);
 	# did we get nothing back, or UNSUPPORTED/UNTESTED?
 	if ($args{X64}) {
-		my $nothing;
-		if (! $$downs[0]) {
-			$nothing++;
-		} elsif ($$downs[0] =~ qr/^UN(SUPPOR|TES)TED$/) {
-			$nothing++;
-		}
-		if ($nothing) {
+		if (! $$downs[0] || $$downs[0] =~ qr/^UN(SUPPOR|TES)TED$/) {
 			$args{X64} = 0;
 			$downs = get_from_info (LOCATION => $args{LOCATION},
 				GET => 'DOWNLOAD');
@@ -377,7 +371,7 @@ sub get_sbo_downloads (%) {
 	return %dl_info;
 }
 
-# given a link, grab the filename from the end of it
+# given a link, grab the filename from it and prepend $distfiles
 sub get_filename_from_link ($) {
 	exists $_[0] or script_error 'get_filename_from_link requires an argument';
 	my $fn = shift;
