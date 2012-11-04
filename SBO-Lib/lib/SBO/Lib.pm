@@ -230,7 +230,7 @@ sub get_sbo_location {
 	}
 	my %locations;
 	my $fh = open_read $slackbuilds_txt;
-	for my $sbo (@$sbos) {
+	for my $sbo (@sbos) {
 		my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
 		while (my $line = <$fh>) {
 			if (my $loc = ($line =~ $regex)[0]) {
