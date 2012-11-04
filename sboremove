@@ -50,7 +50,7 @@ show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
 my $rootpkg = $ARGV[0];
-my $test = get_sbo_location $rootpkg;
+my $test = get_sbo_location ($rootpkg);
 die "Unable to locate $rootpkg in the SlackBuilds.org tree.\n" unless
 	defined $test;
 
@@ -146,7 +146,7 @@ for my $pkg (@$remove_queue) {
 			chomp(my $viewrm = <STDIN>);
 			if ($viewrm =~ /^[Yy]/) {
 				print "\n";
-				my $locrm = get_sbo_location $pkg;
+				my $locrm = get_sbo_location ($pkg);
 				$locrm .= '/README';
 				open(README, '<', $locrm) or die "could not open $locrm";
 				for my $line (<README>) {
