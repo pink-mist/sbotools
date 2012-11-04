@@ -234,7 +234,7 @@ sub get_sbo_location {
 	my %locations;
 	my $fh = open_read $slackbuilds_txt;
 	FIRST: for my $sbo (@sbos) {
-		$locations{$sbo} = $store{$sbo}, next FIRST if exists $$store{$sbo};
+		$locations{$sbo} = $$store{$sbo}, next FIRST if exists $$store{$sbo};
 		my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
 		while (my $line = <$fh>) {
 			if (my $loc = ($line =~ $regex)[0]) {
@@ -266,26 +266,26 @@ sub get_from_info (%) {
 	unless ($args{LOCATION} && $args{GET}) {
 		script_error 'get_from_info requires LOCATION and GET.';
 	}
-	state $vars = {PRGNAM => ['']};
+	state $store = {PRGNAM => ['']};
 	my $sbo = get_sbo_from_loc $args{LOCATION};
-	return $$vars{$args{GET}} if $$vars{PRGNAM}[0] eq $sbo;
+	return $$store{$args{GET}} if $$store{PRGNAM}[0] eq $sbo;
 	# if we're here, we haven't read in the .info file yet.
 	my $fh = open_read "$args{LOCATION}/$sbo.info";
-	# suck it all in, clean it all up, stuff it all in $vars.
+	# suck it all in, clean it all up, stuff it all in $store.
 	my $contents = do {local $/; <$fh>};
 	$contents =~ s/("|\\\n)//g;
-	$vars = {$contents =~ /^(\w+)=(.*)$/mg};
+	$store = {$contents =~ /^(\w+)=(.*)$/mg};
 	# fill the hash with array refs - even for single values,
 	# since consistency here is a lot easier than sorting it out later
-	for my $key (keys %$vars) {
-		if ($$vars{$key} =~ /\s/) {
-			my @array = split ' ', $$vars{$key};
-			$$vars{$key} = \@array;
+	for my $key (keys %$store) {
+		if ($$store{$key} =~ /\s/) {
+			my @array = split ' ', $$store{$key};
+			$$store{$key} = \@array;
 		} else {
-			$$vars{$key} = [$$vars{$key}];
+			$$store{$key} = [$$store{$key}];
 		}
 	}
-	return exists $$vars{$args{GET}} ? $$vars{$args{GET}} : undef;
+	return exists $$store{$args{GET}} ? $$store{$args{GET}} : undef;
 }
 
 # find the version in the tree for a given sbo (provided a location)
