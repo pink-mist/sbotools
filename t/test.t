@@ -204,17 +204,6 @@ my %changes = ();
 is (rewrite_slackbuild (SLACKBUILD => $slackbuild, TEMPFN => $tempfn,
 	CHANGES => \%changes), 1, 'rewrite_slackbuild with no %changes good');
 ok (-f "$slackbuild.orig", 'rewrite_slackbuild backing up original is good.');
-my $expected_out = "67c67
-< tar xvf \$CWD/\$PRGNAM-\$VERSION.tar.bz2
----
-> tar xvf \$CWD/\$PRGNAM-\$VERSION.tar.bz2 | tee -a $tempfn
-103c103
-< /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-\$ARCH-\$BUILD\$TAG.\${PKGTYPE:-tgz}
----
-> /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-\$ARCH-\$BUILD\$TAG.\${PKGTYPE:-tgz} | tee -a $tempfn
-";
-is (diff ("$slackbuild.orig", $slackbuild, {STYLE => 'OldStyle'}),
-	$expected_out, 'tar line rewritten correctly');
 is (revert_slackbuild $slackbuild, 1, 'revert_slackbuild is good');
 $changes{libdirsuffix} = '';
 $changes{make} = '-j 5';
@@ -222,10 +211,14 @@ $changes{arch_out} = 'i486';
 is (rewrite_slackbuild (SLACKBUILD => $slackbuild, TEMPFN => $tempfn,
 	CHANGES => \%changes), 1, 'rewrite_slackbuild with all %changes good');
 ok (-f "$slackbuild.orig", 'rewrite_slackbuild backing up original is good.');
-$expected_out = "55c55
+my $expected_out = "55c55
 <   LIBDIRSUFFIX=\"64\"
 ---
 >   LIBDIRSUFFIX=\"\"
+103c103
+< /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-\$ARCH-\$BUILD\$TAG.\${PKGTYPE:-tgz}
+---
+> /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-i486-\$BUILD\$TAG.\${PKGTYPE:-tgz}
 ";
 is (diff ("$slackbuild.orig", $slackbuild, {STYLE => 'OldStyle'}),
 	$expected_out, 'all changed lines rewritten correctly');
