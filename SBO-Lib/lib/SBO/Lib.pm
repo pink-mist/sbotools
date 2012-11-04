@@ -474,9 +474,6 @@ sub rewrite_slackbuild (%) {
 		if (exists $$changes{libdirsuffix}) {
 			$line =~ s/64/$$changes{libdirsuffix}/ if $line =~ $libdir_regex;
 		}
-		if (exists $$changes{make}) {
-			$line =~ s/make/make $$changes{make}/ if $line =~ $make_regex;
-		}
 		if (exists $$changes{arch_out}) {
 			$line =~ s/\$ARCH/$$changes{arch_out}/ if $line =~ $arch_regex;
 		}
