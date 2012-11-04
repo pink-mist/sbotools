@@ -398,7 +398,7 @@ sub compute_md5sum ($) {
 	return $md5sum;
 }
 
-sub compare_md5s ($$) {
+sub compare_md5s {
 	exists $_[1] or script_error 'compare_md5s requires two arguments.';
 	my ($first, $second) = @_;
 	return $first eq $second ? 1 : undef;
@@ -413,7 +413,7 @@ sub verify_distfile ($$) {
 	return unless -d $distfiles;
 	return unless -f $filename;
 	my $md5sum = compute_md5sum $filename;
-	return compare_md5s $info_md5sum, $md5sum;
+	return compare_md5s ($info_md5sum, $md5sum);
 }
 
 # for a given distfile, attempt to retrieve it and, if successful, check its
@@ -428,7 +428,7 @@ sub get_distfile ($$) {
 		die "Unable to wget $link\n";
 	my $md5sum = compute_md5sum $filename;
 	# can't do anything if the link in the .info doesn't lead to a good d/l
-	compare_md5s $md5sum, $exp_md5 or die "md5sum failure for $filename.\n";
+	compare_md5s ($md5sum, $exp_md5) or die "md5sum failure for $filename.\n";
 	return 1;
 }
 
