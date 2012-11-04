@@ -402,7 +402,7 @@ sub compute_md5sum ($) {
 # matches the sbo's .info file
 sub verify_distfile ($$) {
 	exists $_[1] or script_error 'verify_distfile requires two arguments.';
-	my ($link, $info_md5sum) = @_;
+	my ($link, $info_md5) = @_;
 	my $filename = get_filename_from_link $link;
 	return unless -d $distfiles;
 	return unless -f $filename;
@@ -420,7 +420,6 @@ sub get_distfile ($$) {
 	chdir $distfiles;
 	system ("wget --no-check-certificate $link") == 0 or
 		die "Unable to wget $link\n";
-	my $md5sum = compute_md5sum $filename;
 	# can't do anything if the link in the .info doesn't lead to a good d/l
 	verify_distfile ($link, $info_md5) ? return 1
 									   : die "md5sum failure for $filename.\n";
