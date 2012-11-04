@@ -219,17 +219,29 @@ sub get_inst_names ($) {
 }
 
 # search the SLACKBUILDS.TXT for a given sbo's directory
-sub get_sbo_location ($) {
+sub get_sbo_location {
 	exists $_[0] or script_error 'get_sbo_location requires an argument.';
-	my $sbo = shift;
-	my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
-	my $fh = open_read $slackbuilds_txt;
-	while (my $line = <$fh>) {
-		if (my $loc = ($line =~ $regex)[0]) {
-			return "$config{SBO_HOME}$loc";
-		}
+	my @sbos = @_;
+	state $loc_store = {};
+	# if scalar context and we've already have the location, return it now.
+	unless (wantarray) {
+		return $loc_store{$sbos[0]} if exists $loc_store{$sbos[0]};
 	}
-	return;
+	my %locations;
+	my $fh = open_read $slackbuilds_txt;
+	for my $sbo (@$sbos) {
+		my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
+		while (my $line = <$fh>) {
+			if (my $loc = ($line =~ $regex)[0]) {
+				$loc_store{$sbo} = "$config{SBO_HOME}$loc";
+				return $loc_store{$sbo} unless wantarray;
+				$locations{$sbo} = $loc_store{$sbo};
+			}
+		}
+		seek $fh, 0, 0;
+	}
+	close $fh;
+	return %locations;
 }
 
 # pull the sbo name from a $location: $config{SBO_HOME}/system/wine, etc.
