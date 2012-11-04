@@ -297,7 +297,7 @@ sub get_available_updates () {
 	my @updates;
 	my $pkg_list = get_installed_sbos; 
 	FIRST: for my $key (keys @$pkg_list) {
-		my $location = get_sbo_location $$pkg_list[$key]{name};
+		my $location = get_sbo_location ($$pkg_list[$key]{name});
 		# if we can't find a location, assume invalid and skip
 		next FIRST unless defined $location;
 		my $version = get_sbo_version $location;
@@ -733,7 +733,7 @@ sub add_to_queue ($) {
 	my $sbo = \${$args}{NAME};
 	return unless $$sbo;
 	unshift @$args{QUEUE}, $$sbo;
-	my $location = get_sbo_location $$sbo;
+	my $location = get_sbo_location ($$sbo);
 	return unless $location;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	FIRST: for my $req (@$requires) {
