@@ -222,6 +222,7 @@ sub get_inst_names ($) {
 sub get_sbo_location {
 	exists $_[0] or script_error 'get_sbo_location requires an argument.';
 	my @sbos = @_;
+	@sbos = $sbos[0] if ref $sbos[0] eq 'ARRAY';
 	state $loc_store = {};
 	# if scalar context and we've already have the location, return it now.
 	unless (wantarray) {
@@ -233,6 +234,7 @@ sub get_sbo_location {
 		my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
 		while (my $line = <$fh>) {
 			if (my $loc = ($line =~ $regex)[0]) {
+				# save what we found for later requests
 				$loc_store{$sbo} = "$config{SBO_HOME}$loc";
 				return $loc_store{$sbo} unless wantarray;
 				$locations{$sbo} = $loc_store{$sbo};
