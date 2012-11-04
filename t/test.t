@@ -226,18 +226,6 @@ $expected_out = "55c55
 <   LIBDIRSUFFIX=\"64\"
 ---
 >   LIBDIRSUFFIX=\"\"
-67c67
-< tar xvf \$CWD/\$PRGNAM-\$VERSION.tar.bz2
----
-> tar xvf \$CWD/\$PRGNAM-\$VERSION.tar.bz2 | tee -a $tempfn
-87c87
-< make
----
-> make -j 5
-103c103
-< /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-\$ARCH-\$BUILD\$TAG.\${PKGTYPE:-tgz}
----
-> /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-i486-\$BUILD\$TAG.\${PKGTYPE:-tgz} | tee -a $tempfn
 ";
 is (diff ("$slackbuild.orig", $slackbuild, {STYLE => 'OldStyle'}),
 	$expected_out, 'all changed lines rewritten correctly');
