@@ -168,11 +168,11 @@ is (get_src_dir $tempfh, 'laptop-mode-tools_1.60', 'get_src_dir good');
 is (get_pkg_name $tempfh, 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
 close $tempfh;
 
-# 42, check_distfiles test
+# check_distfiles test
 %downloads = get_sbo_downloads (LOCATION => "$sbo_home/system/wine", 32 => 1);
 is ((check_distfiles %downloads), 1, 'check_distfiles good');
 
-# 43-45, check_home tests
+# check_home tests
 system ('sudo /usr/sbin/sboconfig -s /home/d4wnr4z0r/opt_sbo') == 0 or die
 	"unable to set sboconfig -s\n";
 read_config;
@@ -184,19 +184,13 @@ system ("sudo /usr/sbin/sboconfig -s $sbo_home") == 0 or die
 read_config;
 rmdir "/home/d4wnr4z0r/opt_sbo";
 
-# 46-47 get_sbo_from_loc tests
+# get_sbo_from_loc tests
 is (get_sbo_from_loc '/home/d4wnr4z0r/sbo.git/system/ifuse', 'ifuse',
 	'get_sbo_from_loc returns correctly with valid input');
 ok (! get_sbo_from_loc 'omg_wtf_bbq',
 	'get_sbo_from_loc returns false with invalid input');
 
-# 48-49, compare_md5s tests
-is (compare_md5s ('omgwtf123456789', 'omgwtf123456789'), 1,
-	'compare_md5s returns true for matching parameters');
-is (compare_md5s ('omgwtf123456788', 'somethingelsebbq'), undef,
-	'compare_md5s returns false for not-matching parameters');
-
-# 50, get_distfile tests
+# get_distfile tests
 my $distfile = "$sbo_home/distfiles/Sort-Versions-1.5.tar.gz";
 unlink $distfile if -f $distfile;
 is (get_distfile
@@ -204,7 +198,7 @@ is (get_distfile
 	'5434f948fdea6406851c77bebbd0ed19'), 1, 'get_distfile is good');
 unlink $distfile;
 
-# 51-58, rewrite_slackbuilds/revert_slackbuild tests
+# rewrite_slackbuilds/revert_slackbuild tests
 my $rewrite_dir = tempdir (CLEANUP => 1);
 copy ("$sbo_home/system/ifuse/ifuse.SlackBuild", $rewrite_dir);
 my $slackbuild = "$rewrite_dir/ifuse.SlackBuild";
