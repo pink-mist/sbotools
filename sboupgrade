@@ -95,7 +95,7 @@ slackbuilds_or_fetch;
 # time verifying each item is a valid slackbuild
 my %locations;
 for my $sbo_name (@ARGV) {
-	$locations{$sbo_name} = get_sbo_location $sbo_name;
+	$locations{$sbo_name} = get_sbo_location ($sbo_name);
 	die "Unable to locate $sbo_name in the SlackBuilds.org tree.\n" unless
 		defined $locations{$sbo_name};
 }
@@ -118,8 +118,8 @@ sub get_requires ($$) {
 	return if '%README%' ~~ @$requires;
 	# do nothing if there's a circular requirement
 	FIRST: for my $req (@$requires) {
-		my $req_req = get_from_info (LOCATION => get_sbo_location $req,
-			GET => 'REQUIRES');
+		my $location = get_sbo_location ($req);
+		my $req_req = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 		if ($sbo ~~ @$req_req) {
 			say "I am seeing circular requirements between $sbo and $req.";
 			say "Therefore, I am not going to handle requirements for $sbo.";
