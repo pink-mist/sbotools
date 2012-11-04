@@ -285,16 +285,15 @@ $SBO::Lib::no_reqs = 0;
 # no longer valid - there are no longer any circular requirements.
 #ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
 #	'get_requires good for circular requirements');
-ok (! (get_requires 'smc', "$sbo_home/games/smc"),
-	'get_requires good for REQUIRES="%README%"');
-ok (! (get_requires 'krb5', "$sbo_home/network/krb5"),
-	'get_requires good for REQUIRES=""');
-my $reqs = get_requires 'matchbox-desktop',
-	"$sbo_home/audio/gmpc";
+my $reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
 my $say = 'get_requires good for normal req list';
 is ($$reqs[0], 'gob2', $say);
 is ($$reqs[1], 'libmpd', $say);
 is ($$reqs[2], 'vala', $say);
+ok (! (get_requires 'smc', "$sbo_home/games/smc"),
+	'get_requires good for REQUIRES="%README%"');
+ok (! (get_requires 'krb5', "$sbo_home/network/krb5"),
+	'get_requires good for REQUIRES=""');
 
 # 82-85, get_user_group tests
 $fh = open_read "$sbo_home/network/nagios/README";
