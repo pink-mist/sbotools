@@ -457,30 +457,19 @@ sub check_multilib () {
 sub rewrite_slackbuild (%) {
 	my %args = (
 		SLACKBUILD	=> '',
-		TEMPFN		=> '',
 		CHANGES		=> {}, 
 		@_
 	);
-	unless ($args{SLACKBUILD} && $args{TEMPFN}) {
-		script_error 'rewrite_slackbuild requires SLACKBUILD and TEMPFN.';
-	}
+	$args{SLACKBUILD} or script_error 'rewrite_slackbuild requires SLACKBUILD.';
 	my $slackbuild = $args{SLACKBUILD};
 	my $changes = $args{CHANGES};
 	copy ($slackbuild, "$slackbuild.orig") or
 		die "Unable to backup $slackbuild to $slackbuild.orig\n";
-	my $tar_regex = qr/(un|)tar .*$/;
-	my $makepkg_regex = qr/makepkg/;
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
-	my $make_regex = qr/^\s*make(| \Q||\E exit 1)$/;
 	my $arch_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
 	# tie the slackbuild, because this is the easiest way to handle this.
 	tie my @sb_file, 'Tie::File', $slackbuild;
 	for my $line (@sb_file) {
-		# get the output of the tar and makepkg commands. hope like hell that v
-		# is specified among tar's arguments
-		if ($line =~ $tar_regex || $line =~ $makepkg_regex) {
-			$line = "$line | tee -a $args{TEMPFN}";
-		}
 		# then check for and apply any other %$changes
 		if (exists $$changes{libdirsuffix}) {
 			$line =~ s/64/$$changes{libdirsuffix}/ if $line =~ $libdir_regex;
@@ -613,9 +602,9 @@ sub perform_sbo (%) {
 	$cmd .= " /bin/sh $location/$sbo.SlackBuild";
 	my $tempfh = tempfile (DIR => $tempdir);
 	my $fn = get_tmp_extfn $tempfh;
+	$cmd .= " | tee -a $fn";
 	rewrite_slackbuild (
 		SLACKBUILD => "$location/$sbo.SlackBuild",
-		TEMPFN => $fn,
 		CHANGES => \%changes,
 	);
 	chdir $location, my $out = system $cmd;
