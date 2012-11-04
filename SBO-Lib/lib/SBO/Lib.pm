@@ -404,7 +404,6 @@ sub verify_distfile ($$) {
 	exists $_[1] or script_error 'verify_distfile requires two arguments.';
 	my ($link, $info_md5) = @_;
 	my $filename = get_filename_from_link $link;
-	return unless -d $distfiles;
 	return unless -f $filename;
 	my $md5sum = compute_md5sum $filename;
 	return $info_md5 eq $md5sum ? 1 : 0;
