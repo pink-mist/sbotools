@@ -599,8 +599,6 @@ sub perform_sbo (%) {
 	# set any changes we need to make to the .SlackBuild, setup the command
 	
 	$args{JOBS} = 0 if $args{JOBS} eq 'FALSE';
-	$changes{make} = "-j $args{JOBS}" if $args{JOBS};
-
 
 	if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
 		if ($args{C32}) {
@@ -610,8 +608,9 @@ sub perform_sbo (%) {
 		}
 		$cmd = '. /etc/profile.d/32dev.sh &&';
 	}
-	$cmd .= "/bin/sh $location/$sbo.SlackBuild";
-	$cmd = "$args{OPTS} $cmd" if $args{OPTS};
+	$cmd .= " $args{OPTS}" if $args{OPTS};
+	$cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
+	$cmd .= " /bin/sh $location/$sbo.SlackBuild";
 	my $tempfh = tempfile (DIR => $tempdir);
 	my $fn = get_tmp_extfn $tempfh;
 	rewrite_slackbuild (
