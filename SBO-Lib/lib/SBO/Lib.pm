@@ -641,18 +641,18 @@ sub do_slackbuild (%) {
 	my $location = $args{LOCATION};
 	my $sbo = get_sbo_from_loc $location;
 	my $arch = get_arch; 
-	my $multi = check_multilib;
+	my $multilib = check_multilib;
 	my $version = get_sbo_version $location;
 	my $x32;
 	# ensure x32 stuff is set correctly, or that we're setup for it
 	if ($args{COMPAT32}) {
-		die "compat32 requires multilib.\n" unless $multi;
+		die "compat32 requires multilib.\n" unless $multilib;
 		die "compat32 requires /usr/sbin/convertpkg-compat32.\n"
 				unless -f '/usr/sbin/convertpkg-compat32';
 	} else {
 		if ($arch eq 'x86_64') {
 			$x32 = check_x32 $args{LOCATION};
-			if ($x32 && ! $multi) {
+			if ($x32 && ! $multilib) {
 				die "$sbo is 32-bit which requires multilib on x86_64.\n";
 			}
 		}
