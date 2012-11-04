@@ -63,11 +63,21 @@ for my $key (keys @$installed) {
 }
 print "completed pseudo-random testing of get_installed_sbos \n";
 
-# 19-20, get_sbo_location tests
+# get_sbo_location tests
 is (get_sbo_location ('nginx'), "$sbo_home/network/nginx",
 	'get_sbo_location is good');
 is (get_sbo_location ('omgwtfbbq'), undef,
 	'get_sbo_location returns false with not-an-sbo input');
+my @finds = qw(nginx gmpc);
+my @locs = get_sbo_location (@finds);
+is ($locs[0], "$sbo_home/network/nginx",
+	'get_sbo_location passed array #1 good');
+is ($locs[1], "$sbo_home/audio/gmpc", 'get_sbo_location passed array #2 good');
+@locs = get_sbo_location (\@finds);
+is ($locs[0], "$sbo_home/network/nginx",
+	'get_sbo_location passed array ref #1 good');
+is ($locs[1], "$sbo_home/audio/gmpc",
+	'get_sbo_location passed array ref #2 good');
 
 # 21-22, get_available_updates tests
 my $updates = get_available_updates; 
