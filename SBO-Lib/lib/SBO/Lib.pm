@@ -222,7 +222,10 @@ sub get_inst_names ($) {
 sub get_sbo_location {
 	exists $_[0] or script_error 'get_sbo_location requires an argument.';
 	my @sbos = @_;
-	@sbos = $sbos[0] if ref $sbos[0] eq 'ARRAY';
+	if (ref $sbos[0] eq 'ARRAY') {
+		my $tmp = $sbos[0];
+		@sbos = @$tmp;
+	}
 	state $loc_store = {};
 	# if scalar context and we've already have the location, return it now.
 	unless (wantarray) {
