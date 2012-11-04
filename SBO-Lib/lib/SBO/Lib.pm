@@ -387,7 +387,7 @@ sub get_filename_from_link ($) {
 	return $filename;
 }
 
-# for a given file, computer its md5sum
+# for a given file, compute its md5sum
 sub compute_md5sum ($) {
 	-f $_[0] or script_error 'compute_md5sum requires a file argument.';
 	my $fh = open_read shift;
