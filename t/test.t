@@ -64,9 +64,9 @@ for my $key (keys @$installed) {
 print "completed pseudo-random testing of get_installed_sbos \n";
 
 # 19-20, get_sbo_location tests
-is (get_sbo_location 'nginx', "$sbo_home/network/nginx",
+is (get_sbo_location ('nginx'), "$sbo_home/network/nginx",
 	'get_sbo_location is good');
-is (get_sbo_location 'omgwtfbbq', undef,
+is (get_sbo_location ('omgwtfbbq'), undef,
 	'get_sbo_location returns false with not-an-sbo input');
 
 # 21-22, get_available_updates tests
