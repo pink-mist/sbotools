@@ -82,7 +82,6 @@ my $rootpkg = $ARGV[0];
 my %warnings;
 my %options;
 my $build_queue; 
-my %locations;
 
 if ($no_reqs) {
     @$build_queue = ();
@@ -91,9 +90,7 @@ if ($no_reqs) {
     $build_queue = get_build_queue($rootpkg, \%warnings);
 }
 
-for my $sbo (@$build_queue) {
-    $locations{$sbo} = get_sbo_location $sbo;
-}
+my %locations = get_sbo_location ($build_queue);
 
 sub get_readme_path ($) {
     exists $_[0] or script_error 'get_readme_path requires an argument.';
@@ -327,7 +324,7 @@ goto BEGIN_BUILD unless $install_new;
 for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
     warn "$name already installed.\n" and next if $name ~~ @$inst_names;
-    $locations{$name} = get_sbo_location $sbo if $compat32;
+    $locations{$name} = get_sbo_location ($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
         if ($compat32) {
