@@ -156,7 +156,7 @@ sub ask_opts ($) {
     return;
 }
 
-sub user_prompt ($$) {
+sub user_prompt {
         exists $_[1] or script_error 'user_prompt requires two arguments.';
         my ($sbo, $location) = @_;
         my $fh = open_read ($location .'/README');

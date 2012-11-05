@@ -236,7 +236,7 @@ sub ask_opts ($) {
 }
 
 # prompt for the readme
-sub readme_prompt ($$) {
+sub readme_prompt {
 	exists $_[0] or script_error 'readme_prompt requires an argument.';
 	my ($sbo, $location) = @_;
 	my $fh = open_read (get_readme_path $sbo);
@@ -267,7 +267,7 @@ sub process_sbos ($) {
 	my %failures;
 	FIRST: for my $sbo (@$todo) {
 		my $opts = 0;
-		$opts = readme_prompt $sbo, $locations{$sbo} unless $non_int;
+		$opts = readme_prompt ($sbo, $locations{$sbo}) unless $non_int;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 1 if $sbo =~ /-compat32$/;
 		my ($version, $pkg, $src);
