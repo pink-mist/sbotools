@@ -107,7 +107,7 @@ sub get_user_group ($) {
 }
 
 # offer to run any user/group add commands
-sub ask_user_group ($$) {
+sub ask_user_group {
     exists $_[1] or script_error 'ask_user_group requires two arguments';
     my ($cmds, $readme) = @_;
     say "\n". $readme;
@@ -165,7 +165,7 @@ sub user_prompt ($$) {
 
         # check for user/group add commands, offer to run any found
         my $user_group = get_user_group $readme;
-        ask_user_group $user_group, $readme  if $$user_group[0];
+        ask_user_group ($user_group, $readme)  if $$user_group[0];
 
         # check for options mentioned in the README
         my $opts = 0;
