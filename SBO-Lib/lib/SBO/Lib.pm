@@ -395,7 +395,7 @@ sub compute_md5sum ($) {
 
 # for a given distfile, see whether or not it exists, and if so, if its md5sum
 # matches the sbo's .info file
-sub verify_distfile ($$) {
+sub verify_distfile {
 	exists $_[1] or script_error 'verify_distfile requires two arguments.';
 	my ($link, $info_md5) = @_;
 	my $filename = get_filename_from_link $link;
@@ -415,8 +415,7 @@ sub get_distfile ($$) {
 	system ("wget --no-check-certificate $link") == 0 or
 		die "Unable to wget $link\n";
 	# can't do anything if the link in the .info doesn't lead to a good d/l
-	verify_distfile ($link, $info_md5) ? return 1
-									   : die "md5sum failure for $filename.\n";
+	verify_distfile (@_) ? return 1 : die "md5sum failure for $filename.\n";
 	return 1;
 }
 
@@ -489,9 +488,8 @@ sub revert_slackbuild ($) {
 sub check_distfiles (%) {
 	exists $_[0] or script_error 'check_distfiles requires an argument.';
 	my %dists = @_;
-	for my $link (keys %dists) {
-		my $md5sum = $dists{$link};
-		get_distfile $link, $md5sum unless verify_distfile $link, $md5sum;
+	while (my ($link, $md5) = each %dists) {
+		get_distfile $link, $md5 unless verify_distfile ($link, $md5)
 	}
 	return 1;
 }
