@@ -496,7 +496,7 @@ sub check_distfiles {
 
 # given a location and a list of download links, assemble a list of symlinks,
 # and create them.
-sub create_symlinks ($%) {
+sub create_symlinks {
 	exists $_[1] or script_error 'create_symlinks requires two arguments.';
 	my ($location, %downloads) = @_;
 	my @symlinks;
@@ -649,7 +649,7 @@ sub do_slackbuild {
 		32 => $args{COMPAT32}
 	);
 	check_distfiles %downloads;
-	my @symlinks = create_symlinks $args{LOCATION}, %downloads;
+	my @symlinks = create_symlinks ($args{LOCATION}, %downloads);
 	# setup and run the .SlackBuild itself
 	my ($pkg, $src) = perform_sbo (
 		OPTS => $args{OPTS},
