@@ -420,7 +420,7 @@ sub get_distfile {
 }
 
 # for a given distfile, figure out what the full path to its symlink will be
-sub get_symlink_from_filename ($$) {
+sub get_symlink_from_filename {
 	exists $_[1] or script_error
 		'get_symlink_from_filename requires two arguments';
 	-f $_[0] or script_error
@@ -502,7 +502,7 @@ sub create_symlinks ($%) {
 	my @symlinks;
 	for my $link (keys %downloads) {
 		my $filename = get_filename_from_link $link;
-		my $symlink = get_symlink_from_filename $filename, $location;
+		my $symlink = get_symlink_from_filename ($filename, $location);
 		push @symlinks, $symlink;
 		symlink $filename, $symlink;
 	}
