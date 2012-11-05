@@ -313,13 +313,11 @@ sub process_sbos ($) {
 	return %failures;
 }
 
-sub print_failures (;%) {
+sub print_failures {
 	if (exists $_[0]) {
 		my %failures = @_;
 		say 'Failures:';
-		while (my ($key, $val) = each %failures) {
-			say "  $key: $val";
-		}
+		say "  $_: $failures{$_}" for keys %failures;
 		exit 1;
 	}
 }
@@ -365,7 +363,7 @@ unless ($force) {
 	}
 }
 my %failures = process_sbos $todo_upgrade if exists $$todo_upgrade[0];
-print_failures %failures;
+print_failures (%failures);
 
 INSTALL_NEW:
 exit 0 unless $install_new;
@@ -397,6 +395,6 @@ FIRST: for my $sbo (@ARGV) {
 	push @$todo_install, $sbo;
 }
 %failures = process_sbos $todo_install if exists $$todo_install[0];
-print_failures %failures;
+print_failures (%failures);
 
 exit 0;

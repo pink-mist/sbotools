@@ -236,13 +236,11 @@ sub process_sbos ($) {
     return %failures;
 }
 
-sub print_failures (;%) {
+sub print_failures {
     if (exists $_[0]) {
         my %failures = @_;
         say 'Failures:';
-        while (my ($key, $val) = each %failures) {
-            say "  $key: $val";
-        }
+		say "  $_: $failures{$_}" for keys %failures;
         exit 1;
     }
 }
@@ -362,9 +360,9 @@ unless ($non_int) {
 }
 
 my %failures = process_sbos $upgrade_queue if exists $$upgrade_queue[0];
-print_failures %failures;
+print_failures (%failures);
 
 %failures = process_sbos $build_queue if exists $$build_queue[0];
-print_failures %failures;
+print_failures (%failures);
 
 exit 0;
