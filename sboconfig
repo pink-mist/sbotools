@@ -131,13 +131,13 @@ sub config_write ($$) {
 		seek $tempfh, 0, 0;
 		my $contents = do {local $/; <$tempfh>};
 		close $conffh;
-		eval { $conffh = open_fh $conf_file, '>' };
+		eval { $conffh = open_fh ($conf_file, '>') };
 		warn "Cannot write configuration: $@\n" and return if $@;
 		print {$conffh} $contents or return;
 		close $conffh, close $tempfh;
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh $conf_file, '>' or return;
+		my $fh = open_fh ($conf_file, '>') or return;
 		print {$fh} "$key=$val\n";
 		close $fh;
 	}

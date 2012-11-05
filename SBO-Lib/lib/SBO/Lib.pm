@@ -68,7 +68,7 @@ sub script_error (;$) {
 }
 
 # sub for opening files, second arg is like '<','>', etc
-sub open_fh ($$) {
+sub open_fh {
 	exists $_[1] or script_error 'open_fh requires two arguments';
 	unless ($_[1] eq '>') {
 		-f $_[0] or script_error 'open_fh first argument not a file';
@@ -79,7 +79,7 @@ sub open_fh ($$) {
 }
 
 sub open_read ($) {
-	return open_fh shift, '<';
+	return open_fh (shift, '<');
 }
 
 # global config variables
@@ -227,7 +227,7 @@ sub get_sbo_location {
 		@sbos = @$tmp;
 	}
 	state $store = {};
-	# if scalar context and we've already have the location, return it now.
+	# if scalar context and we already have the location, return it now.
 	unless (wantarray) {
 		return $$store{$sbos[0]} if exists $$store{$sbos[0]};
 	}
