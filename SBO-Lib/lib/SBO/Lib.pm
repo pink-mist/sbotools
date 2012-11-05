@@ -406,7 +406,7 @@ sub verify_distfile {
 
 # for a given distfile, attempt to retrieve it and, if successful, check its
 # md5sum against that in the sbo's .info file
-sub get_distfile ($$) {
+sub get_distfile {
 	exists $_[1] or script_error 'get_distfile requires an argument';
 	my ($link, $info_md5) = @_;
 	my $filename = get_filename_from_link $link;
@@ -489,7 +489,7 @@ sub check_distfiles (%) {
 	exists $_[0] or script_error 'check_distfiles requires an argument.';
 	my %dists = @_;
 	while (my ($link, $md5) = each %dists) {
-		get_distfile $link, $md5 unless verify_distfile ($link, $md5)
+		get_distfile ($link, $md5) unless verify_distfile ($link, $md5);
 	}
 	return 1;
 }
