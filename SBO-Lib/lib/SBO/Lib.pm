@@ -737,7 +737,7 @@ sub add_to_queue ($) {
 }
 
 # recursively add a sbo's requirements to the build queue.
-sub get_build_queue ($$) {
+sub get_build_queue {
 	exists $_[1] or script_error 'get_build_queue requires two arguments.';
 	my ($sbos, $warnings) = @_;
 	my $temp_queue = [];
