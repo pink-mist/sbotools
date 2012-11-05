@@ -257,7 +257,7 @@ sub get_sbo_from_loc ($) {
 }
 
 # pull piece(s) of data, GET, from the $sbo.info file under LOCATION.
-sub get_from_info (%) {
+sub get_from_info {
 	my %args = (
 		LOCATION	=> '',
 		GET			=> '',
@@ -318,7 +318,7 @@ sub get_available_updates () {
 
 # get downloads and md5sums from an sbo's .info file, first 
 # checking for x86_64-specific info if we are told to
-sub get_download_info (%) {
+sub get_download_info {
 	my %args = (
 		LOCATION 	=> 0,
 		X64 		=> 1,
@@ -352,7 +352,7 @@ sub get_arch () {
 }
 
 # TODO: should probably combine this with get_download_info
-sub get_sbo_downloads (%) {
+sub get_sbo_downloads {
 	my %args = (
 		LOCATION	=> '',
 		32			=> 0,
@@ -444,7 +444,7 @@ sub check_multilib () {
 }
 
 # make a backup of the existent SlackBuild, and rewrite the original as needed
-sub rewrite_slackbuild (%) {
+sub rewrite_slackbuild {
 	my %args = (
 		SLACKBUILD	=> '',
 		CHANGES		=> {}, 
@@ -485,7 +485,7 @@ sub revert_slackbuild ($) {
 
 # for each $download, see if we have it, and if the copy we have is good,
 # otherwise download a new copy
-sub check_distfiles (%) {
+sub check_distfiles {
 	exists $_[0] or script_error 'check_distfiles requires an argument.';
 	my %dists = @_;
 	while (my ($link, $md5) = each %dists) {
@@ -511,7 +511,7 @@ sub create_symlinks ($%) {
 
 # pull the untarred source directory or created package name from the temp
 # file (the one we tee'd to)
-sub grok_temp_file (%) {
+sub grok_temp_file {
 	my %args = (
 		FH		=> '',
 		REGEX	=> '',
@@ -554,7 +554,7 @@ sub get_tmp_extfn ($) {
 }
 
 # prep and run .SlackBuild
-sub perform_sbo (%) {
+sub perform_sbo {
 	my %args = (
 		OPTS		=> 0, 
 		JOBS		=> 0,
@@ -615,7 +615,7 @@ sub do_convertpkg ($) {
 }
 
 # "public interface", sort of thing.
-sub do_slackbuild (%) {
+sub do_slackbuild {
 	my %args = (
 		OPTS		=> 0, 
 		JOBS		=> 0,
@@ -665,7 +665,7 @@ sub do_slackbuild (%) {
 }
 
 # remove work directories (source and packaging dirs under /tmp/SBo)
-sub make_clean (%) {
+sub make_clean {
 	my %args = (
 		SBO		=> '',
 		SRC		=> '',
@@ -684,7 +684,7 @@ sub make_clean (%) {
 }
 
 # remove distfiles
-sub make_distclean (%) {
+sub make_distclean {
 	my %args = (
 		SRC			=> '',
 		VERSION		=> '',
