@@ -160,7 +160,7 @@ sub check_home () {
 sub rsync_sbo_tree () {
 	my $slk_version = get_slack_version;
 	my @arg = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
-	push @arg, "rsync://slackbuilds.org/slackbuilds/$slk_version/*";
+	push @arg, '--delete', "rsync://slackbuilds.org/slackbuilds/$slk_version/*";
 	my $out = system @arg, $config{SBO_HOME};
 	my $wanted = sub {
 		$File::Find::name ? chown 0, 0, $File::Find::name
