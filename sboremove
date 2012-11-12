@@ -41,7 +41,8 @@ my ($help, $vers, $non_int, $no_reqs, $alwaysask, @excluded);
 GetOptions (
 	'help|h'		=> \$help,
 	'version|v'		=> \$vers,
-	'norequirements|R'	=> \$no_reqs,
+	'norequirements|R'	=> \$no_reqs, 
+	'nointeractive|r'   => \$non_int,
 	'alwaysask|a'		=> \$alwaysask,
 );
 
@@ -49,11 +50,18 @@ show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
+my $installed = get_installed_sbos;
+my $inst_names = get_inst_names $installed;
+
 my @remove;
 for my $sbo (@ARGV) {
 	my $test = get_sbo_location $sbo;
 	if ( defined $test ) {
-		push @remove, $sbo;
+		if ($sbo ~~ @$inst_names) {
+			push @remove, $sbo 
+		} else {
+			say "$sbo is not installed";
+		} 
 	} else {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
@@ -98,8 +106,6 @@ if ($no_reqs) {
 }
 
 # Determine required by for all installed sbo's
-my $installed = get_installed_sbos;
-my $inst_names = get_inst_names $installed;
 for my $inst (@$inst_names) {
 	my $requires = get_requires "$inst";
 	next unless $$requires[0];
@@ -124,48 +130,54 @@ if ($inst_names) {
 }
 
 # Gather instructions from user
-my ($req_by_line, @req_by, $req_count, $cnf_count);
-my $is_rootpkg = 1;
-for my $pkg (@$remove_queue) {
-	$req_by_line = get_required_by $pkg;
-	@req_by = split(" ", $req_by_line);
-	$req_count = @req_by;
-	$cnf_count = 0;
-	for my $val (@req_by) {
-		if ( $val ~~ @confirmed ) { $cnf_count++; }  
-	}
-	if ($cnf_count == $req_count or $is_rootpkg or $alwaysask) {  
-		say $pkg;
-		if ( $req_by_line ) {
-			say "Required by: $req_by_line";
-		} else {
-			unless ($is_rootpkg) {
-				say "It appears $pkg will no longer be required on your system";
-			}
+unless ($non_int) {
+	my ($req_by_line, @req_by, $req_count, $cnf_count);
+	my $is_rootpkg = 1;
+	for my $pkg (@$remove_queue) {
+		$req_by_line = get_required_by $pkg;
+		@req_by = split(" ", $req_by_line);
+		$req_count = @req_by;
+		$cnf_count = 0;
+		for my $val (@req_by) {
+			if ( $val ~~ @confirmed ) { $cnf_count++; }  
 		}
-		$is_rootpkg = 0;
-		if ( exists $warnings{$pkg} ) {
-			say "$pkg suggests you view its README before proceeding,";
-			print "view now? [y] : ";
-			chomp(my $viewrm = <STDIN>);
-			if ($viewrm =~ /^[Yy]/) {
-				print "\n";
-				my $locrm = get_sbo_location $pkg;
-				$locrm .= '/README';
-				open(README, '<', $locrm) or die "could not open $locrm";
-				for my $line (<README>) {
-					print $line;
+		if ($cnf_count == $req_count or $is_rootpkg or $alwaysask) {  
+			say $pkg;
+			if ( $req_by_line ) {
+				say "Required by: $req_by_line";
+			} else {
+				unless ($is_rootpkg) {
+					say "It appears $pkg will no longer be required on your system";
 				}
 			}
+			$is_rootpkg = 0;
+			if ( exists $warnings{$pkg} ) {
+				say "$pkg suggests you view its README before proceeding,";
+				print "view now? [y] : ";
+				chomp(my $viewrm = <STDIN>);
+				if ($viewrm =~ /^[Yy]/) {
+					print "\n";
+					my $locrm = get_sbo_location $pkg;
+					$locrm .= '/README';
+					open(README, '<', $locrm) or die "could not open $locrm";
+					for my $line (<README>) {
+						print $line;
+					}
+				}
+			}
+			print "Remove $pkg? [n] : ";
+			chomp(my $userin = <STDIN>);
+			if ($userin =~ /^[Yy]/) {
+				confirm_remove $pkg;
+				say "* added $pkg to remove queue\n";
+			} else {
+				say "* ignoring $pkg\n"
+			}
 		}
-		print "Remove $pkg? [n] : ";
-		chomp(my $userin = <STDIN>);
-		if ($userin =~ /^[Yy]/) {
-			confirm_remove $pkg;
-			say "* added $pkg to remove queue\n";
-		} else {
-			say "* ignoring $pkg\n"
-		}
+	}
+} else {
+	for my $sbo (@$remove_queue) {
+		confirm_remove $sbo;
 	}
 }
 
@@ -182,12 +194,13 @@ if ($remove_count) {
 	exit 0;
 }
 
-print 'Are you sure you want to continue? [n] : ';
-unless (<STDIN> =~ /^[Yy]/) {
-	say 'Exiting.';
-	exit 0;
+unless ($non_int) {
+	print 'Are you sure you want to continue? [n] : ';
+	unless (<STDIN> =~ /^[Yy]/) {
+		say 'Exiting.';
+		exit 0;
+	}
 }
-
 	
 for my $instpkg (@confirmed) {
 	system("/sbin/removepkg $instpkg");
