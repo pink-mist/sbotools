@@ -42,7 +42,7 @@ GetOptions (
 	'help|h'		=> \$help,
 	'version|v'		=> \$vers,
 	'norequirements|R'	=> \$no_reqs, 
-	'nointeractive|r'   => \$non_int,
+	'nointeractive'   => \$non_int,
 	'alwaysask|a'		=> \$alwaysask,
 );
 
