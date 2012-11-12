@@ -77,18 +77,17 @@ show_usage and exit 0 unless exists $ARGV[0];
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
 
-
 my $rootpkg = $ARGV[0];
 my %warnings;
 my %options;
 my $build_queue; 
 my %locations;
+my $build = 0;
 
 if ($no_reqs) {
-    @$build_queue = ();
-    push(@$build_queue, $rootpkg); 
+    $build_queue = \@ARGV;
 } else {
-    $build_queue = get_build_queue($rootpkg, \%warnings);
+    $build_queue = get_build_queue(\@ARGV, \%warnings);
 }
 
 for my $sbo (@$build_queue) {
@@ -250,14 +249,9 @@ sub print_failures (;%) {
     }
 }
 
-#if (@$build_queue gt 1) {
-#    my $reqline = join(' ', @$build_queue);
-#    $reqline =~ s/$rootpkg//;
-#    say "Requires: " . $reqline;
-#}
-
 my $installed = get_installed_sbos;
 my $inst_names = get_inst_names $installed;
+my $upgrade_queue;
 
 # deal with any updates prior to any new installs.
 # no reason to bother if only_new is specified, ie running from sboinstall.
@@ -269,21 +263,18 @@ unless ($force) {
     my $updates = get_available_updates;
     push @updates, $$_{name} for @$updates;
 }
-my $upgrade_queue;
+
 # but without force, we only want to update what there are updates for
-my @remove;
 unless ($force) {
     for my $sbo (@$build_queue) {
         if ($sbo ~~ @updates) {
             push @$upgrade_queue, $sbo;
-            push @remove, $sbo;
         }
     }
 } else {
     for my $sbo (@$build_queue) {
         if ($sbo ~~ @$inst_names) {
             push @$upgrade_queue, $sbo;
-            push @remove, $sbo;
         }
     }
 }
@@ -305,7 +296,6 @@ for my $sbo (@$upgrade_queue) {
 }
 
 # Remove upgrades from build queue
-
 for my $sbo (@$upgrade_queue) {
     if ($sbo ~~ @$build_queue) {
         my $count = 0;
@@ -318,8 +308,8 @@ for my $sbo (@$upgrade_queue) {
         }
     }
 }
-
 @$upgrade_queue = @temp_queue;
+$build = 1 if exists $$upgrade_queue[0];
 
 INSTALL_NEW:
 goto BEGIN_BUILD unless $install_new;
@@ -352,10 +342,11 @@ for my $sbo (@$build_queue) {
     }
 }
 @$build_queue = @temp_queue;
+$build = 1 if exists $$build_queue[0];
 
 BEGIN_BUILD:
 @$build_queue = () unless $install_new; 
-exit 0 unless @$build_queue gt 0 or @$upgrade_queue gt 0;
+exit 0 unless $build;
 print "\n";
 say "Upgrade queue: " . join(' ', @$upgrade_queue) if exists $$upgrade_queue[0];
 say "Install queue: " . join(' ', @$build_queue) if exists $$build_queue[0];

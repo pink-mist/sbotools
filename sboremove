@@ -49,10 +49,15 @@ show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
-my $rootpkg = $ARGV[0];
-my $test = get_sbo_location $rootpkg;
-die "Unable to locate $rootpkg in the SlackBuilds.org tree.\n" unless
-	defined $test;
+my @remove;
+for my $sbo (@ARGV) {
+	my $test = get_sbo_location $sbo;
+	if ( defined $test ) {
+		push @remove, $sbo;
+	} else {
+		say "Unable to locate $sbo in the SlackBuilds.org tree."
+	}
+}
 
 my $remove_queue;
 my %required_by;
@@ -60,7 +65,7 @@ my %warnings;
 my @confirmed;
 
 sub get_requires ($) {
-	my $location = get_sbo_location(shift);
+	my $location = get_sbo_location shift;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	return $requires;
 }
@@ -71,7 +76,7 @@ sub get_required_by ($) {
 	if ( $required_by{$sbo} ) {
 		for my $req_by (@{$required_by{$sbo}}) {
 			unless ($req_by ~~ @confirmed) {
-				push (@dep_of, $req_by);
+				push @dep_of, $req_by;
 			}
 		}
 	}
@@ -81,16 +86,15 @@ sub get_required_by ($) {
 sub confirm_remove ($) {
 	my $sbo = shift;
 	unless ($sbo ~~ @confirmed) {
-		push(@confirmed, $sbo);
+		push @confirmed, $sbo;
 	}
 }
 
-# Determine dependencies & warnings of root package
-$remove_queue = get_build_queue($rootpkg, \%warnings);
+# Determine dependencies & warnings sbo's
+$remove_queue = get_build_queue(\@remove, \%warnings);
 @$remove_queue = reverse(@$remove_queue);
 if ($no_reqs) {
-	@$remove_queue = ();
-	push(@$remove_queue, $rootpkg);
+	$remove_queue = \@remove;
 }
 
 # Determine required by for all installed sbo's
@@ -102,7 +106,7 @@ for my $inst (@$inst_names) {
 	for my $req (@$requires) {
 		unless ( $req eq "%README%" ) {
 			if ( $req ~~ $inst_names ) {
-				push(@{$required_by{$req}}, $inst);
+				push @{$required_by{$req}}, $inst;
 			}
 		}		
 	}	
@@ -113,7 +117,7 @@ my @temp;
 if ($inst_names) {
 	for my $sbo (@$remove_queue) {
 		if ($sbo ~~ $inst_names) {
-			push(@temp, $sbo);
+			push @temp, $sbo;
 		}
 	}
 	$remove_queue = \@temp;
