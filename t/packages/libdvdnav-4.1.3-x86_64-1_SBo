@@ -1,0 +1,51 @@
+PACKAGE NAME:     libdvdnav-4.1.3-x86_64-1_SBo
+COMPRESSED PACKAGE SIZE:     100K
+UNCOMPRESSED PACKAGE SIZE:     270K
+PACKAGE LOCATION: /tmp/libdvdnav-4.1.3-x86_64-1_SBo.tgz
+PACKAGE DESCRIPTION:
+libdvdnav: libdvdnav (DVD Navigation Library)
+libdvdnav:
+libdvdnav: This is mplayer's fork of libdvdnav. libdvdnav is a library that
+libdvdnav: allows easy use of sophisticated DVD navigation features such as
+libdvdnav: DVD menus, multiangle playback, and even interactive DVD games.
+libdvdnav:
+libdvdnav: Homepage: http://www.mplayerhq.hu/design7/news.html
+libdvdnav:
+libdvdnav:
+libdvdnav:
+libdvdnav:
+FILE LIST:
+./
+usr/
+usr/share/
+usr/share/aclocal/
+usr/share/aclocal/dvdnav.m4
+usr/doc/
+usr/doc/libdvdnav-4.1.3/
+usr/doc/libdvdnav-4.1.3/COPYING
+usr/doc/libdvdnav-4.1.3/TODO
+usr/doc/libdvdnav-4.1.3/DEVELOPMENT-POLICY.txt
+usr/doc/libdvdnav-4.1.3/ChangeLog
+usr/doc/libdvdnav-4.1.3/AUTHORS
+usr/doc/libdvdnav-4.1.3/NEWS
+usr/doc/libdvdnav-4.1.3/libdvdnav.SlackBuild
+usr/doc/libdvdnav-4.1.3/INSTALL
+usr/doc/libdvdnav-4.1.3/README
+usr/lib64/
+usr/lib64/libdvdnavmini.so.4.1.2
+usr/lib64/pkgconfig/
+usr/lib64/pkgconfig/dvdnavmini.pc
+usr/lib64/pkgconfig/dvdnav.pc
+usr/lib64/libdvdnav.la
+usr/lib64/libdvdnav.so.4.1.2
+usr/lib64/libdvdnavmini.la
+usr/include/
+usr/include/dvdnav/
+usr/include/dvdnav/dvdnav.h
+usr/include/dvdnav/dvd_types.h
+usr/include/dvdnav/dvdnav_events.h
+usr/bin/
+usr/bin/dvdnav-config
+install/
+install/slack-desc
+install/doinst.sh

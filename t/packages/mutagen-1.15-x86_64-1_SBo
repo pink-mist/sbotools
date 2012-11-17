@@ -1,0 +1,93 @@
+PACKAGE NAME:     mutagen-1.15-x86_64-1_SBo
+COMPRESSED PACKAGE SIZE:     196K
+UNCOMPRESSED PACKAGE SIZE:     710K
+PACKAGE LOCATION: /tmp/mutagen-1.15-x86_64-1_SBo.tgz
+PACKAGE DESCRIPTION:
+mutagen: Mutagen (Python Module)
+mutagen:
+mutagen: Mutagen is a Python module to handle audio metadata. It supports ASF,
+mutagen: FLAC, M4A, Monkey's Audio, MP3, Musepack, Ogg FLAC, Ogg Speex, Ogg
+mutagen: Theora, Ogg Vorbis, True Audio, WavPack and OptimFROG audio files.
+mutagen:
+mutagen: Homepage: http://code.google.com/p/quodlibet/
+mutagen:
+mutagen:
+mutagen:
+mutagen:
+FILE LIST:
+./
+install/
+install/slack-desc
+usr/
+usr/doc/
+usr/doc/mutagen-1.15/
+usr/doc/mutagen-1.15/mutagen.SlackBuild
+usr/doc/mutagen-1.15/TUTORIAL
+usr/doc/mutagen-1.15/TODO
+usr/doc/mutagen-1.15/README
+usr/doc/mutagen-1.15/PKG-INFO
+usr/doc/mutagen-1.15/NEWS
+usr/doc/mutagen-1.15/COPYING
+usr/doc/mutagen-1.15/API-NOTES
+usr/man/
+usr/man/man1/
+usr/man/man1/mutagen-pony.1.gz
+usr/man/man1/mutagen-inspect.1.gz
+usr/man/man1/moggsplit.1.gz
+usr/man/man1/mid3v2.1.gz
+usr/man/man1/mid3iconv.1.gz
+usr/bin/
+usr/bin/mutagen-pony
+usr/bin/mutagen-inspect
+usr/bin/moggsplit
+usr/bin/mid3v2
+usr/bin/mid3iconv
+usr/lib64/
+usr/lib64/python2.6/
+usr/lib64/python2.6/site-packages/
+usr/lib64/python2.6/site-packages/mutagen-1.15-py2.6.egg-info
+usr/lib64/python2.6/site-packages/mutagen/
+usr/lib64/python2.6/site-packages/mutagen/wavpack.pyc
+usr/lib64/python2.6/site-packages/mutagen/trueaudio.pyc
+usr/lib64/python2.6/site-packages/mutagen/optimfrog.pyc
+usr/lib64/python2.6/site-packages/mutagen/oggvorbis.pyc
+usr/lib64/python2.6/site-packages/mutagen/oggtheora.pyc
+usr/lib64/python2.6/site-packages/mutagen/oggspeex.pyc
+usr/lib64/python2.6/site-packages/mutagen/oggflac.pyc
+usr/lib64/python2.6/site-packages/mutagen/ogg.pyc
+usr/lib64/python2.6/site-packages/mutagen/musepack.pyc
+usr/lib64/python2.6/site-packages/mutagen/mp4.pyc
+usr/lib64/python2.6/site-packages/mutagen/mp3.pyc
+usr/lib64/python2.6/site-packages/mutagen/monkeysaudio.pyc
+usr/lib64/python2.6/site-packages/mutagen/m4a.pyc
+usr/lib64/python2.6/site-packages/mutagen/id3.pyc
+usr/lib64/python2.6/site-packages/mutagen/flac.pyc
+usr/lib64/python2.6/site-packages/mutagen/easyid3.pyc
+usr/lib64/python2.6/site-packages/mutagen/asf.pyc
+usr/lib64/python2.6/site-packages/mutagen/apev2.pyc
+usr/lib64/python2.6/site-packages/mutagen/_vorbis.pyc
+usr/lib64/python2.6/site-packages/mutagen/_util.pyc
+usr/lib64/python2.6/site-packages/mutagen/_constants.pyc
+usr/lib64/python2.6/site-packages/mutagen/__init__.pyc
+usr/lib64/python2.6/site-packages/mutagen/wavpack.py
+usr/lib64/python2.6/site-packages/mutagen/trueaudio.py
+usr/lib64/python2.6/site-packages/mutagen/optimfrog.py
+usr/lib64/python2.6/site-packages/mutagen/oggvorbis.py
+usr/lib64/python2.6/site-packages/mutagen/oggtheora.py
+usr/lib64/python2.6/site-packages/mutagen/oggspeex.py
+usr/lib64/python2.6/site-packages/mutagen/oggflac.py
+usr/lib64/python2.6/site-packages/mutagen/ogg.py
+usr/lib64/python2.6/site-packages/mutagen/musepack.py
+usr/lib64/python2.6/site-packages/mutagen/mp4.py
+usr/lib64/python2.6/site-packages/mutagen/mp3.py
+usr/lib64/python2.6/site-packages/mutagen/monkeysaudio.py
+usr/lib64/python2.6/site-packages/mutagen/m4a.py
+usr/lib64/python2.6/site-packages/mutagen/id3.py
+usr/lib64/python2.6/site-packages/mutagen/flac.py
+usr/lib64/python2.6/site-packages/mutagen/easyid3.py
+usr/lib64/python2.6/site-packages/mutagen/asf.py
+usr/lib64/python2.6/site-packages/mutagen/apev2.py
+usr/lib64/python2.6/site-packages/mutagen/_vorbis.py
+usr/lib64/python2.6/site-packages/mutagen/_util.py
+usr/lib64/python2.6/site-packages/mutagen/_constants.py
+usr/lib64/python2.6/site-packages/mutagen/__init__.py

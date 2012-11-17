@@ -1,0 +1,11 @@
+PRGNAM="jdk"
+VERSION="7u9"
+HOMEPAGE="http://www.oracle.com/technetwork/java/javase/downloads/index.html"
+DOWNLOAD="http://download.oracle.com/otn-pub/java/jdk/7u9-b05/jdk-7u9-linux-i586.tar.gz"
+MD5SUM="f66c309ab38d6ba6651f7d98cd58d9d5"
+DOWNLOAD_x86_64="http://download.oracle.com/otn-pub/java/jdk/7u9-b05/jdk-7u9-linux-x64.tar.gz"
+MD5SUM_x86_64="372b9dcde93230522672837e1820f939"
+REQUIRES=""
+MAINTAINER="David Somero"
+EMAIL="dsomero@hotmail.com"
+

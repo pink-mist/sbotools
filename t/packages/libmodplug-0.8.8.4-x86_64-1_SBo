@@ -1,0 +1,42 @@
+PACKAGE NAME:     libmodplug-0.8.8.4-x86_64-1_SBo
+COMPRESSED PACKAGE SIZE:     180K
+UNCOMPRESSED PACKAGE SIZE:     400K
+PACKAGE LOCATION: /tmp/libmodplug-0.8.8.4-x86_64-1_SBo.tgz
+PACKAGE DESCRIPTION:
+libmodplug: libmodplug (a mod rendering library)
+libmodplug:
+libmodplug: Libmodplug is a library based on the mod rendering code from ModPlug,
+libmodplug: a popular Windows mod player written by Olivier Lapicque.
+libmodplug:
+libmodplug: Homepage: http://modplug-xmms.sourceforge.net/
+libmodplug:
+libmodplug:
+libmodplug:
+libmodplug:
+libmodplug:
+FILE LIST:
+./
+usr/
+usr/doc/
+usr/doc/libmodplug-0.8.8.4/
+usr/doc/libmodplug-0.8.8.4/COPYING
+usr/doc/libmodplug-0.8.8.4/TODO
+usr/doc/libmodplug-0.8.8.4/ChangeLog
+usr/doc/libmodplug-0.8.8.4/libmodplug.SlackBuild
+usr/doc/libmodplug-0.8.8.4/AUTHORS
+usr/doc/libmodplug-0.8.8.4/NEWS
+usr/doc/libmodplug-0.8.8.4/README
+usr/lib64/
+usr/lib64/libmodplug.la
+usr/lib64/libmodplug.so.1.0.0
+usr/lib64/pkgconfig/
+usr/lib64/pkgconfig/libmodplug.pc
+usr/include/
+usr/include/libmodplug/
+usr/include/libmodplug/modplug.h
+usr/include/libmodplug/sndfile.h
+usr/include/libmodplug/stdafx.h
+usr/include/libmodplug/it_defs.h
+install/
+install/slack-desc
+install/doinst.sh

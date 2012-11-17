@@ -1,0 +1,105 @@
+PACKAGE NAME:     p7zip-9.20.1-x86_64-1_SBo
+COMPRESSED PACKAGE SIZE:     2.3M
+UNCOMPRESSED PACKAGE SIZE:     5.5M
+PACKAGE LOCATION: /tmp/p7zip-9.20.1-x86_64-1_SBo.tgz
+PACKAGE DESCRIPTION:
+p7zip: p7zip (File Compression/Decompression Utility)
+p7zip:
+p7zip: 7-Zip is a well-known file compression utility for windows.
+p7zip: p7zip is a ported version for linux with nearly the same capabilities.
+p7zip:
+p7zip: Homepage: http://p7zip.sourceforge.net/
+p7zip:
+p7zip:
+p7zip:
+p7zip:
+p7zip:
+FILE LIST:
+./
+usr/
+usr/share/
+usr/share/mc/
+usr/share/mc/extfs/
+usr/share/mc/extfs/u7z
+usr/man/
+usr/man/man1/
+usr/man/man1/7z.1.gz
+usr/man/man1/7zr.1.gz
+usr/man/man1/p7zip.1.gz
+usr/man/man1/7za.1.gz
+usr/doc/
+usr/doc/p7zip-9.20.1/
+usr/doc/p7zip-9.20.1/DOCS/
+usr/doc/p7zip-9.20.1/DOCS/readme.txt
+usr/doc/p7zip-9.20.1/DOCS/7zC.txt
+usr/doc/p7zip-9.20.1/DOCS/lzma.txt
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/syntax.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/style.css
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/overwrite.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/working_dir.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/include.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/list_tech.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/ssc.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/style.css
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/charset.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/password.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/large_pages.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/yes.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/ar_include.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/stdin.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/stop_switch.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/output_dir.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/method.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/stdout.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/ar_exclude.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/sfx.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/recurse.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/volume.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/ar_no.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/type.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/index.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/exclude.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/switches/update.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/delete.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/test.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/list.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/extract.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/style.css
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/extract_full.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/index.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/bench.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/add.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/commands/update.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/index.htm
+usr/doc/p7zip-9.20.1/DOCS/MANUAL/exit_codes.htm
+usr/doc/p7zip-9.20.1/DOCS/License.txt
+usr/doc/p7zip-9.20.1/DOCS/Methods.txt
+usr/doc/p7zip-9.20.1/DOCS/history.txt
+usr/doc/p7zip-9.20.1/DOCS/7zFormat.txt
+usr/doc/p7zip-9.20.1/DOCS/unRarLicense.txt
+usr/doc/p7zip-9.20.1/DOCS/copying.txt
+usr/doc/p7zip-9.20.1/README.p7zip
+usr/doc/p7zip-9.20.1/TODO
+usr/doc/p7zip-9.20.1/ChangeLog
+usr/doc/p7zip-9.20.1/p7zip.SlackBuild
+usr/doc/p7zip-9.20.1/README
+usr/lib64/
+usr/lib64/p7zip/
+usr/lib64/p7zip/7za
+usr/lib64/p7zip/7z
+usr/lib64/p7zip/7zr
+usr/lib64/p7zip/Codecs/
+usr/lib64/p7zip/Codecs/Rar29.so
+usr/lib64/p7zip/7z.so
+usr/lib64/p7zip/7zCon.sfx
+usr/bin/
+usr/bin/7za
+usr/bin/7z
+usr/bin/7zr
+usr/bin/p7zip
+install/
+install/slack-desc
+install/doinst.sh
