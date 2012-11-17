@@ -744,8 +744,8 @@ sub get_build_queue {
 	my $temp_queue = [];
 	for my $sbo (@$sbos) {
 		my %args = (
-			QUEUE 	  => $temp_queue,, 
-			NAME 	  => $sbo, 
+			QUEUE 	  => $temp_queue,
+			NAME 	  => $sbo,
 			WARNINGS  => $warnings
 		);
 		add_to_queue(\%args);
@@ -755,6 +755,6 @@ sub get_build_queue {
 	FIRST: for my $sb (@$temp_queue) {
 		 next FIRST if $seen{$sb}++;
 		 push @build_queue, $sb;
-	}    
+	}
 	return \@build_queue;
 }
