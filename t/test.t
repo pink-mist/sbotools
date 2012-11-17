@@ -12,21 +12,27 @@ use SBO::Lib;
 
 chomp (my $pwd = `pwd`);
 my $sbo_home = "$pwd/sbo";
-$SBO::Lib::config{SBO_HOME} = $sbo_home;
+
+$conf_file = "$pwd/sbotools.conf";
+read_config;
+$config{SBO_HOME} = $sbo_home;
 $SBO::Lib::distfiles = "$sbo_home/distfiles";
 $SBO::Lib::slackbuilds_txt = "$sbo_home/SLACKBUILDS.TXT";
+
+# config settings tests
+is ($config{DISTCLEAN}, 'FALSE', 'config{DISTCLEAN} is good');
+is ($config{JOBS}, 2, 'config{JOBS} is good');
+is ($config{NOCLEAN}, 'FALSE', 'config{NOCLEAN} is good');
+is ($config{PKG_DIR}, 'FALSE', 'config{PKG_DIR} is good');
+is ($config{SBO_HOME}, "$pwd/sbo", 'config{SBO_HOME} is good');
 
 # open_read, open_fh tests
 my $fh = open_read ('./test.t');
 is (ref $fh, 'GLOB', 'open_read works');
 close $fh;
 
-ok (defined $SBO::Lib::tempdir, '$tempdir is defined');
-# config settings tests
-is ($SBO::Lib::config{DISTCLEAN}, 'FALSE', 'config{DISTCLEAN} is good');
-is ($SBO::Lib::config{JOBS}, 2, 'config{JOBS} is good');
-is ($SBO::Lib::config{NOCLEAN}, 'FALSE', 'config{NOCLEAN} is good');
-is ($SBO::Lib::config{PKG_DIR}, 'FALSE', 'config{PKG_DIR} is good');
+# test to ensure tempdir is defined by default
+ok (defined $tempdir, '$tempdir is defined');
 
 # show_version test
 is (show_version, 1, 'show_version is good');
@@ -177,12 +183,12 @@ close $tempfh;
 is ((check_distfiles %downloads), 1, 'check_distfiles good');
 
 # check_home tests
-$SBO::Lib::config{SBO_HOME} = "$pwd/test_sbo";
+$config{SBO_HOME} = "$pwd/test_sbo";
 ok (check_home, 'check_home returns true with new non-existent directory');
 ok (-d "$pwd/test_sbo", 'check_home creates $config{SBO_HOME}');
 ok (check_home, 'check_home returns true with new existent empty directory');
 rmdir "$pwd/test_sbo";
-$SBO::Lib::config{SBO_HOME} = $sbo_home;
+$config{SBO_HOME} = $sbo_home;
 
 # get_sbo_from_loc tests
 is (get_sbo_from_loc '/home/d4wnr4z0r/sbo.git/system/ifuse', 'ifuse',
@@ -253,8 +259,11 @@ for my $item (@$listing) {
 is (remove_stuff '/omg/wtf/bbq', 1, 'remove_stuff good for invalid input');
 
 # config_write test
+chmod 0444, $conf_file;
 is (config_write ('OMG', 'WTF'), undef,
 	'config_write returned undef correctly');
+chmod 
+chmod 0644, $conf_file;
 
 # perform_search tests
 my $findings = perform_search 'desktop';
