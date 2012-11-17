@@ -66,10 +66,7 @@ for my $sbo (@ARGV) {
 	}
 }
 
-my $remove_queue;
-my %required_by;
-my %warnings;
-my @confirmed;
+my ($remove_queue, %required_by, %warnings, @confirmed);
 
 sub get_requires ($) {
 	my $location = get_sbo_location shift;
