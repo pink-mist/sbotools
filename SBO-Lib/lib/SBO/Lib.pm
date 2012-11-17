@@ -722,7 +722,8 @@ sub add_to_queue ($) {
 	my $args = shift;
 	my $sbo = \${$args}{NAME};
 	return unless $$sbo;
-	unshift @$args{QUEUE}, $$sbo;
+	push @$args{QUEUE}, $$sbo;
+#	unshift @$args{QUEUE}, $$sbo;
 	my $location = get_sbo_location ($$sbo);
 	return unless $location;
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
@@ -752,7 +753,7 @@ sub get_build_queue {
 	}
 	# Remove duplicate entries (leaving first occurrence)
 	my (%seen, @build_queue);
-	FIRST: for my $sb (@$temp_queue) {
+	FIRST: for my $sb (reverse @$temp_queue) {
 		 next FIRST if $seen{$sb}++;
 		 push @build_queue, $sb;
 	}
