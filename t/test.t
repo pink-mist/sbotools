@@ -10,20 +10,23 @@ use Text::Diff;
 use lib ".";
 use SBO::Lib;
 
-my $sbo_home = '/usr/sbo';
+chomp (my $pwd = `pwd`);
+my $sbo_home = "$pwd/sbo";
+$SBO::Lib::config{SBO_HOME} = $sbo_home;
+$SBO::Lib::distfiles = "$sbo_home/distfiles";
+$SBO::Lib::slackbuilds_txt = "$sbo_home/SLACKBUILDS.TXT";
 
 # open_read, open_fh tests
 my $fh = open_read ('./test.t');
 is (ref $fh, 'GLOB', 'open_read works');
 close $fh;
 
-# config settings tests;
 ok (defined $SBO::Lib::tempdir, '$tempdir is defined');
+# config settings tests
 is ($SBO::Lib::config{DISTCLEAN}, 'FALSE', 'config{DISTCLEAN} is good');
 is ($SBO::Lib::config{JOBS}, 2, 'config{JOBS} is good');
 is ($SBO::Lib::config{NOCLEAN}, 'FALSE', 'config{NOCLEAN} is good');
 is ($SBO::Lib::config{PKG_DIR}, 'FALSE', 'config{PKG_DIR} is good');
-is ($SBO::Lib::config{SBO_HOME}, "$sbo_home", 'config{SBO_HOME} is good');
 
 # show_version test
 is (show_version, 1, 'show_version is good');
@@ -46,6 +49,7 @@ is (slackbuilds_or_fetch, 1, 'slackbuilds_or_fetch is good');
 
 # get_installed_sbos test
 print "pseudo-random sampling of get_installed_sbos output...\n";
+$SBO::Lib::pkg_db = "$pwd/packages";
 my $installed = get_installed_sbos; 
 for my $key (keys @$installed) {
 	is ($$installed[$key]{version}, '1.13') if $$installed[$key]{name} eq
@@ -81,6 +85,7 @@ is ($locs{gmpc}, "$sbo_home/audio/gmpc",
 
 # get_available_updates tests
 my $updates = get_available_updates; 
+say "have updates";
 for my $key (keys @$updates) {
 	is ($$updates[$key]{installed}, '1.15', 
 		'$$updates[$key]{installed} good for mutagen') if $$updates[$key]{name}
@@ -123,21 +128,20 @@ is (get_filename_from_link 'adf;lkajsdfaksjdfalsdjfalsdkfjdsfj', undef,
 	'get_filename_from_link good with invalid input');
 
 # compute_md5sum test
-is (compute_md5sum "$sbo_home/distfiles/laptop-mode-tools_1.61.tar.gz",
-	'6685af5dbb34c3d51ca27933b58f484e', 'compute_md5sum good');
+is (compute_md5sum "$sbo_home/distfiles/test.file",
+	'593d3125d3170f0b5326a40a253aa6fd', 'compute_md5sum good');
 
 # verify_distfile test
-is ((verify_distfile "$sbo_home/distfiles/laptop-mode-tools_1.61.tar.gz",
-	'6685af5dbb34c3d51ca27933b58f484e'), 1, 'verify_distfile good');
+is (verify_distfile ("http://dawnrazor.net/test.file",
+	'593d3125d3170f0b5326a40a253aa6fd'), 1, 'verify_distfile good');
 
 # get_sbo_version test
 is (get_sbo_version "$sbo_home/system/wine", '1.4.1', 'get_sbo_version good');
 
 # get_symlink_from_filename test
-is ((get_symlink_from_filename
-	"$sbo_home/distfiles/laptop-mode-tools_1.61.tar.gz",
+is (get_symlink_from_filename ("$sbo_home/distfiles/test.file",
 	"$sbo_home/system/laptop-mode-tools"),
-	"$sbo_home/system/laptop-mode-tools/laptop-mode-tools_1.61.tar.gz",
+	"$sbo_home/system/laptop-mode-tools/test.file",
 	'get_symlink_from_filename good');
 
 # check_x32 tests
@@ -169,20 +173,16 @@ is (get_pkg_name $tempfh, 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
 close $tempfh;
 
 # check_distfiles test
-%downloads = get_sbo_downloads (LOCATION => "$sbo_home/system/wine", 32 => 1);
+%downloads = get_sbo_downloads (LOCATION => "$sbo_home/perl/perl-Sort-Versions");
 is ((check_distfiles %downloads), 1, 'check_distfiles good');
 
 # check_home tests
-system ('sudo /usr/sbin/sboconfig -s /home/d4wnr4z0r/opt_sbo') == 0 or die
-	"unable to set sboconfig -s\n";
-read_config;
+$SBO::Lib::config{SBO_HOME} = "$pwd/test_sbo";
 ok (check_home, 'check_home returns true with new non-existent directory');
-ok (-d '/home/d4wnr4z0r/opt_sbo', 'check_home creates $config{SBO_HOME}');
+ok (-d "$pwd/test_sbo", 'check_home creates $config{SBO_HOME}');
 ok (check_home, 'check_home returns true with new existent empty directory');
-system ("sudo /usr/sbin/sboconfig -s $sbo_home") == 0 or die
-	"unable to reset sboconfig -s\n";
-read_config;
-rmdir "/home/d4wnr4z0r/opt_sbo";
+rmdir "$pwd/test_sbo";
+$SBO::Lib::config{SBO_HOME} = $sbo_home;
 
 # get_sbo_from_loc tests
 is (get_sbo_from_loc '/home/d4wnr4z0r/sbo.git/system/ifuse', 'ifuse',
@@ -243,12 +243,10 @@ is ($$info[0], "", 'get_from_info GET => DOWNLOAD_x86_64 is good');
 my $listing = get_update_list;
 s/\s//g for @$listing;
 for my $item (@$listing) {
-	is ($item, 'zdoom-2.5.0<needsupdating(SBohas2.6.0)',
-		'get_update_list output good for zdoom') if $item =~ /^zdoom/;
 	is ($item, 'ffmpeg-0.8.7<needsupdating(SBohas0.11.1)',
 		'get_update_list output good for ffmpeg') if $item =~ /^ffmpeg/;
-	is ($item, 'atkmm-2.22.4<needsupdating(SBohas2.22.6)',
-		'get_update_list output good for atkmm') if $item =~ /^atkmm/;
+	is ($item, 'mutagen-1.15<needsupdating(SBohas1.20)',
+		'get_update_list output good for mutagen') if $item =~ /^atkmm/;
 }
 
 # remove_stuff test - can only really test for invalid input
