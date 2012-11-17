@@ -55,7 +55,7 @@ my $inst_names = get_inst_names $installed;
 
 my @remove;
 for my $sbo (@ARGV) {
-	my $test = get_sbo_location $sbo;
+	my $test = get_sbo_location ($sbo);
 	if ( defined $test ) {
 		if ($sbo ~~ @$inst_names) {
 			push @remove, $sbo 

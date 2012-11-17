@@ -105,7 +105,7 @@ if (exists $changes{SBO_HOME}) {
 # TODO: if multiple options are provided to this script, this sub should write
 # them all at once, instead of only a single one and having to call it once for
 # each option specified to the script.
-sub config_write ($$) {
+sub config_write {
 	exists $_[1] or script_error 'config_write requires two arguments.';
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
@@ -131,13 +131,13 @@ sub config_write ($$) {
 		seek $tempfh, 0, 0;
 		my $contents = do {local $/; <$tempfh>};
 		close $conffh;
-		eval { $conffh = open_fh $conf_file, '>' };
+		eval { $conffh = open_fh ($conf_file, '>') };
 		warn "Cannot write configuration: $@\n" and return if $@;
 		print {$conffh} $contents or return;
 		close $conffh, close $tempfh;
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh $conf_file, '>' or return;
+		my $fh = open_fh ($conf_file, '>') or return;
 		print {$fh} "$key=$val\n";
 		close $fh;
 	}
@@ -146,7 +146,7 @@ sub config_write ($$) {
 
 while (my ($key, $value) = each %changes) {
 	say "Setting $key to $value...";
-	config_write $key, $value or warn "Unable to write to $conf_file\n";
+	config_write ($key, $value) or warn "Unable to write to $conf_file\n";
 }
 
 exit 0;

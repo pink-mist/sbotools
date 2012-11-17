@@ -90,9 +90,7 @@ if ($no_reqs) {
     $build_queue = get_build_queue(\@ARGV, \%warnings);
 }
 
-for my $sbo (@$build_queue) {
-    $locations{$sbo} = get_sbo_location $sbo;
-}
+my %locations = get_sbo_location ($build_queue);
 
 sub get_readme_path ($) {
     exists $_[0] or script_error 'get_readme_path requires an argument.';
@@ -109,7 +107,7 @@ sub get_user_group ($) {
 }
 
 # offer to run any user/group add commands
-sub ask_user_group ($$) {
+sub ask_user_group {
     exists $_[1] or script_error 'ask_user_group requires two arguments';
     my ($cmds, $readme) = @_;
     say "\n". $readme;
@@ -158,7 +156,7 @@ sub ask_opts ($) {
     return;
 }
 
-sub user_prompt ($$) {
+sub user_prompt {
         exists $_[1] or script_error 'user_prompt requires two arguments.';
         my ($sbo, $location) = @_;
         my $fh = open_read ($location .'/README');
@@ -167,7 +165,7 @@ sub user_prompt ($$) {
 
         # check for user/group add commands, offer to run any found
         my $user_group = get_user_group $readme;
-        ask_user_group $user_group, $readme  if $$user_group[0];
+        ask_user_group ($user_group, $readme)  if $$user_group[0];
 
         # check for options mentioned in the README
         my $opts = 0;
@@ -238,13 +236,11 @@ sub process_sbos ($) {
     return %failures;
 }
 
-sub print_failures (;%) {
+sub print_failures {
     if (exists $_[0]) {
         my %failures = @_;
         say 'Failures:';
-        while (my ($key, $val) = each %failures) {
-            say "  $key: $val";
-        }
+		say "  $_: $failures{$_}" for keys %failures;
         exit 1;
     }
 }
@@ -317,7 +313,7 @@ goto BEGIN_BUILD unless $install_new;
 for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
     warn "$name already installed.\n" and next if $name ~~ @$inst_names;
-    $locations{$name} = get_sbo_location $sbo if $compat32;
+    $locations{$name} = get_sbo_location ($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
         if ($compat32) {
@@ -356,9 +352,9 @@ unless ($non_int) {
 }
 
 my %failures = process_sbos $upgrade_queue if exists $$upgrade_queue[0];
-print_failures %failures;
+print_failures (%failures);
 
 %failures = process_sbos $build_queue if exists $$build_queue[0];
-print_failures %failures;
+print_failures (%failures);
 
 exit 0;

@@ -95,7 +95,7 @@ slackbuilds_or_fetch;
 # time verifying each item is a valid slackbuild
 my %locations;
 for my $sbo_name (@ARGV) {
-	$locations{$sbo_name} = get_sbo_location $sbo_name;
+	$locations{$sbo_name} = get_sbo_location ($sbo_name);
 	die "Unable to locate $sbo_name in the SlackBuilds.org tree.\n" unless
 		defined $locations{$sbo_name};
 }
@@ -118,8 +118,8 @@ sub get_requires ($$) {
 	return if '%README%' ~~ @$requires;
 	# do nothing if there's a circular requirement
 	FIRST: for my $req (@$requires) {
-		my $req_req = get_from_info (LOCATION => get_sbo_location $req,
-			GET => 'REQUIRES');
+		my $location = get_sbo_location ($req);
+		my $req_req = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 		if ($sbo ~~ @$req_req) {
 			say "I am seeing circular requirements between $sbo and $req.";
 			say "Therefore, I am not going to handle requirements for $sbo.";
@@ -145,7 +145,7 @@ sub clean_reqs ($) {
 }
 
 # ask to install any requirements found
-sub ask_requires (%) {
+sub ask_requires {
 	my %args = (
 		REQUIRES	=> '',
 		README		=> '',
@@ -187,7 +187,7 @@ sub get_user_group ($) {
 }
 
 # offer to run any user/group add commands
-sub ask_user_group ($$) {
+sub ask_user_group {
 	exists $_[1] or script_error 'ask_user_group requires two arguments';
 	my ($cmds, $readme) = @_;
 	say "\n". $readme;
@@ -236,7 +236,7 @@ sub ask_opts ($) {
 }
 
 # prompt for the readme
-sub readme_prompt ($$) {
+sub readme_prompt {
 	exists $_[0] or script_error 'readme_prompt requires an argument.';
 	my ($sbo, $location) = @_;
 	my $fh = open_read (get_readme_path $sbo);
@@ -248,7 +248,7 @@ sub readme_prompt ($$) {
 		ref $requires eq 'ARRAY';
 	# check for user/group add commands, offer to run any found
 	my $user_group = get_user_group $readme;
-	ask_user_group $user_group, $readme  if $$user_group[0];
+	ask_user_group ($user_group, $readme)  if $$user_group[0];
 	# check for options mentioned in the README
 	my $opts;
 	$opts = ask_opts $readme if get_opts $readme;
@@ -267,7 +267,7 @@ sub process_sbos ($) {
 	my %failures;
 	FIRST: for my $sbo (@$todo) {
 		my $opts = 0;
-		$opts = readme_prompt $sbo, $locations{$sbo} unless $non_int;
+		$opts = readme_prompt ($sbo, $locations{$sbo}) unless $non_int;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 1 if $sbo =~ /-compat32$/;
 		my ($version, $pkg, $src);
@@ -313,13 +313,11 @@ sub process_sbos ($) {
 	return %failures;
 }
 
-sub print_failures (;%) {
+sub print_failures {
 	if (exists $_[0]) {
 		my %failures = @_;
 		say 'Failures:';
-		while (my ($key, $val) = each %failures) {
-			say "  $key: $val";
-		}
+		say "  $_: $failures{$_}" for keys %failures;
 		exit 1;
 	}
 }
@@ -365,7 +363,7 @@ unless ($force) {
 	}
 }
 my %failures = process_sbos $todo_upgrade if exists $$todo_upgrade[0];
-print_failures %failures;
+print_failures (%failures);
 
 INSTALL_NEW:
 exit 0 unless $install_new;
@@ -397,6 +395,6 @@ FIRST: for my $sbo (@ARGV) {
 	push @$todo_install, $sbo;
 }
 %failures = process_sbos $todo_install if exists $$todo_install[0];
-print_failures %failures;
+print_failures (%failures);
 
 exit 0;
