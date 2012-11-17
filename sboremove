@@ -102,9 +102,9 @@ if ($no_reqs) {
 }
 
 # Determine required by for all installed sbo's
-for my $inst (@$inst_names) {
+FIRST: for my $inst (@$inst_names) {
 	my $requires = get_requires "$inst";
-	next unless $$requires[0];
+	next FIRST unless $$requires[0];
 	for my $req (@$requires) {
 		unless ( $req eq "%README%" ) {
 			if ( $req ~~ $inst_names ) {
