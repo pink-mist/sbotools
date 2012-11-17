@@ -62,6 +62,10 @@ use Fcntl qw(F_SETFD F_GETFD);
 
 our $tempdir = tempdir (CLEANUP => 1);
 
+# define this to facilitate unit testing - should only ever be modified from
+# t/test.t
+our $pkg_db = '/var/log/packages';
+
 # subroutine for throwing internal script errors
 sub script_error (;$) {
 	exists $_[0] ? die "A fatal script error has occurred:\n$_[0]\nExiting.\n"
@@ -72,7 +76,7 @@ sub script_error (;$) {
 sub open_fh {
 	exists $_[1] or script_error 'open_fh requires two arguments';
 	unless ($_[1] eq '>') {
-		-f $_[0] or script_error 'open_fh first argument not a file';
+		-f $_[0] or script_error "open_fh, $_[0] is not a file";
 	}
 	my ($file, $op) = @_;
 	open my $fh, $op, $file or die "Unable to open $file.\n";
@@ -112,9 +116,9 @@ sub read_config () {
 
 read_config;
 
-# some stuff we'll need later.
-my $distfiles = "$config{SBO_HOME}/distfiles";
-my $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
+# some stuff we'll need later - define first two as our for unit testing
+our $distfiles = "$config{SBO_HOME}/distfiles";
+our $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
 my $name_regex = '\ASLACKBUILD\s+NAME:\s+';
 
 sub show_version () {
@@ -202,7 +206,7 @@ sub get_installed_sbos () {
 	my @installed;
 	# $1 == name, $2 == version
 	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-[^-]+$#;
-	for my $path (</var/log/packages/*_SBo>) {
+	for my $path (<$pkg_db/*_SBo>) {
 		my ($name, $version) = ($path =~ $regex)[0,1];
 		push @installed, {name => $name, version => $version};
 	}
