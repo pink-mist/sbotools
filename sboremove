@@ -69,7 +69,7 @@ for my $sbo (@ARGV) {
 my ($remove_queue, %required_by, %warnings, @confirmed);
 
 sub get_requires ($) {
-	my $location = get_sbo_location shift;
+	my $location = get_sbo_location (shift);
 	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
 	return $requires;
 }
@@ -153,7 +153,7 @@ unless ($non_int) {
 				chomp(my $viewrm = <STDIN>);
 				if ($viewrm =~ /^[Yy]/) {
 					print "\n";
-					my $locrm = get_sbo_location $pkg;
+					my $locrm = get_sbo_location ($pkg);
 					$locrm .= '/README';
 					open(README, '<', $locrm) or die "could not open $locrm";
 					for my $line (<README>) {
