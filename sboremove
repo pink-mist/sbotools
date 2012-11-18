@@ -57,7 +57,7 @@ my @remove;
 for my $sbo (@ARGV) {
 	if (get_sbo_location ($sbo)) {
 		if ($sbo ~~ @$inst_names) {
-			push @remove, $sbo 
+			push @remove, $sbo; 
 		} else {
 			say "$sbo is not installed";
 		} 
@@ -84,7 +84,7 @@ sub get_required_by ($) {
 			}
 		}
 	}
-	return join(" ", @dep_of);
+	return \@dep_of;
 }
 
 sub confirm_remove ($) {
@@ -94,7 +94,13 @@ sub confirm_remove ($) {
 	}
 }
 
-# Determine dependencies & warnings sbo's
+sub is_rootpkg ($) {
+	# Return 1 if pkg was specified by user. 
+	my $pkg = shift;
+	return (exists {map { $_ => 1 } @remove}->{$pkg});
+}
+
+# Determine dependencies & warnings
 if ($no_reqs) {
 	$remove_queue = \@remove;
 } else {
@@ -115,6 +121,7 @@ FIRST: for my $inst (@$inst_names) {
 	}	
 }
 
+
 # Check if packages in queue are actually installed on system 
 my @temp;
 if ($inst_names) {
@@ -128,26 +135,24 @@ if ($inst_names) {
 
 # Gather instructions from user
 unless ($non_int) {
-	my ($req_by_line, @req_by, $req_count, $cnf_count);
-	my $is_rootpkg = 1;
+	my ($req_by, $req_count, $cnf_count);
 	for my $pkg (@$remove_queue) {
-		$req_by_line = get_required_by $pkg;
-		@req_by = split(" ", $req_by_line);
-		$req_count = @req_by;
+		$req_by = get_required_by $pkg;
 		$cnf_count = 0;
-		for my $val (@req_by) {
+		for my $val (@$req_by) {
 			if ( $val ~~ @confirmed ) { $cnf_count++; }  
 		}
-		if ($cnf_count == $req_count or $is_rootpkg or $alwaysask) {  
+		my $rootpkg = is_rootpkg $pkg;
+		if ($cnf_count == @$req_by or $rootpkg or $alwaysask) {  
 			say $pkg;
-			if ( $req_by_line ) {
-				say "Required by: $req_by_line";
+			if ( @$req_by ) {
+				say "Required by: " . join(' ', @$req_by);
 			} else {
-				unless ($is_rootpkg) {
+				unless ($rootpkg) {
+					#Skip this prompt if the pkg in question was passed by user.
 					say "It appears $pkg will no longer be required on your system";
 				}
 			}
-			$is_rootpkg = 0;
 			if ( exists $warnings{$pkg} ) {
 				say "$pkg suggests you view its README before proceeding,";
 				print "view now? [y] : ";
