@@ -73,7 +73,7 @@ GetOptions (
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
-say "error: -f and -N can not be used together." if $force and $install_new;
+say "Invalid arguments: --force and --installnew can not be used together." and exit 0 if $force and $install_new;
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
@@ -94,8 +94,6 @@ if ($no_reqs) {
 for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location ($sbo);
 }
-
-
 
 sub get_readme_path ($) {
     exists $_[0] or script_error 'get_readme_path requires an argument.';
@@ -121,9 +119,6 @@ sub ask_user_group {
     say "    # $_" for @$cmds;
     print 'Shall I run them prior to building? [y] ';
     if (<STDIN> =~ /^[Yy\n]/) {
-        #for my $cmd (@$cmds) {
-        #    system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
-        #}
         return \@$cmds;
     }
 }
@@ -258,7 +253,7 @@ sub print_failures {
 my $installed = get_installed_sbos;
 my $inst_names = get_inst_names $installed;
 my $upgrade_queue;
-
+@$upgrade_queue = ();
 # deal with any updates prior to any new installs.
 # no reason to bother if only_new is specified, ie running from sboinstall.
 goto INSTALL_NEW if $only_new;
@@ -286,6 +281,8 @@ unless ($force) {
 }
 
 # Get user input regarding upgrades
+say "Gathering arguments for: " . join(' ', @$upgrade_queue) . "\n" if @$upgrade_queue;
+
 my @temp_queue;
 for my $sbo (@$upgrade_queue) {
     unless ($non_int) {
@@ -319,11 +316,11 @@ $build = 1 if exists $$upgrade_queue[0];
 
 INSTALL_NEW:
 goto BEGIN_BUILD unless $install_new;
+say "Gathering arguments for: " . join(' ', @$build_queue) . "\n";
 @temp_queue = ();
 FIRST: for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
-    #warn "$name already installed.\n" and 
-    next FIRST if $name ~~ @$inst_names;
+    warn "$name already installed.\n" and next FIRST if $name ~~ @$inst_names;
     $locations{$name} = get_sbo_location ($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
@@ -353,7 +350,7 @@ $build = 1 if exists $$build_queue[0];
 
 BEGIN_BUILD:
 @$build_queue = () unless $install_new; 
-exit 0 unless $build;
+exit 0 unless @$upgrade_queue or @$build_queue;
 print "\n";
 say "Upgrade queue: " . join(' ', @$upgrade_queue) if exists $$upgrade_queue[0];
 say "Install queue: " . join(' ', @$build_queue) if exists $$build_queue[0];
