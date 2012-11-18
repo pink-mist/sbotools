@@ -73,6 +73,7 @@ GetOptions (
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
+say "error: -f and -N can not be used together." if $force and $install_new;
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
@@ -81,16 +82,20 @@ my $rootpkg = $ARGV[0];
 my %warnings;
 my %options;
 my $build_queue; 
-my %locations;
 my $build = 0;
+my %commands;
+my %locations;
 
 if ($no_reqs) {
     $build_queue = \@ARGV;
 } else {
     $build_queue = get_build_queue(\@ARGV, \%warnings);
 }
+for my $sbo (@$build_queue) {
+    $locations{$sbo} = get_sbo_location ($sbo);
+}
 
-my %locations = get_sbo_location ($build_queue);
+
 
 sub get_readme_path ($) {
     exists $_[0] or script_error 'get_readme_path requires an argument.';
@@ -116,10 +121,10 @@ sub ask_user_group {
     say "    # $_" for @$cmds;
     print 'Shall I run them prior to building? [y] ';
     if (<STDIN> =~ /^[Yy\n]/) {
-        return $cmds;
-        for my $cmd (@$cmds) {
-            system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
-        }
+        #for my $cmd (@$cmds) {
+        #    system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
+        #}
+        return \@$cmds;
     }
 }
 
@@ -165,8 +170,9 @@ sub user_prompt {
 
         # check for user/group add commands, offer to run any found
         my $user_group = get_user_group $readme;
-        ask_user_group ($user_group, $readme)  if $$user_group[0];
-
+        my $cmds;
+        $cmds = ask_user_group ($user_group, $readme)  if $$user_group[0];
+        $commands{"$sbo"}=$cmds if defined $cmds; 
         # check for options mentioned in the README
         my $opts = 0;
         $opts = ask_opts $readme if get_opts $readme;
@@ -188,6 +194,10 @@ sub process_sbos ($) {
         $opts = $options{$sbo} if defined $options{$sbo};
         # switch compat32 on if upgrading a -compat32
         # else make sure compat32 is off
+        my $cmds = $commands{$sbo} if defined $commands{$sbo};
+        for my $cmd (@$cmds) {
+            system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
+        }
         if ($sbo =~ /-compat32$/) {
             $compat32 = 1;
         } else {
@@ -310,9 +320,10 @@ $build = 1 if exists $$upgrade_queue[0];
 INSTALL_NEW:
 goto BEGIN_BUILD unless $install_new;
 @temp_queue = ();
-for my $sbo (@$build_queue) {
+FIRST: for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
-    warn "$name already installed.\n" and next if $name ~~ @$inst_names;
+    #warn "$name already installed.\n" and 
+    next FIRST if $name ~~ @$inst_names;
     $locations{$name} = get_sbo_location ($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
@@ -327,8 +338,8 @@ for my $sbo (@$build_queue) {
             } 
         }
         if (user_prompt($name, $locations{$name})) {
-                push(@temp_queue, $name);
-                say "$name added to install queue.";  
+            push(@temp_queue, $name);
+            say "$name added to install queue.";  
         } else {
             last;
         }
