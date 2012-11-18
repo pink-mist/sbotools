@@ -95,10 +95,11 @@ sub confirm_remove ($) {
 }
 
 # Determine dependencies & warnings sbo's
-$remove_queue = get_build_queue(\@remove, \%warnings);
-@$remove_queue = reverse(@$remove_queue);
 if ($no_reqs) {
 	$remove_queue = \@remove;
+} else {
+	$remove_queue = get_build_queue(\@remove, \%warnings);
+	@$remove_queue = reverse(@$remove_queue);
 }
 
 # Determine required by for all installed sbo's
