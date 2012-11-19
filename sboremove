@@ -94,12 +94,6 @@ sub confirm_remove ($) {
 	}
 }
 
-sub is_rootpkg ($) {
-	# Return 1 if pkg was specified by user. 
-	my $pkg = shift;
-	return (exists {map { $_ => 1 } @remove}->{$pkg});
-}
-
 # Determine dependencies & warnings
 if ($no_reqs) {
 	$remove_queue = \@remove;
@@ -142,7 +136,7 @@ unless ($non_int) {
 		for my $val (@$req_by) {
 			if ( $val ~~ @confirmed ) { $cnf_count++; }  
 		}
-		my $rootpkg = is_rootpkg $pkg;
+		my $rootpkg = ($pkg ~~ @remove);
 		if ($cnf_count == @$req_by or $rootpkg or $alwaysask) {  
 			say $pkg;
 			if ( @$req_by ) {

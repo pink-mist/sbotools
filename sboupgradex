@@ -73,7 +73,7 @@ GetOptions (
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
-say "Invalid arguments: --force and --installnew can not be used together." and exit 0 if $force and $install_new;
+say "Invalid arguments: --force-reqs and --installnew can not be used together." and exit 0 if $force_reqs and $install_new;
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
@@ -81,12 +81,11 @@ $distclean = $distclean eq 'TRUE' ? 1 : 0;
 my $rootpkg = $ARGV[0];
 my %warnings;
 my %options;
-my $build_queue; 
-my $build = 0;
+my $build_queue;
 my %commands;
 my %locations;
 
-if ($no_reqs) {
+if ($no_reqs or $non_int) {
     $build_queue = \@ARGV;
 } else {
     $build_queue = get_build_queue(\@ARGV, \%warnings);
@@ -273,16 +272,19 @@ unless ($force) {
         }
     }
 } else {
-    for my $sbo (@$build_queue) {
-        if ($sbo ~~ @$inst_names) {
-            push @$upgrade_queue, $sbo;
+    if ( $force_reqs ) {
+        for my $sbo (@$build_queue) {
+            if ($sbo ~~ @$inst_names) {
+                push @$upgrade_queue, $sbo;
+            }
         }
+    } else {
+        $upgrade_queue = \@ARGV;
+        $install_new = 1;
     }
 }
 
 # Get user input regarding upgrades
-say "Gathering arguments for: " . join(' ', @$upgrade_queue) . "\n" if @$upgrade_queue;
-
 my @temp_queue;
 for my $sbo (@$upgrade_queue) {
     unless ($non_int) {
@@ -290,7 +292,7 @@ for my $sbo (@$upgrade_queue) {
                 push(@temp_queue, $sbo);
                 say "$sbo added to upgrade queue.";  
         } else {
-            last;
+            say "skipping $sbo.";
         }
     } else {
         push(@temp_queue, $sbo);
@@ -312,20 +314,21 @@ for my $sbo (@$upgrade_queue) {
     }
 }
 @$upgrade_queue = @temp_queue;
-$build = 1 if exists $$upgrade_queue[0];
 
 INSTALL_NEW:
 goto BEGIN_BUILD unless $install_new;
-say "Gathering arguments for: " . join(' ', @$build_queue) . "\n";
 @temp_queue = ();
 FIRST: for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
-    warn "$name already installed.\n" and next FIRST if $name ~~ @$inst_names;
+    if ($name ~~ @$inst_names) {
+        say "$name already installed." unless $force; 
+        next FIRST;
+    } 
     $locations{$name} = get_sbo_location ($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
         if ($compat32) {
-            unless ($sbo ~~ @$inst_names) {
+            unless ($sbo ~~ @$inst_names or $sbo ~~ @$upgrade_queue) {
                 if (user_prompt($sbo, $locations{$sbo})){
                     push(@temp_queue, $sbo);
                     say "$sbo added to install queue.";
@@ -346,7 +349,6 @@ FIRST: for my $sbo (@$build_queue) {
     }
 }
 @$build_queue = @temp_queue;
-$build = 1 if exists $$build_queue[0];
 
 BEGIN_BUILD:
 @$build_queue = () unless $install_new; 
@@ -359,10 +361,20 @@ unless ($non_int) {
     exit 0 unless <STDIN> =~ /^[Yy\n]/;
 }
 
-my %failures = process_sbos $upgrade_queue if exists $$upgrade_queue[0];
-print_failures (%failures);
+my %failures;
+if ( $force and ! $force_reqs) {
+    # Install missing reqs then rebuild sbo's 
+    %failures = process_sbos $build_queue if exists $$build_queue[0];
+    print_failures (%failures);
 
-%failures = process_sbos $build_queue if exists $$build_queue[0];
-print_failures (%failures);
+    %failures = process_sbos $upgrade_queue if exists $$upgrade_queue[0];
+    print_failures (%failures);
+} else {
+    # Upgrade any installed reqs/sbo's then build missing reqs/sbo's
+    %failures = process_sbos $upgrade_queue if exists $$upgrade_queue[0];
+    print_failures (%failures);
 
+    %failures = process_sbos $build_queue if exists $$build_queue[0];
+    print_failures (%failures);
+}
 exit 0;
