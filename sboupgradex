@@ -154,26 +154,26 @@ sub ask_opts ($) {
 }
 
 sub user_prompt {
-        exists $_[1] or script_error 'user_prompt requires two arguments.';
-        my ($sbo, $location) = @_;
-        my $fh = open_read ($location .'/README');
-        my $readme = do {local $/; <$fh>};
-        close $fh;
+	exists $_[1] or script_error 'user_prompt requires two arguments.';
+	my ($sbo, $location) = @_;
+	my $fh = open_read ($location .'/README');
+	my $readme = do {local $/; <$fh>};
+	close $fh;
 
-        # check for user/group add commands, offer to run any found
-        my $user_group = get_user_group $readme;
-        my $cmds;
-        $cmds = ask_user_group ($user_group, $readme)  if $$user_group[0];
-        $commands{"$sbo"}=$cmds if defined $cmds; 
-        # check for options mentioned in the README
-        my $opts = 0;
-        $opts = ask_opts $readme if get_opts $readme;
-        print "\n". $readme unless $opts;
-        $options{$sbo} = $opts if $opts;
-        
-        print "\nProceed with $sbo? [y]: ";
-        return 0 unless <STDIN> =~ /^[Yy\n]/;
-        return 1;
+	# check for user/group add commands, offer to run any found
+	my $user_group = get_user_group $readme;
+	my $cmds;
+	$cmds = ask_user_group ($user_group, $readme) if $$user_group[0];
+	$commands{$sbo} = $cmds if defined $cmds; 
+	# check for options mentioned in the README
+	my $opts = 0;
+	$opts = ask_opts $readme if get_opts $readme;
+	print "\n". $readme unless $opts;
+	$options{$sbo} = $opts if $opts;
+
+	print "\nProceed with $sbo? [y]: ";
+	return 0 unless <STDIN> =~ /^[Yy\n]/;
+	return 1;
 }
 
 # do the things with the provided sbos - whether upgrades or new installs.
