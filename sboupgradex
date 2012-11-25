@@ -117,9 +117,7 @@ sub ask_user_group {
     say ' command(s) to be run first:';
     say "    # $_" for @$cmds;
     print 'Shall I run them prior to building? [y] ';
-    if (<STDIN> =~ /^[Yy\n]/) {
-        return \@$cmds;
-    }
+	return <STDIN> =~ /^[Yy\n]/ ? $cmds : undef;
 }
 
 # see if the README mentions any options
