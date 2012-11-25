@@ -70,7 +70,8 @@ my ($remove_queue, %required_by, %warnings, @confirmed);
 
 sub get_requires ($) {
 	my $location = get_sbo_location (shift);
-	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
+	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES')
+		if $location;
 	return $requires;
 }
 
