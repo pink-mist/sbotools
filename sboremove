@@ -50,8 +50,7 @@ show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
-my $installed = get_installed_sbos;
-my $inst_names = get_inst_names $installed;
+my $inst_names = get_inst_names (get_installed_sbos);
 
 my @remove;
 for my $sbo (@ARGV) {
@@ -75,9 +74,23 @@ sub get_requires ($) {
 	return $requires;
 }
 
+# Determine required by for all installed sbo's
+sub get_reverse_reqs () {
+	FIRST: for my $inst (@$inst_names) {
+		my $requires = get_requires $inst;
+		next FIRST unless $$requires[0];
+		for my $req (@$requires) {
+			unless ( $req eq "%README%" ) {
+				push @$required_by{$req}, $inst if $req ~~ $inst_names;
+			}		
+		}	
+	}
+}
+
 sub get_required_by ($) {
 	my $sbo = shift;
 	my @dep_of;
+	get_reverse_reqs unless keys %required_by > 0;
 	if ( $required_by{$sbo} ) {
 		for my $req_by (@{$required_by{$sbo}}) {
 			unless ($req_by ~~ @confirmed) {
@@ -102,20 +115,6 @@ if ($no_reqs) {
 	$remove_queue = get_build_queue(\@remove, \%warnings);
 	@$remove_queue = reverse(@$remove_queue);
 }
-
-# Determine required by for all installed sbo's
-FIRST: for my $inst (@$inst_names) {
-	my $requires = get_requires $inst;
-	next FIRST unless $$requires[0];
-	for my $req (@$requires) {
-		unless ( $req eq "%README%" ) {
-			if ( $req ~~ $inst_names ) {
-				push @{$required_by{$req}}, $inst;
-			}
-		}		
-	}	
-}
-
 
 # Check if packages in queue are actually installed on system 
 my @temp;
@@ -198,10 +197,8 @@ unless ($non_int) {
 		exit 0;
 	}
 }
-	
-for my $instpkg (@confirmed) {
-	system("/sbin/removepkg $instpkg");
-}
+
+system ("/sbin/removepkg $_") for @confirmed;
 
 say "All operations have completed successfully.";
 
