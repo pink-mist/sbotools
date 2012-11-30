@@ -109,7 +109,7 @@ if ($no_reqs or $non_int) {
 }
 for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location ($sbo);
-	die "Unable to location $sbo in the SlackBuilds.org tree.\n" unless
+	die "Unable to locate $sbo in the SlackBuilds.org tree.\n" unless
 		defined $locations{$sbo};
 }
 
