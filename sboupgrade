@@ -263,20 +263,17 @@ unless ($force) {
 # but without force, we only want to update what there are updates for
 unless ($force) {
     for my $sbo (@$build_queue) {
-        if ($sbo ~~ @updates) {
-            push @$upgrade_queue, $sbo;
-        }
+		push @$upgrade_queue, $sbo if $sbo ~~ @updates;
     }
 } else {
-    if ( $force_reqs ) {
+    if ($force_reqs) {
         for my $sbo (@$build_queue) {
-            if ($sbo ~~ @$inst_names) {
-                push @$upgrade_queue, $sbo;
-            }
+			push @$upgrade_queue, $sbo if $sbo ~~ @$inst_names;
         }
     } else {
-        $upgrade_queue = \@ARGV;
-        $install_new = 1;
+		for my $sbo (@ARGV) {
+			push @$upgrade_queue, $sbo if $sbo ~~ @$inst_names;
+		}
     }
 }
 
