@@ -92,6 +92,8 @@ if ($no_reqs or $non_int) {
 }
 for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location ($sbo);
+	die "Unable to location $sbo in the SlackBuilds.org tree.\n" unless
+		defined $locations{$sbo};
 }
 
 sub get_readme_path ($) {
@@ -128,11 +130,11 @@ sub get_opts ($) {
 }
 
 # provide an opportunity to set options
-sub ask_opts ($) {
+sub ask_opts {
     exists $_[0] or script_error 'ask_opts requires an argument';
-    my $readme = shift;
+    my ($sbo, $readme) = @_;
     say "\n". $readme;
-    print "\nIt looks this slackbuild has options; would you like to set any";
+    print "\nIt looks $sbo has options; would you like to set any";
     print ' when the slackbuild is run? [n] ';
     if (<STDIN> =~ /^[Yy]/) {
         my $ask = sub () {
@@ -167,7 +169,7 @@ sub user_prompt {
 	$commands{$sbo} = $cmds if defined $cmds; 
 	# check for options mentioned in the README
 	my $opts = 0;
-	$opts = ask_opts $readme if get_opts $readme;
+	$opts = ask_opts ($sbo, $readme) if get_opts $readme;
 	print "\n". $readme unless $opts;
 	$options{$sbo} = $opts if $opts;
 
