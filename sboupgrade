@@ -89,6 +89,9 @@ if ($compat32) {
 	die "compat32 only works on x86_64.\n" unless get_arch eq 'x86_64';
 }
 
+# if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
+slackbuilds_or_fetch;
+
 my $rootpkg = $ARGV[0];
 my %warnings;
 my %options;
