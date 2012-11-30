@@ -90,7 +90,10 @@ my %locations;
 if ($no_reqs or $non_int) {
     $build_queue = \@ARGV;
 } else {
-    $build_queue = get_build_queue(\@ARGV, \%warnings);
+	for my $sbo (@ARGV) {
+		my $queue = get_build_queue ([$sbo], \%warnings);
+		push @$build_queue, reverse @$queue;
+	}	
 }
 for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location ($sbo);
