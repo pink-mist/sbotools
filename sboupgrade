@@ -109,7 +109,7 @@ if ($no_reqs or $non_int) {
 }
 for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location ($sbo);
-	die "Unable to location $sbo in the SlackBuilds.org tree.\n" unless
+	die "Unable to locate $sbo in the SlackBuilds.org tree.\n" unless
 		defined $locations{$sbo};
 }
 
@@ -207,9 +207,6 @@ sub process_sbos ($) {
 		for my $cmd (@$cmds) {
 		    system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
 		}
-		# switch compat32 on if upgrading a -compat32
-		# else make sure compat32 is off
-		$compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
 		my ($version, $pkg, $src);
 		eval { ($version, $pkg, $src) = do_slackbuild (
 		    OPTS    => $opts,
