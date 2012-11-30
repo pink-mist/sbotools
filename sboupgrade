@@ -73,7 +73,8 @@ GetOptions (
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
-say "Invalid arguments: --force-reqs and --installnew can not be used together." and exit 0 if $force_reqs and $install_new;
+say "Invalid arguments: --force-reqs and --installnew can not be used together."
+	and exit 0 if $force_reqs and $install_new;
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
@@ -328,7 +329,7 @@ FIRST: for my $sbo (@$build_queue) {
                     push(@temp_queue, $sbo);
                     say "$sbo added to install queue.";
                 } else {
-                    last;
+                    last FIRST;
                 }
             } 
         }
@@ -336,7 +337,7 @@ FIRST: for my $sbo (@$build_queue) {
             push(@temp_queue, $name);
             say "$name added to install queue.";  
         } else {
-            last;
+            last FIRST;
         }
     } else {
         push(@temp_queue, $sbo);
