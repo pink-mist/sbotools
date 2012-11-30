@@ -81,7 +81,7 @@ sub get_reverse_reqs () {
 		next FIRST unless $$requires[0];
 		for my $req (@$requires) {
 			unless ( $req eq "%README%" ) {
-				push @$required_by{$req}, $inst if $req ~~ $inst_names;
+				push @{$required_by{$req}}, $inst if $req ~~ $inst_names;
 			}		
 		}	
 	}
