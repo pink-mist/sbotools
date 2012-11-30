@@ -73,12 +73,21 @@ GetOptions (
 
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
-show_usage and exit 0 unless exists $ARGV[0];
+show_usage and exit 1 unless exists $ARGV[0];
 say "Invalid arguments: --force-reqs and --installnew can not be used together."
 	and exit 0 if $force_reqs and $install_new;
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
+
+if ($jobs) {
+	die "You have provided an invalid value for -j\n"
+		unless ($jobs =~ /^\d+$/ || $jobs eq 'FALSE');
+}
+
+if ($compat32) {
+	die "compat32 only works on x86_64.\n" unless get_arch eq 'x86_64';
+}
 
 my $rootpkg = $ARGV[0];
 my %warnings;
