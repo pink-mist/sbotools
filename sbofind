@@ -98,8 +98,9 @@ sub get_file_contents ($) {
 # get build queue and return it as a single line. 
 sub show_build_queue ($) {
 	exists $_[0] or script_error 'show_build_queue requires an argument.';
+	my $array_ref = [shift];
 	my %warnings;
-	my $queue = get_build_queue($_[0], \%warnings);
+	my $queue = get_build_queue($array_ref, \%warnings);
 	return join(" ", @$queue);
 }
 
