@@ -577,6 +577,7 @@ sub perform_sbo {
 	my ($cmd, %changes);
 	# set any changes we need to make to the .SlackBuild, setup the command
 	
+	$cmd = '( ';
 	$args{JOBS} = 0 if $args{JOBS} eq 'FALSE';
 
 	if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
@@ -585,11 +586,14 @@ sub perform_sbo {
 		} elsif ($args{X32}) {
 			$changes{arch_out} = 'i486';
 		}
-		$cmd = '. /etc/profile.d/32dev.sh &&';
+		$cmd .= '. /etc/profile.d/32dev.sh &&';
 	}
 	$cmd .= " $args{OPTS}" if $args{OPTS};
 	$cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
-	$cmd .= " /bin/sh $location/$sbo.SlackBuild";
+	# get a tempfile to store the exit status of the slackbuild
+	my $exit_temp = tempfile (DIR => $tempdir);
+	my $exit_fn = get_tmp_extfn $exit_temp;
+	$cmd .= " /bin/sh $location/$sbo.SlackBuild; echo \$? > $exit_fn )";
 	my $tempfh = tempfile (DIR => $tempdir);
 	my $fn = get_tmp_extfn $tempfh;
 	$cmd .= " | tee -a $fn";
@@ -597,7 +601,9 @@ sub perform_sbo {
 		SLACKBUILD => "$location/$sbo.SlackBuild",
 		CHANGES => \%changes,
 	);
-	chdir $location, my $out = system $cmd;
+	chdir $location, system $cmd;
+	seek $exit_temp, 0, 0;
+	my $out = do {local $/; <$exit_temp>};
 	revert_slackbuild "$location/$sbo.SlackBuild";
 	die "$sbo.SlackBuild returned non-zero exit status\n" unless $out == 0;
 	my $pkg = get_pkg_name $tempfh;
