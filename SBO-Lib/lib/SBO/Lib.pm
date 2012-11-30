@@ -5,11 +5,9 @@
 # Lib.pm
 # shared functions for the sbo_ scripts.
 #
-# author: Jacob Pipkin <j@dawnrazor.net>
-# date: Setting Orange, the 37th day of Discord in the YOLD 3178
+# authors:	Jacob Pipkin <j@dawnrazor.net>
+#			Luke Williams <xocel@iquidus.org>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
-#
-# modified by: Luke Williams <xocel@iquidus.org>
 
 use 5.16.0;
 use strict;
