@@ -14,6 +14,7 @@ use warnings FATAL => 'all';
 use SBO::Lib;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
+use File::Copy;
 
 my $self = basename ($0);
 
