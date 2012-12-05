@@ -98,7 +98,7 @@ sub get_file_contents ($) {
 sub show_build_queue ($) {
 	exists $_[0] or script_error 'show_build_queue requires an argument.';
 	my $queue = get_build_queue([shift], {});
-	return join(" ", @$queue);
+	return join(" ", reverse @$queue);
 }
 
 my $findings = perform_search $search;
