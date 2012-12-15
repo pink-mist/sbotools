@@ -93,7 +93,6 @@ if ($compat32) {
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
 slackbuilds_or_fetch;
 
-my $rootpkg = $ARGV[0];
 my %warnings;
 my %options;
 my $build_queue;
@@ -104,10 +103,13 @@ if ($no_reqs or $non_int) {
     $build_queue = \@ARGV;
 } else {
 	for my $sbo (@ARGV) {
-		my $queue = get_build_queue ([$sbo], \%warnings);
-		push @$build_queue, reverse @$queue;
-	}	
+        my $queue = get_build_queue ([$sbo], \%warnings);
+        for my $item (reverse @$queue) {
+            push @$build_queue, $item unless $item ~~ @$build_queue;
+        }
+	}
 }
+
 for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location ($sbo);
 	die "Unable to locate $sbo in the SlackBuilds.org tree.\n" unless
