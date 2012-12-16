@@ -154,7 +154,7 @@ sub ask_opts {
     exists $_[0] or script_error 'ask_opts requires an argument';
     my ($sbo, $readme) = @_;
     say "\n". $readme;
-    print "\nIt looks $sbo has options; would you like to set any";
+    print "\nIt looks like $sbo has options; would you like to set any";
     print ' when the slackbuild is run? [n] ';
     if (<STDIN> =~ /^[Yy]/) {
         my $ask = sub () {
