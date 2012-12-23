@@ -5,7 +5,8 @@
 # sbocheck
 # script to update the local sbo tree and check for updates
 #
-# author: Jacob Pipkin <j@dawnrazor.net>
+# authors:	Jacob Pipkin <j@dawnrazor.net>
+#			Luke Williams <xocel@iquidus.org>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;

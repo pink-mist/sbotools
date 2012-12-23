@@ -1,0 +1,44 @@
+PACKAGE NAME:     zdoom-2.6.0-x86_64-2_SBo
+COMPRESSED PACKAGE SIZE:     2.8M
+UNCOMPRESSED PACKAGE SIZE:     5.9M
+PACKAGE LOCATION: /tmp/zdoom-2.6.0-x86_64-2_SBo.tgz
+PACKAGE DESCRIPTION:
+zdoom: zdoom (an enhanced port of the official DOOM source code)
+zdoom:
+zdoom: ZDoom is an enhanced port of the official DOOM source code. 
+zdoom: Originally for Win32 (Windows 95/98/NT), it is now available 
+zdoom: for Linux as well.
+zdoom:
+zdoom:
+zdoom:
+zdoom:
+zdoom:
+zdoom:
+FILE LIST:
+./
+usr/
+usr/share/
+usr/share/games/
+usr/share/games/doom/
+usr/share/games/doom/zdoom.pk3
+usr/share/pixmaps/
+usr/share/pixmaps/zdoom.png
+usr/share/applications/
+usr/share/applications/zdoom.desktop
+usr/doc/
+usr/doc/zdoom-2.6.0/
+usr/doc/zdoom-2.6.0/zdoom.txt
+usr/doc/zdoom-2.6.0/zdoom.SlackBuild
+usr/doc/zdoom-2.6.0/console.html
+usr/doc/zdoom-2.6.0/commands.txt
+usr/doc/zdoom-2.6.0/BUILDLIC.TXT
+usr/doc/zdoom-2.6.0/doomlic.txt
+usr/doc/zdoom-2.6.0/README.asm
+usr/doc/zdoom-2.6.0/history.txt
+usr/doc/zdoom-2.6.0/README.gl
+usr/doc/zdoom-2.6.0/console.css
+usr/games/
+usr/games/zdoom
+install/
+install/slack-desc
+install/doinst.sh

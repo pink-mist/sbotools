@@ -1,0 +1,89 @@
+PACKAGE NAME:     TiMidity++-2.13.2-x86_64-6_SBo
+COMPRESSED PACKAGE SIZE:     700K
+UNCOMPRESSED PACKAGE SIZE:     1.6M
+PACKAGE LOCATION: /tmp/TiMidity++-2.13.2-x86_64-6_SBo.tgz
+PACKAGE DESCRIPTION:
+TiMidity++: Timidity++ (a software midi synthesizer)
+TiMidity++:
+TiMidity++: TiMidity++ is a software synthesizer.  It can play MIDI files by
+TiMidity++: converting them into PCM waveform data or other various audio
+TiMidity++: file formats.
+TiMidity++:
+TiMidity++:
+TiMidity++:
+TiMidity++:
+TiMidity++:
+TiMidity++:
+FILE LIST:
+./
+usr/
+usr/man/
+usr/man/man1/
+usr/man/man1/timidity.1.gz
+usr/man/man5/
+usr/man/man5/timidity.cfg.5.gz
+usr/doc/
+usr/doc/TiMidity++-2.13.2/
+usr/doc/TiMidity++-2.13.2/README.tk
+usr/doc/TiMidity++-2.13.2/FAQ
+usr/doc/TiMidity++-2.13.2/CHANGES.02i
+usr/doc/TiMidity++-2.13.2/README.dl
+usr/doc/TiMidity++-2.13.2/README.xaw
+usr/doc/TiMidity++-2.13.2/COPYING
+usr/doc/TiMidity++-2.13.2/TODO
+usr/doc/TiMidity++-2.13.2/README.xskin
+usr/doc/TiMidity++-2.13.2/ChangeLog
+usr/doc/TiMidity++-2.13.2/README.alsaseq
+usr/doc/TiMidity++-2.13.2/AUTHORS
+usr/doc/TiMidity++-2.13.2/ChangeLog.1
+usr/doc/TiMidity++-2.13.2/README.ja
+usr/doc/TiMidity++-2.13.2/INSTALL.ja
+usr/doc/TiMidity++-2.13.2/README.mts
+usr/doc/TiMidity++-2.13.2/ChangeLog.2
+usr/doc/TiMidity++-2.13.2/NEWS
+usr/doc/TiMidity++-2.13.2/README.m2m
+usr/doc/TiMidity++-2.13.2/README.w32
+usr/doc/TiMidity++-2.13.2/INSTALL
+usr/doc/TiMidity++-2.13.2/TiMidity++.SlackBuild
+usr/doc/TiMidity++-2.13.2/README.sf
+usr/doc/TiMidity++-2.13.2/README
+usr/lib64/
+usr/lib64/timidity/
+usr/lib64/timidity/tkmidity.tcl
+usr/lib64/timidity/interface_k.txt
+usr/lib64/timidity/interface_n.so
+usr/lib64/timidity/bitmaps/
+usr/lib64/timidity/bitmaps/repeat.xbm
+usr/lib64/timidity/bitmaps/pause.xbm
+usr/lib64/timidity/bitmaps/play.xbm
+usr/lib64/timidity/bitmaps/timidity.xbm
+usr/lib64/timidity/bitmaps/next.xbm
+usr/lib64/timidity/bitmaps/prev.xbm
+usr/lib64/timidity/bitmaps/fwrd.xbm
+usr/lib64/timidity/bitmaps/stop.xbm
+usr/lib64/timidity/bitmaps/quit.xbm
+usr/lib64/timidity/bitmaps/back.xbm
+usr/lib64/timidity/bitmaps/random.xbm
+usr/lib64/timidity/interface_k.so
+usr/lib64/timidity/interface_m.txt
+usr/lib64/timidity/interface_n.txt
+usr/lib64/timidity/browser.tcl
+usr/lib64/timidity/tclIndex
+usr/lib64/timidity/interface_g.txt
+usr/lib64/timidity/misc.tcl
+usr/lib64/timidity/tkpanel.tcl
+usr/lib64/timidity/interface_T.txt
+usr/lib64/timidity/interface_e.txt
+usr/lib64/timidity/interface_g.so
+usr/lib64/timidity/interface_T.so
+usr/lib64/timidity/interface_e.so
+usr/lib64/timidity/interface_m.so
+usr/bin/
+usr/bin/timidity
+install/
+install/slack-desc
+install/doinst.sh
+etc/
+etc/rc.d/
+etc/rc.d/rc.timidity.new
+etc/timidity.cfg.new

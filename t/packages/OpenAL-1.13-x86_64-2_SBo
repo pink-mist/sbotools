@@ -1,0 +1,39 @@
+PACKAGE NAME:     OpenAL-1.13-x86_64-2_SBo
+COMPRESSED PACKAGE SIZE:     140K
+UNCOMPRESSED PACKAGE SIZE:     430K
+PACKAGE LOCATION: /tmp/OpenAL-1.13-x86_64-2_SBo.tgz
+PACKAGE DESCRIPTION:
+OpenAL: OpenAL (a cross-platform 3D audio API)
+OpenAL:
+OpenAL: OpenAL is a cross-platform 3D audio API appropriate for use with
+OpenAL: gaming applications and many other types of audio applications.
+OpenAL:
+OpenAL: http://www.OpenAL.org/
+OpenAL:
+OpenAL:
+OpenAL:
+OpenAL:
+OpenAL:
+FILE LIST:
+./
+usr/
+usr/doc/
+usr/doc/OpenAL-1.13/
+usr/doc/OpenAL-1.13/COPYING
+usr/doc/OpenAL-1.13/OpenAL.SlackBuild
+usr/lib64/
+usr/lib64/pkgconfig/
+usr/lib64/pkgconfig/openal.pc
+usr/lib64/libopenal.so.1.13.0
+usr/include/
+usr/include/AL/
+usr/include/AL/alc.h
+usr/include/AL/al.h
+usr/include/AL/alext.h
+usr/include/AL/efx-creative.h
+usr/include/AL/efx.h
+usr/bin/
+usr/bin/openal-info
+install/
+install/slack-desc
+install/doinst.sh
