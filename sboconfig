@@ -8,7 +8,7 @@
 # author: Jacob Pipkin <j@dawnrazor.net>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
-use 5.12.3;
+use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
@@ -102,6 +102,9 @@ if (exists $changes{SBO_HOME}) {
 
 # safely modify our conf file; write its contents to a temp file, modify the
 # temp file, write the contents of the temp file back to the conf file
+# TODO: if multiple options are provided to this script, this sub should write
+# them all at once, instead of only a single one and having to call it once for
+# each option specified to the script.
 sub config_write ($$) {
 	exists $_[1] or script_error 'config_write requires two arguments.';
 	my ($key, $val) = @_;

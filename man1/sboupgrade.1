@@ -1,4 +1,4 @@
-.TH sboupgrade 1 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 0.10 fnord" dawnrazor.net
+.TH sboupgrade 1 "Boomtime, Bureaucracy 58, 3178 YOLD" "sbotools 1.1 fnord" dawnrazor.net
 .SH NAME
 .P
 sboupgrade - install or upgrade slackbuilds
@@ -7,7 +7,7 @@ sboupgrade - install or upgrade slackbuilds
 sboupgrade [-h|-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-fNrRiz] sbo_name (sbo_name)
 .SH DESCRIPTION
 .P
-sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will attempt to grok a list of requirements in the README for a given slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. Note that this method is FAR from foolproof, which is part of the reason this does not happen if the README is bypassed. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set such options.
+sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboupgrade will refuse to handle circular requirements. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options.
 .SH OPTIONS
 .P
 -h|--help
@@ -57,7 +57,12 @@ Skip viewing of the README and the yes or no question which accompanies it. Anyt
 .P
 -R|--norequirements
 .RS
-This option causes sboupgrade to skip requirement parsing, but still show the README and prompt the user to proceed.
+This option causes sboupgrade to skip requirement handling, but still show the README and prompt the user to proceed.
+.RE
+.P
+-z|--force-reqs
+.RS
+When used in combination with the -f option, to force an update even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt. This allows for recursive upgrades, among other things.
 .RE
 .P
 -z|--force-reqs
@@ -66,7 +71,7 @@ When used in combination with the -f option, to force an update even if it would
 .RE
 .SH BUGS
 .P
-Requirement parsing is not foolproof; there are corner cases where it does not function as expected.
+None known, but there may be some. Please report any found to j@dawnrazor.net; patches are always welcome.
 .SH SEE ALSO
 .P
 sbocheck(1), sboclean(1), sboconfig(1), sbofind(1), sboinstall(1), sbosnap(1), sbotools.conf(5)

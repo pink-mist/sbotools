@@ -9,12 +9,12 @@
 # date: Setting Orange, the 37th day of Discord in the YOLD 3178
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
-use 5.12.3;
+use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 
-package SBO::Lib 0.10;
-my $version = '0.10';
+package SBO::Lib 1.1;
+my $version = '1.1';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -52,7 +52,6 @@ use File::Path qw(make_path remove_tree);
 use File::Temp qw(tempdir tempfile);
 use File::Find;
 use Fcntl qw(F_SETFD F_GETFD);
-use feature 'say';
 
 our $tempdir = tempdir (CLEANUP => 1);
 
@@ -118,8 +117,10 @@ sub show_version () {
 }
 
 # %supported maps what's in /etc/slackware-version to what's at SBo
+# which is now not needed since this version drops support < 14.0
+# but it's already future-proofed, so leave it.
 sub get_slack_version () {
-	my %supported = ('13.37.0' => '13.37');
+	my %supported = ('14.0' => '14.0');
 	my $fh = open_read '/etc/slackware-version';
 	chomp (my $line = <$fh>);
 	close $fh;
@@ -349,7 +350,7 @@ sub get_filename_from_link ($) {
 	my $fn = shift;
 	my $regex = qr#/([^/]+)$#;
 	my $filename = $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
-	$filename = s/%2B/+/g;
+	$filename =~ s/%2B/+/g;
 	return $filename;
 }
 
@@ -496,7 +497,6 @@ sub create_symlinks ($%) {
 	my @symlinks;
 	for my $link (keys %downloads) {
 		my $filename = get_filename_from_link $link;
-		
 		my $symlink = get_symlink_from_filename $filename, $location;
 		push @symlinks, $symlink;
 		symlink $filename, $symlink;

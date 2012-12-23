@@ -8,7 +8,7 @@
 # author: Jacob Pipkin <j@dawnrazor.net>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
-use 5.12.3;
+use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
@@ -99,8 +99,8 @@ if (exists $$findings[0]) {
 		while (my ($key, $val) = each %$hash) {
 			say "SBo:    $key";
 			say "Path:   $val";
-			say "info:   ". get_file_contents "$val/$key.info";
-			say "README: ". get_file_contents "$val/README";
+			say "info:   ". get_file_contents "$val/$key.info" if $show_info;
+			say "README: ". get_file_contents "$val/README" if $show_readme;
 			say '';
 		}
 	}

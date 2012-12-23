@@ -8,7 +8,7 @@
 # author: Jacob Pipkin <j@dawnrazor.net>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
-use 5.12.3;
+use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
@@ -42,7 +42,7 @@ Options (defaults shown first where applicable):
   -r|--nointeractive:
     non-interactive; skips README and all prompts.
   -R|--norequirements:
-    view the README but do not parse requirements, commands, or options.
+    view the README but do not handle requirements, commands, or options.
   -z|--force-reqs:
     when used with -f, will force rebuilding an SBo's requirements as well.
 
@@ -116,47 +116,27 @@ sub get_inst_names ($) {
 	return \@installed;
 }
 
-# this subroutine may be getting a little out of hand.
+# pull list of requirements
 sub get_requires ($$) {
-	exists $_[1] or script_error 'get_requires requires two arguments.';
 	return if $no_reqs;
-	my ($sbo, $readme) = @_;
-	my $readme_orig = $readme;
-	for ($readme) {
-		# deal with and at end of line
-		s/and/and /g;
-		# work around missing period at end of list of requirements (given 2
-		# \ns), or no period at end of whole thing.
-		s/$/./;
-		# yet another nasty hack. yanh!
-		s/[Oo]ptional/./g;
-		# yanh.
-		s/not\s+require//g;
-		s/\n\n/./g;
-		s/\n//g;
+	exists $_[1] or script_error 'get_requires requires two arguments.';
+	my ($sbo, $location) = @_;
+	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
+	return unless $$requires[0];
+	# do nothing if a req list contains %README%
+	return if '%README%' ~~ @$requires;
+	# do nothing if there's a circular requirement
+	FIRST: for my $req (@$requires) {
+		my $req_req = get_from_info (LOCATION => get_sbo_location $req,
+			GET => 'REQUIRES');
+		if ($sbo ~~ @$req_req) {
+			say "I am seeing circular requirements between $sbo and $req.";
+			say "Therefore, I am not going to handle requirements for $sbo.";
+			print 'Do you still wish to proceed? [n] ';
+			<STDIN> =~ /^[Yy]/ ? return : exit 0;
+		}
 	}
-	return unless my $string =
-		($readme =~ /([Tt]his|\Q$sbo\E|)\s*[Rr]equire(s|)(|:)\s+([^\.]+)/)[3];
-	for ($string) {
-		# remove anything in brackets or parens
-		s/(\s)*\[[^\]]+\](\s)*//g;
-		s/(\s)*\([^\)]+\)(\s)*//g;
-		# convert and to comma
-		s/(\s+|,)and\s+/,/g;
-		s/,\s+/,/g;
-	}
-	my @deps = split /,/, $string;
-	# if anything has a space, we didn't parse correctly, so remove it, also
-	# remove anything that's blank or has an equal sign in
-	my @remove;
-	for my $key (keys @deps) {
-		push @remove, $key if ($deps[$key] =~ /[\s=]/ || $deps[$key] =~ /^$/);
-	}
-	for my $rem (@remove) {
-		splice @deps, $rem, 1;
-		$_-- for @remove;
-	}
-	return \@deps;
+	return $requires;
 }
 
 # remove any installed requirements from req list
@@ -189,8 +169,8 @@ sub ask_requires (%) {
 	FIRST: for my $req (@$reqs) {
 		my $name = $compat32 ? "$req-compat32" : $req;
 		say $args{README};
-		print "It looks like $args{SBO} requires $name; shall I";
-		print ' attempt to install it first? [y] ';
+		say "$args{SBO} has $name listed as a requirement.";
+		print 'Shall I attempt to install it first? [y] ';
 		if (<STDIN> =~ /^[Yy\n]/) {
 			my @cmd_args = ('/usr/sbin/sboupgrade');
 			push @cmd_args, $force_reqs ? '-N' : '-oN';
@@ -257,22 +237,22 @@ sub ask_opts ($) {
 		return unless $opts;
 		FIRST: while ($opts !~ $kv_regex) {
 			warn "Invalid input received.\n";
-			$opts = &$ask;
+			$opts = &$ask; 
 		}
 		return $opts;
 	}
 	return;
 }
 
-# prompt for the readme, and grok the readme at this time also.
-sub readme_prompt ($) {
+# prompt for the readme
+sub readme_prompt ($$) {
 	exists $_[0] or script_error 'readme_prompt requires an argument.';
-	my $sbo = shift;
+	my ($sbo, $location) = @_;
 	my $fh = open_read (get_readme_path $sbo);
 	my $readme = do {local $/; <$fh>};
 	close $fh;
 	# check for requirements, offer to install any found
-	my $requires = get_requires $sbo, $readme;
+	my $requires = get_requires $sbo, $location;
 	ask_requires (REQUIRES => $requires, README => $readme, SBO => $sbo) if
 		ref $requires eq 'ARRAY';
 	# check for user/group add commands, offer to run any found
@@ -296,7 +276,7 @@ sub process_sbos ($) {
 	my %failures;
 	FIRST: for my $sbo (@$todo) {
 		my $opts = 0;
-		$opts = readme_prompt $sbo unless $non_int;
+		$opts = readme_prompt $sbo, $locations{$sbo} unless $non_int;
 		# switch compat32 on if upgrading a -compat32
 		$compat32 = 1 if $sbo =~ /-compat32$/;
 		my ($version, $pkg, $src);

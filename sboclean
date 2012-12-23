@@ -8,7 +8,7 @@
 # author: Jacob Pipkin <j@dawnrazor.net>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
-use 5.12.3;
+use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
