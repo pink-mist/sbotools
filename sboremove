@@ -17,7 +17,7 @@ use File::Basename;
 
 my $self = basename ($0);
 
-sub show_usage () {
+sub show_usage() {
 	print <<EOF
 Usage: $self [options] sbo
 
@@ -26,8 +26,6 @@ Options (defaults shown first where applicable):
     this screen.
   -v|--version:
     version information.
-  -R|--norequirements:
-    do not parse requirements.
   -a|--alwaysask:
     always ask to remove, even if required by other packages on system.
 
@@ -36,12 +34,11 @@ Note: optional dependencies need to be removed separately.
 EOF
 }
 
-my ($help, $vers, $non_int, $no_reqs, $alwaysask, @excluded);
+my ($help, $vers, $non_int, $alwaysask, @excluded);
 
-GetOptions (
+GetOptions(
 	'help|h'			=> \$help,
 	'version|v'			=> \$vers,
-	'norequirements|R'	=> \$no_reqs, 
 	'nointeractive'		=> \$non_int,
 	'alwaysask|a'		=> \$alwaysask,
 );
@@ -50,70 +47,78 @@ show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
-my $inst_names = get_inst_names (get_installed_sbos);
+my $inst_names = get_inst_names(get_installed_sbos);
 
 # ensure that all provided arguments are valid sbos
 my @arguments;
 for my $sbo (@ARGV) {
 	if (get_sbo_location($sbo)) {
-		if ($sbo ~~ @$inst_names) {
-			push @arguments, $sbo; 
-		} else {
-			say "$sbo is not installed";
-		} 
+		$sbo ~~ @$inst_names ? push @arguments, $sbo
+                             : say "$sbo is not installed";
 	} else {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
 }
 
-my %sbos{$_} = [] for @arguments;
+# one array of each cli-specified sbo to remove...
+my @sbos = @arguments;
 
 # wrapper to pull the list of requirements for a given sbo
 # TODO: look at moving this into Lib.pm
-sub get_requires ($) {
-	my $location = get_sbo_location (shift);
-	return get_from_info(LOCATION => $location, GET => 'REQUIRES')
+sub get_requires($) {
+	my $location = get_sbo_location(shift);
+	return get_from_info(LOCATION => $location, GET => 'REQUIRES');
 }
 
-# populate the %sbos hash with requirements for each sbo
-$sbos{$_} = get_requires $_ for keys $sbos;
+# and another array to hold the requirements for each.
+my @sbo_reqs;
+push @sbo_reqs, get_requires $_ for @sbos;
 
-# clean the %sbos hash of anything that's already a hash key
-while (my ($key, $val) = each %sbos) {
+# clean the req listings of anything specified on the command line.
+for my $reqs (@sbo_reqs) {
 	my @remove;
-	for my $key (keys @$val) {
-		push @remove, $key if $$val[$key] ~~ %sbos;
+	for my $key (keys @$reqs) {
+		push @remove, $key if $$reqs[$key] ~~ @sbos;
 	}
 	for my $rem (@remove) {
-		splice(@$val, $rem, 1);
+		splice(@$reqs, $rem, 1);
 		$_-- for @remove;
 	}
 }
 
-# now we have to go backwards - starting from the end, check every requirement
-# to ensure that it's not already listed earlier.
-for my $key (reverse %sbos) {
-	for my $sbo (@$key) {
-		# running out of var names, so prefix these with n for "next"
-		FIRST: while (my ($nkey, $nval) = each %sbos) {
-			# move on if we're looking at the same key we're starting with
-			next FIRST if $key == $nkey;
+# get a two reversed copies of the req list for removing dupes
+my @rev_reqs;
+push @rev_reqs, [reverse @$_] for reverse @sbo_reqs;
+my @rev_copy = @rev_reqs;
+
+# remove any dupes, leaving last instance of each.
+for my $list (@rev_copy) {
+	for my $item (@$list) {
+		my $found = 0;
+		for my $list2 (@rev_reqs) {
 			my @remove;
-			for my $key (keys @$nval) {
-				push @remove, $key if $key $$nval[$key] == $sbo;
+			for my $key (keys @$list2) {
+				if ($$list2[$key] eq $item) {
+					push @remove, $key if $found;
+					$found++;
+				}
 			}
 			for my $rem (@remove) {
-				splice(@$nval, $rem, 1)
+				splice(@$list2, $rem, 1);
 				$_-- for @remove;
 			}
 		}
 	}
 }
 
+# make @sbo_reqs hold the de-duped list of reqs.
+@sbo_reqs = ();
+push @sbo_reqs, [reverse @$_] for reverse @rev_reqs;
+
 my ($remove_queue, %required_by, %warnings, @confirmed);
 
 # Determine required by for all installed sbo's
-sub get_reverse_reqs () {
+sub get_reverse_reqs() {
 	FIRST: for my $inst (@$inst_names) {
 		my $requires = get_requires $inst;
 		next FIRST unless $$requires[0];
@@ -124,10 +129,9 @@ sub get_reverse_reqs () {
 		}	
 	}
 }
+get_reverse_reqs;
 
-get_reverse_reqs unless $no_reqs;
-
-sub get_required_by ($) {
+sub get_required_by($) {
 	my $sbo = shift;
 	my @dep_of;
 	if ( $required_by{$sbo} ) {
@@ -140,18 +144,18 @@ sub get_required_by ($) {
 	return \@dep_of;
 }
 
-sub confirm_remove ($) {
+sub confirm_remove($) {
 	my $sbo = shift;
-	push @confirmed, @sbo unless $sbo ~~ @confirmed;
+	push @confirmed, $sbo unless $sbo ~~ @confirmed;
 }
 
 # Determine dependencies & warnings
-if ($no_reqs) {
-	$remove_queue = \@remove;
-} else {
+#if ($no_reqs) {
+#	$remove_queue = \@remove;
+#} else {
 	$remove_queue = get_build_queue(\@remove, \%warnings);
 	@$remove_queue = reverse(@$remove_queue);
-}
+#}
 
 # Check if packages in queue are actually installed on system 
 my @temp;
@@ -169,7 +173,7 @@ if ($non_int) {
 
 for my $remove (@$remove_queue) {
 	my $required_by = get_required_by $remove;
-	
+}	
 
 CONFIRMED:
 
@@ -194,7 +198,7 @@ unless ($non_int) {
 	}
 }
 
-system ("/sbin/removepkg $_") for @confirmed;
+system("/sbin/removepkg $_") for @confirmed;
 
 say "All operations have completed successfully.";
 
