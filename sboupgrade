@@ -104,12 +104,10 @@ if ($no_reqs or $non_int) {
 } else {
 	for my $sbo (@ARGV) {
         my $queue = get_build_queue ([$sbo], \%warnings);
-        for my $item (reverse @$queue) {
-            push @$build_queue, $item unless $item ~~ @$build_queue;
-        }
+        $build_queue = merge_queues($build_queue, $queue);
 	}
 }
-
+# p7zip fmodapi eawpats TiMidity++ zdoom OpenAL bsnes jdk DevIL spring
 for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location ($sbo);
 	die "Unable to locate $sbo in the SlackBuilds.org tree.\n" unless

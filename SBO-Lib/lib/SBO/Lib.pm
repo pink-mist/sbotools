@@ -14,8 +14,8 @@ use strict;
 use warnings FATAL => 'all';
 
 
-package SBO::Lib 1.2;
-my $version = '1.2';
+package SBO::Lib;
+our $VERSION = '1.2';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -39,6 +39,7 @@ our @EXPORT = qw(
 	get_tmp_extfn
 	get_arch
 	get_build_queue
+	merge_queues
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -119,7 +120,7 @@ our $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
 my $name_regex = '\ASLACKBUILD\s+NAME:\s+';
 
 sub show_version () {
-	say "sbotools version $version";
+	say "sbotools version $VERSION";
 	say 'licensed under the WTFPL';
 	say '<http://sam.zoy.org/wtfpl/COPYING>';
 }
@@ -764,4 +765,17 @@ sub get_build_queue {
 		 push @build_queue, $sb;
 	}
 	return \@build_queue;
+}
+
+sub merge_queues {
+	# Usage: merge_queues(\@queue_a, \@queue_b);
+	# Results in queue_b being merged into queue_a (without duplicates)
+	exists $_[1] or script_error 'merge_queues requires two arguments.';
+    my $queue_a = $_[0];
+    my $queue_b = $_[1];
+
+    for my $item (reverse @$queue_b) {
+        push @$queue_a, $item unless $item ~~ @$queue_a;
+    }
+    return $queue_a;
 }
