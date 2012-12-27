@@ -292,19 +292,19 @@ my $inst_names = get_inst_names $installed;
 ok ('zdoom' ~~ @$inst_names, 'get_inst_names is good');
 
 # get_reqs tests
-$SBO::Lib::no_reqs = 0;
-# no longer valid - there are no longer any circular requirements.
-#ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
-#	'get_requires good for circular requirements');
-my $reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
-my $say = 'get_requires good for normal req list';
-is ($$reqs[0], 'gob2', $say);
-is ($$reqs[1], 'libmpd', $say);
-is ($$reqs[2], 'vala', $say);
-ok (! (get_requires 'smc', "$sbo_home/games/smc"),
-	'get_requires good for REQUIRES="%README%"');
-ok (! (get_requires 'krb5', "$sbo_home/network/krb5"),
-	'get_requires good for REQUIRES=""');
+# $SBO::Lib::no_reqs = 0;
+# # no longer valid - there are no longer any circular requirements.
+# #ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
+# #	'get_requires good for circular requirements');
+# my $reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
+# my $say = 'get_requires good for normal req list';
+# is ($$reqs[0], 'gob2', $say);
+# is ($$reqs[1], 'libmpd', $say);
+# is ($$reqs[2], 'vala', $say);
+# ok (! (get_requires 'smc', "$sbo_home/games/smc"),
+# 	'get_requires good for REQUIRES="%README%"');
+# ok (! (get_requires 'krb5', "$sbo_home/network/krb5"),
+# 	'get_requires good for REQUIRES=""');
 
 # get_user_group tests
 $fh = open_read "$sbo_home/network/nagios/README";
@@ -333,31 +333,46 @@ close $fh;
 ok (! (get_opts $readme), 'get_opts good where README does not define opts');
 
 # clean_reqs tests
-$SBO::Lib::compat32 = 0;
-$reqs = get_requires "zdoom", "$sbo_home/games/zdoom";
-$reqs = clean_reqs $reqs;
-ok (! $$reqs[0], 'clean_reqs good for already installed reqs');
-$reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
-$reqs = clean_reqs $reqs;
-is ($$reqs[0], 'gob2', 'clean_reqs good for un/installed reqs.');
-is ($$reqs[1], 'libmpd', 'clean_reqs good for un/installed reqs.');
 
+# $SBO::Lib::compat32 = 0;
+# $reqs = get_requires "zdoom", "$sbo_home/games/zdoom";
+# $reqs = clean_reqs $reqs;
+# ok (! $$reqs[0], 'clean_reqs good for already installed reqs');
+# $reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
+# $reqs = clean_reqs $reqs;
+# is ($$reqs[0], 'gob2', 'clean_reqs good for un/installed reqs.');
+# is ($$reqs[1], 'libmpd', 'clean_reqs good for un/installed reqs.');
+
+# queue tests
+
+# test multiple sbo's
+# sbo's: zdoom', 'bsnes', 'spring', 'OpenAL'
+# expected queue: p7zip fmodapi eawpats TiMidity++ zdoom OpenAL bsnes jdk DevIL spring
 my $warnings = {()};;
-my $queue = get_build_queue ['zdoom', 'bsnes', 'spring'], $warnings;
+my @t_argv = ( 'zdoom', 'bsnes', 'spring', 'OpenAL' );
+my $queue;
+for my $sbo (@t_argv) {
+    my $queue_sbo = get_build_queue ([$sbo], $warnings);
+    $queue = merge_queues($queue, $queue_sbo);
+}
 my $count = @$queue;
 is ($count, 10, 'get_build_queue returns correct amount for multiple sbos');
-is ($$queue[0], 'jdk', 'get_build_queue first entry correct for multiple sbos');
-is ($$queue[2], 'OpenAL', 'get_build_queue third entry correct for multiple sbos');
-is ($$queue[4], 'spring', 'get_build_queue fifth entry correct for multiple sbos');
-is ($$queue[6], 'fmodapi', 'get_build_queue seventh entry correct for multiple sbos');
-is ($$queue[8], 'TiMidity++', 'get_build_queue ninth entry correct for multiple sbos');
+is ($$queue[0], 'p7zip', 'get_build_queue first entry correct for multiple sbos');
+is ($$queue[2], 'eawpats', 'get_build_queue third entry correct for multiple sbos');
+is ($$queue[4], 'zdoom', 'get_build_queue fifth entry correct for multiple sbos');
+is ($$queue[6], 'bsnes', 'get_build_queue seventh entry correct for multiple sbos');
+is ($$queue[8], 'DevIL', 'get_build_queue ninth entry correct for multiple sbos');
+
+# test single sbo
+# sbo: zdoom
+# expected queue: p7zip fmodapi eawpats TiMidity++ zdoom
 $queue = get_build_queue ['zdoom'], $warnings;
+@$queue = reverse @$queue;
 $count = @$queue;
 is ($count, 5, 'get_build_queue returns correct amount for single sbo');
 is ($$queue[0], 'p7zip', 'get_build_queue first entry correct for single sbo');
 is ($$queue[2], 'eawpats', 'get_build_queue third entry correct for single sbo');
 is ($$queue[4], 'zdoom', 'get_build_queue fifth entry correct for single sbo');
-
 
 # end of tests.
 done_testing();

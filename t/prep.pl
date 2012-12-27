@@ -23,6 +23,7 @@ for my $thing (qw(interactive compat32 no_readme jobs distclean noclean
 }
 
 print {$write} "my \%locations;\n";
+print {$write} "my \%commands;\n";
 print {$write} "my \%options = (nothing => 'to see here');\n";
 
 sub get_subs ($) {
