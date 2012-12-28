@@ -5,7 +5,8 @@
 # sboremove
 # script to remove an installed SlackBuild
 #
-# author: Luke Williams <xocel@iquidus.org>
+# authors: Luke Williams <xocel@iquidus.org>
+# 		   Jacob Pipkin <j@dawnrazor.net>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
@@ -62,6 +63,7 @@ for my $sbo (@ARGV) {
 
 # one array of each cli-specified sbo to remove...
 my @sbos = @arguments;
+exit 0 unless exists $sbos[0];
 
 # wrapper to pull the list of requirements for a given sbo
 # TODO: look at moving this into Lib.pm
@@ -70,59 +72,28 @@ sub get_requires($) {
 	return get_from_info(LOCATION => $location, GET => 'REQUIRES');
 }
 
-# and another array to hold the requirements for each.
-my @sbo_reqs;
-push @sbo_reqs, get_requires $_ for @sbos;
-
-# clean the req listings of anything specified on the command line.
-for my $reqs (@sbo_reqs) {
-	my @remove;
-	for my $key (keys @$reqs) {
-		push @remove, $key if $$reqs[$key] ~~ @sbos;
-	}
-	for my $rem (@remove) {
-		splice(@$reqs, $rem, 1);
-		$_-- for @remove;
-	}
-}
-
-# get a two reversed copies of the req list for removing dupes
-my @rev_reqs;
-push @rev_reqs, [reverse @$_] for reverse @sbo_reqs;
-my @rev_copy = @rev_reqs;
-
-# remove any dupes, leaving last instance of each.
-for my $list (@rev_copy) {
-	for my $item (@$list) {
-		my $found = 0;
-		for my $list2 (@rev_reqs) {
-			my @remove;
-			for my $key (keys @$list2) {
-				if ($$list2[$key] eq $item) {
-					push @remove, $key if $found;
-					$found++;
-				}
-			}
-			for my $rem (@remove) {
-				splice(@$list2, $rem, 1);
-				$_-- for @remove;
-			}
-		}
-	}
-}
-
-# make @sbo_reqs hold the de-duped list of reqs.
-@sbo_reqs = ();
-push @sbo_reqs, [reverse @$_] for reverse @rev_reqs;
-
 my ($remove_queue, %required_by, %warnings, @confirmed);
+# Create full queue. 
+for my $sbo (@sbos) {
+    my $queue = get_build_queue ([$sbo], \%warnings);
+    @$queue = reverse(@$queue);
+    $remove_queue = merge_queues($remove_queue, $queue);
+}
+
+# Read requires for each item in queue (needed for later on, %README% etc)
+# TODO: look at returning this info back from the queue subs as they process
+# this info to make the queues, however they do not store it anywhere, resulting 
+# in the current double handling of the .info files :/ 
+my %req_store;
+$req_store{$_} = get_requires $_ for @$remove_queue;
+#print "Q: " . join(' ', @$remove_queue) . "\n";
 
 # Determine required by for all installed sbo's
 sub get_reverse_reqs() {
 	FIRST: for my $inst (@$inst_names) {
-		my $requires = get_requires $inst;
-		next FIRST unless $$requires[0];
-		for my $req (@$requires) {
+		my $require = get_requires $inst;
+		next FIRST unless $$require[0];
+		for my $req (@$require) {
 			unless ( $req eq '%README%' ) {
 				push @{$required_by{$req}}, $inst if $req ~~ $inst_names;
 			}		
@@ -149,14 +120,6 @@ sub confirm_remove($) {
 	push @confirmed, $sbo unless $sbo ~~ @confirmed;
 }
 
-# Determine dependencies & warnings
-#if ($no_reqs) {
-#	$remove_queue = \@remove;
-#} else {
-	$remove_queue = get_build_queue(\@remove, \%warnings);
-	@$remove_queue = reverse(@$remove_queue);
-#}
-
 # Check if packages in queue are actually installed on system 
 my @temp;
 if ($inst_names) {
@@ -166,13 +129,45 @@ if ($inst_names) {
 	$remove_queue = \@temp;
 }
 
+# Confirm all and skip prompts if noninteractive
 if ($non_int) {
 	confirm_remove $_ for @$remove_queue;
 	goto CONFIRMED;
 }
-
-for my $remove (@$remove_queue) {
+# Prompt user
+FIRST: for my $remove (@$remove_queue) {
 	my $required_by = get_required_by $remove;
+	my $needed = 0; # True if sbo is still needed on system, otherwise false.
+	for my $rq (@$required_by) {
+		$needed = 1 unless $rq ~~ @confirmed or $remove ~~ @sbos;
+	}
+	
+	if ( $needed ) {
+		next FIRST unless $alwaysask;
+		print "$remove : required by " . join(' ', @$required_by) . "\n";
+	} else {
+		say "$remove";
+	}
+
+	my @reqz = $req_store{$remove};
+	if ( "%README%" ~~ @reqz ) {
+		print "It is recommended that you view the README before continuing..\n";
+		print "Display README now? [y]: ";
+		my $location = get_sbo_location($remove);
+		my $fh = open_read ($location .'/README');
+		my $readme = do {local $/; <$fh>};
+		close $fh;
+
+		print "\n" . $readme if <STDIN> =~ /^[Yy\n]/;
+	}
+	print "Remove $remove? [y]: ";
+	 
+	if ( <STDIN> =~ /^[Yy\n]/ ) {
+		confirm_remove($remove);
+		say " * Added to remove queue\n";
+	} else {
+		say " * Ignoring\n";
+	}
 }	
 
 CONFIRMED:
@@ -181,10 +176,7 @@ CONFIRMED:
 my $remove_count = @confirmed;
 if ($remove_count) {
 	say "Removing $remove_count package(s)";
-	for my $pkg (@confirmed) {
-		print "$pkg ";
-	}
-	say "\n";	
+	print join(' ', @confirmed) . "\n\n";
 } else {
 	say 'Nothing to remove.';
 	exit 0;
