@@ -4,7 +4,7 @@
 sboremove - remove packages installed from slackbuilds
 .SH SYNAPSES
 .P
-sboremove [-h|-v] [-aR] sbo_name
+sboremove [-h|-v] [-a] sbo_name
 .SH DESCRIPTION
 .P
 sboremove is used to remove packages installed from slackbuilds. It pulls the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboremove will look to see whether or not those requirements are installed. Those that are will then be checked to see whether they are requirements of other packages also installed. If a package is no longer required, or the -a flag is specified sboremove will ask whether or not it should also remove it from the system.  
@@ -20,11 +20,6 @@ Show help information.
 Show version information.
 .RE
 .P
--R|--norequirements
-.RS
-This option causes sboremove to skip requirement handling, removing a single package only. 
-.RE
-.P
 -a|--alwaysask
 .RS
 Always ask to remove requirements, even those required by other packages currently installed (ignored by default)
@@ -35,6 +30,8 @@ None known, but there may be some. Please report any found to xocel@iquidus.org;
 .SH SEE ALSO
 .P
 sboupgrade(1), sbocheck(1), sboclean(1), sboconfig(1), sbofind(1), sboinstall(1), sbosnap(1), sbotools.conf(5)
-.SH AUTHOR
+.SH AUTHORS
 .P
 Luke Williams <xocel@iquidus.org>
+.P
+Jacob Pipkin <j@dawnrazor.net>

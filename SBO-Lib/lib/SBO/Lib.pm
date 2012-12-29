@@ -30,6 +30,7 @@ our @EXPORT = qw(
 	get_installed_sbos
 	get_inst_names
 	get_available_updates
+	get_requires
 	do_slackbuild
 	make_clean
 	make_distclean
@@ -722,6 +723,13 @@ sub do_upgradepkg ($) {
 	return 1;
 }
 
+# wrapper to pull the list of requirements for a given sbo
+sub get_requires ($) {
+	my $location = get_sbo_location(shift);
+	return unless $location;
+	my $info = get_from_info(LOCATION => $location, GET => 'REQUIRES');
+	return $$info[0] ne '' ? $info : undef;
+}
 
 # avoid being called to early to check prototype when add_to_queue calls itself
 sub add_to_queue ($);
@@ -731,9 +739,7 @@ sub add_to_queue ($) {
 	my $sbo = \${$args}{NAME};
 	return unless $$sbo;
 	push @$args{QUEUE}, $$sbo;
-	my $location = get_sbo_location ($$sbo);
-	return unless $location;
-	my $requires = get_from_info (LOCATION => $location, GET => 'REQUIRES');
+	my $requires = get_requires $$sbo;
 	FIRST: for my $req (@$requires) {
 		next FIRST if $req eq $$sbo;
 		if ($req eq "%README%") {

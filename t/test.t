@@ -66,8 +66,8 @@ for my $key (keys @$installed) {
 		'libdvdnav';
 	is ($$installed[$key]{version}, '0.8.8.4') if $$installed[$key]{name} eq
 		'libmodplug';
-	is ($$installed[$key]{version}, '3.12.4') if $$installed[$key]{name} eq
-		'mozilla-nss';
+	is ($$installed[$key]{version}, '575') if $$installed[$key]{name} eq
+		'unetbootin';
 	is ($$installed[$key]{version}, '2.6.0') if $$installed[$key]{name} eq
 		'zdoom';
 }
@@ -293,18 +293,17 @@ ok ('zdoom' ~~ @$inst_names, 'get_inst_names is good');
 
 # get_reqs tests
 # $SBO::Lib::no_reqs = 0;
-# # no longer valid - there are no longer any circular requirements.
-# #ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
-# #	'get_requires good for circular requirements');
-# my $reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
-# my $say = 'get_requires good for normal req list';
-# is ($$reqs[0], 'gob2', $say);
-# is ($$reqs[1], 'libmpd', $say);
-# is ($$reqs[2], 'vala', $say);
-# ok (! (get_requires 'smc', "$sbo_home/games/smc"),
-# 	'get_requires good for REQUIRES="%README%"');
-# ok (! (get_requires 'krb5', "$sbo_home/network/krb5"),
-# 	'get_requires good for REQUIRES=""');
+# no longer valid - there are no longer any circular requirements.
+# ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
+#	'get_requires good for circular requirements');
+my $reqs = get_requires 'gmpc';#, "$sbo_home/audio/gmpc";
+my $say = 'get_requires good for normal req list';
+is ($$reqs[0], 'gob2', $say);
+is ($$reqs[1], 'libmpd', $say);
+is ($$reqs[2], 'vala', $say);
+$reqs = get_requires 'doomseeker';
+is ($$reqs[0], '%README%', 'get_requires good for REQUIRES="%README%"');
+is (get_requires 'krb5', undef, 'get_requires good for REQUIRES=""');
 
 # get_user_group tests
 $fh = open_read "$sbo_home/network/nagios/README";
@@ -373,6 +372,22 @@ is ($count, 5, 'get_build_queue returns correct amount for single sbo');
 is ($$queue[0], 'p7zip', 'get_build_queue first entry correct for single sbo');
 is ($$queue[2], 'eawpats', 'get_build_queue third entry correct for single sbo');
 is ($$queue[4], 'zdoom', 'get_build_queue fifth entry correct for single sbo');
+
+# test get_required_by
+get_reverse_reqs $inst_names;
+my $required = get_required_by 'p7zip';
+is ($$required[0], 'unetbootin', 'get_required_by good for populated req_by list');
+is ($$required[1], 'zdoom', 'get_required_by good for populated req_by list');
+is ( get_required_by 'zdoom', undef, 'get_required_by good for empty req_by list');
+
+# test confirm_remove
+@SBO::Lib::confirmed=('p7zip', 'eawpats', 'bsnes');
+confirm_remove('zdoom');
+$count = @SBO::Lib::confirmed;
+is ($count, 4, 'confirm_remove good for new sbo');
+confirm_remove('zdoom');
+$count = @SBO::Lib::confirmed;
+is ($count, 4, 'confirm_remove good for duplicate sbo');
 
 # end of tests.
 done_testing();

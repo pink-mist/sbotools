@@ -22,6 +22,8 @@ for my $thing (qw(interactive compat32 no_readme jobs distclean noclean
 	pr $thing;
 }
 
+print {$write} "my \%required_by;\n";
+print {$write} "our \@confirmed;\n";
 print {$write} "my \%locations;\n";
 print {$write} "my \%commands;\n";
 print {$write} "my \%options = (nothing => 'to see here');\n";
@@ -50,7 +52,7 @@ sub get_subs ($) {
 	}
 }
 
-for my $file (qw(sbocheck sboclean sboconfig sbofind sboupgrade)) {
+for my $file (qw(sbocheck sboclean sboconfig sbofind sboupgrade sboremove)) {
 	open my $read, '<', "../$file";
 	get_subs $read;
 	close $read;

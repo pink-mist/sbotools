@@ -48,32 +48,29 @@ show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 show_usage and exit 0 unless exists $ARGV[0];
 
-my $inst_names = get_inst_names(get_installed_sbos);
-
 # ensure that all provided arguments are valid sbos
-my @arguments;
+my @sbos;
+my $inst_names = get_inst_names(get_installed_sbos);
 for my $sbo (@ARGV) {
 	if (get_sbo_location($sbo)) {
-		$sbo ~~ @$inst_names ? push @arguments, $sbo
+		$sbo ~~ @$inst_names ? push @sbos, $sbo
                              : say "$sbo is not installed";
 	} else {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
 }
-
-# one array of each cli-specified sbo to remove...
-my @sbos = @arguments;
 exit 0 unless exists $sbos[0];
 
-# wrapper to pull the list of requirements for a given sbo
-# TODO: look at moving this into Lib.pm
-sub get_requires($) {
-	my $location = get_sbo_location(shift);
-	return get_from_info(LOCATION => $location, GET => 'REQUIRES');
-}
+# # wrapper to pull the list of requirements for a given sbo
+# sub get_requires ($) {
+# 	my $location = get_sbo_location(shift);
+# 	return unless $location;
+# 	my $info = get_from_info(LOCATION => $location, GET => 'REQUIRES');
+# 	return $$info[0] ne '' ? $info : undef;
+# }
 
-my ($remove_queue, %required_by, %warnings, @confirmed);
 # Create full queue. 
+my ($remove_queue, %warnings);
 for my $sbo (@sbos) {
     my $queue = get_build_queue ([$sbo], \%warnings);
     @$queue = reverse(@$queue);
@@ -81,28 +78,30 @@ for my $sbo (@sbos) {
 }
 
 # Read requires for each item in queue (needed for later on, %README% etc)
-# TODO: look at returning this info back from the queue subs as they process
-# this info to make the queues, however they do not store it anywhere, resulting 
-# in the current double handling of the .info files :/ 
 my %req_store;
 $req_store{$_} = get_requires $_ for @$remove_queue;
-#print "Q: " . join(' ', @$remove_queue) . "\n";
 
 # Determine required by for all installed sbo's
-sub get_reverse_reqs() {
-	FIRST: for my $inst (@$inst_names) {
+my (%required_by, @confirmed);
+
+# populates the required_by hash 
+sub get_reverse_reqs ($) {
+	my $installed = shift;
+	FIRST: for my $inst (@$installed) {
 		my $require = get_requires $inst;
 		next FIRST unless $$require[0];
 		for my $req (@$require) {
 			unless ( $req eq '%README%' ) {
-				push @{$required_by{$req}}, $inst if $req ~~ $inst_names;
+				push @{$required_by{$req}}, $inst if $req ~~ @$installed;
 			}		
 		}	
 	}
 }
-get_reverse_reqs;
+get_reverse_reqs $inst_names;
 
-sub get_required_by($) {
+# returns a list of installed sbo's that list the given sbo as a requirement,
+# excluding any installed sbo's that have already been confirmed for removal
+sub get_required_by ($) {
 	my $sbo = shift;
 	my @dep_of;
 	if ( $required_by{$sbo} ) {
@@ -112,10 +111,10 @@ sub get_required_by($) {
 			}
 		}
 	}
-	return \@dep_of;
+	return exists $dep_of[0] ? \@dep_of : undef;
 }
 
-sub confirm_remove($) {
+sub confirm_remove ($) {
 	my $sbo = shift;
 	push @confirmed, $sbo unless $sbo ~~ @confirmed;
 }
@@ -134,24 +133,28 @@ if ($non_int) {
 	confirm_remove $_ for @$remove_queue;
 	goto CONFIRMED;
 }
-# Prompt user
+
+# Begin prompts
 FIRST: for my $remove (@$remove_queue) {
+	# Determine whether $remove is still needed on system.
 	my $required_by = get_required_by $remove;
-	my $needed = 0; # True if sbo is still needed on system, otherwise false.
+	my $needed = 0;
 	for my $rq (@$required_by) {
 		$needed = 1 unless $rq ~~ @confirmed or $remove ~~ @sbos;
-	}
-	
+		# still needed, unless required_by is already confirmed for removal or
+		# the sbo in question was cli-specified.
+	}	
 	if ( $needed ) {
-		next FIRST unless $alwaysask;
+		next FIRST unless $alwaysask; #ignore sbo and skip prompt
 		print "$remove : required by " . join(' ', @$required_by) . "\n";
 	} else {
 		say "$remove";
 	}
 
+	# Check for %README% value and inform user.
 	my @reqz = $req_store{$remove};
 	if ( "%README%" ~~ @reqz ) {
-		print "It is recommended that you view the README before continuing..\n";
+		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
 		my $location = get_sbo_location($remove);
 		my $fh = open_read ($location .'/README');
@@ -160,9 +163,17 @@ FIRST: for my $remove (@$remove_queue) {
 
 		print "\n" . $readme if <STDIN> =~ /^[Yy\n]/;
 	}
-	print "Remove $remove? [y]: ";
-	 
-	if ( <STDIN> =~ /^[Yy\n]/ ) {
+
+	# Determine default behavior for prompt
+	my $default = 'y';
+	my $regex = "[Yy\n]";
+	if ($needed) {
+		$default = 'n'; 
+		$regex = "[Yy]"; 
+	}
+	# Ask user to confirm removal
+	print "Remove $remove? [$default]: ";
+	if (<STDIN> =~ /^$regex/) {
 		confirm_remove($remove);
 		say " * Added to remove queue\n";
 	} else {
@@ -171,19 +182,19 @@ FIRST: for my $remove (@$remove_queue) {
 }	
 
 CONFIRMED:
-
 # Show remove queue
 my $remove_count = @confirmed;
 if ($remove_count) {
 	say "Removing $remove_count package(s)";
-	print join(' ', @confirmed) . "\n\n";
+	print join(' ', @confirmed) . "\n";
 } else {
 	say 'Nothing to remove.';
 	exit 0;
 }
 
+# Final confirmation
 unless ($non_int) {
-	print 'Are you sure you want to continue? [n] : ';
+	print "\nAre you sure you want to continue? [n] : ";
 	unless (<STDIN> =~ /^[Yy]/) {
 		say 'Exiting.';
 		exit 0;
