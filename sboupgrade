@@ -114,12 +114,6 @@ for my $sbo (@$build_queue) {
 		defined $locations{$sbo};
 }
 
-sub get_readme_path($) {
-    exists $_[0] or script_error 'get_readme_path requires an argument.';
-    my $sbo = shift;
-    return $locations{$sbo} .'/README';
-}
-
 # look for any (user|group)add commands in the README
 sub get_user_group($) {
     exists $_[0] or script_error 'get_user_group requires an argument';
