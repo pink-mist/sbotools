@@ -6,13 +6,13 @@ use warnings FATAL => 'all';
 use File::Copy;
 use Tie::File;
 
-chomp (my $pwd = `pwd`);
+chomp(my $pwd = `pwd`);
 mkdir "$pwd/SBO" unless -d "$pwd/SBO";
-copy ('../SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
+copy('../SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
 
 open my $write, '>>', "$pwd/SBO/Lib.pm";
 
-sub pr ($) {
+sub pr($) {
 	my $thing = shift;
 	print {$write} "our \$$thing = 1;\n";
 }
@@ -28,7 +28,7 @@ print {$write} "my \%locations;\n";
 print {$write} "my \%commands;\n";
 print {$write} "my \%options = (nothing => 'to see here');\n";
 
-sub get_subs ($) {
+sub get_subs($) {
 	my $read = shift;
 	my $begin_regex = qr/^sub\s+[a-z0-9_]+/;
 	my $usage_regex = qr/^sub\s+show_usage/;
@@ -61,7 +61,7 @@ close $write;
 
 my @subs;
 open my $file_h, '<', "$pwd/SBO/Lib.pm";
-my $regex = qr/^sub\s+([^\s]+)\s+/;
+my $regex = qr/^sub\s+([^\s(]+)(\s|\()/;
 while (my $line = <$file_h>) {
 	if (my $sub = ($line =~ $regex)[0]) {
 		push @subs, $sub;
