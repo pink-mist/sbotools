@@ -17,9 +17,9 @@ use File::Basename;
 use Getopt::Long;
 
 my $sbo_home = $config{SBO_HOME};
-my $self = basename ($0);
+my $self = basename($0);
 
-sub show_usage () {
+sub show_usage() {
 	print <<EOF
 Usage: $self [options|command]
 
@@ -41,7 +41,7 @@ show_usage and exit 1 unless exists $ARGV[0];
 
 my ($help, $vers);
 
-GetOptions ('help|h' => \$help, 'version|v' => \$vers);
+GetOptions('help|h' => \$help, 'version|v' => \$vers);
 
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;

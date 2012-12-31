@@ -16,9 +16,9 @@ use SBO::Lib;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 
-my $self = basename ($0);
+my $self = basename($0);
 
-sub show_usage () {
+sub show_usage() {
 	print <<EOF
 Usage: $self (search_term)
 
@@ -42,7 +42,7 @@ EOF
 
 my ($help, $vers, $show_info, $show_readme, $show_queue);
 
-GetOptions (
+GetOptions(
 	'help|h'    => \$help,
 	'version|v' => \$vers,
 	'info|i'    => \$show_info,
@@ -60,7 +60,7 @@ my $search = $ARGV[0];
 slackbuilds_or_fetch;
 
 # find anything with $search in its name
-sub perform_search ($) {
+sub perform_search($) {
 	exists $_[0] or script_error 'perform_search requires an argument.';
 	my $search = shift;
 	my (@findings, $name, $found);
@@ -82,7 +82,7 @@ sub perform_search ($) {
 }
 
 # pull the contents of a file into a variable and format it for output
-sub get_file_contents ($) {
+sub get_file_contents($) {
 	exists $_[0] or script_error 'get_file_contents requires an argument';
 	-f $_[0] or return "$_[0] doesn't exist.\n";
 	my $fh = open_read shift;
@@ -95,7 +95,7 @@ sub get_file_contents ($) {
 }
 
 # get build queue and return it as a single line. 
-sub show_build_queue ($) {
+sub show_build_queue($) {
 	exists $_[0] or script_error 'show_build_queue requires an argument.';
 	my $queue = get_build_queue([shift], {});
 	return join(" ", reverse @$queue);

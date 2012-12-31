@@ -17,9 +17,9 @@ use Getopt::Long qw(:config bundling);
 use File::Basename;
 use File::Copy;
 
-my $self = basename ($0);
+my $self = basename($0);
 
-sub show_usage () {
+sub show_usage() {
     print <<EOF
 Usage: $self (options) [package]
 
@@ -56,7 +56,7 @@ my $jobs = $config{JOBS};
 my ($help, $vers, $force, $no_install, $install_new, $non_int, $no_reqs,
     $force_reqs, $only_new, $compat32);
 
-GetOptions (
+GetOptions(
     'help|h'            => \$help,
     'version|v'         => \$vers,
     'noclean|c=s'       => \$noclean,
@@ -103,25 +103,25 @@ if ($no_reqs or $non_int) {
     $build_queue = \@ARGV;
 } else {
 	for my $sbo (@ARGV) {
-        my $queue = get_build_queue ([$sbo], \%warnings);
+        my $queue = get_build_queue([$sbo], \%warnings);
         $build_queue = merge_queues($build_queue, $queue);
 	}
 }
 # p7zip fmodapi eawpats TiMidity++ zdoom OpenAL bsnes jdk DevIL spring
 for my $sbo (@$build_queue) {
-    $locations{$sbo} = get_sbo_location ($sbo);
+    $locations{$sbo} = get_sbo_location($sbo);
 	die "Unable to locate $sbo in the SlackBuilds.org tree.\n" unless
 		defined $locations{$sbo};
 }
 
-sub get_readme_path ($) {
+sub get_readme_path($) {
     exists $_[0] or script_error 'get_readme_path requires an argument.';
     my $sbo = shift;
     return $locations{$sbo} .'/README';
 }
 
 # look for any (user|group)add commands in the README
-sub get_user_group ($) {
+sub get_user_group($) {
     exists $_[0] or script_error 'get_user_group requires an argument';
     my $readme = shift;
     my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
@@ -141,7 +141,7 @@ sub ask_user_group {
 }
 
 # see if the README mentions any options
-sub get_opts ($) {
+sub get_opts($) {
     exists $_[0] or script_error 'get_opts requires an argument';
     my $readme = shift;
     return $readme =~ /[A-Z0-9]+=[^\s]/ ? 1 : undef;
@@ -155,9 +155,9 @@ sub ask_opts {
     print "\nIt looks like $sbo has options; would you like to set any";
     print ' when the slackbuild is run? [n] ';
     if (<STDIN> =~ /^[Yy]/) {
-        my $ask = sub () {
+        my $ask = sub() {
             print "\nPlease supply any options here, or enter to skip: ";
-            chomp (my $opts = <STDIN>);
+            chomp(my $opts = <STDIN>);
             return if $opts =~ /^\n/;
             return $opts;
         };
@@ -176,18 +176,18 @@ sub ask_opts {
 sub user_prompt {
 	exists $_[1] or script_error 'user_prompt requires two arguments.';
 	my ($sbo, $location) = @_;
-	my $fh = open_read ($location .'/README');
+	my $fh = open_read($location .'/README');
 	my $readme = do {local $/; <$fh>};
 	close $fh;
 
 	# check for user/group add commands, offer to run any found
 	my $user_group = get_user_group $readme;
 	my $cmds;
-	$cmds = ask_user_group ($user_group, $readme) if $$user_group[0];
+	$cmds = ask_user_group($user_group, $readme) if $$user_group[0];
 	$commands{$sbo} = $cmds if defined $cmds; 
 	# check for options mentioned in the README
 	my $opts = 0;
-	$opts = ask_opts ($sbo, $readme) if get_opts $readme;
+	$opts = ask_opts($sbo, $readme) if get_opts $readme;
 	print "\n". $readme unless $opts;
 	$options{$sbo} = $opts if $opts;
 
@@ -197,7 +197,7 @@ sub user_prompt {
 }
 
 # do the things with the provided sbos - whether upgrades or new installs.
-sub process_sbos ($) {
+sub process_sbos($) {
     exists $_[0] or script_error 'process_sbos requires an argument.';
     my $todo = shift;
     my %failures;
@@ -206,13 +206,13 @@ sub process_sbos ($) {
 		$opts = $options{$sbo} if defined $options{$sbo};
 		my $cmds = $commands{$sbo} if defined $commands{$sbo};
 		for my $cmd (@$cmds) {
-		    system ($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
+		    system($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
 		}
 		# switch compat32 on if upgrading a -compat32
 		# else make sure compat32 is off
 		$compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
 		my ($version, $pkg, $src);
-		eval { ($version, $pkg, $src) = do_slackbuild (
+		eval { ($version, $pkg, $src) = do_slackbuild(
 		    OPTS    => $opts,
 		    JOBS    => $jobs,
 		    LOCATION  => $locations{$sbo},
@@ -224,10 +224,10 @@ sub process_sbos ($) {
 		    do_upgradepkg $pkg unless $no_install;      
 
 		    unless ($distclean) {
-		        make_clean (SBO => $sbo, SRC => $src, VERSION => $version)
+		        make_clean(SBO => $sbo, SRC => $src, VERSION => $version)
 		            unless $noclean;
 		    } else {
-		        make_distclean (
+		        make_distclean(
 		            SBO     => $sbo,
 		            SRC     => $src,
 		            VERSION   => $version,
@@ -238,10 +238,10 @@ sub process_sbos ($) {
             unless ($config{PKG_DIR} eq 'FALSE') {
                 my $dir = $config{PKG_DIR};
                 unless (-d $dir) {
-                    mkdir ($dir) or warn "Unable to create $dir\n";
+                    mkdir($dir) or warn "Unable to create $dir\n";
                 }
                 if (-d $dir) {
-                    move ($pkg, $dir), say "$pkg stored in $dir";
+                    move($pkg, $dir), say "$pkg stored in $dir";
                 } else {
                     warn "$pkg left in /tmp\n";
                 }
@@ -262,7 +262,7 @@ sub print_failures {
     }
 }
 
-my $inst_names = get_inst_names (get_installed_sbos);
+my $inst_names = get_inst_names(get_installed_sbos);
 my $upgrade_queue;
 @$upgrade_queue = ();
 # deal with any updates prior to any new installs.
@@ -333,7 +333,7 @@ FIRST: for my $sbo (@$build_queue) {
         say "$name already installed." unless $force; 
         next FIRST;
     } 
-    $locations{$name} = get_sbo_location ($sbo) if $compat32;
+    $locations{$name} = get_sbo_location($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
         if ($compat32) {
@@ -374,16 +374,16 @@ my %failures;
 if ( $force and ! $force_reqs) {
     # Install missing reqs then rebuild sbo's 
     %failures = process_sbos $build_queue if exists $$build_queue[0];
-    print_failures (%failures);
+    print_failures(%failures);
 
     %failures = process_sbos $upgrade_queue if exists $$upgrade_queue[0];
-    print_failures (%failures);
+    print_failures(%failures);
 } else {
     # Upgrade any installed reqs/sbo's then build missing reqs/sbo's
     %failures = process_sbos $upgrade_queue if exists $$upgrade_queue[0];
-    print_failures (%failures);
+    print_failures(%failures);
 
     %failures = process_sbos $build_queue if exists $$build_queue[0];
-    print_failures (%failures);
+    print_failures(%failures);
 }
 exit 0;

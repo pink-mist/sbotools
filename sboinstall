@@ -16,9 +16,9 @@ use SBO::Lib;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
 
-my $self = basename ($0);
+my $self = basename($0);
 
-sub show_usage () {
+sub show_usage() {
 	print <<EOF
 Usage: $self [options] sbo
 
@@ -50,7 +50,7 @@ my $distclean = $config{DISTCLEAN};
 my $jobs = $config{JOBS};
 my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32);
 
-GetOptions (
+GetOptions(
 	'help|h'			=> \$help,
 	'version|v'			=> \$vers,
 	'noclean|c=s'		=> \$noclean,

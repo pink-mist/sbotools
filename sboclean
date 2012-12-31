@@ -17,9 +17,9 @@ use File::Basename;
 use Getopt::Long qw(:config bundling);
 use File::Path qw(remove_tree);
 
-my $self = basename ($0);
+my $self = basename($0);
 
-sub show_usage () {
+sub show_usage() {
 	print <<EOF
 Usage: $self (options) [package]
 
@@ -40,7 +40,7 @@ EOF
 
 my ($help, $vers, $clean_dist, $clean_work, $interactive);
 
-GetOptions (
+GetOptions(
 	'help|h'		=> \$help,
 	'version|v'		=> \$vers,
 	'clean-dist|d'	=> \$clean_dist,
@@ -54,11 +54,11 @@ show_version and exit 0 if $vers;
 show_usage, die "You must specify at least one of -d or -w.\n" unless
 	($clean_dist || $clean_work);
 
-sub remove_stuff ($) {
+sub remove_stuff($) {
 	exists $_[0] or script_error 'remove_stuff requires an argument';
 	-d $_[0] or say 'Nothing to do.' and return 1;
 	my $dir = shift;
-	opendir (my $dh, $dir);
+	opendir(my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
 		next FIRST if $ls =~ /^(\.){1,2}$/;
 		my $full = "$dir/$ls";
@@ -67,7 +67,7 @@ sub remove_stuff ($) {
 			next FIRST unless <STDIN> =~ /^[Yy]/;
 		}
 		unlink $full if -f $full;
-		remove_tree ($full) if -d $full;
+		remove_tree($full) if -d $full;
 	}
 }
 

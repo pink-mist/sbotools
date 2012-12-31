@@ -19,9 +19,9 @@ use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
 
-my $self = basename ($0);
+my $self = basename($0);
 
-sub show_usage () {
+sub show_usage() {
 	print <<EOF
 Usage: $self [options] [arguments]
 
@@ -47,7 +47,7 @@ EOF
 
 my %options;
 
-GetOptions (\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
+GetOptions(\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
 	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s');
 
 show_usage and exit 0 if exists $options{help};
@@ -113,7 +113,7 @@ sub config_write {
 		mkdir $conf_dir or die "Unable to create $conf_dir. Exiting.\n";
 	}
 	if (-f $conf_file) {
-		my $tempfh = tempfile (DIR => $tempdir);
+		my $tempfh = tempfile(DIR => $tempdir);
 		my $conffh = open_read $conf_file;
 		my $conftents = do {local $/; <$conffh>};
 		print {$tempfh} $conftents;
@@ -132,13 +132,13 @@ sub config_write {
 		seek $tempfh, 0, 0;
 		my $contents = do {local $/; <$tempfh>};
 		close $conffh;
-		eval { $conffh = open_fh ($conf_file, '>') };
+		eval { $conffh = open_fh($conf_file, '>') };
 		warn "Cannot write configuration: $@\n" and return if $@;
 		print {$conffh} $contents or return;
 		close $conffh, close $tempfh;
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh ($conf_file, '>') or return;
+		my $fh = open_fh($conf_file, '>') or return;
 		print {$fh} "$key=$val\n";
 		close $fh;
 	}
@@ -147,7 +147,7 @@ sub config_write {
 
 while (my ($key, $value) = each %changes) {
 	say "Setting $key to $value...";
-	config_write ($key, $value) or warn "Unable to write to $conf_file\n";
+	config_write($key, $value) or warn "Unable to write to $conf_file\n";
 }
 
 exit 0;

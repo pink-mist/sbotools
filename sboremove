@@ -72,7 +72,7 @@ exit 0 unless exists $sbos[0];
 # Create full queue. 
 my ($remove_queue, %warnings);
 for my $sbo (@sbos) {
-    my $queue = get_build_queue ([$sbo], \%warnings);
+    my $queue = get_build_queue([$sbo], \%warnings);
     @$queue = reverse(@$queue);
     $remove_queue = merge_queues($remove_queue, $queue);
 }
@@ -85,7 +85,7 @@ $req_store{$_} = get_requires $_ for @$remove_queue;
 my (%required_by, @confirmed);
 
 # populates the required_by hash 
-sub get_reverse_reqs ($) {
+sub get_reverse_reqs($) {
 	my $installed = shift;
 	FIRST: for my $inst (@$installed) {
 		my $require = get_requires $inst;
@@ -101,7 +101,7 @@ get_reverse_reqs $inst_names;
 
 # returns a list of installed sbo's that list the given sbo as a requirement,
 # excluding any installed sbo's that have already been confirmed for removal
-sub get_required_by ($) {
+sub get_required_by($) {
 	my $sbo = shift;
 	my @dep_of;
 	if ( $required_by{$sbo} ) {
@@ -114,7 +114,7 @@ sub get_required_by ($) {
 	return exists $dep_of[0] ? \@dep_of : undef;
 }
 
-sub confirm_remove ($) {
+sub confirm_remove($) {
 	my $sbo = shift;
 	push @confirmed, $sbo unless $sbo ~~ @confirmed;
 }
@@ -157,7 +157,7 @@ FIRST: for my $remove (@$remove_queue) {
 		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
 		my $location = get_sbo_location($remove);
-		my $fh = open_read ($location .'/README');
+		my $fh = open_read($location .'/README');
 		my $readme = do {local $/; <$fh>};
 		close $fh;
 
