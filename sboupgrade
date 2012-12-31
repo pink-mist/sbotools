@@ -88,6 +88,7 @@ if ($jobs) {
 
 if ($compat32) {
 	die "compat32 only works on x86_64.\n" unless get_arch eq 'x86_64';
+	die "-p|--compat32 requires -N|--installnew\n" unless $install_new;
 }
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
