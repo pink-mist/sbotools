@@ -156,11 +156,7 @@ FIRST: for my $remove (@$remove_queue) {
 	if ( "%README%" ~~ @reqz ) {
 		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
-		my $location = get_sbo_location($remove);
-		my $fh = open_read($location .'/README');
-		my $readme = do {local $/; <$fh>};
-		close $fh;
-
+		my $readme = get_readme_contents get_sbo_location($remove);
 		print "\n" . $readme if <STDIN> =~ /^[Yy\n]/;
 	}
 

@@ -31,6 +31,7 @@ our @EXPORT = qw(
 	get_inst_names
 	get_available_updates
 	get_requires
+	get_readme_contents
 	do_slackbuild
 	make_clean
 	make_distclean
@@ -784,4 +785,12 @@ sub merge_queues {
         push @$queue_a, $item unless $item ~~ @$queue_a;
     }
     return $queue_a;
+}
+
+sub get_readme_contents($) {
+	exists $_[0] or script_error 'get_readme_contents requires an argument.';
+	my $fh = open_read(shift .'/README');
+	my $readme = do {local $/; <$fh>};
+	close $fh;
+	return $readme;
 }

@@ -389,5 +389,8 @@ confirm_remove('zdoom');
 $count = @SBO::Lib::confirmed;
 is($count, 4, 'confirm_remove good for duplicate sbo');
 
+# test get_readme_contents
+ok((get_readme_contents "$sbo_home/network/nagios"), 'get_readme_contents is good');
+
 # end of tests.
 done_testing();
