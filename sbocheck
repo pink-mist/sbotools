@@ -14,7 +14,6 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib;
 use Getopt::Long;
-use Text::Tabulate;
 use File::Basename;
 
 my $self = basename($0);
@@ -45,30 +44,35 @@ update_tree;
 sub get_update_list() {
 	print "Checking for updated SlackBuilds...\n";
 	my $updates = get_available_updates; 
-	# pretty formatting.
+	# consistent formatting - first we need the minimum length for name-version
+	my @lengths;
+	push @lengths, length "$$updates[$_]{name}-$$updates[$_]{installed}"
+		for keys @$updates;
+	my @s_lengths = sort {$b <=> $a} @lengths;
+	my $min = $s_lengths[0];
+	$min = 37 if $min > 37;
+
 	my @listing;
 	for my $update (@$updates) {
-		my $string = "$$update{name}-$$update{installed}";
-		$string .= "        <   needs updating (SBo has $$update{update})\n";
-		push @listing, $string;
+		push(@listing, sprintf "%-${min}s  <  needs updating (SBo has %s)",
+			"$$update{name}-$$update{installed}", "$$update{update}");
 	}
 	return \@listing;
 }
 
-# Text::Tabulate and print list of updates
+# print list of updates
 sub print_output($) {
 	exists $_[0] or script_error 'print_output requires an argument';
 	my $listing = shift;
 	if (exists $$listing[0]) {
-		my $tab = new Text::Tabulate();
-		$tab->configure(tab => '\s');
-		my $output = $tab->format(@$listing);
-		say "\n". $output;
+		print "\n";
+		say $_ for @$listing;
+		print "\n";
 		# save a log of available updates
 		my $logfile = '/var/log/sbocheck.log';
 		unlink $logfile if -f $logfile;
 		my $log_fh = open_fh($logfile, '>');
-		print {$log_fh} $output;
+		say {$log_fh} $_ for @$listing;
 		close $log_fh;
 		say "A copy of the above result is kept in $logfile\n";
 	} else {
