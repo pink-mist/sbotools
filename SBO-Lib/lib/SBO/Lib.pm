@@ -448,7 +448,7 @@ sub check_multilib() {
 }
 
 # given a list of downloads, return just the filenames
-sub get_dl_fns ($) {
+sub get_dl_fns($) {
 	my $fns = shift;
 	my $return;
 	push @$return, ($_ =~ qr|/([^/]+)$|)[0] for @$fns;
