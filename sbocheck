@@ -44,13 +44,27 @@ update_tree;
 sub get_update_list() {
 	print "Checking for updated SlackBuilds...\n";
 	my $updates = get_available_updates; 
-	# consistent formatting - first we need the minimum length for name-version
+	# consistent formatting - determine longest version string, which will tell
+	# us the max minimum length of the left side of the output for stuff that
+	# fits in 80 chars; stuff that doesn't will overflow.
+	my @up_lengths;
+	push @up_lengths, length $$updates[$_]{update} for keys @$updates;
+	my @s_up_lengths = sort {$b <=> $a} @up_lengths;
+	my $up_length = $s_up_lengths[0];
+	# "needs updating" bit without version is 30 characters
+	my $remaining = 80 - ($up_length + 30);
 	my @lengths;
 	push @lengths, length "$$updates[$_]{name}-$$updates[$_]{installed}"
 		for keys @$updates;
 	my @s_lengths = sort {$b <=> $a} @lengths;
-	my $min = $s_lengths[0];
-	$min = 37 if $min > 37;
+	my $min;
+	FIRST: for my $len (@s_lengths) {
+		if ($len < $remaining) {
+			$min = $len;
+			last FIRST;
+		}
+	}
+	$min = $remaining unless $min;
 
 	my @listing;
 	for my $update (@$updates) {
