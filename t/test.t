@@ -251,10 +251,13 @@ is($$info[0], "", 'get_from_info GET => DOWNLOAD_x86_64 is good');
 
 # get_update_list tests
 my $listing = get_update_list;
+say $_ for @$listing;
 s/\s//g for @$listing;
 for my $item (@$listing) {
 	is($item, 'ffmpeg-0.8.7<needsupdating(SBohas0.11.1)',
 		'get_update_list output good for ffmpeg') if $item =~ /^ffmpeg/;
+	is($item, 'libdvdnav-4.1.3<needsupdating(SBohas4.2.0)',
+		'get_update_list output test, libdvdnav') if $item =~ /^libdvdnav/;
 	is($item, 'mutagen-1.15<needsupdating(SBohas1.20)',
 		'get_update_list output good for mutagen') if $item =~ /^atkmm/;
 }
