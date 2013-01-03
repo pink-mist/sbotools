@@ -64,6 +64,13 @@ sub print_output($) {
 		$tab->configure(tab => '\s');
 		my $output = $tab->format(@$listing);
 		say "\n". $output;
+		# save a log of available updates
+		my $logfile = '/var/log/sbocheck.log';
+		unlink $logfile if -f $logfile;
+		my $log_fh = open_fh($logfile, '>');
+		print {$log_fh} $output;
+		close $log_fh;
+		say "A copy of the above result is kept in $logfile\n";
 	} else {
 		say "\nNo updates available.";
 	}
