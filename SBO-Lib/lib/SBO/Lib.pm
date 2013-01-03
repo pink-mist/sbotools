@@ -448,11 +448,45 @@ sub check_multilib() {
 	return;
 }
 
+# given a list of downloads, return just the filenames
+sub get_dl_fns($) {
+	my $fns = shift;
+	my $return;
+	push @$return, ($_ =~ qr|/([^/]+)$|)[0] for @$fns;
+	return $return;
+}
+
+# given a line that looks like it's decompressing something, try to return a
+# valid filename regex
+sub get_dc_regex {
+	my $line = shift;
+	# get rid of initial 'tar x'whatever stuff
+	$line =~ s/^.*(?<![a-z])(tar|p7zip|unzip|ar|rpm2cpio|sh)\s+[^\s]+\s+//;
+	# need to know preceeding character - should be safe to assume it's either
+	# a slash or a space
+	my $initial = $line =~ qr|/| ? '/' : ' ';
+	# get rid of initial path info
+	$line =~ s|^\$[^/]+/||;
+	# convert any instances of command substitution to [^-]+
+	$line =~ s/\$\([^)]+\)/[^-]+/g;
+	# convert any bash variables to [^-]+
+	$line =~ s/\$({|)[A-Za-z0-9_]+(}|)/[^-]+/g;
+	# get rid of anything excess at the end
+	$line =~ s/\s+.*$//;
+	# fix .?z* at the end
+	$line =~ s/\.\?z\*/\.[a-z]z.*/;
+	# return what's left as a regex
+	my $regex = qr/$initial$line/;
+	return $regex, $initial;
+}
+
 # make a backup of the existent SlackBuild, and rewrite the original as needed
 sub rewrite_slackbuild {
 	my %args = (
+		SBO			=> '',
 		SLACKBUILD	=> '',
 		CHANGES		=> {}, 
+		C32			=> 0,
 		@_
 	);
 	$args{SLACKBUILD} or script_error 'rewrite_slackbuild requires SLACKBUILD.';
@@ -462,8 +496,28 @@ sub rewrite_slackbuild {
 		die "Unable to backup $slackbuild to $slackbuild.orig\n";
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	my $arch_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
+	my $dc_regex = qr/(?<![a-z])(tar|p7zip|unzip|ar|rpm2cpio|sh)\s+/;
 	# tie the slackbuild, because this is the easiest way to handle this.
 	tie my @sb_file, 'Tie::File', $slackbuild;
+	# if we're dealing with a compat32, we need to change the tar line(s) so
+	# that the 32-bit source is untarred
+	if ($args{C32}) {
+		my $location = get_sbo_location($args{SBO});
+		my %downloads = get_sbo_downloads(
+			LOCATION => $location,
+			32 => 1,
+		);
+		my $fns = get_dl_fns [keys %downloads];
+		for my $line (@sb_file) {
+			if ($line =~ $dc_regex) {
+				my ($regex, $initial) = get_dc_regex $line;
+				for my $fn (@$fns) {
+					$fn = "$initial$fn";
+					$line =~ s/$regex/$fn/ if $fn =~ $regex;
+				}
+			}
+		}
+	}
 	for my $line (@sb_file) {
 		# then check for and apply any other %$changes
 		if (exists $$changes{libdirsuffix}) {
@@ -599,8 +653,10 @@ sub perform_sbo {
 	my $fn = get_tmp_extfn $tempfh;
 	$cmd .= " | tee -a $fn";
 	rewrite_slackbuild(
+		SBO => $sbo,
 		SLACKBUILD => "$location/$sbo.SlackBuild",
 		CHANGES => \%changes,
+		C32 => $args{C32},
 	);
 	chdir $location, system $cmd;
 	seek $exit_temp, 0, 0;

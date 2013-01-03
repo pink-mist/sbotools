@@ -204,7 +204,7 @@ is(get_distfile
 	'5434f948fdea6406851c77bebbd0ed19'), 1, 'get_distfile is good');
 unlink $distfile;
 
-# rewrite_slackbuilds/revert_slackbuild tests
+# rewrite_slackbuild/revert_slackbuild tests
 my $rewrite_dir = tempdir(CLEANUP => 1);
 copy("$sbo_home/system/ifuse/ifuse.SlackBuild", $rewrite_dir);
 my $slackbuild = "$rewrite_dir/ifuse.SlackBuild";
@@ -218,18 +218,22 @@ is(revert_slackbuild $slackbuild, 1, 'revert_slackbuild is good');
 $changes{libdirsuffix} = '';
 $changes{make} = '-j 5';
 $changes{arch_out} = 'i486';
-is(rewrite_slackbuild (SLACKBUILD => $slackbuild, TEMPFN => $tempfn,
-	CHANGES => \%changes), 1, 'rewrite_slackbuild with all %changes good');
+is(rewrite_slackbuild (SLACKBUILD => $slackbuild, CHANGES => \%changes,
+	C32 => 1, SBO => 'ifuse'), 1, 'rewrite_slackbuild test w/ all %changes');
 ok(-f "$slackbuild.orig", 'rewrite_slackbuild backing up original is good.');
-my $expected_out = "55c55
-<   LIBDIRSUFFIX=\"64\"
+my $expected_out = '55c55
+<   LIBDIRSUFFIX="64"
 ---
->   LIBDIRSUFFIX=\"\"
+>   LIBDIRSUFFIX=""
+67c67
+< tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
+---
+> tar xvf $CWD/ifuse-1.1.1.tar.bz2
 103c103
-< /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-\$ARCH-\$BUILD\$TAG.\${PKGTYPE:-tgz}
+< /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz}
 ---
-> /sbin/makepkg -l y -c n \$OUTPUT/\$PRGNAM-\$VERSION-i486-\$BUILD\$TAG.\${PKGTYPE:-tgz}
-";
+> /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-i486-$BUILD$TAG.${PKGTYPE:-tgz}
+';
 is(diff("$slackbuild.orig", $slackbuild, {STYLE => 'OldStyle'}),
 	$expected_out, 'all changed lines rewritten correctly');
 is(revert_slackbuild $slackbuild, 1, 'revert_slackbuild is good again');
@@ -391,6 +395,41 @@ is($count, 4, 'confirm_remove good for duplicate sbo');
 
 # test get_readme_contents
 ok((get_readme_contents "$sbo_home/network/nagios"), 'get_readme_contents is good');
+
+# test get_dl_fns
+my $downloads = [
+	'http://developer.download.nvidia.com/cg/Cg_3.1/Cg-3.1_April2012_x86.tgz'
+];
+my $fns = get_dl_fns $downloads;
+is($$fns[0], 'Cg-3.1_April2012_x86.tgz', 'get_dl_fns test, one input');
+$downloads = [
+	'http://download.virtualbox.org/virtualbox/4.2.0/VirtualBox-4.2.0.tar.bz2',
+	'http://download.virtualbox.org/virtualbox/4.2.0/VBoxGuestAdditions_4.2.0.iso',
+	'http://download.virtualbox.org/virtualbox/4.2.0/UserManual.pdf',
+	'http://download.virtualbox.org/virtualbox/4.2.0/SDKRef.pdf',
+];
+$fns = get_dl_fns $downloads;
+is($$fns[0], 'VirtualBox-4.2.0.tar.bz2', 'get_dl_fns test, multiple inputs 01');
+is($$fns[2], 'UserManual.pdf', 'get_dl_fns test, multiple inputs 02');
+
+# test get_dc_regex - multiple tests for various types of input
+my $line = 'tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*';
+my ($regex, $initial) = get_dc_regex $line;
+is($regex, '(?^u:/[^-]+-[^-]+.tar.[a-z]z.*)', 'get_dc_regex test 01.1');
+is($initial, '/', 'get_dc_regex test 01.2');
+$line = 'tar xvf $CWD/Oracle_VM_VirtualBox_Extension_Pack-$VERSION.vbox-extpack';
+($regex, $initial) = get_dc_regex $line;
+is($regex, '(?^u:/Oracle_VM_VirtualBox_Extension_Pack-[^-]+.vbox-extpack)',
+	'get_dc_regex test 02.1');
+is($initial, '/', 'get_dc_regex test 02.2');
+$line = 'tar xvf $CWD/${PRGNAM}-source-$(echo $VERSION).tar.gz';
+($regex, $initial) = get_dc_regex $line;
+is($regex, '(?^u:/[^-]+-source-[^-]+.tar.gz)', 'get_dc_regex test 03.1');
+is($initial, '/', 'get_dc_regex test 03.2');
+$line = '( tar xvf xapian-bindings-$VERSION.tar.gz';
+($regex, $initial) = get_dc_regex $line;
+is($regex, '(?^u: xapian-bindings-[^-]+.tar.gz)', 'get_dc_regex test 04.1');
+is($initial, ' ', 'get_dc_regex test 04.2');
 
 # end of tests.
 done_testing();

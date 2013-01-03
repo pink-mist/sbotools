@@ -88,6 +88,7 @@ if ($jobs) {
 
 if ($compat32) {
 	die "compat32 only works on x86_64.\n" unless get_arch eq 'x86_64';
+	die "-p|--compat32 requires -N|--installnew\n" unless $install_new;
 }
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
@@ -112,12 +113,6 @@ for my $sbo (@$build_queue) {
     $locations{$sbo} = get_sbo_location($sbo);
 	die "Unable to locate $sbo in the SlackBuilds.org tree.\n" unless
 		defined $locations{$sbo};
-}
-
-sub get_readme_path($) {
-    exists $_[0] or script_error 'get_readme_path requires an argument.';
-    my $sbo = shift;
-    return $locations{$sbo} .'/README';
 }
 
 # look for any (user|group)add commands in the README
