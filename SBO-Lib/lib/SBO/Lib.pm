@@ -455,22 +455,23 @@ sub get_dl_fns ($) {
 	return $return;
 }
 
-# given a line containing 'tar ', try to return a valid filename regex
-sub get_tar_regex ($) {
+# given a line that looks like it's decompressing something, try to return a
+# valid filename regex
+sub get_dc_regex {
 	my $line = shift;
 	# get rid of initial 'tar x'whatever stuff
-	$line =~ s/^.*tar\s+[^\s]+\s+//;
+	$line =~ s/^.*(?<![a-z])(tar|p7zip|unzip|ar|rpm2cpio|sh)\s+[^\s]+\s+//;
 	# need to know preceeding character - should be safe to assume it's either
 	# a slash or a space
 	my $initial = $line =~ qr|/| ? '/' : ' ';
 	# get rid of initial path info
 	$line =~ s|^\$[^/]+/||;
-	# get rid of anything excess at the end
-	$line =~ s/\s*$//;
 	# convert any instances of command substitution to [^-]+
 	$line =~ s/\$\([^)]+\)/[^-]+/g;
 	# convert any bash variables to [^-]+
 	$line =~ s/\$({|)[A-Za-z0-9_]+(}|)/[^-]+/g;
+	# get rid of anything excess at the end
+	$line =~ s/\s+.*$//;
 	# fix .?z* at the end
 	$line =~ s/\.\?z\*/\.[a-z]z.*/;
 	# return what's left as a regex
@@ -494,7 +495,7 @@ sub rewrite_slackbuild {
 		die "Unable to backup $slackbuild to $slackbuild.orig\n";
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	my $arch_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
-	my $tar_regex = qr/tar\s+/;
+	my $dc_regex = qr/(?<![a-z])(tar|p7zip|unzip|ar|rpm2cpio|sh)\s+/;
 	# tie the slackbuild, because this is the easiest way to handle this.
 	tie my @sb_file, 'Tie::File', $slackbuild;
 	# if we're dealing with a compat32, we need to change the tar line(s) so
@@ -507,8 +508,8 @@ sub rewrite_slackbuild {
 		);
 		my $fns = get_dl_fns [keys %downloads];
 		for my $line (@sb_file) {
-			if ($line =~ $tar_regex) {
-				my ($regex, $initial) = get_tar_regex $line;
+			if ($line =~ $dc_regex) {
+				my ($regex, $initial) = get_dc_regex $line;
 				for my $fn (@$fns) {
 					$fn = "$initial$fn";
 					$line =~ s/$regex/$fn/ if $fn =~ $regex;

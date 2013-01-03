@@ -409,24 +409,24 @@ $fns = get_dl_fns $downloads;
 is($$fns[0], 'VirtualBox-4.2.0.tar.bz2', 'get_dl_fns test, multiple inputs 01');
 is($$fns[2], 'UserManual.pdf', 'get_dl_fns test, multiple inputs 02');
 
-# test get_tar_regex - multiple tests for various types of input
+# test get_dc_regex - multiple tests for various types of input
 my $line = 'tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*';
-my ($regex, $initial) = get_tar_regex $line;
-is($regex, '(?^u:/[^-]+-[^-]+.tar.[a-z]z.*)', 'get_tar_regex test 01.1');
-is($initial, '/', 'get_tar_regex test 01.2');
+my ($regex, $initial) = get_dc_regex $line;
+is($regex, '(?^u:/[^-]+-[^-]+.tar.[a-z]z.*)', 'get_dc_regex test 01.1');
+is($initial, '/', 'get_dc_regex test 01.2');
 $line = 'tar xvf $CWD/Oracle_VM_VirtualBox_Extension_Pack-$VERSION.vbox-extpack';
-($regex, $initial) = get_tar_regex $line;
+($regex, $initial) = get_dc_regex $line;
 is($regex, '(?^u:/Oracle_VM_VirtualBox_Extension_Pack-[^-]+.vbox-extpack)',
-	'get_tar_regex test 02.1');
-is($initial, '/', 'get_tar_regex test 02.2');
+	'get_dc_regex test 02.1');
+is($initial, '/', 'get_dc_regex test 02.2');
 $line = 'tar xvf $CWD/${PRGNAM}-source-$(echo $VERSION).tar.gz';
-($regex, $initial) = get_tar_regex $line;
-is($regex, '(?^u:/[^-]+-source-[^-]+.tar.gz)', 'get_tar_regex test 03.1');
-is($initial, '/', 'get_tar_regex test 03.2');
+($regex, $initial) = get_dc_regex $line;
+is($regex, '(?^u:/[^-]+-source-[^-]+.tar.gz)', 'get_dc_regex test 03.1');
+is($initial, '/', 'get_dc_regex test 03.2');
 $line = '( tar xvf xapian-bindings-$VERSION.tar.gz';
-($regex, $initial) = get_tar_regex $line;
-is($regex, '(?^u: xapian-bindings-[^-]+.tar.gz)', 'get_tar_regex test 04.1');
-is($initial, ' ', 'get_tar_regex test 04.2');
+($regex, $initial) = get_dc_regex $line;
+is($regex, '(?^u: xapian-bindings-[^-]+.tar.gz)', 'get_dc_regex test 04.1');
+is($initial, ' ', 'get_dc_regex test 04.2');
 
 # end of tests.
 done_testing();
