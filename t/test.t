@@ -70,6 +70,10 @@ for my $key (keys @$installed) {
 		'unetbootin';
 	is($$installed[$key]{version}, '2.6.0') if $$installed[$key]{name} eq
 		'zdoom';
+	is($$installed[$key]{version}, '9.20.1') if $$installed[$key]{name} eq
+		'p7zip-compat32';
+	is($$installed[$key]{version}, '3.99.5') if $$installed[$key]{name} eq
+		'lame-compat32';
 }
 print "completed pseudo-random testing of get_installed_packages 'SBO' \n";
 
@@ -90,6 +94,10 @@ for my $key (keys @$installed) {
 		'unetbootin';
 	is($$installed[$key]{version}, '1.2.6') if $$installed[$key]{name} eq
 		'zlib';
+	is($$installed[$key]{version}, '9.20.1') if $$installed[$key]{name} eq
+		'p7zip-compat32';
+	is($$installed[$key]{version}, '3.99.5') if $$installed[$key]{name} eq
+		'lame-compat32';
 }
 print "completed pseudo-random testing of get_installed_packages 'ALL' \n";
 

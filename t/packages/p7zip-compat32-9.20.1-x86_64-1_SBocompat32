@@ -1,0 +1,42 @@
+PACKAGE NAME:     p7zip-compat32-9.20.1-x86_64-1_SBocompat32
+COMPRESSED PACKAGE SIZE:     1.2M
+UNCOMPRESSED PACKAGE SIZE:     5.2M
+PACKAGE LOCATION: /tmp/p7zip-compat32-9.20.1-x86_64-1_SBocompat32.txz
+PACKAGE DESCRIPTION:
+p7zip-compat32: p7zip-compat32 (File Compression/Decompression Utility)
+p7zip-compat32:
+p7zip-compat32: 7-Zip is a well-known file compression utility for windows.
+p7zip-compat32: p7zip-compat32 is a ported version for linux with nearly the same capabilities.
+p7zip-compat32:
+p7zip-compat32: Homepage: http://p7zip.sourceforge.net/
+p7zip-compat32:
+p7zip-compat32:
+p7zip-compat32:
+p7zip-compat32:
+p7zip-compat32: This package contains 32-bit compatibility binaries.
+FILE LIST:
+./
+p7zip_9.20.1_src_all.tar.bz2usr/
+p7zip_9.20.1_src_all.tar.bz2usr/lib/
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/7z.so
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/7zCon.sfx
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/7zr
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/Codecs/
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/Codecs/Rar29.so
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/7za
+p7zip_9.20.1_src_all.tar.bz2usr/lib/p7zip/7z
+install/
+install/slack-desc
+usr/
+usr/bin/
+usr/bin/32/
+usr/bin/32/7zr
+usr/bin/32/7za
+usr/bin/32/7z
+usr/bin/32/p7zip
+usr/doc/
+usr/doc/p7zip-9.20.1/
+usr/doc/p7zip-9.20.1/DOCS/
+usr/doc/p7zip-9.20.1/DOCS/copying.txt
+usr/doc/p7zip-9.20.1/DOCS/License.txt

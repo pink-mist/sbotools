@@ -1,0 +1,33 @@
+PACKAGE NAME:     lame-compat32-3.99.5-x86_64-1_SBocompat32
+COMPRESSED PACKAGE SIZE:     192K
+UNCOMPRESSED PACKAGE SIZE:     990K
+PACKAGE LOCATION: /tmp/lame-compat32-3.99.5-x86_64-1_SBocompat32.txz
+PACKAGE DESCRIPTION:
+lame-compat32: Lame (LAME Ain't an Mp3 Encoder)
+lame-compat32:
+lame-compat32: LAME is an educational tool to be used for learning about MP3
+lame-compat32: encoding.  The goal of the LAME project is to use the open source
+lame-compat32: model to improve the psycho acoustics, noise shaping, and speed of MP3.
+lame-compat32:
+lame-compat32:
+lame-compat32:
+lame-compat32:
+lame-compat32:
+lame-compat32: This package contains 32-bit compatibility binaries.
+FILE LIST:
+./
+install/
+install/doinst.sh
+install/slack-desc
+usr/
+usr/bin/
+usr/bin/32/
+usr/bin/32/lame
+usr/lib/
+usr/lib/libmp3lame.a
+usr/lib/libmp3lame.so.0.0.0
+usr/lib/libmp3lame.la
+usr/doc/
+usr/doc/lame-3.99.5/
+usr/doc/lame-3.99.5/LICENSE
+usr/doc/lame-3.99.5/COPYING
