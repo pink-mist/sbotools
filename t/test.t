@@ -53,10 +53,10 @@ move("$sbo_home/SLACKBUILDS.TXT.moved", "$sbo_home/SLACKBUILDS.TXT");
 # slackbuilds_or_fetch test
 is(slackbuilds_or_fetch, 1, 'slackbuilds_or_fetch is good');
 
-# get_installed_sbos test
-print "pseudo-random sampling of get_installed_sbos output...\n";
+# get_installed_packages 'SBO' test
+print "pseudo-random sampling of get_installed_packages 'SBO' output...\n";
 $SBO::Lib::pkg_db = "$pwd/packages";
-my $installed = get_installed_sbos; 
+my $installed = get_installed_packages 'SBO';
 for my $key (keys @$installed) {
 	is($$installed[$key]{version}, '1.13') if $$installed[$key]{name} eq
 		'OpenAL';
@@ -71,7 +71,7 @@ for my $key (keys @$installed) {
 	is($$installed[$key]{version}, '2.6.0') if $$installed[$key]{name} eq
 		'zdoom';
 }
-print "completed pseudo-random testing of get_installed_sbos \n";
+print "completed pseudo-random testing of get_installed_packages 'SBO' \n";
 
 # get_sbo_location tests
 is(get_sbo_location ('nginx'), "$sbo_home/network/nginx",
@@ -294,7 +294,7 @@ for my $found (@$findings) {
 }
 
 # get_inst_names test
-$installed = get_installed_sbos;
+$installed = get_installed_packages 'SBO';
 my $inst_names = get_inst_names $installed;
 ok('zdoom' ~~ @$inst_names, 'get_inst_names is good');
 
