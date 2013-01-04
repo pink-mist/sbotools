@@ -217,12 +217,9 @@ sub get_installed_packages($) {
 			$sbo =~ s/-compat32//g if $name =~ /-compat32$/;
 			$type = 'SBO' if get_sbo_location($sbo);
 		}
-		if ($filter) {
-			if ($filter eq $type or $filter eq 'ALL') {
-				push @installed, {name => $name, version => $version};
-			}
+		if ($filter eq $type or $filter eq 'ALL') {
+			push @installed, {name => $name, version => $version};
 		}
-		
 	}
 	return \@installed;
 }
