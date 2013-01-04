@@ -50,7 +50,7 @@ show_usage and exit 0 unless exists $ARGV[0];
 
 # ensure that all provided arguments are valid sbos
 my @sbos;
-my $inst_names = get_inst_names(get_installed_sbos);
+my $inst_names = get_inst_names(get_installed_packages 'SBO');
 for my $sbo (@ARGV) {
 	if (get_sbo_location($sbo)) {
 		$sbo ~~ @$inst_names ? push @sbos, $sbo

@@ -27,7 +27,7 @@ our @EXPORT = qw(
 	slackbuilds_or_fetch
 	fetch_tree
 	update_tree
-	get_installed_sbos
+	get_installed_packages
 	get_inst_names
 	get_available_updates
 	get_requires
@@ -200,18 +200,42 @@ sub slackbuilds_or_fetch() {
 	return 1;
 }
 
-# pull an array of hashes, each hash containing the name and version of an sbo
-# currently installed.
-sub get_installed_sbos() {
+# pull an array of hashes, each hash containing the name and version of a 
+# package currently installed. Gets filtered using STD, SBO or ALL.
+sub get_installed_packages($) {
+	exists $_[0] or script_error 'get_installed_packages requires an argument.';
+	my $filter = shift;
 	my @installed;
-	# $1 == name, $2 == version
-	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-[^-]+$#;
-	for my $path (<$pkg_db/*_SBo>) {
-		my ($name, $version) = ($path =~ $regex)[0,1];
-		push @installed, {name => $name, version => $version};
+
+	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-([^-]+)$#;
+	for my $path (<$pkg_db/*>) {
+		my ($name, $version, $build) = ($path =~ $regex)[0,1,2];
+		# valid types: STD, SBO
+		my $type = 'STD';
+		if ($build =~ m/_SBo*/) {
+			my $sbo = $name;
+			$sbo =~ s/-compat32//g if $name =~ /-compat32$/;
+			$type = 'SBO' if get_sbo_location($sbo);
+		}
+		if ($filter eq $type or $filter eq 'ALL') {
+			push @installed, {name => $name, version => $version};
+		}
 	}
 	return \@installed;
 }
+
+# pull an array of hashes, each hash containing the name and version of an sbo
+# currently installed.
+# sub get_installed_sbos() {
+# 	my @installed;
+# 	# $1 == name, $2 == version
+# 	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-[^-]+$#;
+# 	for my $path (<$pkg_db/*_SBo>) {
+# 		my ($name, $version) = ($path =~ $regex)[0,1];
+# 		push @installed, {name => $name, version => $version};
+# 	}
+# 	return \@installed;
+# }
 
 # for a ref to an array of hashes of installed packages, return an array ref
 # consisting of just their names
@@ -304,7 +328,7 @@ sub get_sbo_version($) {
 # newer, and compile an array of hashes containing those which are
 sub get_available_updates() {
 	my @updates;
-	my $pkg_list = get_installed_sbos; 
+	my $pkg_list = get_installed_packages 'SBO'; 
 	FIRST: for my $key (keys @$pkg_list) {
 		my $location = get_sbo_location($$pkg_list[$key]{name});
 		# if we can't find a location, assume invalid and skip

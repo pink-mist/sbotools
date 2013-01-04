@@ -1,0 +1,40 @@
+PACKAGE NAME:     zlib-1.2.6-x86_64-1
+COMPRESSED PACKAGE SIZE:     100.0K
+UNCOMPRESSED PACKAGE SIZE:     400K
+PACKAGE LOCATION: /var/log/mount/l/zlib-1.2.6-x86_64-1.txz
+PACKAGE DESCRIPTION:
+zlib: zlib (compression library)
+zlib:
+zlib: zlib is a general purpose thread safe data compression library.  The
+zlib: data format used by the zlib library is described by RFCs 1950 to 
+zlib: 1952 in the files ftp://ds.internic.net/rfc/rfc1950.txt (zlib format)
+zlib: rfc1951.txt (deflate format) and rfc1952.txt (gzip format).
+zlib:
+zlib:
+zlib:
+zlib:
+zlib:
+FILE LIST:
+./
+install/
+install/slack-desc
+install/doinst.sh
+lib64/
+lib64/libz.so.1.2.6
+usr/
+usr/man/
+usr/man/man3/
+usr/man/man3/zlib.3.gz
+usr/lib64/
+usr/lib64/pkgconfig/
+usr/lib64/pkgconfig/zlib.pc
+usr/lib64/libz.a
+usr/include/
+usr/include/zlib.h
+usr/include/zconf.h
+usr/doc/
+usr/doc/zlib-1.2.6/
+usr/doc/zlib-1.2.6/FAQ
+usr/doc/zlib-1.2.6/ChangeLog
+usr/doc/zlib-1.2.6/README
+usr/doc/zlib-1.2.6/INDEX
