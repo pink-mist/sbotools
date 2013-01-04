@@ -174,9 +174,27 @@ print {$tempfh} "$lmt/COPYING\n";
 print {$tempfh} "$lmt/Documentation/\n";
 print {$tempfh} "$lmt/README\n";
 print {$tempfh} "Slackware package skype-2.2.0.35-i486-1_SBo.tgz created.\n";
-is(get_src_dir $tempfh, 'laptop-mode-tools_1.60', 'get_src_dir good');
 is(get_pkg_name $tempfh, 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
-close $tempfh;
+
+# we can not test get_src_dir() at present - we will need to support $TMP in
+# order to be able to test this. because user can't write to /tmp/SBo
+#close $tempfh;
+#$tempfh = tempfile(DIR => $tempdir);
+#opendir (my $tsbo_dh, '/tmp/SBo');
+#FIRST: while (readdir $tsbo_dh) {
+#	next FIRST if /^\.[\.]{0,1}$/;
+#	say {$tempfh} $_;
+#}
+#close $tsbo_dh;
+#mkdir '/tmp/SBo/test.d.1';
+#mkdir '/tmp/SBo/test.2.d';
+#my $src = get_src_dir $tempfh;
+#say ref $src;
+#say $_ for @$src;
+#is($$src[0], 'test.d.1', 'get_src_dir test 01');
+#is($$src[1], 'test.2.d', 'get_src_dir test 02');
+#rmdir '/tmp/SBo/test.d.1';
+#rmdir '/tmp/SBo/test.2.d';
 
 # check_distfiles test
 %downloads = get_sbo_downloads(LOCATION => "$sbo_home/perl/perl-Sort-Versions");

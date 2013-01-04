@@ -568,40 +568,39 @@ sub create_symlinks {
 	return @symlinks;
 }
 
-# pull the untarred source directory or created package name from the temp
-# file (the one we tee'd to)
-sub grok_temp_file {
-	my %args = (
-		FH		=> '',
-		REGEX	=> '',
-		CAPTURE	=> 0,
-		@_
-	);
-	unless ($args{FH} && $args{REGEX}) {
-		script_error 'grok_temp_file requires two arguments';
-	}
-	my $fh = $args{FH};
+# pull the created package name from the temp file we tee'd to
+sub get_pkg_name($) {
+	my $fh = shift;
 	seek $fh, 0, 0;
+	my $regex = qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/;
 	my $out;
 	FIRST: while (my $line = <$fh>) {
-		if ($line =~ $args{REGEX}) {
-			$out = ($line =~ $args{REGEX})[$args{CAPTURE}];
-			last FIRST;
-		}
+		last FIRST if $out = ($line =~ $regex)[0];
 	}
 	return $out;
 }
 
-# wrappers around grok_temp_file
 sub get_src_dir($) {
 	exists $_[0] or script_error 'get_src_dir requires an argument';
-	return grok_temp_file(FH => shift, REGEX => qr#^([^/]+)/#);
-}
-
-sub get_pkg_name($) {
-	exists $_[0] or script_error 'get_pkg_name requires an argument';
-	return grok_temp_file(FH => shift, 
-		REGEX => qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/);
+	my $fh = shift;
+	seek $fh, 0, 0;
+	my @src_dirs;
+	opendir(my $tsbo_dh, '/tmp/SBo');
+	FIRST: while (my $ls = readdir $tsbo_dh) {
+		next FIRST if $ls =~ /^\.[\.]{0,1}$/;
+		next FIRST if $ls =~ /^package-/;
+		my $found = 0;
+		SECOND: while (my $line = <$fh>) {
+			if ($line =~ /$ls/) {
+				$found++;
+				last SECOND;
+			}
+		}
+		push @src_dirs, $ls unless $found;
+	}
+	close $tsbo_dh;
+	close $fh;
+	return \@src_dirs;
 }
 
 # return a filename from a temp fh for use externally
@@ -645,6 +644,14 @@ sub perform_sbo {
 	}
 	$cmd .= " $args{OPTS}" if $args{OPTS};
 	$cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
+	# we need to get a listing of /tmp/SBo before we run the SlackBuild so that
+	# we can compare to a listing taken afterward.
+	my $src_ls_fh = tempfile(DIR => $tempdir);
+	opendir(my $tsbo_dh, '/tmp/SBo');
+	FIRST: while (readdir $tsbo_dh) {
+		next FIRST if /^\.[\.]{0,1}$/;
+		say {$src_ls_fh} $_;
+	}
 	# get a tempfile to store the exit status of the slackbuild
 	my $exit_temp = tempfile(DIR => $tempdir);
 	my $exit_fn = get_tmp_extfn $exit_temp;
@@ -664,7 +671,7 @@ sub perform_sbo {
 	revert_slackbuild "$location/$sbo.SlackBuild";
 	die "$sbo.SlackBuild returned non-zero exit status\n" unless $out == 0;
 	my $pkg = get_pkg_name $tempfh;
-	my $src = get_src_dir $tempfh;
+	my $src = get_src_dir $src_ls_fh;
 	return $pkg, $src;
 }
 
@@ -742,10 +749,13 @@ sub make_clean {
 	unless ($args{SBO} && $args{SRC} && $args{VERSION}) {
 		script_error 'make_clean requires three arguments.';
 	}
+	my $src = $args{SRC};
 	say "Cleaning for $args{SBO}-$args{VERSION}...";
 	my $tmpsbo = '/tmp/SBo';
-	remove_tree("$tmpsbo/$args{SRC}") if -d "$tmpsbo/$args{SRC}";
-	remove_tree("$tmpsbo/package-$args{SBO}") if
+	for my $dir (@$src) {
+		remove_tree("$tmpsbo/$dir") if -d "$tmpsbo/$dir";
+	}
+	remove_tree("$tmpsbo/package-$args{SBO}") if 
 		-d "$tmpsbo/package-$args{SBO}";
 	return 1;
 }
