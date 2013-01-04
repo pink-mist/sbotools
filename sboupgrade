@@ -255,7 +255,7 @@ sub print_failures {
     }
 }
 
-my $inst_names = get_inst_names(get_installed_sbos);
+my $inst_names = get_inst_names(get_installed_packages);
 my $upgrade_queue;
 @$upgrade_queue = ();
 # deal with any updates prior to any new installs.

@@ -28,6 +28,7 @@ our @EXPORT = qw(
 	fetch_tree
 	update_tree
 	get_installed_sbos
+	get_installed_packages
 	get_inst_names
 	get_available_updates
 	get_requires
@@ -200,6 +201,40 @@ sub slackbuilds_or_fetch() {
 	return 1;
 }
 
+# pull an array of hashes, each hash containing the name and version of a 
+# package currently installed.
+sub get_installed_packages() {
+	my @installed;
+	# $1 == name, $2 == version
+	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-([^-]+)$#;
+	for my $path (<$pkg_db/*>) {
+		my ($name, $version, $build) = ($path =~ $regex)[0,1,2];
+		# Is it a compat32 package? If so, strip compat32 from name
+		# for get_sbo_location
+		my $c32 = $name =~ /-compat32$/ ? 1 : 0;
+		my $search_name = $name;
+		$search_name =~ s/-compat32//g if $c32;
+		
+		# valid types: STD, SBO, C32 (Note: C32 only contains SBO-compat32)
+		my $type = 'STD';
+		if ($build =~ m/[0-9]*[a-zA-Z]/) {
+			my $is_native_c32;
+			if ($build =~ m/compat32/) {
+				unless ($build =~ m/SBo/) {
+					$is_native_c32 = 1;
+				}
+			}
+			unless ($is_native_c32) {
+				if (get_sbo_location($search_name)) {
+					$type = $c32 ? 'C32' : 'SBO';
+				}
+			}
+		}
+		push @installed, {name => $name, version => $version, type => $type};
+	}
+	return \@installed;
+}
+
 # pull an array of hashes, each hash containing the name and version of an sbo
 # currently installed.
 sub get_installed_sbos() {
@@ -215,11 +250,18 @@ sub get_installed_sbos() {
 
 # for a ref to an array of hashes of installed packages, return an array ref
 # consisting of just their names
-sub get_inst_names($) {
+sub get_inst_names {
 	exists $_[0] or script_error 'get_inst_names requires an argument.';
 	my $inst = shift;
 	my @installed;
-	push @installed, $$_{name} for @$inst;
+	my $filter = exists $_[0];
+	if ($filter) {
+		for my $pkg (@$inst) {
+			push @installed, $$pkg{name} if $$pkg{type} eq $_[0];
+		}
+	} else {
+		push @installed, $$_{name} for @$inst;
+	}
 	return \@installed;
 }
 
