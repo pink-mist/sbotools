@@ -73,6 +73,26 @@ for my $key (keys @$installed) {
 }
 print "completed pseudo-random testing of get_installed_packages 'SBO' \n";
 
+# get_installed_packages 'ALL' test
+print "pseudo-random sampling of get_installed_packages 'ALL' output...\n";
+$SBO::Lib::pkg_db = "$pwd/packages";
+$installed = get_installed_packages 'ALL';
+for my $key (keys @$installed) {
+	is($$installed[$key]{version}, '1.13') if $$installed[$key]{name} eq
+		'OpenAL';
+	is($$installed[$key]{version}, '2.8.2') if $$installed[$key]{name} eq
+		'gimp';
+	is($$installed[$key]{version}, '4.1.3') if $$installed[$key]{name} eq
+		'libdvdnav';
+	is($$installed[$key]{version}, '5.16.1') if $$installed[$key]{name} eq
+		'perl';
+	is($$installed[$key]{version}, '575') if $$installed[$key]{name} eq
+		'unetbootin';
+	is($$installed[$key]{version}, '1.2.6') if $$installed[$key]{name} eq
+		'zlib';
+}
+print "completed pseudo-random testing of get_installed_packages 'ALL' \n";
+
 # get_sbo_location tests
 is(get_sbo_location ('nginx'), "$sbo_home/network/nginx",
 	'get_sbo_location is good');
