@@ -331,7 +331,7 @@ FIRST: for my $sbo (@$build_queue) {
         next FIRST;
     } else {
 		my $pm_name = $name;
-		$name =~ s/^perl-//g;
+		$pm_name =~ s/^perl-//g;
 		if (/$pm_name/i ~~ @$pms) {
 			say "$name installed via the cpan." unless $force;
 			next FIRST;
