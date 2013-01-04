@@ -42,6 +42,7 @@ our @EXPORT = qw(
 	get_arch
 	get_build_queue
 	merge_queues
+	get_installed_cpans
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -860,17 +861,19 @@ sub get_installed_cpans() {
 	my @contents;
 	for my $file (@locals) {
 		my $fh = open_read $file;
-		push @contents, grep {/Module|VERSION/} <$fh>;
+#		push @contents, grep {/Module|VERSION/} <$fh>;
+		push @contents, grep {/Module/} <$fh>;
 		close $fh;
 	}
 	my $mod_regex = qr/C<Module>\s+L<([^\|]+)/;
-	my $ver_regex = qr/C<VERSION:\s+([^>]+)>/;
+#	my $ver_regex = qr/C<VERSION:\s+([^>]+)>/;
 	my (@mods, @vers);
 	for my $line (@contents) {
 		push @mods, ($line =~ $mod_regex)[0];
-		push @vers, ($line =~ $ver_regex)[0];
+#		push @vers, ($line =~ $ver_regex)[0];
 	}
-	my %cpans;
-	$cpans{$mods}[$_] = $vers[$_] for keys @mods;
-	return \%cpans;
+	return \@mods;
+#	my %cpans;
+#	$cpans{$mods[$_]} = $vers[$_] for keys @mods;
+#	return \%cpans;
 }
