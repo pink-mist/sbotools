@@ -747,6 +747,8 @@ sub do_slackbuild {
 		LOCATION => $location,
 		32 => $args{COMPAT32}
 	);
+	die "Unable to get download information from $location/$sbo.info.\n" unless
+		keys %downloads > 0;
 	check_distfiles %downloads;
 	my @symlinks = create_symlinks($args{LOCATION}, %downloads);
 	# setup and run the .SlackBuild itself
