@@ -194,7 +194,15 @@ sub process_sbos($) {
     exists $_[0] or script_error 'process_sbos requires an argument.';
     my $todo = shift;
     my %failures;
-    FIRST: for my $sbo (@$todo) {
+	for my $sbo (@$todo) {
+		$compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
+		eval { check_distfiles(
+			LOCATION => $locations{$sbo}, COMPAT32 => $compat32
+		); };
+		$failures{$sbo} = $@ if $@;
+	}
+	return %failures if keys %failures > 0;
+    for my $sbo (@$todo) {
 		my $opts = 0;
 		$opts = $options{$sbo} if defined $options{$sbo};
 		my $cmds = $commands{$sbo} if defined $commands{$sbo};

@@ -225,8 +225,10 @@ is(get_pkg_name $tempfh, 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
 #rmdir '/tmp/SBo/test.2.d';
 
 # check_distfiles test
-%downloads = get_sbo_downloads(LOCATION => "$sbo_home/perl/perl-Sort-Versions");
-is((check_distfiles %downloads), 1, 'check_distfiles good');
+#%downloads = get_sbo_downloads(LOCATION => "$sbo_home/perl/perl-Sort-Versions");
+#is((check_distfiles %downloads), 1, 'check_distfiles good');
+is (check_distfiles(LOCATION => "$sbo_home/perl/perl-Sort-Versions"), 1,
+	'check_distfiles test 01');
 
 # check_home tests
 $config{SBO_HOME} = "$pwd/test_sbo";

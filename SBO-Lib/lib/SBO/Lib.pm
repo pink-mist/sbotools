@@ -43,6 +43,7 @@ our @EXPORT = qw(
 	get_build_queue
 	merge_queues
 	get_installed_cpans
+	check_distfiles
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -567,14 +568,29 @@ sub revert_slackbuild($) {
 	return 1;
 }
 
-# for each $download, see if we have it, and if the copy we have is good,
-# otherwise download a new copy
+# for the given location, pull list of downloads and check to see if any exist;
+# if so, verify they md5 correctly and if not, download them and check the new
+# download's md5sum, then create required symlinks for them.
 sub check_distfiles {
-	exists $_[0] or script_error 'check_distfiles requires an argument.';
-	my %dists = @_;
-	while (my ($link, $md5) = each %dists) {
+	my %args = (
+		LOCATION => '',
+		COMPAT32 => 0,
+		@_
+	);
+	$args{LOCATION} or script_error 'check_distfiles requires LOCATION.';
+
+	my $location = $args{LOCATION};
+	my $sbo = get_sbo_from_loc $location;
+	my %downloads = get_sbo_downloads(
+		LOCATION => $location,
+		32 => $args{COMPAT32}
+	);
+	die "Unable to get download information from $location/$sbo.info.\n" unless
+		keys %downloads > 0;
+	while (my ($link, $md5) = each %downloads) {
 		get_distfile($link, $md5) unless verify_distfile($link, $md5);
 	}
+	my @symlinks = create_symlinks($args{LOCATION}, %downloads);
 	return 1;
 }
 
