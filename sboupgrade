@@ -319,24 +319,35 @@ FIRST: for my $sbo (@$upgrade_queue) {
 
 INSTALL_NEW:
 goto BEGIN_BUILD unless $install_new;
+
+my $pms = get_installed_cpans;
+s/::/-/g for @$pms;
+
 @temp_queue = ();
 FIRST: for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
     if ($name ~~ @$inst_names) {
         say "$name already installed." unless $force; 
         next FIRST;
-    } 
+    } else {
+		my $pm_name = $name;
+		$pm_name =~ s/^perl-//g;
+		if (/$pm_name/i ~~ @$pms) {
+			say "$name installed via the cpan." unless $force;
+			next FIRST;
+		}
+	}
     $locations{$name} = get_sbo_location($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
         if ($compat32) {
             unless ($sbo ~~ @$inst_names or $sbo ~~ @$upgrade_queue) {
                 if (user_prompt($sbo, $locations{$sbo})){
-                    push(@temp_queue, $sbo);
-                    say "$sbo added to install queue.";
-                } else {
-                    last FIRST;
-                }
+  	               	push(@temp_queue, $sbo);
+  	               	say "$sbo added to install queue.";
+  	           	} else {
+  	               	last FIRST;
+  	           	}
             } 
         }
         if (user_prompt($name, $locations{$name})) {

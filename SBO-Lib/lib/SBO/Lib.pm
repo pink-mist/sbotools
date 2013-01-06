@@ -42,6 +42,7 @@ our @EXPORT = qw(
 	get_arch
 	get_build_queue
 	merge_queues
+	get_installed_cpans
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -883,4 +884,30 @@ sub get_readme_contents($) {
 	my $readme = do {local $/; <$fh>};
 	close $fh;
 	return $readme;
+}
+
+# return a list of perl modules installed via the CPAN
+sub get_installed_cpans() {
+	my @locals;
+	for my $dir (@INC) {
+		push @locals, "$dir/perllocal.pod" if -f "$dir/perllocal.pod";
+	}
+	my @contents;
+	for my $file (@locals) {
+		my $fh = open_read $file;
+#		push @contents, grep {/Module|VERSION/} <$fh>;
+		push @contents, grep {/Module/} <$fh>;
+		close $fh;
+	}
+	my $mod_regex = qr/C<Module>\s+L<([^\|]+)/;
+#	my $ver_regex = qr/C<VERSION:\s+([^>]+)>/;
+	my (@mods, @vers);
+	for my $line (@contents) {
+		push @mods, ($line =~ $mod_regex)[0];
+#		push @vers, ($line =~ $ver_regex)[0];
+	}
+	return \@mods;
+#	my %cpans;
+#	$cpans{$mods[$_]} = $vers[$_] for keys @mods;
+#	return \%cpans;
 }
