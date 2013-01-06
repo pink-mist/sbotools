@@ -758,15 +758,6 @@ sub do_slackbuild {
 			}
 		}
 	}
-	# get a hash of downloads and md5sums, ensure we have 'em, symlink 'em
-	my %downloads = get_sbo_downloads(
-		LOCATION => $location,
-		32 => $args{COMPAT32}
-	);
-	die "Unable to get download information from $location/$sbo.info.\n" unless
-		keys %downloads > 0;
-	check_distfiles %downloads;
-	my @symlinks = create_symlinks($args{LOCATION}, %downloads);
 	# setup and run the .SlackBuild itself
 	my ($pkg, $src) = perform_sbo(
 		OPTS => $args{OPTS},
