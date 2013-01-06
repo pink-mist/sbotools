@@ -43,6 +43,7 @@ our @EXPORT = qw(
 	get_build_queue
 	merge_queues
 	get_installed_cpans
+	check_distfiles
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -568,15 +569,30 @@ sub revert_slackbuild($) {
 	return 1;
 }
 
-# for each $download, see if we have it, and if the copy we have is good,
-# otherwise download a new copy
+# for the given location, pull list of downloads and check to see if any exist;
+# if so, verify they md5 correctly and if not, download them and check the new
+# download's md5sum, then create required symlinks for them.
 sub check_distfiles {
-	exists $_[0] or script_error 'check_distfiles requires an argument.';
-	my %dists = @_;
-	while (my ($link, $md5) = each %dists) {
+	my %args = (
+		LOCATION => '',
+		COMPAT32 => 0,
+		@_
+	);
+	$args{LOCATION} or script_error 'check_distfiles requires LOCATION.';
+
+	my $location = $args{LOCATION};
+	my $sbo = get_sbo_from_loc $location;
+	my %downloads = get_sbo_downloads(
+		LOCATION => $location,
+		32 => $args{COMPAT32}
+	);
+	die "Unable to get download information from $location/$sbo.info.\n" unless
+		keys %downloads > 0;
+	while (my ($link, $md5) = each %downloads) {
 		get_distfile($link, $md5) unless verify_distfile($link, $md5);
 	}
-	return 1;
+	my @symlinks = create_symlinks($args{LOCATION}, %downloads);
+	return \@symlinks;
 }
 
 # given a location and a list of download links, assemble a list of symlinks,
@@ -721,6 +737,7 @@ sub do_slackbuild {
 		JOBS		=> 0,
 		LOCATION	=> '',
 		COMPAT32	=> 0,
+		SYMLINKS	=> '',
 		@_
 	);
 	$args{LOCATION} or script_error 'do_slackbuild requires LOCATION.';
@@ -743,15 +760,6 @@ sub do_slackbuild {
 			}
 		}
 	}
-	# get a hash of downloads and md5sums, ensure we have 'em, symlink 'em
-	my %downloads = get_sbo_downloads(
-		LOCATION => $location,
-		32 => $args{COMPAT32}
-	);
-	die "Unable to get download information from $location/$sbo.info.\n" unless
-		keys %downloads > 0;
-	check_distfiles %downloads;
-	my @symlinks = create_symlinks($args{LOCATION}, %downloads);
 	# setup and run the .SlackBuild itself
 	my ($pkg, $src) = perform_sbo(
 		OPTS => $args{OPTS},
@@ -762,7 +770,7 @@ sub do_slackbuild {
 		X32 => $x32,
 	);
 	$pkg = do_convertpkg $pkg if $args{COMPAT32};
-	unlink $_ for @symlinks;
+	unlink $_ for @{$args{SYMLINKS}};
 	return $version, $pkg, $src;
 }
 
