@@ -591,7 +591,7 @@ sub check_distfiles {
 		get_distfile($link, $md5) unless verify_distfile($link, $md5);
 	}
 	my @symlinks = create_symlinks($args{LOCATION}, %downloads);
-	return 1;
+	return \@symlinks;
 }
 
 # given a location and a list of download links, assemble a list of symlinks,
@@ -736,6 +736,7 @@ sub do_slackbuild {
 		JOBS		=> 0,
 		LOCATION	=> '',
 		COMPAT32	=> 0,
+		SYMLINKS	=> '',
 		@_
 	);
 	$args{LOCATION} or script_error 'do_slackbuild requires LOCATION.';
@@ -768,7 +769,7 @@ sub do_slackbuild {
 		X32 => $x32,
 	);
 	$pkg = do_convertpkg $pkg if $args{COMPAT32};
-	unlink $_ for @symlinks;
+	unlink $_ for @{$args{SYMLINKS}};
 	return $version, $pkg, $src;
 }
 

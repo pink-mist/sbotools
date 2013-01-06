@@ -194,9 +194,10 @@ sub process_sbos($) {
     exists $_[0] or script_error 'process_sbos requires an argument.';
     my $todo = shift;
     my %failures;
+	my %symlinks;
 	for my $sbo (@$todo) {
 		$compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
-		eval { check_distfiles(
+		eval { $symlinks{$sbo} = check_distfiles(
 			LOCATION => $locations{$sbo}, COMPAT32 => $compat32
 		); };
 		$failures{$sbo} = $@ if $@;
@@ -218,6 +219,7 @@ sub process_sbos($) {
 		    JOBS    => $jobs,
 		    LOCATION  => $locations{$sbo},
 		    COMPAT32  => $compat32,
+			SYMLINKS  => $symlinks{$sbo},
 		); };
 		if ($@) {
 		    $failures{$sbo} = $@;
