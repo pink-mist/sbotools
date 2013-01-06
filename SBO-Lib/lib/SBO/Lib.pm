@@ -442,6 +442,7 @@ sub get_distfile {
 	my $filename = get_filename_from_link $link;
 	mkdir $distfiles unless -d $distfiles;
 	chdir $distfiles;
+	unlink $filename if -f $filename;
 	system("wget --no-check-certificate $link") == 0 or
 		die "Unable to wget $link\n";
 	# can't do anything if the link in the .info doesn't lead to a good d/l
