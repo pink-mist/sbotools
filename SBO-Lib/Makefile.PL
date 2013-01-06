@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'SBO::Lib',
     VERSION_FROM      => 'lib/SBO/Lib.pm',
-    PREREQ_PM         => {'Sort::Versions' => 1.5,'Text::Tabulate' => 1.1.1},
+    PREREQ_PM         => {'Sort::Versions' => 1.5},
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT       => 'methods, variables, etc for the sbotools pacage',
        AUTHOR         => 'Jacob Pipkin <j@dawnrazor.net>') : ()),

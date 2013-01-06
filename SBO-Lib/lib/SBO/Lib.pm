@@ -15,7 +15,7 @@ use warnings FATAL => 'all';
 
 
 package SBO::Lib;
-our $VERSION = '1.3';
+our $VERSION = '1.4';
 
 require Exporter;
 our @ISA = qw(Exporter);
