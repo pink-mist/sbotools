@@ -261,7 +261,6 @@ sub print_failures {
         my %failures = @_;
         say 'Failures:';
 		say "  $_: $failures{$_}" for keys %failures;
-        exit 1;
     }
 }
 
