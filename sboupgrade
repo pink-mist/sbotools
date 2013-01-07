@@ -400,4 +400,5 @@ if ( $force and ! $force_reqs) {
     %failures = process_sbos $build_queue if exists $$build_queue[0];
     print_failures(%failures);
 }
-exit 0;
+
+exit keys %failures > 0 ? 1 : 0;
