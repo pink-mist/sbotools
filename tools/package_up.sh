@@ -35,6 +35,9 @@ done
 if [[ -d $PKG_DIR/t ]]; then
 	rm -rf $PKG_DIR/t
 fi
+if [[ -d $PKG_DIR/tools ]]; then
+	rm -rf $PKG_DIR/tools
+fi	
 
 find $PKG_DIR -type f -name \*~ -exec rm {} \;
 
