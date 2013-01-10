@@ -3,10 +3,10 @@
 # vim: set ts=4:noet
 #
 # sboinstall
-# script to install a SlackBuild by name
+# script to install (a) SlackBuild(s) by name
 #
-# authors:	Jacob Pipkin <j@dawnrazor.net>
-#			Luke Williams <xocel@iquidus.org>
+# authors: Jacob Pipkin <j@dawnrazor.net>
+#		   Luke Williams <xocel@iquidus.org>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
@@ -69,15 +69,109 @@ show_usage and exit 0 unless exists $ARGV[0];
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
 
-# setup any options
-unshift @ARGV, $noclean ? '-cTRUE' : '-cFALSE';
-unshift @ARGV, $distclean ? '-dTRUE' : '-dFALSE';
-unshift @ARGV, '-i' if $no_install;
-unshift @ARGV, '-p' if $compat32;
-unshift @ARGV, '-r' if $non_int;
-unshift @ARGV, '-R' if $no_reqs;
-unshift @ARGV, "-j$jobs" if $jobs;
+if ($jobs) {
+	usage_error "You have provided an invalid value for -j|--jobs"
+		unless ($jobs =~ /^\d+$/ || $jobs eq 'FALSE');
+}
 
-system '/usr/sbin/sboupgrade', '-oN', @ARGV;
+if ($compat32) {
+	usage_error "compat32 only works on x86_64." unless get_arch eq 'x86_64';
+}
 
-exit 0;
+# if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
+slackbuilds_or_fetch;
+
+my (%warnings, $build_queue, %locations);
+
+if ($no_reqs or $non_int) {
+    $build_queue = \@ARGV;
+} else {
+	for my $sbo (@ARGV) {
+        my $queue = get_build_queue([$sbo], \%warnings);
+        $build_queue = merge_queues($build_queue, $queue);
+	}
+}
+
+# populate %locations and sanity check
+$locations = get_sbo_location($build_queue);
+for my $sbo (@$build_queue) {
+	usage_error "Unable to locate $sbo in the SlackBuilds.org tree." unless
+		defined $locations{$sbo};
+	if ($compat32) {
+		usage_error "-p|--compat32 is not supported with Perl SBos."
+			if $locations{$sbo} =~ qr|/perl/[^/]+$|;
+	}
+}
+
+# get lists of installed packages and perl modules from CPAN
+my $inst_names = get_inst_names(get_installed_packages 'ALL');
+my $pms = get_installed_cpans;
+s/::/-/g for @$pms;
+
+# check for already-installeds and prompt for the rest
+my (@temp_queue, %commands, %options);
+my $added = ' added to install queue.';
+FIRST: for my $sbo (@$build_queue) {
+    my $name = $compat32 ? "$sbo-compat32" : $sbo;
+    if ($name ~~ @$inst_names) {
+        say "$name already installed.";
+        next FIRST;
+    } else {
+		my $pm_name = $sbo;
+		$pm_name =~ s/^perl-//;
+		if (/$pm_name/i ~~ @$pms) {
+			say "$sbo installed via the cpan.";
+			next FIRST;
+		}
+	}
+    $locations{$name} = get_sbo_location($sbo) if $compat32;
+    unless ($non_int) {
+        # if compat32 is TRUE, we need to see if the non-compat version exists.
+        if ($compat32) {
+            unless ($sbo ~~ @$inst_names) {
+				say "$name requires $sbo.";
+                my ($cmds, $opts) = user_prompt($sbo, $locations{$sbo});
+				if ($cmds) {
+					next FIRST if $cmds eq 'N';
+				}
+               	push(@temp_queue, $sbo);
+				$commands{$sbo} = $cmds;
+				$options{$sbo} = $cmds;
+				say "$sbo$added";
+            } 
+        }
+        my ($cmds, $opts) = user_prompt($name, $locations{$name});
+		if ($cmds) {
+			next FIRST if $cmds eq 'N';
+		}
+        push(@temp_queue, $name);
+		$commands{$sbo} = $cmds;
+		$options{$sbo} = $opts;
+		say "$name$added";
+    } else {
+        push(@temp_queue, $sbo);
+		say "\n$name$added";
+    }
+}
+@$build_queue = @temp_queue;
+
+exit 0 unless exists $$build_queue[0];
+say "\nInstall queue: " . join(' ', @$build_queue);
+unless ($non_int) {
+    print "\nAre you sure you wish to continue? [y]: ";
+    exit 0 unless <STDIN> =~ /^[Yy\n]/;
+}
+
+my %failures = process_sbos(
+	TODO		=> $build_queue,
+	CMDS		=> \%commands,
+	OPTS		=> \%options,
+	JOBS		=> $jobs,
+	LOCATIONS	=> \%locations,
+	NOINSTALL	=> $no_install,
+	NOCLEAN		=> $noclean,
+	DISTCLEAN	=> $distclean,
+);
+print_failures(%failures);
+
+exit keys %failures > 0 ? 1 : 0;

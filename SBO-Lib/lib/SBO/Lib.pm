@@ -44,6 +44,14 @@ our @EXPORT = qw(
 	merge_queues
 	get_installed_cpans
 	check_distfiles
+	get_user_group
+	ask_user_group
+	get_opts
+	ask_opts
+	user_prompt
+	process_sbos
+	print_failures
+	usage_error
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -62,6 +70,11 @@ use File::Find;
 use File::Basename;
 use Fcntl qw(F_SETFD F_GETFD);
 
+# define error statuses
+use constant {
+	_ERR_USAGE	=> 1,
+};
+
 our $tempdir = tempdir(CLEANUP => 1);
 
 # define this to facilitate unit testing - should only ever be modified from
@@ -72,6 +85,12 @@ our $pkg_db = '/var/log/packages';
 sub script_error(;$) {
 	exists $_[0] ? die "A fatal script error has occurred:\n$_[0]\nExiting.\n"
 				 : die "A fatal script error has occurred. Exiting.\n";
+}
+
+# subroutine for usage errors
+sub usage_error($) {
+	warn shift ."\n";
+	exit _ERR_USAGE;
 }
 
 # sub for opening files, second arg is like '<','>', etc
@@ -214,7 +233,7 @@ sub get_installed_packages($) {
 		my ($name, $version, $build) = ($path =~ $regex)[0,1,2];
 		# valid types: STD, SBO
 		my $type = 'STD';
-		if ($build =~ m/_SBo*/) {
+		if ($build =~ m/_SBo(|compat32)$/) {
 			my $sbo = $name;
 			$sbo =~ s/-compat32//g if $name =~ /-compat32$/;
 			$type = 'SBO' if get_sbo_location($sbo);
@@ -674,7 +693,6 @@ sub perform_sbo {
 	# set any changes we need to make to the .SlackBuild, setup the command
 	
 	$cmd = '( ';
-	$args{JOBS} = 0 if $args{JOBS} eq 'FALSE';
 
 	if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
 		if ($args{C32}) {
@@ -737,7 +755,6 @@ sub do_slackbuild {
 		JOBS		=> 0,
 		LOCATION	=> '',
 		COMPAT32	=> 0,
-		SYMLINKS	=> '',
 		@_
 	);
 	$args{LOCATION} or script_error 'do_slackbuild requires LOCATION.';
@@ -770,7 +787,6 @@ sub do_slackbuild {
 		X32 => $x32,
 	);
 	$pkg = do_convertpkg $pkg if $args{COMPAT32};
-	unlink $_ for @{$args{SYMLINKS}};
 	return $version, $pkg, $src;
 }
 
@@ -921,4 +937,174 @@ sub get_installed_cpans() {
 #	my %cpans;
 #	$cpans{$mods[$_]} = $vers[$_] for keys @mods;
 #	return \%cpans;
+}
+
+# look for any (user|group)add commands in the README
+sub get_user_group($) {
+    exists $_[0] or script_error 'get_user_group requires an argument';
+    my $readme = shift;
+    my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
+    return \@cmds;
+}
+
+# offer to run any user/group add commands
+sub ask_user_group {
+    exists $_[1] or script_error 'ask_user_group requires two arguments';
+    my ($cmds, $readme) = @_;
+    say "\n". $readme;
+    print "\nIt looks like this slackbuild requires the following";
+    say ' command(s) to be run first:';
+    say "    # $_" for @$cmds;
+    print 'Shall I run them prior to building? [y] ';
+	return <STDIN> =~ /^[Yy\n]/ ? $cmds : undef;
+}
+
+# see if the README mentions any options
+sub get_opts($) {
+    exists $_[0] or script_error 'get_opts requires an argument';
+    my $readme = shift;
+    return $readme =~ /[A-Z0-9]+=[^\s]/ ? 1 : undef;
+}
+
+# provide an opportunity to set options
+sub ask_opts {
+    exists $_[0] or script_error 'ask_opts requires an argument';
+    my ($sbo, $readme) = @_;
+    say "\n". $readme;
+    print "\nIt looks like $sbo has options; would you like to set any";
+    print ' when the slackbuild is run? [n] ';
+    if (<STDIN> =~ /^[Yy]/) {
+        my $ask = sub() {
+            print "\nPlease supply any options here, or enter to skip: ";
+            chomp(my $opts = <STDIN>);
+            return if $opts =~ /^\n/;
+            return $opts;
+        };
+        my $kv_regex = qr/[A-Z0-9]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
+        my $opts = &$ask;
+        return unless $opts;
+        while ($opts !~ $kv_regex) {
+            warn "Invalid input received.\n";
+            $opts = &$ask; 
+        }
+        return $opts;
+    }
+    return;
+}
+
+# for a given sbo, check for cmds/opts, prompt the user as appropriate
+sub user_prompt {
+	exists $_[1] or script_error 'user_prompt requires two arguments.';
+	my ($sbo, $location) = @_;
+	my $readme = get_readme_contents $location;
+	# check for user/group add commands, offer to run any found
+	my $user_group = get_user_group $readme;
+	my $cmds;
+	$cmds = ask_user_group($user_group, $readme) if $$user_group[0];
+	# check for options mentioned in the README
+	my $opts = 0;
+	$opts = ask_opts($sbo, $readme) if get_opts $readme;
+	print "\n". $readme unless $opts;
+	print "\nProceed with $sbo? [y]: ";
+	# we have to return something substantial if the user says no so that we
+	# can check the value of $cmds on the calling side. we should be able to
+	# assume that 'N' will  never be a valid command to run.
+	return 'N' unless <STDIN> =~ /^[Yy\n]/;
+	return $cmds, $opts;
+}
+
+# do the things with the provided sbos - whether upgrades or new installs.
+sub process_sbos {
+	my %args = (
+		TODO => '',
+		CMDS => '',
+		OPTS => '',
+		JOBS => 'FALSE',
+		LOCATIONS	=> '',
+		NOINSTALL	=> 0,
+		NOCLEAN		=> 'FALSE',
+		DISTCLEAN	=> 'FALSE',
+		@_
+	);
+    my $todo = $args{TODO};
+	my $cmds = $args{CMDS};
+	my $opts = $args{OPTS};
+	my $locs = $args{LOCATIONS};
+	my $jobs = $args{JOBS} =~ /^\d+$/ ? $args{JOBS} : 0;
+	exists $$todo[0] or script_error 'process_sbos requires TODO.';
+    my (%failures, @symlinks, $temp_syms);
+	for my $sbo (@$todo) {
+		my $compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
+		eval { $temp_syms = check_distfiles(
+			LOCATION => $$locs{$sbo}, COMPAT32 => $compat32
+		); };
+		$failures{$sbo} = $@ if $@;
+		push @symlinks, @$temp_syms;
+	}
+	# return now if we were unable to download/verify everything - might want
+	# to not do this. not sure.
+	if (keys %failures > 0) {
+		unlink for @symlinks;
+		return \%failures;
+	}
+    for my $sbo (@$todo) {
+		my $options = 0;
+		$options = $$opts{$sbo} if defined $$opts{$sbo};
+		my $cmds = $$cmds{$sbo} if defined $$cmds{$sbo};
+		for my $cmd (@$cmds) {
+		    system($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
+		}
+		# switch compat32 on if upgrading/installing a -compat32
+		# else make sure compat32 is off
+		my $compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
+		my ($version, $pkg, $src);
+		eval { ($version, $pkg, $src) = do_slackbuild(
+		    OPTS    => $options,
+		    JOBS    => $jobs,
+		    LOCATION  => $$locs{$sbo},
+		    COMPAT32  => $compat32,
+		); };
+		if ($@) {
+		    $failures{$sbo} = $@;
+		} else {
+		    do_upgradepkg $pkg unless $args{NOINSTALL};      
+
+		    unless ($args{DISTCLEAN}) {
+		        make_clean(SBO => $sbo, SRC => $src, VERSION => $version)
+		            unless $args{NOCLEAN};
+		    } else {
+		        make_distclean(
+		            SBO     => $sbo,
+		            SRC     => $src,
+		            VERSION   => $version,
+		            LOCATION  => $$locs{$sbo},
+		        );
+		    }
+		    # move package to $config{PKG_DIR} if defined
+            unless ($config{PKG_DIR} eq 'FALSE') {
+                my $dir = $config{PKG_DIR};
+                unless (-d $dir) {
+                    mkdir($dir) or warn "Unable to create $dir\n";
+                }
+                if (-d $dir) {
+                    move($pkg, $dir), say "$pkg stored in $dir";
+                } else {
+                    warn "$pkg left in /tmp\n";
+                }
+            } elsif ($args{DISTCLEAN}) {
+                unlink $pkg;
+            }
+        }
+    }
+	unlink for @symlinks;
+    return \%failures;
+}
+
+# subroutine to print out failures
+sub print_failures {
+    if (exists $_[0]) {
+        my $failures = shift;
+        say 'Failures:';
+		say "  $_: $$failures{$_}" for keys %$failures;
+    }
 }
