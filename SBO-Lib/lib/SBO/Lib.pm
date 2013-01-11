@@ -245,19 +245,6 @@ sub get_installed_packages($) {
 	return \@installed;
 }
 
-# pull an array of hashes, each hash containing the name and version of an sbo
-# currently installed.
-# sub get_installed_sbos() {
-# 	my @installed;
-# 	# $1 == name, $2 == version
-# 	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-[^-]+$#;
-# 	for my $path (<$pkg_db/*_SBo>) {
-# 		my ($name, $version) = ($path =~ $regex)[0,1];
-# 		push @installed, {name => $name, version => $version};
-# 	}
-# 	return \@installed;
-# }
-
 # for a ref to an array of hashes of installed packages, return an array ref
 # consisting of just their names
 sub get_inst_names($) {
@@ -393,7 +380,7 @@ sub get_download_info {
 	$md5s = get_from_info(LOCATION => $args{LOCATION}, GET => $get);
 	return unless $$md5s[0];
 	$return{$$downs[$_]} = $$md5s[$_] for (keys @$downs);
-	return %return;
+	return \%return;
 }
 
 sub get_arch() {
@@ -412,14 +399,14 @@ sub get_sbo_downloads {
 	my $location = $args{LOCATION};
 	-d $location or script_error 'get_sbo_downloads given a non-directory.';
 	my $arch = get_arch; 
-	my %dl_info;
+	my $dl_info;
 	if ($arch eq 'x86_64') {
-		%dl_info = get_download_info(LOCATION => $location) unless $args{32};
+		$dl_info = get_download_info(LOCATION => $location) unless $args{32};
 	} 
-	unless (keys %dl_info > 0) {
-		%dl_info = get_download_info(LOCATION => $location, X64 => 0);
+	unless (keys %$dl_info > 0) {
+		$dl_info = get_download_info(LOCATION => $location, X64 => 0);
 	}
-	return %dl_info;
+	return $dl_info;
 }
 
 # given a link, grab the filename from it and prepend $distfiles
@@ -549,11 +536,11 @@ sub rewrite_slackbuild {
 	# that the 32-bit source is untarred
 	if ($args{C32}) {
 		my $location = get_sbo_location($args{SBO});
-		my %downloads = get_sbo_downloads(
+		my $downloads = get_sbo_downloads(
 			LOCATION => $location,
 			32 => 1,
 		);
-		my $fns = get_dl_fns [keys %downloads];
+		my $fns = get_dl_fns [keys %$downloads];
 		for my $line (@sb_file) {
 			if ($line =~ $dc_regex) {
 				my ($regex, $initial) = get_dc_regex $line;
@@ -601,32 +588,32 @@ sub check_distfiles {
 
 	my $location = $args{LOCATION};
 	my $sbo = get_sbo_from_loc $location;
-	my %downloads = get_sbo_downloads(
+	my $downloads = get_sbo_downloads(
 		LOCATION => $location,
 		32 => $args{COMPAT32}
 	);
 	die "Unable to get download information from $location/$sbo.info.\n" unless
-		keys %downloads > 0;
-	while (my ($link, $md5) = each %downloads) {
+		keys %$downloads > 0;
+	while (my ($link, $md5) = each %$downloads) {
 		get_distfile($link, $md5) unless verify_distfile($link, $md5);
 	}
-	my @symlinks = create_symlinks($args{LOCATION}, %downloads);
-	return \@symlinks;
+	my $symlinks = create_symlinks($args{LOCATION}, $downloads);
+	return $symlinks;
 }
 
 # given a location and a list of download links, assemble a list of symlinks,
 # and create them.
 sub create_symlinks {
 	exists $_[1] or script_error 'create_symlinks requires two arguments.';
-	my ($location, %downloads) = @_;
+	my ($location, $downloads) = @_;
 	my @symlinks;
-	for my $link (keys %downloads) {
+	for my $link (keys %$downloads) {
 		my $filename = get_filename_from_link $link;
 		my $symlink = get_symlink_from_filename($filename, $location);
 		push @symlinks, $symlink;
 		symlink $filename, $symlink;
 	}
-	return @symlinks;
+	return \@symlinks;
 }
 
 # pull the created package name from the temp file we tee'd to
@@ -1038,8 +1025,13 @@ sub process_sbos {
 		eval { $temp_syms = check_distfiles(
 			LOCATION => $$locs{$sbo}, COMPAT32 => $compat32
 		); };
-		$failures{$sbo} = $@ if $@;
-		push @symlinks, @$temp_syms;
+		# if $@ is defined, $temp_syms will be empty and the script will error
+		# instead of having a proper failure message.
+		if ($@) {
+			$failures{$sbo} = $@;
+		} else {
+			push @symlinks, @$temp_syms;
+		}
 	}
 	# return now if we were unable to download/verify everything - might want
 	# to not do this. not sure.
@@ -1102,7 +1094,8 @@ sub process_sbos {
 
 # subroutine to print out failures
 sub print_failures {
-    if (exists $_[0]) {
+	my $failures = shift;
+	if (keys %$failures > 0) {
         my $failures = shift;
         say 'Failures:';
 		say "  $_: $$failures{$_}" for keys %$failures;
