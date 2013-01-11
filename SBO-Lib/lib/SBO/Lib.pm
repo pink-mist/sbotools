@@ -1027,11 +1027,7 @@ sub process_sbos {
 		); };
 		# if $@ is defined, $temp_syms will be empty and the script will error
 		# instead of having a proper failure message.
-		if ($@) {
-			$failures{$sbo} = $@;
-		} else {
-			push @symlinks, @$temp_syms;
-		}
+		$@ ? $failures{$sbo} = $@ : push @symlinks, @$temp_syms;
 	}
 	# return now if we were unable to download/verify everything - might want
 	# to not do this. not sure.
@@ -1096,7 +1092,6 @@ sub process_sbos {
 sub print_failures {
 	my $failures = shift;
 	if (keys %$failures > 0) {
-        my $failures = shift;
         say 'Failures:';
 		say "  $_: $$failures{$_}" for keys %$failures;
     }
