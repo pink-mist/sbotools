@@ -133,25 +133,25 @@ for my $key (keys @$updates) {
 is(get_arch, 'x86_64', 'get_arch is good');
 
 # get_download_info tests
-my %dl_info = get_download_info(LOCATION => "$sbo_home/system/wine", X64 => 0);
+my $dl_info = get_download_info(LOCATION => "$sbo_home/system/wine", X64 => 0);
 my $link = 'http://downloads.sf.net/wine/source/1.4/wine-1.4.1.tar.bz2';
-is($dl_info{$link}, '0c28702ed478df7a1c097f3a9c4cabd6',
+is($$dl_info{$link}, '0c28702ed478df7a1c097f3a9c4cabd6',
 	'get_download_info test 01 good.');
 $link = 'http://www.unrealize.co.uk/source/dibeng-max-2010-11-12.zip';
-is($dl_info{$link}, '97159d77631da13952fe87e846cf1f3b',
+is($$dl_info{$link}, '97159d77631da13952fe87e846cf1f3b',
 	'get_download_info test 02 good.');
 
 # get_sbo_downloads tests
-%dl_info = get_sbo_downloads(LOCATION => "$sbo_home/system/wine");
+$dl_info = get_sbo_downloads(LOCATION => "$sbo_home/system/wine");
 $link = 'http://downloads.sf.net/wine/source/1.4/wine-1.4.1.tar.bz2';
-is($dl_info{$link}, '0c28702ed478df7a1c097f3a9c4cabd6',
+is($$dl_info{$link}, '0c28702ed478df7a1c097f3a9c4cabd6',
 	'get_sbo_downloads test 01 good.');
 $link = 'http://www.unrealize.co.uk/source/dibeng-max-2010-11-12.zip';
-is($dl_info{$link}, '97159d77631da13952fe87e846cf1f3b',
+is($$dl_info{$link}, '97159d77631da13952fe87e846cf1f3b',
 	'get_sbo_downloads test 02 good.');
-my %downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/ifuse");
+my $downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/ifuse");
 $link = 'http://www.libimobiledevice.org/downloads/ifuse-1.1.1.tar.bz2';
-is($downloads{$link}, '8d528a79de024b91f12f8ac67965c37c',
+is($$downloads{$link}, '8d528a79de024b91f12f8ac67965c37c',
 	'get_sbo_downloads test 03 good.');
 
 # get_filename_from_link test
@@ -187,11 +187,11 @@ ok(!(check_x32("$sbo_home/system/ifuse")),
 ok(check_multilib, 'check_multilib good');
 
 # create_symlinks tests
-%downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/wine", 32 => 1);
-my @symlinks = create_symlinks "$sbo_home/system/wine", %downloads;
-is($symlinks[0], "$sbo_home/system/wine/wine-1.4.1.tar.bz2",
+$downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/wine", 32 => 1);
+my $symlinks = create_symlinks "$sbo_home/system/wine", $downloads;
+is($$symlinks[0], "$sbo_home/system/wine/wine-1.4.1.tar.bz2",
 	'$symlinks[0] good for create_symlinks');
-is($symlinks[1], "$sbo_home/system/wine/dibeng-max-2010-11-12.zip",
+is($$symlinks[1], "$sbo_home/system/wine/dibeng-max-2010-11-12.zip",
 	'$symlinks[1] good for create_symlinks');
 
 # grok_temp_file, get_src_dir/get_pkg_name tests
@@ -225,7 +225,7 @@ is(get_pkg_name $tempfh, 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
 #rmdir '/tmp/SBo/test.2.d';
 
 # check_distfiles test
-my $symlinks = check_distfiles(LOCATION => "$sbo_home/perl/perl-Sort-Versions");
+$symlinks = check_distfiles(LOCATION => "$sbo_home/perl/perl-Sort-Versions");
 is($$symlinks[0], "$sbo_home/perl/perl-Sort-Versions/Sort-Versions-1.5.tar.gz",
 	'check_distfiles test 01');
 
@@ -447,7 +447,7 @@ is($count, 4, 'confirm_remove good for duplicate sbo');
 ok((get_readme_contents "$sbo_home/network/nagios"), 'get_readme_contents is good');
 
 # test get_dl_fns
-my $downloads = [
+$downloads = [
 	'http://developer.download.nvidia.com/cg/Cg_3.1/Cg-3.1_April2012_x86.tgz'
 ];
 my $fns = get_dl_fns $downloads;
