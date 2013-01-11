@@ -93,7 +93,7 @@ if ($no_reqs or $non_int) {
 }
 
 # populate %locations and sanity check
-$locations = get_sbo_location($build_queue);
+%locations = get_sbo_location($build_queue);
 for my $sbo (@$build_queue) {
 	usage_error "Unable to locate $sbo in the SlackBuilds.org tree." unless
 		defined $locations{$sbo};
@@ -162,7 +162,7 @@ unless ($non_int) {
     exit 0 unless <STDIN> =~ /^[Yy\n]/;
 }
 
-my %failures = process_sbos(
+my $failures = process_sbos(
 	TODO		=> $build_queue,
 	CMDS		=> \%commands,
 	OPTS		=> \%options,
@@ -172,6 +172,6 @@ my %failures = process_sbos(
 	NOCLEAN		=> $noclean,
 	DISTCLEAN	=> $distclean,
 );
-print_failures(%failures);
+print_failures(%$failures);
 
-exit keys %failures > 0 ? 1 : 0;
+exit keys %$failures > 0 ? 1 : 0;
