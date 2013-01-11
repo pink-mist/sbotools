@@ -213,7 +213,7 @@ unless ($non_int) {
     exit 0 unless <STDIN> =~ /^[Yy\n]/;
 }
 
-my $failures = process_sbos(
+my %failures = process_sbos(
 	TODO		=> $upgrade_queue,
 	CMDS		=> \%commands,
 	OPTS		=> \%options,
@@ -223,6 +223,6 @@ my $failures = process_sbos(
 	NOCLEAN		=> $noclean,
 	DISTCLEAN	=> $distclean,
 );
-print_failures(%$failures);
+print_failures(%failures);
 
-exit keys %$failures > 0 ? 1 : 0;
+exit keys %failures > 0 ? 1 : 0;
