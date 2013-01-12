@@ -342,7 +342,7 @@ sub get_from_info {
 	return $$store{$args{GET}} if $$store{PRGNAM}[0] eq $sbo;
 	# if we're here, we haven't read in the .info file yet.
 	my ($fh, $exit) = open_read "$args{LOCATION}/$sbo.info";
-#TODO: do something with $exit from open_read
+	return if $exit;
 	# suck it all in, clean it all up, stuff it all in $store.
 	my $contents = do {local $/; <$fh>};
 	$contents =~ s/("|\\\n)//g;
@@ -397,7 +397,7 @@ sub get_download_info {
 		@_
 	);
 	$args{LOCATION} or script_error 'get_download_info requires LOCATION.';
-	my ($get, $downs, $md5s, %return);
+	my ($get, $downs, $exit, $md5s, %return);
 	$get = ($args{X64} ? 'DOWNLOAD_x86_64' : 'DOWNLOAD');
 	$downs = get_from_info(LOCATION => $args{LOCATION}, GET => $get);
 	# did we get nothing back, or UNSUPPORTED/UNTESTED?
@@ -458,7 +458,6 @@ sub get_filename_from_link($) {
 sub compute_md5sum($) {
 	-f $_[0] or script_error 'compute_md5sum requires a file argument.';
 	my ($fh, $exit) = open_read shift;
-# TODO: do something with $exit
 	my $md5 = Digest::MD5->new;
 	$md5->addfile($fh);
 	my $md5sum = $md5->hexdigest;
@@ -964,7 +963,7 @@ sub merge_queues {
 sub get_readme_contents($) {
 	exists $_[0] or script_error 'get_readme_contents requires an argument.';
 	my ($fh, $exit) = open_read(shift .'/README');
-# TODO: do something with $exit
+	return undef, $exit if $exit;
 	my $readme = do {local $/; <$fh>};
 	close $fh;
 	return $readme;
@@ -1054,7 +1053,8 @@ sub ask_opts {
 sub user_prompt {
 	exists $_[1] or script_error 'user_prompt requires two arguments.';
 	my ($sbo, $location) = @_;
-	my $readme = get_readme_contents $location;
+	my ($readme, $exit) = get_readme_contents $location;
+	return $readme, undef, $exit if $exit;
 	# check for user/group add commands, offer to run any found
 	my $user_group = get_user_group $readme;
 	my $cmds;

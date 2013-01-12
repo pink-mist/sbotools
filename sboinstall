@@ -130,7 +130,11 @@ FIRST: for my $sbo (@$build_queue) {
         if ($compat32) {
             unless ($sbo ~~ @$inst_names) {
 				say "$name requires $sbo.";
-                my ($cmds, $opts) = user_prompt($sbo, $locations{$sbo});
+                my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
+				if ($exit) {
+					warn "Unable to open README for $sbo.\n";
+					exit $exit;
+				}
 				if ($cmds) {
 					next FIRST if $cmds eq 'N';
 				}
@@ -140,7 +144,11 @@ FIRST: for my $sbo (@$build_queue) {
 				say "$sbo$added";
             } 
         }
-        my ($cmds, $opts) = user_prompt($name, $locations{$name});
+        my ($cmds, $opts, $exit) = user_prompt($name, $locations{$name});
+		if ($exit) {
+			warn "Unable to open README for $name.\n";
+			exit $exit;
+		}
 		if ($cmds) {
 			next FIRST if $cmds eq 'N';
 		}

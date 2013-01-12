@@ -192,7 +192,11 @@ unless ($force) {
 my (@temp_queue, %commands, %options);
 FIRST: for my $sbo (@$upgrade_queue) {
     unless ($non_int) {
-		my ($cmds, $opts) = user_prompt($sbo, $locations{$sbo});
+		my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
+		if ($exit) {
+			warn "Unable to open README for $sbo.\n";
+			exit $exit;
+		}
 		if ($cmds) {
 			next FIRST if $cmds eq 'N';
 		}

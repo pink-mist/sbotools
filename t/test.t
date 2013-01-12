@@ -244,9 +244,14 @@ ok(! get_sbo_from_loc('omg_wtf_bbq'),
 # get_distfile tests
 my $distfile = "$sbo_home/distfiles/Sort-Versions-1.5.tar.gz";
 unlink $distfile if -f $distfile;
-is(get_distfile
-	('http://search.cpan.org/CPAN/authors/id/E/ED/EDAVIS/Sort-Versions-1.5.tar.gz',
-	'5434f948fdea6406851c77bebbd0ed19'), 1, 'get_distfile is good');
+my $out;
+#$exit) = get_distfile
+#	('http://search.cpan.org/CPAN/authors/id/E/ED/EDAVIS/Sort-Versions-1.5.tar.gz',
+#	'5434f948fdea6406851c77bebbd0ed19');
+#is($out, 1, 'get_distfile test 01');
+is(get_distfile(
+	'http://search.cpan.org/CPAN/authors/id/E/ED/EDAVIS/Sort-Versions-1.5.tar.gz',
+		'5434f948fdea6406851c77bebbd0ed19'), 1, 'get_distfile test 01');
 unlink $distfile;
 
 # rewrite_slackbuild/revert_slackbuild tests
