@@ -51,7 +51,7 @@ GetOptions(
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
 
-show_usage, die "You must specify at least one of -d or -w.\n" unless
+usage_error "You must specify at least one of -d or -w." unless 
 	($clean_dist || $clean_work);
 
 sub remove_stuff($) {

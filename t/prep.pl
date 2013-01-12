@@ -69,15 +69,15 @@ while (my $line = <$file_h>) {
 }
 
 seek $file_h, 0, 0;
-my @not_exported;                                                               
-FIRST: for my $sub (@subs) {                                                    
-	my $found = 'FALSE';                                                        
-	my $has = 'FALSE';                                                          
+my @not_exported;
+FIRST: for my $sub (@subs) {
+	my $found = 'FALSE';
+	my $has = 'FALSE';
 	SECOND: while (my $line = <$file_h>) {
-		if ($found eq 'FALSE') {                                                
+		if ($found eq 'FALSE') {
 			$found = 'TRUE', next SECOND if $line =~ /\@EXPORT/;
-		} else {                                                                
-			last SECOND if $line =~ /^\);$/;                                    
+		} else {
+			last SECOND if $line =~ /^\);$/;
 			$has = 'TRUE', last SECOND if $line =~ /$sub/;
 		}       
 	}   
@@ -91,7 +91,20 @@ FIRST: for my $line (@file) {
 	if ($line =~ /\@EXPORT/) {
 		$line = "our \@EXPORT = qw(". join ' ', @not_exported;
 	}
-	$line = "#$line" if $line =~ /root privileges/;
+	$line =~ s/^/#/ if $line =~ /^read_config;$/;
 }
 
-
+my $found = 0;
+FIRST: for my $line (@file) {
+	unless ($found) {
+		if ($line =~ /^unless\s+\(\$<\s+==/) {
+			$found++;
+			$line =~ s/^/#/;
+		}
+	} else {
+		$line =~ s/^/#/;
+		if ($line =~ /^#}$/) {
+			last FIRST;
+		}
+	}
+}

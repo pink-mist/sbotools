@@ -83,22 +83,22 @@ while (my ($key, $value) = each %valid_confs) {
 	$changes{$value} = $options{$key} if exists $options{$key};
 }
 
-my $die = 'You have provided an invalid parameter for';
+my $warn = 'You have provided an invalid parameter for';
 
 if (exists $changes{NOCLEAN}) {
-	die "$die -c\n" unless $changes{NOCLEAN} =~ /^(TRUE|FALSE)$/;
+	usage_error "$warn -c" unless $changes{NOCLEAN} =~ /^(TRUE|FALSE)$/;
 }
 if (exists $changes{DISTCLEAN}) {
-	die "$die -d\n" unless $changes{DISTCLEAN} =~ /^(TRUE|FALSE)$/;
+	usage_error "$warn -d" unless $changes{DISTCLEAN} =~ /^(TRUE|FALSE)$/;
 }
 if (exists $changes{JOBS}) {
-	die "$die -j\n" unless $changes{JOBS} =~ /^(\d+|FALSE)$/;
+	usage_error "$warn -j" unless $changes{JOBS} =~ /^(\d+|FALSE)$/;
 }
 if (exists $changes{PKG_DIR}) {
-	die "$die -p\n" unless $changes{PKG_DIR} =~ qr#^(/|FALSE$)#;
+	usage_error "$warn -p" unless $changes{PKG_DIR} =~ qr#^(/|FALSE$)#;
 }
 if (exists $changes{SBO_HOME}) {
-	die "$die -s\n" unless $changes{SBO_HOME} =~ qr#^/#;
+	usage_error "$warn -s" unless $changes{SBO_HOME} =~ qr#^/#;
 }
 
 # safely modify our conf file; write its contents to a temp file, modify the
@@ -110,11 +110,15 @@ sub config_write {
 	exists $_[1] or script_error 'config_write requires two arguments.';
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
-		mkdir $conf_dir or die "Unable to create $conf_dir. Exiting.\n";
+		mkdir $conf_dir or usage_error "Unable to create $conf_dir. Exiting.";
 	}
 	if (-f $conf_file) {
 		my $tempfh = tempfile(DIR => $tempdir);
-		my $conffh = open_read $conf_file;
+		my ($conffh, $exit) = open_read $conf_file;
+		if ($exit) {
+			warn $conffh;
+			exit $exit;
+		}
 		my $conftents = do {local $/; <$conffh>};
 		print {$tempfh} $conftents;
 		# tie the temp file so that if $key is already there, we just change 
@@ -132,13 +136,20 @@ sub config_write {
 		seek $tempfh, 0, 0;
 		my $contents = do {local $/; <$tempfh>};
 		close $conffh;
-		eval { $conffh = open_fh($conf_file, '>') };
-		warn "Cannot write configuration: $@\n" and return if $@;
+		($conffh, $exit) = open_fh($conf_file, '>');
+		if ($exit) {
+			warn $conffh;
+			exit $exit;
+		}
 		print {$conffh} $contents or return;
 		close $conffh, close $tempfh;
 	} else {
 		# no config file, easiest case of all.
-		my $fh = open_fh($conf_file, '>') or return;
+		my ($fh, $exit) = open_fh($conf_file, '>') or return;
+		if ($exit) {
+			warn $fh;
+			exit $exit;
+		}
 		print {$fh} "$key=$val\n";
 		close $fh;
 	}
@@ -147,7 +158,7 @@ sub config_write {
 
 while (my ($key, $value) = each %changes) {
 	say "Setting $key to $value...";
-	config_write($key, $value) or warn "Unable to write to $conf_file\n";
+	config_write($key, $value);
 }
 
 exit 0;

@@ -46,7 +46,7 @@ GetOptions(
 
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
-show_usage and exit 0 unless exists $ARGV[0];
+show_usage and exit 1 unless exists $ARGV[0];
 
 # ensure that all provided arguments are valid sbos
 my @sbos;
@@ -59,15 +59,7 @@ for my $sbo (@ARGV) {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
 }
-exit 0 unless exists $sbos[0];
-
-# # wrapper to pull the list of requirements for a given sbo
-# sub get_requires ($) {
-# 	my $location = get_sbo_location(shift);
-# 	return unless $location;
-# 	my $info = get_from_info(LOCATION => $location, GET => 'REQUIRES');
-# 	return $$info[0] ne '' ? $info : undef;
-# }
+exit 1 unless exists $sbos[0];
 
 # Create full queue. 
 my ($remove_queue, %warnings);
@@ -156,8 +148,14 @@ FIRST: for my $remove (@$remove_queue) {
 	if ( "%README%" ~~ @reqz ) {
 		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
-		my $readme = get_readme_contents get_sbo_location($remove);
-		print "\n" . $readme if <STDIN> =~ /^[Yy\n]/;
+		if (<STDIN> =~ /^[Yy\n]/) {
+			my ($readme, $exit) = get_readme_contents get_sbo_location($remove);
+			if ($exit) {
+				warn "Unable to open README for $remove.\n";
+			} else {
+				print "\n" . $readme;
+			}
+		}
 	}
 
 	# Determine default behavior for prompt

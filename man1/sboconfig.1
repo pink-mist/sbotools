@@ -29,7 +29,6 @@ List out current configuration options, including unmodified default configurati
 .RS
 NOCLEAN: If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an slackbuild. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
-
 .P
 -d|--distclean (FALSE|TRUE)
 .RS
@@ -49,6 +48,19 @@ PKG_DIR: If set to a path, packages will be stored at the given location after b
 -s|--sbo-home (/usr/sbo|/path)
 .RS
 SBO_HOME: If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
+.RE
+.SH EXIT CODES
+.P
+sboconfig can exit with the following codes:
+.RS
+
+0: all operations were succesful.
+.RE
+.RS
+1: a usage error occurred, such as trying to specify invalid options.
+.RE
+.RS
+6: sboconfig was unable to obtain a required file handle.
 .RE
 .SH BUGS
 .P

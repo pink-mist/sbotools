@@ -54,6 +54,43 @@ Skip viewing of the README and the yes or no question which accompanies it. Anyt
 .RS
 When used in combination with the -f option, to force an update even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt. This allows for recursive upgrades, among other things.
 .RE
+.SH EXIT CODES
+.P
+sboinstall can exit with the following exit codes:
+.RS
+
+0: all operations were succesful.
+.RE
+.RS
+1: a usage error occured, such as specifying invalid options.
+.RE
+.RS
+3: a .SlackBuild exited non-zero.
+.RE
+.RS
+4: unable to md5sum verify an SBo's source file(s).
+.RE
+.RS
+5: unable to download an SBo's source file(s).
+.RE
+.RS
+6: unable to obtain a required file handle.
+.RE
+.RS
+7: unable to get required info from the SBo's .info file.
+.RE
+.RS
+8: unable to unset the exec-on-close bit on a temporary file.
+.RE
+.RS
+9: multilib hasn't been setup (where required).
+.RE
+.RS
+10: convertpkg-compat32 exited non-zero.
+.RE
+.RS
+11: the convertpkg-compat32 script can't be found (where required).
+.RE
 .SH BUGS
 .P
 None known, but there may be some. Please report any found to j@dawnrazor.net or xocel@iquidus.org; patches are always welcome.
