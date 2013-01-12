@@ -64,7 +64,7 @@ GetOptions(
 
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
-show_usage and exit 0 unless exists $ARGV[0];
+show_usage and exit 1 unless exists $ARGV[0];
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
@@ -162,7 +162,7 @@ unless ($non_int) {
     exit 0 unless <STDIN> =~ /^[Yy\n]/;
 }
 
-my $failures = process_sbos(
+my ($failures, $exit) = process_sbos(
 	TODO		=> $build_queue,
 	CMDS		=> \%commands,
 	OPTS		=> \%options,
@@ -171,7 +171,12 @@ my $failures = process_sbos(
 	NOINSTALL	=> $no_install,
 	NOCLEAN		=> $noclean,
 	DISTCLEAN	=> $distclean,
+	NON_INT		=> $non_int,
 );
 print_failures($failures);
 
-exit keys %$failures > 0 ? 1 : 0;
+if ($exit) {
+	exit $exit;
+} else {
+	exit 0;
+}

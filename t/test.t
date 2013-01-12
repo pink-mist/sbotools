@@ -14,6 +14,7 @@ chomp(my $pwd = `pwd`);
 my $sbo_home = "$pwd/sbo";
 
 $conf_file = "$pwd/sbotools.conf";
+$SBO::Lib::conf_file = $conf_file;
 read_config;
 $config{SBO_HOME} = $sbo_home;
 $SBO::Lib::distfiles = "$sbo_home/distfiles";
@@ -46,9 +47,6 @@ move("$sbo_home/SLACKBUILDS.TXT", "$sbo_home/SLACKBUILDS.TXT.moved");
 is(chk_slackbuilds_txt, undef,
 	'chk_slackbuilds_txt returns false with no SLACKBUILDS.TXT');
 move("$sbo_home/SLACKBUILDS.TXT.moved", "$sbo_home/SLACKBUILDS.TXT");
-
-#ok (rsync_sbo_tree == 1, 'rsync_sbo_tree is good');
-#ok (update_tree == 1, 'update_tree is good');
 
 # slackbuilds_or_fetch test
 is(slackbuilds_or_fetch, 1, 'slackbuilds_or_fetch is good');
@@ -312,13 +310,6 @@ for my $item (@$listing) {
 # remove_stuff test - can only really test for invalid input
 is(remove_stuff('/omg/wtf/bbq'), 1, 'remove_stuff good for invalid input');
 
-# config_write test
-chmod 0444, $conf_file;
-is(config_write ('OMG', 'WTF'), undef,
-	'config_write returned undef correctly');
-chmod 
-chmod 0644, $conf_file;
-
 # perform_search tests
 my $findings = perform_search('desktop');
 for my $found (@$findings) {
@@ -384,17 +375,6 @@ $fh = open_read "$sbo_home/audio/gmpc/README";
 $readme = do {local $/; <$fh>};
 close $fh;
 ok(! (get_opts $readme), 'get_opts good where README does not define opts');
-
-# clean_reqs tests
-
-# $SBO::Lib::compat32 = 0;
-# $reqs = get_requires "zdoom", "$sbo_home/games/zdoom";
-# $reqs = clean_reqs $reqs;
-# ok (! $$reqs[0], 'clean_reqs good for already installed reqs');
-# $reqs = get_requires 'gmpc', "$sbo_home/audio/gmpc";
-# $reqs = clean_reqs $reqs;
-# is ($$reqs[0], 'gob2', 'clean_reqs good for un/installed reqs.');
-# is ($$reqs[1], 'libmpd', 'clean_reqs good for un/installed reqs.');
 
 # queue tests
 

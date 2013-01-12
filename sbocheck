@@ -85,10 +85,15 @@ sub print_output($) {
 		# save a log of available updates
 		my $logfile = '/var/log/sbocheck.log';
 		unlink $logfile if -f $logfile;
-		my $log_fh = open_fh($logfile, '>');
-		say {$log_fh} $_ for @$listing;
-		close $log_fh;
-		say "A copy of the above result is kept in $logfile\n";
+		my ($log_fh, $exit) = open_fh($logfile, '>');
+		# non-fatal
+		if ($exit) {
+			warn $log_fh if $exit;
+		} else {
+			say {$log_fh} $_ for @$listing;
+			close $log_fh;
+			say "A copy of the above result is kept in $logfile\n";
+		}
 	} else {
 		say "\nNo updates available.";
 	}

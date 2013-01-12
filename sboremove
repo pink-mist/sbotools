@@ -46,7 +46,7 @@ GetOptions(
 
 show_usage and exit 0 if $help;
 show_version and exit 0 if $vers;
-show_usage and exit 0 unless exists $ARGV[0];
+show_usage and exit 1 unless exists $ARGV[0];
 
 # ensure that all provided arguments are valid sbos
 my @sbos;
@@ -59,7 +59,7 @@ for my $sbo (@ARGV) {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
 }
-exit 0 unless exists $sbos[0];
+exit 1 unless exists $sbos[0];
 
 # # wrapper to pull the list of requirements for a given sbo
 # sub get_requires ($) {
