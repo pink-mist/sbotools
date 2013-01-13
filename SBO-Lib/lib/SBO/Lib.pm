@@ -865,6 +865,9 @@ sub make_clean {
 	}
 	remove_tree("$tmpsbo/package-$args{SBO}") if 
 		-d "$tmpsbo/package-$args{SBO}";
+	# clean up after convertpkg-compat32
+	remove_tree("/tmp/package-$args{SBO}") if 
+		-d "/tmp/package-$args{SBO}" and $args{SBO} ~~ /-compat32$/;
 	return 1;
 }
 
