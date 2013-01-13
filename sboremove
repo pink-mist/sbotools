@@ -69,10 +69,6 @@ for my $sbo (@sbos) {
     $remove_queue = merge_queues($remove_queue, $queue);
 }
 
-# Read requires for each item in queue (needed for later on, %README% etc)
-my %req_store;
-$req_store{$_} = get_requires $_ for @$remove_queue;
-
 # Determine required by for all installed sbo's
 my (%required_by, @confirmed);
 
@@ -144,8 +140,7 @@ FIRST: for my $remove (@$remove_queue) {
 	}
 
 	# Check for %README% value and inform user.
-	my @reqz = $req_store{$remove};
-	if ( "%README%" ~~ @reqz ) {
+	if ( $warnings{$remove} ) { 
 		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
 		if (<STDIN> =~ /^[Yy\n]/) {
