@@ -260,16 +260,17 @@ sub get_installed_packages($) {
 
 	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-([^-]+)$#;
 	for my $path (<$pkg_db/*>) {
-		my ($name, $version, $build) = ($path =~ $regex)[0,1,2];
-		# valid types: STD, SBO
-		my $type = 'STD';
-		if ($build =~ m/_SBo(|compat32)$/) {
-			my $sbo = $name;
-			$sbo =~ s/-compat32//g if $name =~ /-compat32$/;
-			$type = 'SBO' if get_sbo_location($sbo);
-		}
-		if ($filter eq $type or $filter eq 'ALL') {
-			push @installed, {name => $name, version => $version};
+		if (my ($name, $version, $build) = ($path =~ $regex)[0,1,2]) {
+			# valid types: STD, SBO
+			my $type = 'STD';
+			if ($build =~ m/_SBo(|compat32)$/) {
+				my $sbo = $name;
+				$sbo =~ s/-compat32//g if $name =~ /-compat32$/;
+				$type = 'SBO' if get_sbo_location($sbo);
+			}
+			if ($filter eq $type or $filter eq 'ALL') {
+				push @installed, {name => $name, version => $version};
+			}
 		}
 	}
 	return \@installed;
