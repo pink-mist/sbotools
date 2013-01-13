@@ -15,6 +15,10 @@ RLOG=~/remove.log
 :> $ILOG
 :> $RLOG
 
+for i in build md5sum wget noinfo nomulti else; do
+	:> ~/$i.fail.log
+done
+
 function build_things() {
 	if [ ! -z $1 ]; then
 		. /usr/sbo/*/$1/$1.info
@@ -33,6 +37,7 @@ function build_things() {
 			"5") OLOG=~/wget.fail.log ;;
 			"7") OLOG=~/noinfo.fail.log ;;
 			"9") OLOG=~/nomulti.fail.log ;;
+			*) OLOG=~/else.fail.log
 		esac
 		if [[ "$OLOG" != "" ]]; then
 			if ! grep -q "^$1 added to build queue.$" $OLOG; then
