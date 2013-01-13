@@ -485,7 +485,7 @@ sub get_distfile {
 	mkdir $distfiles unless -d $distfiles;
 	chdir $distfiles;
 	unlink $filename if -f $filename;
-	if (system("wget --no-check-certificate $link") != 0) {
+	if (system("wget --no-check-certificate \"$link\"") != 0) {
 		return "Unable to wget $link.\n", _ERR_DOWNLOAD;
 	}
 	# can't do anything if the link in the .info doesn't lead to a good d/l
