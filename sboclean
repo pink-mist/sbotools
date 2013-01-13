@@ -78,12 +78,13 @@ sub remove_stuff($) {
 }
 
 sub clean_c32() {
-	opendir(my $dh, '/tmp/');
+	my $dir = '/tmp';
+	opendir(my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
 		next FIRST unless $ls =~ /^package-.+-compat32$/;
 		rm_full "$dir/$ls";
 	}
-{
+}
 
 remove_stuff $config{SBO_HOME} .'/distfiles' if $clean_dist;
 
