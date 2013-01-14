@@ -17,7 +17,6 @@ DEPENDENCIES
 This module requires these other modules and libraries:
 
 	Sort::Versions => 1.5
-	Text::Tabulate => 1.1.1
 
 COPYRIGHT AND LICENCE
 
