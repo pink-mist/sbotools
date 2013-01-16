@@ -40,7 +40,7 @@ function build_things() {
 			*) OLOG=~/else.fail.log
 		esac
 		if [[ "$OLOG" != "" ]]; then
-			if ! grep -q "^$1 added to build queue.$" $OLOG; then
+			if ! grep -q "^$1 added to install queue.$" $OLOG; then
 				echo "" >> $OLOG
 				cat $TLOG >> $OLOG
 			fi
