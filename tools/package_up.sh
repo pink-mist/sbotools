@@ -26,7 +26,9 @@ trap "cleanup $TMP_DIR; exit 2" INT TERM EXIT
 
 TMP_DIR=$(mktemp -d /tmp/$PACKAGE.XXXXXXXXXXXX)
 PKG_DIR=$TMP_DIR/$PACKAGE-$VERSION
+SBO_DIR=$TMP_DIR/$PACKAGE
 mkdir $PKG_DIR
+mkdir $SBO_DIR
 
 for i in $(ls $PKG_HOME); do
 	cp -R $PKG_HOME/$i $PKG_DIR
@@ -38,30 +40,26 @@ fi
 if [[ -d $PKG_DIR/tools ]]; then
 	rm -rf $PKG_DIR/tools
 fi	
-
-find $PKG_DIR -type f -name \*~ -exec rm {} \;
-
-FILENAME=$PACKAGE-$VERSION.tar.xz
-
-(cd $TMP_DIR
-	tar cJf $FILENAME $PACKAGE-$VERSION/
-	cp $FILENAME $HOME
-)
-(cd $HOME
-	tar xf $FILENAME
-)
-
-if [[ ! -d $HOME/$PACKAGE ]]; then
-	echo "Unable to find the slackbuild directory."
-	cleanup $TMP_DIR
-	exit 1
+if [[ -d $PKG_DIR/slackbuild/$PACKAGE ]]; then
+	if [[ -f $PKG_DIR/slackbuild/$PACKAGE/README ]]; then
+		cp $PKG_DIR/slackbuild/$PACKAGE/README $PKG_DIR/
+	fi
+	mv $PKG_DIR/slackbuild/$PACKAGE/* $SBO_DIR
+	rm -rf $PKG_DIR/slackbuild
+	(cd $TMP_DIR
+		tar cjf $PACKAGE.tar.bz2 $PACKAGE/
+	)
+	mv $TMP_DIR/$PACKAGE.tar.bz2 $HOME/SBo/
 fi
 
-mv $TMP_DIR/$FILENAME $HOME/$PACKAGE
-OUTFILE=$PACKAGE-$VERSION.tar
 
-(cd $HOME
-	tar cf $OUTFILE $PACKAGE
+find $TMP_DIR -type f -name \*~ -exec rm {} \;
+
+FILENAME=$PACKAGE-$VERSION.tar.gz
+
+(cd $TMP_DIR
+	tar czf $FILENAME $PACKAGE-$VERSION/
+	cp $FILENAME $HOME
 )
 
 cleanup $TMP_DIR
