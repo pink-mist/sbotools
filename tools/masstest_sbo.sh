@@ -37,7 +37,7 @@ function build_things() {
 			"5") OLOG=~/wget.fail.log ;;
 			"7") OLOG=~/noinfo.fail.log ;;
 			"9") OLOG=~/nomulti.fail.log ;;
-			*) OLOG=~/else.fail.log
+			*) OLOG=~/else.fail.log ;;
 		esac
 		if [[ "$OLOG" != "" ]]; then
 			if ! grep -q "^$1 added to install queue.$" $OLOG; then
