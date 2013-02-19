@@ -678,20 +678,21 @@ sub get_src_dir($) {
 	my $fh = shift;
 	seek $fh, 0, 0;
 	my @src_dirs;
-	opendir(my $tsbo_dh, '/tmp/SBo');
-	FIRST: while (my $ls = readdir $tsbo_dh) {
-		next FIRST if $ls =~ /^\.[\.]{0,1}$/;
-		next FIRST if $ls =~ /^package-/;
-		my $found = 0;
-		SECOND: while (my $line = <$fh>) {
-			if ($line =~ /$ls/) {
-				$found++;
-				last SECOND;
+	if (opendir(my $tsbo_dh, '/tmp/SBo')) {
+		FIRST: while (my $ls = readdir $tsbo_dh) {
+			next FIRST if $ls =~ /^\.[\.]{0,1}$/;
+			next FIRST if $ls =~ /^package-/;
+			my $found = 0;
+			SECOND: while (my $line = <$fh>) {
+				if ($line =~ /$ls/) {
+					$found++;
+					last SECOND;
+				}
 			}
+			push @src_dirs, $ls unless $found;
 		}
-		push @src_dirs, $ls unless $found;
+		close $tsbo_dh;
 	}
-	close $tsbo_dh;
 	close $fh;
 	return \@src_dirs;
 }
@@ -738,13 +739,14 @@ sub perform_sbo {
 	}
 	$cmd .= " $args{OPTS}" if $args{OPTS};
 	$cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
-	# we need to get a listing of /tmp/SBo before we run the SlackBuild so that
-	# we can compare to a listing taken afterward.
+	# we need to get a listing of /tmp/SBo, if we can,  before we run the
+	# SlackBuild so that we can compare to a listing taken afterward.
 	my $src_ls_fh = tempfile(DIR => $tempdir);
-	opendir(my $tsbo_dh, '/tmp/SBo');
-	FIRST: while (readdir $tsbo_dh) {
-		next FIRST if /^\.[\.]{0,1}$/;
-		say {$src_ls_fh} $_;
+	if (opendir(my $tsbo_dh, '/tmp/SBo')) {
+		FIRST: while (readdir $tsbo_dh) {
+			next FIRST if /^\.[\.]{0,1}$/;
+			say {$src_ls_fh} $_;
+		}
 	}
 	# get a tempfile to store the exit status of the slackbuild
 	my $exit_temp = tempfile(DIR => $tempdir);
