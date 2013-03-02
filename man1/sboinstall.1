@@ -22,7 +22,7 @@ Show version information.
 .P
 -c|--noclean (FALSE|TRUE)
 .RS
-If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an slackbuild. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
+If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo (or $TMP). By default, these directories are removed after building an slackbuild. This option leaves those directories in place. This can be set as default via the sboconfig(1) command. Also see sbotools.conf(5). This option overrides the default.
 .RE
 .P
 -d|--distclean (FALSE|TRUE)
@@ -32,7 +32,7 @@ If TRUE, then DO remove the source code after building the slackbuild. By defaul
 .P
 -i|--noinstall
 .RS
-Do not actually install the package created at the end of the build process. So, the slackbuild will be run, and the package will be left in /tmp, or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
+Do not actually install the package created at the end of the build process. So, the slackbuild will be run, and the package will be left in /tmp (or $OUTPUT), or in $PKG_DIR if so defined (see sboconfig(1) and sbotools.conf(5)).
 .RE
 .P
 -j|--jobs (FALSE|#)
