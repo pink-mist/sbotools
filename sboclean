@@ -89,9 +89,10 @@ sub clean_c32() {
 remove_stuff $config{SBO_HOME} .'/distfiles' if $clean_dist;
 
 if ($clean_work) {
-	my $tsbo = $SBO::Lib::env_tmp ? $SBO::Lib::env_tmp : "$SBO::Lib::tmpd/SBo";
-	if ($tsbo =~ qr#^/tmp(|/)$# && !$interactive) {
-		warn "This will remove the entire contents of /tmp\n";
+	my $env_tmp = $SBO::Lib::env_tmp;
+	my $tsbo = $env_tmp ? $env_tmp : "$SBO::Lib::tmpd/SBo";
+	if ($env_tmp && !$interactive) {
+		warn "This will remove the entire contents of $env_tmp\n";
 		print "Proceed? [y] ";
 		remove_stuff $tsbo if <STDIN> =~ /^[yY\n]/;
 	} else {
