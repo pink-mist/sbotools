@@ -27,7 +27,7 @@ List out current configuration options, including unmodified default configurati
 .P
 -c|--noclean (FALSE|TRUE)
 .RS
-NOCLEAN: If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo. By default, these directories are removed after building an slackbuild. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
+NOCLEAN: If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo (or $TMP). By default, these directories are removed after building an slackbuild. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running sboupgrade(1)/sboinstall(1).
 .RE
 .P
 -d|--distclean (FALSE|TRUE)
@@ -42,7 +42,7 @@ JOBS: If numeric (2,5,10, etc), then that number will be fed to the "-j" argumen
 .P
 -p|--pkg-dir (FALSE|/path)
 .RS
-PKG_DIR: If set to a path, packages will be stored at the given location after building and installing. By default, packages are left where they are deposited by slackbuilds, which is typically (probably always) /tmp. If PKG_DIR is FALSE and DISTCLEAN is TRUE (either in sbotools.conf(5) or at sboupgrade/sboinstall runtime), the package will be deleted. If this option is set to a path in the filesystem, the package will be stored in that directory, regardless of any DISTCLEAN option.
+PKG_DIR: If set to a path, packages will be stored at the given location after building and installing. By default, packages are left where they are deposited by slackbuilds, which is typically (probably always) /tmp (or $OUTPUT). If PKG_DIR is FALSE and DISTCLEAN is TRUE (either in sbotools.conf(5) or at sboupgrade/sboinstall runtime), the package will be deleted. If this option is set to a path in the filesystem, the package will be stored in that directory, regardless of any DISTCLEAN option.
 .RE
 .P
 -s|--sbo-home (/usr/sbo|/path)

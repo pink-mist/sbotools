@@ -86,7 +86,14 @@ use File::Find;
 use File::Basename;
 use Fcntl qw(F_SETFD F_GETFD);
 
-our $tempdir = tempdir(CLEANUP => 1);
+# get $TMP from the env, if defined - we use two variables here because there
+# are times when we need to no if the environment variable is set, and other
+# times where it doesn't matter.
+our $env_tmp;
+$env_tmp = $ENV{TMP} if defined $ENV{TMP};
+our $tmpd = $env_tmp ? $env_tmp : '/tmp';
+
+our $tempdir = tempdir(CLEANUP => 1, DIR => $tmpd);
 
 # define this to facilitate unit testing - should only ever be modified from
 # t/test.t
@@ -372,7 +379,7 @@ sub get_sbo_version($) {
 # newer, and compile an array of hashes containing those which are
 sub get_available_updates() {
 	my @updates;
-	my $pkg_list = get_installed_packages 'SBO'; 
+	my $pkg_list = get_installed_packages 'SBO';
 	FIRST: for my $key (keys @$pkg_list) {
 		my $location = get_sbo_location($$pkg_list[$key]{name});
 		# if we can't find a location, assume invalid and skip
@@ -434,11 +441,11 @@ sub get_sbo_downloads {
 	$args{LOCATION} or script_error 'get_sbo_downloads requires LOCATION.';
 	my $location = $args{LOCATION};
 	-d $location or script_error 'get_sbo_downloads given a non-directory.';
-	my $arch = get_arch; 
+	my $arch = get_arch;
 	my $dl_info;
 	if ($arch eq 'x86_64') {
 		$dl_info = get_download_info(LOCATION => $location) unless $args{32};
-	} 
+	}
 	unless (keys %$dl_info > 0) {
 		$dl_info = get_download_info(LOCATION => $location, X64 => 0);
 	}
@@ -678,7 +685,9 @@ sub get_src_dir($) {
 	my $fh = shift;
 	seek $fh, 0, 0;
 	my @src_dirs;
-	if (opendir(my $tsbo_dh, '/tmp/SBo')) {
+	# scripts use either $TMP or /tmp/SBo
+	my $tsbo = $env_tmp ? $env_tmp : "$tmpd/SBo";
+	if (opendir(my $tsbo_dh, $tsbo)) {
 		FIRST: while (my $ls = readdir $tsbo_dh) {
 			next FIRST if $ls =~ /^\.[\.]{0,1}$/;
 			next FIRST if $ls =~ /^package-/;
@@ -710,7 +719,7 @@ sub get_tmp_extfn($) {
 # prep and run .SlackBuild
 sub perform_sbo {
 	my %args = (
-		OPTS		=> 0, 
+		OPTS		=> 0,
 		JOBS		=> 0,
 		LOCATION	=> '',
 		ARCH		=> '',
@@ -726,7 +735,7 @@ sub perform_sbo {
 	my $sbo = get_sbo_from_loc $location;
 	my ($cmd, %changes);
 	# set any changes we need to make to the .SlackBuild, setup the command
-	
+
 	$cmd = '( ';
 
 	if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
@@ -739,9 +748,10 @@ sub perform_sbo {
 	}
 	$cmd .= " $args{OPTS}" if $args{OPTS};
 	$cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
-	# we need to get a listing of /tmp/SBo, if we can,  before we run the
-	# SlackBuild so that we can compare to a listing taken afterward.
+	# we need to get a listing of /tmp/SBo, or $TMP, if we can, before we run
+	# the SlackBuild so that we can compare to a listing taken afterward.
 	my $src_ls_fh = tempfile(DIR => $tempdir);
+	my $tsbo = $env_tmp ? $env_tmp : "$tmpd/SBo";
 	if (opendir(my $tsbo_dh, '/tmp/SBo')) {
 		FIRST: while (readdir $tsbo_dh) {
 			next FIRST if /^\.[\.]{0,1}$/;
@@ -752,7 +762,10 @@ sub perform_sbo {
 	my $exit_temp = tempfile(DIR => $tempdir);
 	my ($exit_fn, $exit) = get_tmp_extfn $exit_temp;
 	return $exit_fn, undef, $exit if $exit;
-	$cmd .= " /bin/sh $location/$sbo.SlackBuild; echo \$? > $exit_fn )";
+	# set TMP/OUTPUT if set in the environment
+	$cmd .= " TMP=$env_tmp" if $env_tmp;
+	$cmd .= " OUTPUT=$ENV{OUTPUT}" if defined $ENV{OUTPUT};
+	$cmd .= " /bin/bash $location/$sbo.SlackBuild; echo \$? > $exit_fn )";
 	my $tempfh = tempfile(DIR => $tempdir);
 	my $fn;
 	($fn, $exit) = get_tmp_extfn $tempfh;
@@ -786,7 +799,7 @@ sub do_convertpkg($) {
 	my $pkg = shift;
 	my $tempfh = tempfile(DIR => $tempdir);
 	my $fn = get_tmp_extfn $tempfh;
-	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d /tmp | tee $fn";
+	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d $tmpd | tee $fn";
 	if (system($cmd) != 0) {
 		return "convertpkg-compt32 returned non-zero exit status\n",
 			_ERR_CONVERTPKG;
@@ -798,7 +811,7 @@ sub do_convertpkg($) {
 # "public interface", sort of thing.
 sub do_slackbuild {
 	my %args = (
-		OPTS		=> 0, 
+		OPTS		=> 0,
 		JOBS		=> 0,
 		LOCATION	=> '',
 		COMPAT32	=> 0,
@@ -807,7 +820,7 @@ sub do_slackbuild {
 	$args{LOCATION} or script_error 'do_slackbuild requires LOCATION.';
 	my $location = $args{LOCATION};
 	my $sbo = get_sbo_from_loc $location;
-	my $arch = get_arch; 
+	my $arch = get_arch;
 	my $multilib = check_multilib;
 	my $version = get_sbo_version $location;
 	my $x32;
@@ -848,7 +861,7 @@ sub do_slackbuild {
 	return $version, $pkg, $src;
 }
 
-# remove work directories (source and packaging dirs under /tmp/SBo)
+# remove work directories (source and packaging dirs under /tmp/SBo or $TMP)
 sub make_clean {
 	my %args = (
 		SBO		=> '',
@@ -861,15 +874,15 @@ sub make_clean {
 	}
 	my $src = $args{SRC};
 	say "Cleaning for $args{SBO}-$args{VERSION}...";
-	my $tmpsbo = '/tmp/SBo';
+	my $tmpsbo = $env_tmp ? $env_tmp : "$tmpd/SBo";
 	for my $dir (@$src) {
 		remove_tree("$tmpsbo/$dir") if -d "$tmpsbo/$dir";
 	}
 	remove_tree("$tmpsbo/package-$args{SBO}") if 
 		-d "$tmpsbo/package-$args{SBO}";
 	# clean up after convertpkg-compat32
-	remove_tree("/tmp/package-$args{SBO}") if 
-		-d "/tmp/package-$args{SBO}" and $args{SBO} ~~ /-compat32$/;
+	remove_tree("$tmpd/package-$args{SBO}") if
+		-d "$tmpd/package-$args{SBO}" and $args{SBO} ~~ /-compat32$/;
 	return 1;
 }
 
@@ -928,7 +941,7 @@ sub add_to_queue($) {
 			$$sbo = $req;
 			add_to_queue($args);
 		}
-	}	
+	}
 }
 
 # recursively add a sbo's requirements to the build queue.
@@ -1048,7 +1061,7 @@ sub ask_opts {
         return unless $opts;
         while ($opts !~ $kv_regex) {
             warn "Invalid input received.\n";
-            $opts = &$ask; 
+            $opts = &$ask;
         }
         return $opts;
     }
@@ -1156,7 +1169,7 @@ sub process_sbos {
 			}
 		}
 
-	    do_upgradepkg $pkg unless $args{NOINSTALL};      
+	    do_upgradepkg $pkg unless $args{NOINSTALL};
 
 	    unless ($args{DISTCLEAN}) {
 	        make_clean(SBO => $sbo, SRC => $src, VERSION => $version)
@@ -1178,7 +1191,7 @@ sub process_sbos {
             if (-d $dir) {
                 move($pkg, $dir), say "$pkg stored in $dir";
             } else {
-                warn "$pkg left in /tmp\n";
+                warn "$pkg left in $tmpd\n";
             }
         } elsif ($args{DISTCLEAN}) {
             unlink $pkg;

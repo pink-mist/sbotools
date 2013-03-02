@@ -78,7 +78,7 @@ sub remove_stuff($) {
 }
 
 sub clean_c32() {
-	my $dir = '/tmp';
+	my $dir = $SBO::Lib::tmpd;
 	opendir(my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
 		next FIRST unless $ls =~ /^package-.+-compat32$/;
@@ -89,7 +89,15 @@ sub clean_c32() {
 remove_stuff $config{SBO_HOME} .'/distfiles' if $clean_dist;
 
 if ($clean_work) {
-	remove_stuff '/tmp/SBo';
+	my $env_tmp = $SBO::Lib::env_tmp;
+	my $tsbo = $env_tmp ? $env_tmp : "$SBO::Lib::tmpd/SBo";
+	if ($env_tmp && !$interactive) {
+		warn "This will remove the entire contents of $env_tmp\n";
+		print "Proceed? [y] ";
+		remove_stuff $tsbo if <STDIN> =~ /^[yY\n]/;
+	} else {
+		remove_stuff $tsbo;
+	}
 	clean_c32;
 }
 
