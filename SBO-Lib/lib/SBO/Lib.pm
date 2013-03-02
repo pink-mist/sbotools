@@ -326,7 +326,7 @@ sub get_sbo_location {
 		seek $fh, 0, 0;
 	}
 	close $fh;
-	return keys %locations > 0 ? %locations : undef;
+	return %locations;
 }
 
 # pull the sbo name from a $location: $config{SBO_HOME}/system/wine, etc.
@@ -383,7 +383,7 @@ sub get_available_updates() {
 	FIRST: for my $key (keys @$pkg_list) {
 		my $location = get_sbo_location($$pkg_list[$key]{name});
 		# if we can't find a location, assume invalid and skip
-		next FIRST unless defined $location;
+		next FIRST unless $location;
 		my $version = get_sbo_version $location;
 		if (versioncmp($version, $$pkg_list[$key]{version}) == 1) {
 			push @updates, {
