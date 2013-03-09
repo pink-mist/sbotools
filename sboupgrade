@@ -209,6 +209,7 @@ FIRST: for my $sbo (@$upgrade_queue) {
         say "\n$sbo added to upgrade queue.";
     }
 }
+@$upgrade_queue = @temp_queue;
 
 exit 0 unless exists $$upgrade_queue[0];
 say "\nUpgrade queue: ". join(' ', @$upgrade_queue);
