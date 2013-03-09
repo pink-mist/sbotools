@@ -102,7 +102,7 @@ print "completed pseudo-random testing of get_installed_packages 'ALL' \n";
 # get_sbo_location tests
 is(get_sbo_location ('nginx'), "$sbo_home/network/nginx",
 	'get_sbo_location is good');
-is(get_sbo_location ('omgwtfbbq'), undef,
+is(get_sbo_location ('omgwtfbbq'), 0,
 	'get_sbo_location returns false with not-an-sbo input');
 my @finds = qw(nginx gmpc);
 my %locs = get_sbo_location(@finds);

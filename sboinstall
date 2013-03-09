@@ -96,7 +96,7 @@ if ($no_reqs or $non_int) {
 %locations = get_sbo_location($build_queue);
 for my $sbo (@$build_queue) {
 	usage_error "Unable to locate $sbo in the SlackBuilds.org tree." unless
-		defined $locations{$sbo};
+		$locations{$sbo};
 	if ($compat32) {
 		usage_error "-p|--compat32 is not supported with Perl SBos."
 			if $locations{$sbo} =~ qr|/perl/[^/]+$|;

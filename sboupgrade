@@ -99,7 +99,7 @@ for my $sbo (@sbos) {
 	$name =~ s/-compat32//;
 	$locations{$sbo} = get_sbo_location($name);
 	usage_error "Unable to locate $sbo in the SlackBuilds.org tree." unless
-		defined $locations{$sbo};
+		$locations{$sbo};
 	if ($sbo =~ /-compat32$/) {
 		usage_error "compat32 Perl SBos are not supported."
 			if $locations{$sbo} =~ qr|/perl/[^/]+$|;
