@@ -957,12 +957,14 @@ sub get_build_queue {
 		);
 		add_to_queue(\%args);
 	}
-	# Remove duplicate entries (leaving first occurrence)
+	# Remove duplicate entries (leaving last occurrence)
+	@$temp_queue = reverse @$temp_queue;
 	my (%seen, @build_queue);
 	FIRST: for my $sb (@$temp_queue) {
 		 next FIRST if $seen{$sb}++;
 		 push @build_queue, $sb;
 	}
+	@build_queue = reverse @build_queue;
 	return \@build_queue;
 }
 
