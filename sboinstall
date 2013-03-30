@@ -117,11 +117,13 @@ FIRST: for my $sbo (@$build_queue) {
         say "$name already installed.";
         next FIRST;
     } else {
-		my $pm_name = $sbo;
-		$pm_name =~ s/^perl-//;
-		if (/$pm_name/i ~~ @$pms) {
-			say "$sbo installed via the cpan.";
-			next FIRST;
+		if ($sbo =~ /^perl-/) {
+			my $pm_name = $sbo;
+			$pm_name =~ s/^perl-//;
+			if (/^$pm_name$/i ~~ @$pms) {
+				say "$sbo installed via the cpan.";
+				next FIRST;
+			}
 		}
 	}
     $locations{$name} = get_sbo_location($sbo) if $compat32;
