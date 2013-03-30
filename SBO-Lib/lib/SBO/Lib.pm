@@ -924,10 +924,8 @@ sub get_requires($) {
 	return $$info[0] ne '' ? $info : undef;
 }
 
-# avoid being called to early to check prototype when add_to_queue calls itself
-sub add_to_queue($);
 # used by get_build_queue. 
-sub add_to_queue($) {
+sub add_to_queue {
 	my $args = shift;
 	my $sbo = \${$args}{NAME};
 	return unless $$sbo;
@@ -957,12 +955,11 @@ sub get_build_queue {
 		);
 		add_to_queue(\%args);
 	}
-	# Remove duplicate entries (leaving first occurrence)
-	my (%seen, @build_queue);
-	FIRST: for my $sb (@$temp_queue) {
-		 next FIRST if $seen{$sb}++;
-		 push @build_queue, $sb;
-	}
+	# Remove duplicate entries (leaving last occurrence)
+	my @build_queue = reverse @$temp_queue;
+	my %seen;
+	@build_queue = grep {!$seen{$_}++} @build_queue;
+	@build_queue = reverse @build_queue;
 	return \@build_queue;
 }
 
