@@ -111,26 +111,33 @@ s/::/-/g for @$pms;
 # check for already-installeds and prompt for the rest
 my (@temp_queue, %commands, %options);
 my $added = ' added to install queue.';
+my %inst_names;
+$inst_names{$_} = 1 for @$inst_names;
+
 FIRST: for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
-    if ($name ~~ @$inst_names) {
-        say "$name already installed.";
-        next FIRST;
-    } else {
+
+	if ($inst_names{$name}) {
+		say "$name already installed.";
+		next FIRST;
+	} else {
 		if ($sbo =~ /^perl-/) {
 			my $pm_name = $sbo;
 			$pm_name =~ s/^perl-//;
-			if (/^$pm_name$/i ~~ @$pms) {
-				say "$sbo installed via the cpan.";
-				next FIRST;
+			for my $pm (@$pms) {
+				if ($pm =~ /^$pm_name$/i) {
+					say "$sbo installed via the cpan.";
+					next FIRST;
+				}
 			}
 		}
 	}
+
     $locations{$name} = get_sbo_location($sbo) if $compat32;
     unless ($non_int) {
         # if compat32 is TRUE, we need to see if the non-compat version exists.
         if ($compat32) {
-            unless ($sbo ~~ @$inst_names) {
+			unless ($inst_names{$sbo}) {
 				say "$name requires $sbo.";
                 my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
 				if ($exit) {

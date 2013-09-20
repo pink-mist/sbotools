@@ -191,7 +191,7 @@ sub get_slack_version() {
 	close $fh;
 	my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
 	usage_error "Unsupported Slackware version: $version\n"
-		unless $version ~~ %supported;
+		unless $supported{$version};
 	return $supported{$version};
 }
 
@@ -882,7 +882,7 @@ sub make_clean {
 		-d "$tmpsbo/package-$args{SBO}";
 	# clean up after convertpkg-compat32
 	remove_tree("$tmpd/package-$args{SBO}") if
-		-d "$tmpd/package-$args{SBO}" and $args{SBO} ~~ /-compat32$/;
+		-d "$tmpd/package-$args{SBO}" and $args{SBO} =~ /-compat32$/;
 	return 1;
 }
 
@@ -970,8 +970,11 @@ sub merge_queues {
     my $queue_a = $_[0];
     my $queue_b = $_[1];
 
+	my %queue_a;
+	$queue_a{$_} = 1 for @$queue_a;
+
     for my $item (reverse @$queue_b) {
-        push @$queue_a, $item unless $item ~~ @$queue_a;
+		push @$queue_a, $item unless $queue_a{$item};
     }
     return $queue_a;
 }

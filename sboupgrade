@@ -108,6 +108,8 @@ for my $sbo (@sbos) {
 
 # get a list of installed SBos to check upgradability against
 my $inst_names = get_inst_names(get_installed_packages 'SBO');
+my %inst_names;
+$inst_names{$_} = 1 for @$inst_names;
 
 # backwards compatibility
 if ($install_new) {
@@ -121,7 +123,7 @@ if ($install_new) {
 	for my $sbo (@sbos) {
 		my $name = $sbo;
 		$name =~ s/$/-compat32/ if $compat32 && $sbo !~ /-compat32$/;
-		unless ($name ~~ @$inst_names) {
+		unless ($inst_names{$name}) {
 			my @args = ('/usr/sbin/sboinstall');
 			push @args, $noclean ? '-cTRUE' : '-cFALSE';
 			push @args, $distclean ? '-dTRUE' : '-dFALSE';
@@ -139,16 +141,16 @@ if ($install_new) {
 my $upgrade_queue;
 
 # doesn't matter what's updatable and what's not if force is specified
-my @updates unless $force;
+my %updates unless $force;
 unless ($force) {
     my $updates = get_available_updates;
-    push @updates, $$_{name} for @$updates;
+	$updates{$$_{name}} = 1 for @$updates;
 }
 
 # but without force, we only want to update what there are updates for
 unless ($force) {
     for my $sbo (@sbos) {
-		push @$upgrade_queue, $sbo if $sbo ~~ @updates;
+		push @$upgrade_queue, $sbo if $updates{$sbo};
     }
 } else {
     if ($force_reqs && ! $non_int) {
@@ -159,7 +161,7 @@ unless ($force) {
 			my $queue = get_build_queue([$name], my $warnings);
 			my $queue2;
 			for my $item (@$queue) {
-				push @$queue2, $item if $item ~~ @$inst_names;
+				push @$queue2, $item if $inst_names{$item};
 			}
 			$queue = $queue2;
 			my $cqueue;
@@ -183,7 +185,7 @@ unless ($force) {
 		$upgrade_queue = $temp_queue;
     } else {
 		for my $sbo (@sbos) {
-			push @$upgrade_queue, $sbo if $sbo ~~ @$inst_names;
+			push @$upgrade_queue, $sbo if $inst_names{$sbo};
 		}
     }
 }

@@ -51,10 +51,12 @@ show_usage and exit 1 unless exists $ARGV[0];
 # ensure that all provided arguments are valid sbos
 my @sbos;
 my $inst_names = get_inst_names(get_installed_packages 'SBO');
+my %inst_names;
+$inst_names{$_} = 1 for @$inst_names;
 for my $sbo (@ARGV) {
 	if (get_sbo_location($sbo)) {
-		$sbo ~~ @$inst_names ? push @sbos, $sbo
-                             : say "$sbo is not installed";
+		$inst_names{$sbo} ? push @sbos, $sbo
+						  : say "$sbo is not installed";
 	} else {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
@@ -78,9 +80,14 @@ sub get_reverse_reqs($) {
 	FIRST: for my $inst (@$installed) {
 		my $require = get_requires $inst;
 		next FIRST unless $$require[0];
-		for my $req (@$require) {
+		SECOND: for my $req (@$require) {
 			unless ( $req eq '%README%' ) {
-				push @{$required_by{$req}}, $inst if $req ~~ @$installed;
+				THIRD: for my $inst_two (@$installed) {
+					if ($req eq $inst_two) {
+						push @{$required_by{$req}}, $inst;
+						last THIRD;
+					}
+				}
 			}		
 		}	
 	}
@@ -94,9 +101,11 @@ sub get_required_by($) {
 	my @dep_of;
 	if ( $required_by{$sbo} ) {
 		for my $req_by (@{$required_by{$sbo}}) {
-			unless ($req_by ~~ @confirmed) {
-				push @dep_of, $req_by;
+			my $found = 0;
+			for my $conf (@confirmed) {
+				$found++ if $req_by eq $conf;
 			}
+			push @dep_of, $req_by unless $found;
 		}
 	}
 	return exists $dep_of[0] ? \@dep_of : undef;
@@ -104,14 +113,18 @@ sub get_required_by($) {
 
 sub confirm_remove($) {
 	my $sbo = shift;
-	push @confirmed, $sbo unless $sbo ~~ @confirmed;
+	my $found = 0;
+	for my $conf (@confirmed) {
+		$found++ if $sbo eq $conf;
+	}
+	push @confirmed, $sbo unless $found;
 }
 
 # Check if packages in queue are actually installed on system 
 my @temp;
 if ($inst_names) {
 	for my $sbo (@$remove_queue) {
-		push @temp, $sbo if $sbo ~~ @$inst_names;
+		push @temp, $sbo if $inst_names{$sbo};
 	}
 	$remove_queue = \@temp;
 }
@@ -127,8 +140,11 @@ FIRST: for my $remove (@$remove_queue) {
 	# Determine whether $remove is still needed on system.
 	my $required_by = get_required_by $remove;
 	my $needed = 0;
+	my (%confirmed, %sbos);
+	$confirmed{$_} = 1 for @confirmed;
+	$sbos{$_} = 1 for @sbos;
 	for my $rq (@$required_by) {
-		$needed = 1 unless $rq ~~ @confirmed or $remove ~~ @sbos;
+		$needed = 1 unless $confirmed{$rq} or $sbos{$remove};
 		# still needed, unless required_by is already confirmed for removal or
 		# the sbo in question was cli-specified.
 	}	
