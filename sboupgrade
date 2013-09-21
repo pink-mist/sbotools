@@ -140,15 +140,12 @@ if ($install_new) {
 
 my $upgrade_queue;
 
-# doesn't matter what's updatable and what's not if force is specified
-my %updates unless $force;
-unless ($force) {
-    my $updates = get_available_updates;
-	$updates{$$_{name}} = 1 for @$updates;
-}
-
+# doesn't matter what's updatable and what's not if force is specified,
 # but without force, we only want to update what there are updates for
 unless ($force) {
+	my %updates;
+	my $updates = get_available_updates;
+	$updates{$$_{name}} = 1 for @$updates;
     for my $sbo (@sbos) {
 		push @$upgrade_queue, $sbo if $updates{$sbo};
     }
