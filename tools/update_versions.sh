@@ -23,6 +23,7 @@ version="$1"
 update="
 	SBO-Lib/lib/SBO/Lib.pm
 	slackbuild/sbotools/sbotools.SlackBuild
+	slackbuild/sbotools/sbotools.info
 "
 
 old_version=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm \
