@@ -187,10 +187,13 @@ ok(check_multilib, 'check_multilib good');
 # create_symlinks tests
 $downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/wine", 32 => 1);
 my $symlinks = create_symlinks "$sbo_home/system/wine", $downloads;
-is($$symlinks[0], "$sbo_home/system/wine/wine-1.4.1.tar.bz2",
-	'$symlinks[0] good for create_symlinks');
-is($$symlinks[1], "$sbo_home/system/wine/dibeng-max-2010-11-12.zip",
-	'$symlinks[1] good for create_symlinks');
+my ($have1, $have2);
+for my $sl (@$symlinks) {
+	$have1++ if $sl eq "$sbo_home/system/wine/wine-1.4.1.tar.bz2";
+	$have2++ if $sl eq "$sbo_home/system/wine/dibeng-max-2010-11-12.zip";
+}
+ok($have1, '$create_symlinks test 1 passed.');
+ok($have2, '$create_symlinks test 2 passed.');
 
 # grok_temp_file, get_src_dir/get_pkg_name tests
 my $tempdir = tempdir(CLEANUP => 1);
@@ -334,7 +337,9 @@ for my $found (@$findings) {
 # get_inst_names test
 $installed = get_installed_packages 'SBO';
 my $inst_names = get_inst_names $installed;
-ok('zdoom' ~~ @$inst_names, 'get_inst_names is good');
+my %inst_names;
+$inst_names{$_} = 1 for @$inst_names;
+ok($inst_names{zdoom}, 'get_inst_names is good');
 
 # get_reqs tests
 # $SBO::Lib::no_reqs = 0;
