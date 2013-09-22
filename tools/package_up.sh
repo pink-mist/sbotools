@@ -9,7 +9,7 @@ fi
 PACKAGE=$1
 VERSION=$2
 
-PKG_HOME=/home/d4wnr4z0r/projects/$PACKAGE
+PKG_HOME=$HOME/projects/$PACKAGE
 
 if [[ ! -d $PKG_HOME ]]; then
 	echo "$PKG_HOME doesn't seem to exist."
