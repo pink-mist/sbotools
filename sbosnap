@@ -54,9 +54,7 @@ if ($ARGV[0] =~ /fetch|update/) {
 	show_usage and exit 1;
 }
 
-given ($command) {
-	when ('fetch') {fetch_tree}
-	when ('update') {update_tree}
-}
+if    ($command eq 'fetch')  { fetch_tree }
+elsif ($command eq 'update') { update_tree }
 
 exit 0;
