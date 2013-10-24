@@ -3,4 +3,6 @@ Makefile.PL
 MANIFEST
 README
 t/SBO-Lib.t
+t/versions.t
 lib/SBO/Lib.pm
+lib/Sort/Versions.pm

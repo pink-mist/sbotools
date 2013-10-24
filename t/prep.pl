@@ -8,7 +8,9 @@ use Tie::File;
 
 chomp(my $pwd = `pwd`);
 mkdir "$pwd/SBO" unless -d "$pwd/SBO";
+mkdir "$pwd/Sort" unless -d "$pwd/Sort";
 copy('../SBO-Lib/lib/SBO/Lib.pm', "$pwd/SBO");
+copy('../SBO-Lib/lib/Sort/Versions.pm', "$pwd/Sort");
 
 open my $write, '>>', "$pwd/SBO/Lib.pm";
 

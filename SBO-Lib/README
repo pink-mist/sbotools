@@ -14,9 +14,11 @@ To install this module type the following:
 
 DEPENDENCIES
 
-This module requires these other modules and libraries:
+This module bundles Sort::Versions 1.5 which has its own license:
 
-	Sort::Versions => 1.5
+   The files in this package are copyright Kenneth J. Albanowski, Ed
+   Avis, and Matt Johnson.  This package is free software; you can
+   redistribute it and/or modify it under the same terms as Perl itself.
 
 COPYRIGHT AND LICENCE
 
