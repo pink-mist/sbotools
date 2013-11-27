@@ -38,7 +38,6 @@ find . \
 	  PREFIX=/usr \
 	  INSTALLDIRS=site \
 	  INSTALLVENDORMAN1DIR=/usr/man/man1 \
-	  INSTALLMAN3DIR=/usr/man/man3 \
 	  INSTALLVENDORMAN3DIR=/usr/man/man3 \
 	  INSTALLMAN3DIR=none
 	make
