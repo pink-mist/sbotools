@@ -28,7 +28,6 @@ update="
 
 old_version=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm \
 	| grep -Eo '[0-9]+(\.[0-9]+){0,1}')
-echo $old_version
 
 tmpfile=$(mktemp /tmp/XXXXXXXXXX)
 

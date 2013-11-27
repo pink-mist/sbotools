@@ -39,7 +39,13 @@ ok(defined $tempdir, '$tempdir is defined');
 is(show_version, 1, 'show_version is good');
 
 # get_slack_version test
-is(get_slack_version, '14.0', 'get_slack_version is good');
+my $version = 0;
+if (-f '/etc/slackware-version') {
+	$version = `awk '{print \$2}' /etc/slackware-version`;
+	chomp($version);
+}
+$version = '14.1' unless $version;
+is(get_slack_version, $version, 'get_slack_version is good');
 
 # chk_slackbuilds_txt tests
 is(chk_slackbuilds_txt, 1, 'chk_slackbuilds_txt is good');
@@ -182,7 +188,11 @@ ok(!(check_x32("$sbo_home/system/ifuse")),
 	'check_x32 false for not-32-bit-only ifuse');
 
 # check_multilib tests
-ok(check_multilib, 'check_multilib good');
+if (-x '/usr/sbin/convertpkg-compat32') {
+	ok(check_multilib, 'check_multilib good');
+} else {
+	ok(!check_multilib, 'check_multilib good');
+}
 
 # create_symlinks tests
 $downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/wine", 32 => 1);

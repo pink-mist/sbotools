@@ -78,12 +78,12 @@ update_date() {
 
 	new_date=$(ddate +"%{%A, %B %d%}, %Y YOLD")
 
-	for i in $(ls man1); do
-		sed_file man1/$i "s/$old_date/$new_date/g"
+	for i in man1/*; do
+		sed_file $i "s/$old_date/$new_date/g"
 	done
 
-	for i in $(ls man5); do
-		sed_file man5/$i "s/$old_date/$new_date/g"
+	for i in man5/*; do
+		sed_file $i "s/$old_date/$new_date/g"
 	done
 
 	if [[ "$?" == "0" ]]; then
