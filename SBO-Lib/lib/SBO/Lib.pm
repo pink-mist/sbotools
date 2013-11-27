@@ -14,7 +14,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package SBO::Lib;
-our $VERSION = '1.7';
+our $VERSION = '1.8';
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -181,7 +181,10 @@ sub show_version() {
 # which is now not needed since this version drops support < 14.0
 # but it's already future-proofed, so leave it.
 sub get_slack_version() {
-	my %supported = ('14.0' => '14.0');
+	my %supported = (
+		'14.0' => '14.0',
+		'14.1' => '14.1',
+	);
 	my ($fh, $exit) = open_read '/etc/slackware-version';
 	if ($exit) {
 		warn $fh;
