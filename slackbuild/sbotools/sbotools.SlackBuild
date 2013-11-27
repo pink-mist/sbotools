@@ -31,12 +31,16 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o \
  -perm 400 \) -exec chmod 644 {} \;
 
+# we set INSTALLMAN3DIR=none to elide the Sort::Versions.3 man page so that we
+# don't clobber one from perl-Sort-Versions or Sort::Versions.
 ( cd SBO-Lib
 	perl Makefile.PL \
 	  PREFIX=/usr \
 	  INSTALLDIRS=site \
 	  INSTALLVENDORMAN1DIR=/usr/man/man1 \
-	  INSTALLVENDORMAN3DIR=/usr/man/man3
+	  INSTALLMAN3DIR=/usr/man/man3 \
+	  INSTALLVENDORMAN3DIR=/usr/man/man3 \
+	  INSTALLMAN3DIR=none
 	make
 	make test
 	make install DESTDIR=$PKG
