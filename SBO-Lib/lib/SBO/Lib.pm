@@ -932,7 +932,7 @@ sub add_to_queue {
 	my $args = shift;
 	my $sbo = \${$args}{NAME};
 	return unless $$sbo;
-	push @$args{QUEUE}, $$sbo;
+	push @{ $args->{QUEUE} }, $$sbo;
 	my $requires = get_requires $$sbo;
 	FIRST: for my $req (@$requires) {
 		next FIRST if $req eq $$sbo;
