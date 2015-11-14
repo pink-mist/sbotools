@@ -397,7 +397,7 @@ ok(! (get_opts($readme)), 'get_opts good where README does not define opts');
 
 # test multiple sbo's
 # sbo's: zdoom', 'bsnes', 'spring', 'OpenAL'
-# expected queue: p7zip fmodapi eawpats TiMidity++ zdoom OpenAL bsnes jdk DevIL spring
+# expected queue: eawpats TiMidity++ fmodapi p7zip zdoom OpenAL bsnes DevIL jdk spring
 my $warnings = {};
 my @t_argv = ( 'zdoom', 'bsnes', 'spring', 'OpenAL' );
 my $queue;
@@ -407,22 +407,37 @@ for my $sbo (@t_argv) {
 }
 my $count = @$queue;
 is($count, 10, 'get_build_queue returns correct amount for multiple sbos');
-is($$queue[0], 'p7zip', 'get_build_queue first entry correct for multiple sbos');
-is($$queue[2], 'eawpats', 'get_build_queue third entry correct for multiple sbos');
+is($$queue[0], 'eawpats', 'get_build_queue first entry correct for multiple sbos');
+is($$queue[2], 'fmodapi', 'get_build_queue third entry correct for multiple sbos');
 is($$queue[4], 'zdoom', 'get_build_queue fifth entry correct for multiple sbos');
 is($$queue[6], 'bsnes', 'get_build_queue seventh entry correct for multiple sbos');
-is($$queue[8], 'DevIL', 'get_build_queue ninth entry correct for multiple sbos');
+is($$queue[8], 'jdk', 'get_build_queue ninth entry correct for multiple sbos');
 
 # test single sbo
 # sbo: zdoom
-# expected queue: p7zip fmodapi eawpats TiMidity++ zdoom
-$queue = get_build_queue ['zdoom'], $warnings;
-@$queue = reverse @$queue;
+# expected queue: eawpats TiMidity++ fmodapi p7zip zdoom
+$queue = get_build_queue(['zdoom'], $warnings);
 $count = @$queue;
 is($count, 5, 'get_build_queue returns correct amount for single sbo');
-is($$queue[0], 'p7zip', 'get_build_queue first entry correct for single sbo');
-is($$queue[2], 'eawpats', 'get_build_queue third entry correct for single sbo');
+is($$queue[0], 'eawpats', 'get_build_queue first entry correct for single sbo');
+is($$queue[2], 'fmodapi', 'get_build_queue third entry correct for single sbo');
 is($$queue[4], 'zdoom', 'get_build_queue fifth entry correct for single sbo');
+
+# https://github.com/pink-mist/sbotools/issues/2
+my $bug_2 = get_build_queue(['dfvfs'], $warnings);
+my $bug_2_test = "get_build_queue handles bug 2 properly (%s)";
+my @bug_2_req = qw(
+		six construct pytz pysetuptools python-dateutil python-gflags 
+		protobuf libbde libewf libqcow
+		libsigscan libsmdev libsmraw libvhdi libvmdk
+		libvshadow sleuthkit pytsk dfvfs );
+for my $index (0 .. $#bug_2_req) {
+	is($$bug_2[$index], $bug_2_req[$index], sprintf($bug_2_test, $bug_2_req[$index]));
+}
+
+# test that we get a warning in $warnings
+$queue = get_build_queue(['ffmpeg'], $warnings);
+is($warnings->{ffmpeg}, "%README%", 'got ffmpeg README warning');
 
 # test get_required_by
 get_reverse_reqs($inst_names);
