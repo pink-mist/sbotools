@@ -343,6 +343,7 @@ sub get_sbo_locations {
 	close $fh;
 	return %locations;
 }
+}
 
 # pull the sbo name from a $location: $config{SBO_HOME}/system/wine, etc.
 sub get_sbo_from_loc {
