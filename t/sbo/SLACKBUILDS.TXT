@@ -32688,3 +32688,212 @@ SLACKBUILD MD5SUM: 9f216b7148ed4a9b588ddf7d669bd17b
 SLACKBUILD MD5SUM_x86_64: 
 SLACKBUILD SHORT DESCRIPTION:  zfs-fuse (Z File System over Fuse)
 
+SLACKBUILD NAME: six
+SLACKBUILD LOCATION: ./python/six
+SLACKBUILD FILES: README six.SlackBuild six.info slack-desc
+SLACKBUILD VERSION: 1.10.0
+SLACKBUILD DOWNLOAD: http://pypi.python.org/packages/source/s/six/six-1.10.0.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 34eed507548117b2ab523ab14b2f8b55
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  six (Python 2 and 3 compatibility utilities)
+
+SLACKBUILD NAME: construct
+SLACKBUILD LOCATION: ./python/construct
+SLACKBUILD FILES: README construct.SlackBuild construct.info slack-desc
+SLACKBUILD VERSION: 2.5.2
+SLACKBUILD DOWNLOAD: https://pypi.python.org/packages/source/c/construct/construct-2.5.2.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 75fc5e311ee5624e63268067e4b0d97b
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: six
+SLACKBUILD SHORT DESCRIPTION:  construct (python library)
+
+SLACKBUILD NAME: pysetuptools
+SLACKBUILD LOCATION: ./python/pysetuptools
+SLACKBUILD FILES: README pysetuptools.SlackBuild pysetuptools.info slack-desc
+SLACKBUILD VERSION: 18.2
+SLACKBUILD DOWNLOAD: https://pypi.python.org/packages/source/s/setuptools/setuptools-18.2.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 52b4e48939ef311d7204f8fe940764f4
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  pysetuptools (a collection of enhancements to Python distutils)
+
+SLACKBUILD NAME: python-gflags
+SLACKBUILD LOCATION: ./python/python-gflags
+SLACKBUILD FILES: README python-gflags.SlackBuild python-gflags.info slack-desc
+SLACKBUILD VERSION: 2.0
+SLACKBUILD DOWNLOAD: https://python-gflags.googlecode.com/files/python-gflags-2.0.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: c3ab70218dbf945cc32c0cd64c51d162
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: pysetuptools
+SLACKBUILD SHORT DESCRIPTION:  python-gflags (Google's Python argument parsing library)
+
+SLACKBUILD NAME: python-dateutil
+SLACKBUILD LOCATION: ./python/python-dateutil
+SLACKBUILD FILES: README python-dateutil.SlackBuild python-dateutil.info slack-desc
+SLACKBUILD VERSION: 2.4.2
+SLACKBUILD DOWNLOAD: http://pypi.python.org/packages/source/p/python-dateutil/python-dateutil-2.4.2.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 4ef68e1c485b09e9f034e10473e5add2
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: pysetuptools six
+SLACKBUILD SHORT DESCRIPTION:  python-dateutil (extensions to the standard datetime module)
+
+SLACKBUILD NAME: pytz
+SLACKBUILD LOCATION: ./python/pytz
+SLACKBUILD FILES: README pytz.SlackBuild pytz.info slack-desc
+SLACKBUILD VERSION: 2014.10
+SLACKBUILD DOWNLOAD: https://pypi.python.org/packages/source/p/pytz/pytz-2014.10.tar.bz2
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 1fb418c59c62f782e35875577bd1ac3f
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  pytz (World timezone definitions for Python)
+
+SLACKBUILD NAME: protobuf
+SLACKBUILD LOCATION: ./misc/protobuf
+SLACKBUILD FILES: README protobuf.SlackBuild protobuf.info slack-desc
+SLACKBUILD VERSION: 2.6.1
+SLACKBUILD DOWNLOAD: https://github.com/google/protobuf/releases/download/v2.6.1/protobuf-2.6.1.tar.bz2
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 11aaac2d704eef8efd1867a807865d85
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: pytz python-dateutil python-gflags
+SLACKBUILD SHORT DESCRIPTION:  protobuf (Google's data interchange format)
+
+SLACKBUILD NAME: libbde
+SLACKBUILD LOCATION: ./libraries/libbde
+SLACKBUILD FILES: README libbde.SlackBuild libbde.info slack-desc
+SLACKBUILD VERSION: 20150204
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libbde/releases/download/20150204/libbde-alpha-20150204.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 9ab8fcbbbe95f6e2160e7031f2fcf170
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libbde (libYAL BitLocker library)
+
+SLACKBUILD NAME: libewf
+SLACKBUILD LOCATION: ./libraries/libewf
+SLACKBUILD FILES: README libewf.SlackBuild libewf.info slack-desc
+SLACKBUILD VERSION: 20150126
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libewf/releases/download/20150126/libewf-experimental-20150126.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 6d8a804eaecd73205ba758a3af8b7a7a
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libewf (libYAL Expert Witness Compression library)
+
+SLACKBUILD NAME: libqcow
+SLACKBUILD LOCATION: ./libraries/libqcow
+SLACKBUILD FILES: README libqcow.SlackBuild libqcow.info slack-desc
+SLACKBUILD VERSION: 20150105
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libqcow/releases/download/20150105/libqcow-alpha-20150105.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: e7e89182c9ccd8d7be51443d83846b70
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libqcow (libYAL QEMU QCOW image library)
+
+SLACKBUILD NAME: libsigscan
+SLACKBUILD LOCATION: ./libraries/libsigscan
+SLACKBUILD FILES: README libsigscan.SlackBuild libsigscan.info slack-desc
+SLACKBUILD VERSION: 20150125
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libsigscan/releases/download/20150125/libsigscan-experimental-20150125.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 59998f9909b0e1da384fe75bba22eb8e
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libsigscan (libYAL binary signature scanning)
+
+SLACKBUILD NAME: libsmdev
+SLACKBUILD LOCATION: ./libraries/libsmdev
+SLACKBUILD FILES: README libsmdev.SlackBuild libsmdev.info slack-desc
+SLACKBUILD VERSION: 20150105
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libsmdev/releases/download/20150105/libsmdev-alpha-20150105.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 1c1ff731335ed34852fbf33481cd0c0a
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libsmdev (libYAL storage media library)
+
+SLACKBUILD NAME: libsmraw
+SLACKBUILD LOCATION: ./libraries/libsmraw
+SLACKBUILD FILES: README libsmraw.SlackBuild libsmraw.info slack-desc
+SLACKBUILD VERSION: 20150105
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libsmraw/releases/download/20150105/libsmraw-alpha-20150105.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 9cc7745d028ace16b2ff9fd5fc940ae7
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libsmraw (libYAL RAW image library)
+
+SLACKBUILD NAME: libvhdi
+SLACKBUILD LOCATION: ./libraries/libvhdi
+SLACKBUILD FILES: README libvhdi.SlackBuild libvhdi.info slack-desc
+SLACKBUILD VERSION: 20150110
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libvhdi/releases/download/20150110/libvhdi-alpha-20150110.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 24cfe994ef5dbcb4bcaee89d4c60ca16
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libvhdi (libYAL VHD library)
+
+SLACKBUILD NAME: libvmdk
+SLACKBUILD LOCATION: ./libraries/libvmdk
+SLACKBUILD FILES: README libvmdk.SlackBuild libvmdk.info slack-desc
+SLACKBUILD VERSION: 20150325
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libvmdk/releases/download/20150325/libvmdk-alpha-20150325.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 4a2eb477a758c11ea7130b69bf9aa6d6
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libvmdk (libYAL VMDK library)
+
+SLACKBUILD NAME: libvshadow
+SLACKBUILD LOCATION: ./libraries/libvshadow
+SLACKBUILD FILES: README libvshadow.SlackBuild libvshadow.info slack-desc
+SLACKBUILD VERSION: 20150106
+SLACKBUILD DOWNLOAD: https://github.com/libyal/libvshadow/releases/download/20150106/libvshadow-alpha-20150106.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 37454a910c8bbfb815e32a21acd6e7f5
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  libvshadow (libYAL Volume Shadow library)
+
+SLACKBUILD NAME: sleuthkit
+SLACKBUILD LOCATION: ./system/sleuthkit
+SLACKBUILD FILES: README slack-desc sleuthkit.SlackBuild sleuthkit.info tsk4.1.3_external_type.patch
+SLACKBUILD VERSION: 4.1.3
+SLACKBUILD DOWNLOAD: http://sourceforge.net/projects/sleuthkit/files/sleuthkit/4.1.3/sleuthkit-4.1.3.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 139a12f06952d8a40bbe07884994cf5d
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: 
+SLACKBUILD SHORT DESCRIPTION:  sleuthkit (forensic toolkit)
+
+SLACKBUILD NAME: pytsk
+SLACKBUILD LOCATION: ./python/pytsk
+SLACKBUILD FILES: README pytsk.SlackBuild pytsk.info slack-desc
+SLACKBUILD VERSION: 20150111
+SLACKBUILD DOWNLOAD: https://github.com/py4n6/pytsk/releases/download/20150111/pytsk-20150111.tgz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: f9354f9d9335c847cc2bc8c3b5224a8d
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: sleuthkit
+SLACKBUILD SHORT DESCRIPTION:  pytsk (Python binding for the SleuthKit)
+
+SLACKBUILD NAME: dfvfs
+SLACKBUILD LOCATION: ./python/dfvfs
+SLACKBUILD FILES: README dfvfs.SlackBuild dfvfs.info slack-desc
+SLACKBUILD VERSION: 20150303
+SLACKBUILD DOWNLOAD: https://github.com/log2timeline/dfvfs/releases/download/20150303/dfvfs-20150303.tar.gz
+SLACKBUILD DOWNLOAD_x86_64: 
+SLACKBUILD MD5SUM: 8a6efd521504ead489c00b94d1883665
+SLACKBUILD MD5SUM_x86_64: 
+SLACKBUILD REQUIRES: construct protobuf libbde libewf libqcow libsigscan libsmdev libsmraw libvhdi libvmdk libvshadow pytsk
+SLACKBUILD SHORT DESCRIPTION:  dfvfs (Digital Forensics Virtual File System)
+
