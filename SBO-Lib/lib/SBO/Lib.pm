@@ -941,59 +941,41 @@ sub get_requires {
 	return $$info[0] ne '' ? $info : undef;
 }
 
-# used by get_build_queue. 
-sub add_to_queue {
-	my $args = shift;
-	my $sbo = \${$args}{NAME};
-	return unless $$sbo;
-	push @{ $args->{QUEUE} }, $$sbo;
-	my $requires = get_requires($$sbo);
-	FIRST: for my $req (@$requires) {
-		next FIRST if $req eq $$sbo;
-		if ($req eq "%README%") {
-			${$args}{WARNINGS}{$$sbo}="%README%";
-		} else {
-			$$sbo = $req;
-			add_to_queue($args);
-		}
-	}
+sub _uniq {
+    my %seen;
+    return grep { !$seen{$_}++ } @_;
 }
 
-# recursively add a sbo's requirements to the build queue.
+sub _build_queue {
+    my ($sbos, $warnings) = @_;
+    my @queue = @$sbos;
+    my @result;
+
+    while (my $sbo = shift @queue) {
+        next if $sbo eq "%README%";
+        my $reqs = get_requires($sbo);
+        if (defined $reqs) {
+            push @result, _build_queue($reqs, $warnings);
+            foreach my $req (@$reqs) {
+                $warnings->{$sbo}="%README%" if $req eq "%README%";
+            }
+        }
+        push @result, $sbo;
+    }
+
+    return _uniq @result;
+}
+
 sub get_build_queue {
-	exists $_[1] or script_error('get_build_queue requires two arguments.');
-	my ($sbos, $warnings) = @_;
-	my $temp_queue = [];
-	for my $sbo (@$sbos) {
-		my %args = (
-			QUEUE 	  => $temp_queue,
-			NAME 	  => $sbo,
-			WARNINGS  => $warnings
-		);
-		add_to_queue(\%args);
-	}
-	# Remove duplicate entries (leaving last occurrence)
-	my @build_queue = reverse @$temp_queue;
-	my %seen;
-	@build_queue = grep {!$seen{$_}++} @build_queue;
-	@build_queue = reverse @build_queue;
-	return \@build_queue;
+    return [ _build_queue(@_) ];
 }
 
 sub merge_queues {
 	# Usage: merge_queues(\@queue_a, \@queue_b);
 	# Results in queue_b being merged into queue_a (without duplicates)
 	exists $_[1] or script_error('merge_queues requires two arguments.');
-    my $queue_a = $_[0];
-    my $queue_b = $_[1];
 
-	my %queue_a;
-	$queue_a{$_} = 1 for @$queue_a;
-
-    for my $item (reverse @$queue_b) {
-		push @$queue_a, $item unless $queue_a{$item};
-    }
-    return $queue_a;
+    return [ _uniq @{$_[0]}, @{$_[1]} ];
 }
 
 sub get_readme_contents {
