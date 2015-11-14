@@ -967,6 +967,7 @@ sub _build_queue {
 }
 
 sub get_build_queue {
+    exists $_[1] or script_error('get_build_queue requires two arguments.');
     return [ _build_queue(@_) ];
 }
 
