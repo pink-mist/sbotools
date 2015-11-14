@@ -59,7 +59,7 @@ sub rm_full {
 	my $full = shift;
 	if ($interactive) {
 		print "Remove $full? [n] ";
-		return unless <STDIN> =~ /^[Yy]/;
+		return() unless <STDIN> =~ /^[Yy]/;
 	}
 	unlink $full if -f $full;
 	remove_tree($full) if -d $full;

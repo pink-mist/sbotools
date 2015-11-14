@@ -163,14 +163,15 @@ unless ($force) {
 			$queue = $queue2;
 			my $cqueue;
 			# get locations for all the things
-			my %locs = get_sbo_location($queue);
+			my %locs = get_sbo_locations($queue);
 			my %clocs;
 			# -compat32-ify the queue and locations if appropriate
 			if ($sbo =~ /-compat32$/) {
 				$cqueue = $queue;
 				s/$/-compat32/g for @$cqueue;
 				$queue = $cqueue;
-				while (my ($key, $val) = each %locs) {
+				for my $key (keys %locs) {
+					my $val = $locs{$key};
 					$key =~ s/$/-compat32/;
 					$clocs{$key} = $val;
 				}

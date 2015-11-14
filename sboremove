@@ -75,7 +75,7 @@ for my $sbo (@sbos) {
 my (%required_by, @confirmed);
 
 # populates the required_by hash 
-sub get_reverse_reqs($) {
+sub get_reverse_reqs {
 	my $installed = shift;
 	FIRST: for my $inst (@$installed) {
 		my $require = get_requires($inst);
@@ -160,7 +160,7 @@ FIRST: for my $remove (@$remove_queue) {
 		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
 		if (<STDIN> =~ /^[Yy\n]/) {
-			my ($readme, $exit) = get_readme_contents get_sbo_location($remove);
+			my ($readme, $exit) = get_readme_contents(get_sbo_location($remove));
 			if ($exit) {
 				warn "Unable to open README for $remove.\n";
 			} else {

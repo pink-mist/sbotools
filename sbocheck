@@ -44,7 +44,7 @@ update_tree();
 sub get_update_list {
 	print "Checking for updated SlackBuilds...\n";
 	my $updates = get_available_updates();
-	return unless exists $$updates[0];
+	return() unless exists $$updates[0];
 	# consistent formatting - determine longest version string, which will tell
 	# us the max minimum length of the left side of the output for stuff that
 	# fits in 80 chars; stuff that doesn't will overflow.

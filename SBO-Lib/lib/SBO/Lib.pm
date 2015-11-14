@@ -36,6 +36,7 @@ our @EXPORT = qw(
 	make_distclean
 	do_upgradepkg
 	get_sbo_location
+	get_sbo_locations
 	get_from_info
 	get_tmp_extfn
 	get_arch
@@ -208,8 +209,8 @@ sub check_home {
 	my $sbo_home = $config{SBO_HOME};
 	if (-d $sbo_home) {
 		opendir(my $home_handle, $sbo_home);
-		FIRST: while (readdir $home_handle) {
-			next FIRST if /^\.[\.]{0,1}$/;
+		FIRST: while (my $dir = readdir $home_handle) {
+			next FIRST if $dir =~ /^\.[\.]{0,1}$/;
 			usage_error("$sbo_home exists and is not empty. Exiting.\n");
 		}
 	} else {
@@ -240,7 +241,7 @@ sub fetch_tree {
 }
 
 sub update_tree {
-	fetch_tree(), return unless chk_slackbuilds_txt();
+	fetch_tree(), return() unless chk_slackbuilds_txt();
 	say 'Updating SlackBuilds tree...';
 	rsync_sbo_tree(), return 1;
 }
@@ -297,6 +298,10 @@ sub get_inst_names {
 }
 
 # search the SLACKBUILDS.TXT for a given sbo's directory
+{
+	# a state variable for get_sbo_location and get_sbo_locations
+	my $store = {};
+
 sub get_sbo_location {
 	exists $_[0] or script_error('get_sbo_location requires an argument.');
 	my @sbos = @_;
@@ -304,11 +309,18 @@ sub get_sbo_location {
 		my $tmp = $sbos[0];
 		@sbos = @$tmp;
 	}
-	state $store = {};
-    ## NOTE this might cause a problem now that prototypes are removed
-	# if scalar context and we already have the location, return it now.
-	unless (wantarray) {
-		return $$store{$sbos[0]} if exists $$store{$sbos[0]};
+	# if we already have the location, return it now.
+	return $$store{$sbos[0]} if exists $$store{$sbos[0]};
+	my %locations = get_sbo_locations(@sbos);
+	return $locations{$sbos[0]};
+}
+
+sub get_sbo_locations {
+	exists $_[0] or script_error('get_sbo_locations requires an argument.');
+	my @sbos = @_;
+	if (ref $sbos[0] eq 'ARRAY') {
+		my $tmp = $sbos[0];
+		@sbos = @$tmp;
 	}
 	my %locations;
 	my ($fh, $exit) = open_read($slackbuilds_txt);
@@ -323,7 +335,6 @@ sub get_sbo_location {
 			if (my $loc = ($line =~ $regex)[0]) {
 				# save what we found for later requests
 				$$store{$sbo} = "$config{SBO_HOME}$loc";
-				return $$store{$sbo} unless wantarray;
 				$locations{$sbo} = $$store{$sbo};
 			}
 		}
@@ -354,7 +365,7 @@ sub get_from_info {
 	return $$store{$args{GET}} if $$store{PRGNAM}[0] eq $sbo;
 	# if we're here, we haven't read in the .info file yet.
 	my ($fh, $exit) = open_read("$args{LOCATION}/$sbo.info");
-	return if $exit;
+	return() if $exit;
 	# suck it all in, clean it all up, stuff it all in $store.
 	my $contents = do {local $/; <$fh>};
 	$contents =~ s/("|\\\n)//g;
@@ -421,11 +432,11 @@ sub get_download_info {
 		}
 	}
 	# if we still don't have any links, something is really wrong.
-	return unless $$downs[0];
+	return() unless $$downs[0];
 	# grab the md5s and build a hash
 	$get = $args{X64} ? 'MD5SUM_x86_64' : 'MD5SUM';
 	$md5s = get_from_info(LOCATION => $args{LOCATION}, GET => $get);
-	return unless $$md5s[0];
+	return() unless $$md5s[0];
 	$return{$$downs[$_]} = $$md5s[$_] for (keys @$downs);
 	return \%return;
 }
@@ -483,7 +494,7 @@ sub verify_distfile {
 	exists $_[1] or script_error('verify_distfile requires two arguments.');
 	my ($link, $info_md5) = @_;
 	my $filename = get_filename_from_link($link);
-	return unless -f $filename;
+	return() unless -f $filename;
 	my $md5sum = compute_md5sum($filename);
 	return $info_md5 eq $md5sum ? 1 : 0;
 }
@@ -526,7 +537,7 @@ sub check_x32 {
 # to determine whether or not an x86_64 system is setup for multilib
 sub check_multilib {
 	return 1 if -f '/etc/profile.d/32dev.sh';
-	return;
+	return();
 }
 
 # given a list of downloads, return just the filenames
@@ -647,7 +658,8 @@ sub check_distfiles {
 		return "Unable to get download info from $location/$sbo.info\n",
 			_ERR_NOINFO;
 	}
-	while (my ($link, $md5) = each %$downloads) {
+	for my $link (keys %$downloads) {
+		my $md5 = $downloads->{$link};
 		unless (verify_distfile($link, $md5)) {
 			my ($fail, $exit) = get_distfile($link, $md5);
 			return $fail, $exit if $exit;
@@ -757,9 +769,9 @@ sub perform_sbo {
 	my $src_ls_fh = tempfile(DIR => $tempdir);
 	my $tsbo = $env_tmp ? $env_tmp : "$tmpd/SBo";
 	if (opendir(my $tsbo_dh, '/tmp/SBo')) {
-		FIRST: while (readdir $tsbo_dh) {
-			next FIRST if /^\.[\.]{0,1}$/;
-			say {$src_ls_fh} $_;
+		FIRST: while (my $dir = readdir $tsbo_dh) {
+			next FIRST if $dir =~ /^\.[\.]{0,1}$/;
+			say {$src_ls_fh} $dir;
 		}
 	}
 	# get a tempfile to store the exit status of the slackbuild
@@ -923,7 +935,7 @@ sub do_upgradepkg {
 # wrapper to pull the list of requirements for a given sbo
 sub get_requires {
 	my $location = get_sbo_location(shift);
-	return unless $location;
+	return() unless $location;
 	my $info = get_from_info(LOCATION => $location, GET => 'REQUIRES');
 	return $$info[0] ne '' ? $info : undef;
 }
@@ -1057,19 +1069,19 @@ sub ask_opts {
         my $ask = sub {
             print "\nPlease supply any options here, or enter to skip: ";
             chomp(my $opts = <STDIN>);
-            return if $opts =~ /^\n/;
+            return() if $opts =~ /^\n/;
             return $opts;
         };
         my $kv_regex = qr/[A-Z0-9]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
         my $opts = $ask->();
-        return unless $opts;
+        return() unless $opts;
         while ($opts !~ $kv_regex) {
             warn "Invalid input received.\n";
             $opts = $ask->();
         }
         return $opts;
     }
-    return;
+    return();
 }
 
 # for a given sbo, check for cmds/opts, prompt the user as appropriate

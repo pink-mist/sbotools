@@ -93,7 +93,7 @@ if ($no_reqs or $non_int) {
 }
 
 # populate %locations and sanity check
-%locations = get_sbo_location($build_queue);
+%locations = get_sbo_locations($build_queue);
 for my $sbo (@$build_queue) {
 	usage_error("Unable to locate $sbo in the SlackBuilds.org tree.") unless
 		$locations{$sbo};

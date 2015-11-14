@@ -105,21 +105,21 @@ for my $key (keys @$installed) {
 }
 print "completed pseudo-random testing of get_installed_packages 'ALL' \n";
 
-# get_sbo_location tests
+# get_sbo_location/get_sbo_locations tests
 is(get_sbo_location ('nginx'), "$sbo_home/network/nginx",
 	'get_sbo_location is good');
 is(get_sbo_location ('omgwtfbbq'), 0,
 	'get_sbo_location returns false with not-an-sbo input');
 my @finds = qw(nginx gmpc);
-my %locs = get_sbo_location(@finds);
+my %locs = get_sbo_locations(@finds);
 is($locs{nginx}, "$sbo_home/network/nginx",
-	'get_sbo_location passed array #1 good');
-is($locs{gmpc}, "$sbo_home/audio/gmpc", 'get_sbo_location passed array #2 good');
-%locs = get_sbo_location(\@finds);
+	'get_sbo_locations passed array #1 good');
+is($locs{gmpc}, "$sbo_home/audio/gmpc", 'get_sbo_locations passed array #2 good');
+%locs = get_sbo_locations(\@finds);
 is($locs{nginx}, "$sbo_home/network/nginx",
-	'get_sbo_location passed array ref #1 good');
+	'get_sbo_locations passed array ref #1 good');
 is($locs{gmpc}, "$sbo_home/audio/gmpc",
-	'get_sbo_location passed array ref #2 good');
+	'get_sbo_locations passed array ref #2 good');
 
 # get_available_updates tests
 my $updates = get_available_updates; 

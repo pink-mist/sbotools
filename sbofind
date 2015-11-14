@@ -93,7 +93,7 @@ sub get_file_contents {
 	my ($fh, $exit) = open_read(shift);
 	if ($exit) {
 		warn $fh;
-		return;
+		return();
 	}
 	my $contents = do {local $/; <$fh>};
 	for ($contents) {
@@ -115,7 +115,8 @@ my $findings = perform_search($search);
 # pretty formatting
 if (exists $$findings[0]) {
 	for my $hash (@$findings) {
-		while (my ($key, $val) = each %$hash) {
+		for my $key (keys %$hash) {
+			my $val = $hash->{$key};
 			say "SBo:    $key";
 			say "Path:   $val";
 			say "info:   ". get_file_contents("$val/$key.info") if $show_info;
