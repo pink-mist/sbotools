@@ -427,7 +427,7 @@ is($$queue[4], 'zdoom', 'get_build_queue fifth entry correct for single sbo');
 my $bug_2 = get_build_queue(['dfvfs'], $warnings);
 my $bug_2_test = "get_build_queue handles bug 2 properly (%s)";
 my @bug_2_req = qw(
-		six construct pytz pysetuptools python-dateutil python-gflags 
+		six construct pytz pysetuptools python-dateutil python-gflags
 		protobuf libbde libewf libqcow
 		libsigscan libsmdev libsmraw libvhdi libvmdk
 		libvshadow sleuthkit pytsk dfvfs );
