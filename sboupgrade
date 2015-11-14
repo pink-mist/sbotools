@@ -19,7 +19,7 @@ use File::Copy;
 
 my $self = basename($0);
 
-sub show_usage() {
+sub show_usage {
     print <<EOF
 Usage: $self (options) [package]
 
@@ -68,27 +68,27 @@ GetOptions(
 	'compat32|p'		=> \$compat32,
 );
 
-show_usage and exit 0 if $help;
-show_version and exit 0 if $vers;
-show_usage and exit 1 unless exists $ARGV[0];
+show_usage() and exit 0 if $help;
+show_version() and exit 0 if $vers;
+show_usage() and exit 1 unless exists $ARGV[0];
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
 
 if ($jobs) {
-	usage_error "You have provided an invalid value for -j|--jobs"
+	usage_error("You have provided an invalid value for -j|--jobs")
 		unless ($jobs =~ /^\d+$/ || $jobs eq 'FALSE');
 }
 
-usage_error "-r|--nointeractive and -z|--force-reqs can not be used together."
+usage_error("-r|--nointeractive and -z|--force-reqs can not be used together.")
 	if $non_int && $force_reqs;
-usage_error "-R|--norequirements does not make sense without -N|--installnew"
+usage_error("-R|--norequirements does not make sense without -N|--installnew")
 	if $no_reqs && ! $install_new;
-usage_error "-p|--compat32 does not make sense without -N|--installnew"
+usage_error("-p|--compat32 does not make sense without -N|--installnew")
 	if $compat32 && ! $install_new;
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
-slackbuilds_or_fetch;
+slackbuilds_or_fetch();
 
 my @sbos = @ARGV;
 
@@ -98,16 +98,16 @@ for my $sbo (@sbos) {
 	my $name = $sbo;
 	$name =~ s/-compat32//;
 	$locations{$sbo} = get_sbo_location($name);
-	usage_error "Unable to locate $sbo in the SlackBuilds.org tree." unless
+	usage_error("Unable to locate $sbo in the SlackBuilds.org tree.") unless
 		$locations{$sbo};
 	if ($sbo =~ /-compat32$/) {
-		usage_error "compat32 Perl SBos are not supported."
+		usage_error("compat32 Perl SBos are not supported.")
 			if $locations{$sbo} =~ qr|/perl/[^/]+$|;
 	}
 }
 
 # get a list of installed SBos to check upgradability against
-my $inst_names = get_inst_names(get_installed_packages 'SBO');
+my $inst_names = get_inst_names(get_installed_packages('SBO'));
 my %inst_names;
 $inst_names{$_} = 1 for @$inst_names;
 
@@ -144,7 +144,7 @@ my $upgrade_queue;
 # but without force, we only want to update what there are updates for
 unless ($force) {
 	my %updates;
-	my $updates = get_available_updates;
+	my $updates = get_available_updates();
 	$updates{$$_{name}} = 1 for @$updates;
     for my $sbo (@sbos) {
 		push @$upgrade_queue, $sbo if $updates{$sbo};

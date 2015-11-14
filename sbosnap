@@ -19,7 +19,7 @@ use Getopt::Long;
 my $sbo_home = $config{SBO_HOME};
 my $self = basename($0);
 
-sub show_usage() {
+sub show_usage {
 	print <<EOF
 Usage: $self [options|command]
 
@@ -37,24 +37,24 @@ Commands:
 EOF
 }
 
-show_usage and exit 1 unless exists $ARGV[0];
+show_usage() and exit 1 unless exists $ARGV[0];
 
 my ($help, $vers);
 
 GetOptions('help|h' => \$help, 'version|v' => \$vers);
 
-show_usage and exit 0 if $help;
-show_version and exit 0 if $vers;
+show_usage() and exit 0 if $help;
+show_version() and exit 0 if $vers;
 
 # check for a command and, if found, execute it
 my $command;
 if ($ARGV[0] =~ /fetch|update/) {
 	$command = $ARGV[0];
 } else { 
-	show_usage and exit 1;
+	show_usage() and exit 1;
 }
 
-if    ($command eq 'fetch')  { fetch_tree }
-elsif ($command eq 'update') { update_tree }
+if    ($command eq 'fetch')  { fetch_tree() }
+elsif ($command eq 'update') { update_tree() }
 
 exit 0;

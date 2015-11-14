@@ -18,7 +18,7 @@ use File::Basename;
 
 my $self = basename($0);
 
-sub show_usage() {
+sub show_usage {
 	print <<EOF
 Usage: $self
 
@@ -35,15 +35,15 @@ my ($help, $vers);
 
 GetOptions('help|h' => \$help, 'version|v' => \$vers);
 
-show_usage and exit 0 if $help;
-show_version and exit 0 if $vers;
+show_usage() and exit 0 if $help;
+show_version() and exit 0 if $vers;
 
-update_tree;
+update_tree();
 
 # retrieve and format list of available updates
-sub get_update_list() {
+sub get_update_list {
 	print "Checking for updated SlackBuilds...\n";
-	my $updates = get_available_updates; 
+	my $updates = get_available_updates();
 	return unless exists $$updates[0];
 	# consistent formatting - determine longest version string, which will tell
 	# us the max minimum length of the left side of the output for stuff that
@@ -76,8 +76,8 @@ sub get_update_list() {
 }
 
 # print list of updates
-sub print_output($) {
-	exists $_[0] or script_error 'print_output requires an argument';
+sub print_output {
+	exists $_[0] or script_error('print_output requires an argument');
 	my $listing = shift;
 	if (exists $$listing[0]) {
 		print "\n";
@@ -100,7 +100,7 @@ sub print_output($) {
 	}
 }
 
-my $output = get_update_list;
-print_output $output;
+my $output = get_update_list();
+print_output($output);
 
 exit 0;

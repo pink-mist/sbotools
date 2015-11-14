@@ -18,7 +18,7 @@ use File::Basename;
 
 my $self = basename($0);
 
-sub show_usage() {
+sub show_usage {
 	print <<EOF
 Usage: $self [options] sbo
 
@@ -62,24 +62,24 @@ GetOptions(
 	'norequirements|R'	=> \$no_reqs,
 );
 
-show_usage and exit 0 if $help;
-show_version and exit 0 if $vers;
-show_usage and exit 1 unless exists $ARGV[0];
+show_usage() and exit 0 if $help;
+show_version() and exit 0 if $vers;
+show_usage() and exit 1 unless exists $ARGV[0];
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
 
 if ($jobs) {
-	usage_error "You have provided an invalid value for -j|--jobs"
+	usage_error("You have provided an invalid value for -j|--jobs")
 		unless ($jobs =~ /^\d+$/ || $jobs eq 'FALSE');
 }
 
 if ($compat32) {
-	usage_error "compat32 only works on x86_64." unless get_arch eq 'x86_64';
+	usage_error("compat32 only works on x86_64.") unless get_arch eq 'x86_64';
 }
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
-slackbuilds_or_fetch;
+slackbuilds_or_fetch();
 
 my (%warnings, $build_queue, %locations);
 
@@ -95,17 +95,17 @@ if ($no_reqs or $non_int) {
 # populate %locations and sanity check
 %locations = get_sbo_location($build_queue);
 for my $sbo (@$build_queue) {
-	usage_error "Unable to locate $sbo in the SlackBuilds.org tree." unless
+	usage_error("Unable to locate $sbo in the SlackBuilds.org tree.") unless
 		$locations{$sbo};
 	if ($compat32) {
-		usage_error "-p|--compat32 is not supported with Perl SBos."
+		usage_error("-p|--compat32 is not supported with Perl SBos.")
 			if $locations{$sbo} =~ qr|/perl/[^/]+$|;
 	}
 }
 
 # get lists of installed packages and perl modules from CPAN
 my $inst_names = get_inst_names(get_installed_packages 'ALL');
-my $pms = get_installed_cpans;
+my $pms = get_installed_cpans();
 s/::/-/g for @$pms;
 
 # check for already-installeds and prompt for the rest

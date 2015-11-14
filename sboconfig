@@ -21,7 +21,7 @@ use File::Temp qw(tempfile);;
 
 my $self = basename($0);
 
-sub show_usage() {
+sub show_usage {
 	print <<EOF
 Usage: $self [options] [arguments]
 
@@ -50,8 +50,8 @@ my %options;
 GetOptions(\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
 	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s');
 
-show_usage and exit 0 if exists $options{help};
-show_version and exit 0 if exists $options{version};
+show_usage() and exit 0 if exists $options{help};
+show_version() and exit 0 if exists $options{version};
 
 my %valid_confs = (
 	noclean		=> 'NOCLEAN',
@@ -75,7 +75,7 @@ if (exists $options{list}) {
 	exit 0;
 }
 
-show_usage and exit 0 unless keys %options > 0;
+show_usage() and exit 0 unless keys %options > 0;
 
 # setup what's being changed, sanity check.
 my %changes;
@@ -86,19 +86,19 @@ while (my ($key, $value) = each %valid_confs) {
 my $warn = 'You have provided an invalid parameter for';
 
 if (exists $changes{NOCLEAN}) {
-	usage_error "$warn -c" unless $changes{NOCLEAN} =~ /^(TRUE|FALSE)$/;
+	usage_error("$warn -c") unless $changes{NOCLEAN} =~ /^(TRUE|FALSE)$/;
 }
 if (exists $changes{DISTCLEAN}) {
-	usage_error "$warn -d" unless $changes{DISTCLEAN} =~ /^(TRUE|FALSE)$/;
+	usage_error("$warn -d") unless $changes{DISTCLEAN} =~ /^(TRUE|FALSE)$/;
 }
 if (exists $changes{JOBS}) {
-	usage_error "$warn -j" unless $changes{JOBS} =~ /^(\d+|FALSE)$/;
+	usage_error("$warn -j") unless $changes{JOBS} =~ /^(\d+|FALSE)$/;
 }
 if (exists $changes{PKG_DIR}) {
-	usage_error "$warn -p" unless $changes{PKG_DIR} =~ qr#^(/|FALSE$)#;
+	usage_error("$warn -p") unless $changes{PKG_DIR} =~ qr#^(/|FALSE$)#;
 }
 if (exists $changes{SBO_HOME}) {
-	usage_error "$warn -s" unless $changes{SBO_HOME} =~ qr#^/#;
+	usage_error("$warn -s") unless $changes{SBO_HOME} =~ qr#^/#;
 }
 
 # safely modify our conf file; write its contents to a temp file, modify the
@@ -107,14 +107,14 @@ if (exists $changes{SBO_HOME}) {
 # them all at once, instead of only a single one and having to call it once for
 # each option specified to the script.
 sub config_write {
-	exists $_[1] or script_error 'config_write requires two arguments.';
+	exists $_[1] or script_error('config_write requires two arguments.');
 	my ($key, $val) = @_;
 	if (! -d $conf_dir) {
-		mkdir $conf_dir or usage_error "Unable to create $conf_dir. Exiting.";
+		mkdir $conf_dir or usage_error("Unable to create $conf_dir. Exiting.");
 	}
 	if (-f $conf_file) {
 		my $tempfh = tempfile(DIR => $tempdir);
-		my ($conffh, $exit) = open_read $conf_file;
+		my ($conffh, $exit) = open_read($conf_file);
 		if ($exit) {
 			warn $conffh;
 			exit $exit;
