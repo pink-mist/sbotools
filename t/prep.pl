@@ -14,14 +14,14 @@ copy('../SBO-Lib/lib/Sort/Versions.pm', "$pwd/Sort");
 
 open my $write, '>>', "$pwd/SBO/Lib.pm";
 
-sub pr($) {
+sub pr {
 	my $thing = shift;
 	print {$write} "our \$$thing = 1;\n";
 }
 
 for my $thing (qw(interactive compat32 no_readme jobs distclean noclean
 	no_install no_reqs force force_reqs clean non_int)) {
-	pr $thing;
+	pr($thing);
 }
 
 print {$write} "my \%required_by;\n";
@@ -30,7 +30,7 @@ print {$write} "my \%locations;\n";
 print {$write} "my \%commands;\n";
 print {$write} "my \%options = (nothing => 'to see here');\n";
 
-sub get_subs($) {
+sub get_subs {
 	my $read = shift;
 	my $begin_regex = qr/^sub\s+[a-z0-9_]+/;
 	my $usage_regex = qr/^sub\s+show_usage/;
@@ -56,7 +56,7 @@ sub get_subs($) {
 
 for my $file (qw(sbocheck sboclean sboconfig sbofind sboupgrade sboremove)) {
 	open my $read, '<', "../$file";
-	get_subs $read;
+	get_subs($read);
 	close $read;
 }
 close $write;

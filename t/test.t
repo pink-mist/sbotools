@@ -28,7 +28,7 @@ is($config{PKG_DIR}, 'FALSE', 'config{PKG_DIR} is good');
 is($config{SBO_HOME}, "$pwd/sbo", 'config{SBO_HOME} is good');
 
 # open_read, open_fh tests
-my $fh = open_read ('./test.t');
+my $fh = open_read('./test.t');
 is(ref $fh, 'GLOB', 'open_read works');
 close $fh;
 
@@ -36,7 +36,7 @@ close $fh;
 ok(defined $tempdir, '$tempdir is defined');
 
 # show_version test
-is(show_version, 1, 'show_version is good');
+is(show_version(), 1, 'show_version is good');
 
 # get_slack_version test
 my $version = 0;
@@ -45,22 +45,22 @@ if (-f '/etc/slackware-version') {
 	chomp($version);
 }
 $version = '14.1' unless $version;
-is(get_slack_version, $version, 'get_slack_version is good');
+is(get_slack_version(), $version, 'get_slack_version is good');
 
 # chk_slackbuilds_txt tests
-is(chk_slackbuilds_txt, 1, 'chk_slackbuilds_txt is good');
+is(chk_slackbuilds_txt(), 1, 'chk_slackbuilds_txt is good');
 move("$sbo_home/SLACKBUILDS.TXT", "$sbo_home/SLACKBUILDS.TXT.moved");
-is(chk_slackbuilds_txt, undef,
+is(chk_slackbuilds_txt(), undef,
 	'chk_slackbuilds_txt returns false with no SLACKBUILDS.TXT');
 move("$sbo_home/SLACKBUILDS.TXT.moved", "$sbo_home/SLACKBUILDS.TXT");
 
 # slackbuilds_or_fetch test
-is(slackbuilds_or_fetch, 1, 'slackbuilds_or_fetch is good');
+is(slackbuilds_or_fetch(), 1, 'slackbuilds_or_fetch is good');
 
 # get_installed_packages 'SBO' test
 print "pseudo-random sampling of get_installed_packages 'SBO' output...\n";
 $SBO::Lib::pkg_db = "$pwd/packages";
-my $installed = get_installed_packages 'SBO';
+my $installed = get_installed_packages('SBO');
 for my $key (keys @$installed) {
 	is($$installed[$key]{version}, '1.13') if $$installed[$key]{name} eq
 		'OpenAL';
@@ -84,7 +84,7 @@ print "completed pseudo-random testing of get_installed_packages 'SBO' \n";
 # get_installed_packages 'ALL' test
 print "pseudo-random sampling of get_installed_packages 'ALL' output...\n";
 $SBO::Lib::pkg_db = "$pwd/packages";
-$installed = get_installed_packages 'ALL';
+$installed = get_installed_packages('ALL');
 for my $key (keys @$installed) {
 	is($$installed[$key]{version}, '1.13') if $$installed[$key]{name} eq
 		'OpenAL';
@@ -108,8 +108,10 @@ print "completed pseudo-random testing of get_installed_packages 'ALL' \n";
 # get_sbo_location/get_sbo_locations tests
 is(get_sbo_location ('nginx'), "$sbo_home/network/nginx",
 	'get_sbo_location is good');
-is(get_sbo_location ('omgwtfbbq'), 0,
-	'get_sbo_location returns false with not-an-sbo input');
+is(get_sbo_locations('omgwtfbbq'), 0,
+	'get_sbo_locations returns false with not-an-sbo input');
+is(get_sbo_location ('omgwtfbbq'), undef,
+    'get_sbo_location returns false with not-an-sbo input');
 my @finds = qw(nginx gmpc);
 my %locs = get_sbo_locations(@finds);
 is($locs{nginx}, "$sbo_home/network/nginx",
@@ -122,7 +124,7 @@ is($locs{gmpc}, "$sbo_home/audio/gmpc",
 	'get_sbo_locations passed array ref #2 good');
 
 # get_available_updates tests
-my $updates = get_available_updates; 
+my $updates = get_available_updates();
 say "have updates";
 for my $key (keys @$updates) {
 	is($$updates[$key]{installed}, '1.15', 
@@ -134,7 +136,7 @@ for my $key (keys @$updates) {
 }
 
 # get_arch test
-is(get_arch, 'x86_64', 'get_arch is good');
+is(get_arch(), 'x86_64', 'get_arch is good');
 
 # get_download_info tests
 my $dl_info = get_download_info(LOCATION => "$sbo_home/system/wine", X64 => 0);
@@ -189,14 +191,14 @@ ok(!(check_x32("$sbo_home/system/ifuse")),
 
 # check_multilib tests
 if (-x '/usr/sbin/convertpkg-compat32') {
-	ok(check_multilib, 'check_multilib good');
+	ok(check_multilib(), 'check_multilib good');
 } else {
-	ok(!check_multilib, 'check_multilib good');
+	ok(!check_multilib(), 'check_multilib good');
 }
 
 # create_symlinks tests
 $downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/wine", 32 => 1);
-my $symlinks = create_symlinks "$sbo_home/system/wine", $downloads;
+my $symlinks = create_symlinks("$sbo_home/system/wine", $downloads);
 my ($have1, $have2);
 for my $sl (@$symlinks) {
 	$have1++ if $sl eq "$sbo_home/system/wine/wine-1.4.1.tar.bz2";
@@ -213,7 +215,7 @@ print {$tempfh} "$lmt/COPYING\n";
 print {$tempfh} "$lmt/Documentation/\n";
 print {$tempfh} "$lmt/README\n";
 print {$tempfh} "Slackware package skype-2.2.0.35-i486-1_SBo.tgz created.\n";
-is(get_pkg_name $tempfh, 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
+is(get_pkg_name($tempfh), 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
 
 # we can not test get_src_dir() at present - we will need to support $TMP in
 # order to be able to test this. because user can't write to /tmp/SBo
@@ -242,9 +244,9 @@ is($$symlinks[0], "$sbo_home/perl/perl-Sort-Versions/Sort-Versions-1.5.tar.gz",
 
 # check_home tests
 $config{SBO_HOME} = "$pwd/test_sbo";
-ok(check_home, 'check_home returns true with new non-existent directory');
+ok(check_home(), 'check_home returns true with new non-existent directory');
 ok(-d "$pwd/test_sbo", 'check_home creates $config{SBO_HOME}');
-ok(check_home, 'check_home returns true with new existent empty directory');
+ok(check_home(), 'check_home returns true with new existent empty directory');
 rmdir "$pwd/test_sbo";
 $config{SBO_HOME} = $sbo_home;
 
@@ -267,12 +269,12 @@ my $rewrite_dir = tempdir(CLEANUP => 1);
 copy("$sbo_home/system/ifuse/ifuse.SlackBuild", $rewrite_dir);
 my $slackbuild = "$rewrite_dir/ifuse.SlackBuild";
 $tempfh = tempfile(DIR => $rewrite_dir);
-my $tempfn = get_tmp_extfn $tempfh;
+my $tempfn = get_tmp_extfn($tempfh);
 my %changes = ();
 is(rewrite_slackbuild (SLACKBUILD => $slackbuild, TEMPFN => $tempfn,
 	CHANGES => \%changes), 1, 'rewrite_slackbuild with no %changes good');
 ok(-f "$slackbuild.orig", 'rewrite_slackbuild backing up original is good.');
-is(revert_slackbuild $slackbuild, 1, 'revert_slackbuild is good');
+is(revert_slackbuild($slackbuild), 1, 'revert_slackbuild is good');
 $changes{libdirsuffix} = '';
 $changes{make} = '-j 5';
 $changes{arch_out} = 'i486';
@@ -294,7 +296,7 @@ my $expected_out = '55c55
 ';
 is(diff("$slackbuild.orig", $slackbuild, {STYLE => 'OldStyle'}),
 	$expected_out, 'all changed lines rewritten correctly');
-is(revert_slackbuild $slackbuild, 1, 'revert_slackbuild is good again');
+is(revert_slackbuild($slackbuild), 1, 'revert_slackbuild is good again');
 
 # get_from_info tests
 my $test_loc = "$sbo_home/system/ifuse";
@@ -308,7 +310,7 @@ $info = get_from_info(%params, GET => 'DOWNLOAD_x86_64');
 is($$info[0], "", 'get_from_info GET => DOWNLOAD_x86_64 is good');
 
 # get_update_list tests
-my $listing = get_update_list;
+my $listing = get_update_list();
 say $_ for @$listing;
 s/\s//g for @$listing;
 for my $item (@$listing) {
@@ -345,8 +347,8 @@ for my $found (@$findings) {
 }
 
 # get_inst_names test
-$installed = get_installed_packages 'SBO';
-my $inst_names = get_inst_names $installed;
+$installed = get_installed_packages('SBO');
+my $inst_names = get_inst_names($installed);
 my %inst_names;
 $inst_names{$_} = 1 for @$inst_names;
 ok($inst_names{zdoom}, 'get_inst_names is good');
@@ -356,47 +358,47 @@ ok($inst_names{zdoom}, 'get_inst_names is good');
 # no longer valid - there are no longer any circular requirements.
 # ok (! (get_requires 'zarafa', "$sbo_home/network/zarafa"),
 #	'get_requires good for circular requirements');
-my $reqs = get_requires 'gmpc';#, "$sbo_home/audio/gmpc";
+my $reqs = get_requires('gmpc');#, "$sbo_home/audio/gmpc";
 my $say = 'get_requires good for normal req list';
 is($$reqs[0], 'gob2', $say);
 is($$reqs[1], 'libmpd', $say);
 is($$reqs[2], 'vala', $say);
-$reqs = get_requires 'doomseeker';
+$reqs = get_requires('doomseeker');
 is($$reqs[0], '%README%', 'get_requires good for REQUIRES="%README%"');
-is(get_requires 'krb5', undef, 'get_requires good for REQUIRES=""');
+is(get_requires('krb5'), undef, 'get_requires good for REQUIRES=""');
 
 # get_user_group tests
-$fh = open_read "$sbo_home/network/nagios/README";
+$fh = open_read("$sbo_home/network/nagios/README");
 my $readme = do {local $/; <$fh>};
 close $fh;
-my $cmds = get_user_group $readme;
+my $cmds = get_user_group($readme);
 is($$cmds[0], 'groupadd -g 213 nagios', 'get_user_group good for # groupadd');
 is($$cmds[1], 'useradd -u 213 -d /dev/null -s /bin/false -g nagios nagios',
 	'get_user_group for # useradd');
-$fh = open_read "$sbo_home/network/havp/README";
+$fh = open_read("$sbo_home/network/havp/README");
 $readme = do {local $/; <$fh>};
 close $fh;
-$cmds = get_user_group $readme;
+$cmds = get_user_group($readme);
 is($$cmds[0], 'groupadd -g 210 clamav', 'get_user_group good for groupadd');
 is($$cmds[1], 'useradd -u 256 -d /dev/null -s /bin/false -g clamav havp',
 	'get_user_group good for useradd');
 
 # get_opts test
-$fh = open_read "$sbo_home/games/vbam/README";
+$fh = open_read("$sbo_home/games/vbam/README");
 $readme = do {local $/; <$fh>};
 close $fh;
-ok(get_opts $readme, 'get_opts good where README defines opts');
-$fh = open_read "$sbo_home/audio/gmpc/README";
+ok(get_opts($readme), 'get_opts good where README defines opts');
+$fh = open_read("$sbo_home/audio/gmpc/README");
 $readme = do {local $/; <$fh>};
 close $fh;
-ok(! (get_opts $readme), 'get_opts good where README does not define opts');
+ok(! (get_opts($readme)), 'get_opts good where README does not define opts');
 
 # queue tests
 
 # test multiple sbo's
 # sbo's: zdoom', 'bsnes', 'spring', 'OpenAL'
 # expected queue: p7zip fmodapi eawpats TiMidity++ zdoom OpenAL bsnes jdk DevIL spring
-my $warnings = {()};;
+my $warnings = {};
 my @t_argv = ( 'zdoom', 'bsnes', 'spring', 'OpenAL' );
 my $queue;
 for my $sbo (@t_argv) {
@@ -423,7 +425,7 @@ is($$queue[2], 'eawpats', 'get_build_queue third entry correct for single sbo');
 is($$queue[4], 'zdoom', 'get_build_queue fifth entry correct for single sbo');
 
 # test get_required_by
-get_reverse_reqs $inst_names;
+get_reverse_reqs($inst_names);
 my $required = get_required_by('p7zip');
 is($$required[0], 'unetbootin', 'get_required_by good for populated req_by list');
 is($$required[1], 'zdoom', 'get_required_by good for populated req_by list');
@@ -439,13 +441,13 @@ $count = @SBO::Lib::confirmed;
 is($count, 4, 'confirm_remove good for duplicate sbo');
 
 # test get_readme_contents
-ok((get_readme_contents "$sbo_home/network/nagios"), 'get_readme_contents is good');
+ok(get_readme_contents("$sbo_home/network/nagios"), 'get_readme_contents is good');
 
 # test get_dl_fns
 $downloads = [
 	'http://developer.download.nvidia.com/cg/Cg_3.1/Cg-3.1_April2012_x86.tgz'
 ];
-my $fns = get_dl_fns $downloads;
+my $fns = get_dl_fns($downloads);
 is($$fns[0], 'Cg-3.1_April2012_x86.tgz', 'get_dl_fns test, one input');
 $downloads = [
 	'http://download.virtualbox.org/virtualbox/4.2.0/VirtualBox-4.2.0.tar.bz2',
@@ -453,26 +455,26 @@ $downloads = [
 	'http://download.virtualbox.org/virtualbox/4.2.0/UserManual.pdf',
 	'http://download.virtualbox.org/virtualbox/4.2.0/SDKRef.pdf',
 ];
-$fns = get_dl_fns $downloads;
+$fns = get_dl_fns($downloads);
 is($$fns[0], 'VirtualBox-4.2.0.tar.bz2', 'get_dl_fns test, multiple inputs 01');
 is($$fns[2], 'UserManual.pdf', 'get_dl_fns test, multiple inputs 02');
 
 # test get_dc_regex - multiple tests for various types of input
 my $line = 'tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*';
-my ($regex, $initial) = get_dc_regex $line;
+my ($regex, $initial) = get_dc_regex($line);
 is($regex, '(?^u:/[^-]+-[^-]+.tar.[a-z]z.*)', 'get_dc_regex test 01.1');
 is($initial, '/', 'get_dc_regex test 01.2');
 $line = 'tar xvf $CWD/Oracle_VM_VirtualBox_Extension_Pack-$VERSION.vbox-extpack';
-($regex, $initial) = get_dc_regex $line;
+($regex, $initial) = get_dc_regex($line);
 is($regex, '(?^u:/Oracle_VM_VirtualBox_Extension_Pack-[^-]+.vbox-extpack)',
 	'get_dc_regex test 02.1');
 is($initial, '/', 'get_dc_regex test 02.2');
 $line = 'tar xvf $CWD/${PRGNAM}-source-$(echo $VERSION).tar.gz';
-($regex, $initial) = get_dc_regex $line;
+($regex, $initial) = get_dc_regex($line);
 is($regex, '(?^u:/[^-]+-source-[^-]+.tar.gz)', 'get_dc_regex test 03.1');
 is($initial, '/', 'get_dc_regex test 03.2');
 $line = '( tar xvf xapian-bindings-$VERSION.tar.gz';
-($regex, $initial) = get_dc_regex $line;
+($regex, $initial) = get_dc_regex($line);
 is($regex, '(?^u: xapian-bindings-[^-]+.tar.gz)', 'get_dc_regex test 04.1');
 is($initial, ' ', 'get_dc_regex test 04.2');
 
