@@ -90,7 +90,7 @@ remove_stuff($config{SBO_HOME} .'/distfiles') if $clean_dist;
 
 if ($clean_work) {
 	my $env_tmp = $SBO::Lib::env_tmp;
-	my $tsbo = $env_tmp ? $env_tmp : "$SBO::Lib::tmpd/SBo";
+	my $tsbo = $SBO::Lib::tmpd;
 	if ($env_tmp && !$interactive) {
 		warn "This will remove the entire contents of $env_tmp\n";
 		print "Proceed? [y] ";

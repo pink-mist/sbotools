@@ -92,7 +92,8 @@ use Fcntl qw(F_SETFD F_GETFD);
 # times where it doesn't matter.
 our $env_tmp;
 $env_tmp = $ENV{TMP} if defined $ENV{TMP};
-our $tmpd = $env_tmp ? $env_tmp : '/tmp';
+our $tmpd = $env_tmp ? $env_tmp : '/tmp/SBo';
+make_path($tmpd) unless -d $tmpd;
 
 our $tempdir = tempdir(CLEANUP => 1, DIR => $tmpd);
 
@@ -703,8 +704,7 @@ sub get_src_dir {
 	seek $fh, 0, 0;
 	my @src_dirs;
 	# scripts use either $TMP or /tmp/SBo
-	my $tsbo = $env_tmp ? $env_tmp : "$tmpd/SBo";
-	if (opendir(my $tsbo_dh, $tsbo)) {
+	if (opendir(my $tsbo_dh, $tmpd)) {
 		FIRST: while (my $ls = readdir $tsbo_dh) {
 			next FIRST if $ls =~ /^\.[\.]{0,1}$/;
 			next FIRST if $ls =~ /^package-/;
@@ -768,8 +768,7 @@ sub perform_sbo {
 	# we need to get a listing of /tmp/SBo, or $TMP, if we can, before we run
 	# the SlackBuild so that we can compare to a listing taken afterward.
 	my $src_ls_fh = tempfile(DIR => $tempdir);
-	my $tsbo = $env_tmp ? $env_tmp : "$tmpd/SBo";
-	if (opendir(my $tsbo_dh, '/tmp/SBo')) {
+	if (opendir(my $tsbo_dh, $tmpd)) {
 		FIRST: while (my $dir = readdir $tsbo_dh) {
 			next FIRST if $dir =~ /^\.[\.]{0,1}$/;
 			say {$src_ls_fh} $dir;
@@ -891,15 +890,11 @@ sub make_clean {
 	}
 	my $src = $args{SRC};
 	say "Cleaning for $args{SBO}-$args{VERSION}...";
-	my $tmpsbo = $env_tmp ? $env_tmp : "$tmpd/SBo";
 	for my $dir (@$src) {
-		remove_tree("$tmpsbo/$dir") if -d "$tmpsbo/$dir";
+		remove_tree("$tempdir/$dir") if -d "$tempdir/$dir";
 	}
-	remove_tree("$tmpsbo/package-$args{SBO}") if 
-		-d "$tmpsbo/package-$args{SBO}";
-	# clean up after convertpkg-compat32
 	remove_tree("$tmpd/package-$args{SBO}") if
-		-d "$tmpd/package-$args{SBO}" and $args{SBO} =~ /-compat32$/;
+		-d "$tmpd/package-$args{SBO}";
 	return 1;
 }
 
