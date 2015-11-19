@@ -1135,16 +1135,16 @@ sub process_sbos {
 		$options = $$opts{$sbo} if defined $$opts{$sbo};
 		my $cmds = $$cmds{$sbo} if defined $$cmds{$sbo};
 		for my $cmd (@$cmds) {
-		    system($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
+			system($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
 		}
 		# switch compat32 on if upgrading/installing a -compat32
 		# else make sure compat32 is off
 		my $compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
 		my ($version, $pkg, $src, $exit) = do_slackbuild(
-		    OPTS    => $options,
-		    JOBS    => $jobs,
-		    LOCATION  => $$locs{$sbo},
-		    COMPAT32  => $compat32,
+			OPTS      => $options,
+			JOBS      => $jobs,
+			LOCATION  => $$locs{$sbo},
+			COMPAT32  => $compat32,
 		);
 		if ($exit) {
 			my $fail = $version;
@@ -1164,20 +1164,20 @@ sub process_sbos {
 			}
 		}
 
-	    do_upgradepkg($pkg) unless $args{NOINSTALL};
+		do_upgradepkg($pkg) unless $args{NOINSTALL};
 
-	    unless ($args{DISTCLEAN}) {
-	        make_clean(SBO => $sbo, SRC => $src, VERSION => $version)
-	            unless $args{NOCLEAN};
-	    } else {
-	        make_distclean(
-	            SBO     => $sbo,
-	            SRC     => $src,
-	            VERSION   => $version,
-	            LOCATION  => $$locs{$sbo},
-	        );
-	    }
-	    # move package to $config{PKG_DIR} if defined
+		unless ($args{DISTCLEAN}) {
+			make_clean(SBO => $sbo, SRC => $src, VERSION => $version)
+				unless $args{NOCLEAN};
+		} else {
+			make_distclean(
+				SBO       => $sbo,
+				SRC       => $src,
+				VERSION   => $version,
+				LOCATION  => $$locs{$sbo},
+			);
+		}
+		# move package to $config{PKG_DIR} if defined
 		unless ($config{PKG_DIR} eq 'FALSE') {
 			my $dir = $config{PKG_DIR};
 			unless (-d $dir) {
