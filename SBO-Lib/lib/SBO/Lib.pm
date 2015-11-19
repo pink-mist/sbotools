@@ -372,16 +372,16 @@ sub get_from_info {
 	# suck it all in, clean it all up, stuff it all in $store.
 	my $contents = do {local $/; <$fh>};
 	$contents =~ s/("|\\\n)//g;
-    my $last_key = '';
-    $store = {};
-    foreach my $line (split /\n/, $contents) {
-      my ($key, $val) = $last_key;
-      if ($line =~ /^([^=\s]+)=(.*)$/) { $key = $1; $val = $2; }
-      elsif ($line =~ /^\s+([^\s].+)$/) {            $val = $1; }
-      else { script_error("error when parsing $sbo.info file. Line: $line") }
-      push @{ $store->{$key} }, ($val ? split(' ', $val) : $val);
-      $last_key = $key;
-    }
+	my $last_key = '';
+	$store = {};
+	foreach my $line (split /\n/, $contents) {
+		my ($key, $val) = $last_key;
+		if ($line =~ /^([^=\s]+)=(.*)$/) { $key = $1; $val = $2; }
+		elsif ($line =~ /^\s+([^\s].+)$/) {            $val = $1; }
+		else { script_error("error when parsing $sbo.info file. Line: $line") }
+		push @{ $store->{$key} }, ($val ? split(' ', $val) : $val);
+		$last_key = $key;
+	}
 	return $store->{$args{GET}};
 }
 
@@ -937,33 +937,33 @@ sub get_requires {
 }
 
 sub _uniq {
-    my %seen;
-    return grep { !$seen{$_}++ } @_;
+	my %seen;
+	return grep { !$seen{$_}++ } @_;
 }
 
 sub _build_queue {
-    my ($sbos, $warnings) = @_;
-    my @queue = @$sbos;
-    my @result;
+	my ($sbos, $warnings) = @_;
+	my @queue = @$sbos;
+	my @result;
 
-    while (my $sbo = shift @queue) {
-        next if $sbo eq "%README%";
-        my $reqs = get_requires($sbo);
-        if (defined $reqs) {
-            push @result, _build_queue($reqs, $warnings);
-            foreach my $req (@$reqs) {
-                $warnings->{$sbo}="%README%" if $req eq "%README%";
-            }
-        }
-        push @result, $sbo;
-    }
+	while (my $sbo = shift @queue) {
+		next if $sbo eq "%README%";
+		my $reqs = get_requires($sbo);
+		if (defined $reqs) {
+			push @result, _build_queue($reqs, $warnings);
+			foreach my $req (@$reqs) {
+				$warnings->{$sbo}="%README%" if $req eq "%README%";
+			}
+		}
+		push @result, $sbo;
+	}
 
-    return _uniq @result;
+	return _uniq @result;
 }
 
 sub get_build_queue {
-    exists $_[1] or script_error('get_build_queue requires two arguments.');
-    return [ _build_queue(@_) ];
+	exists $_[1] or script_error('get_build_queue requires two arguments.');
+	return [ _build_queue(@_) ];
 }
 
 sub merge_queues {
@@ -971,7 +971,7 @@ sub merge_queues {
 	# Results in queue_b being merged into queue_a (without duplicates)
 	exists $_[1] or script_error('merge_queues requires two arguments.');
 
-    return [ _uniq @{$_[0]}, @{$_[1]} ];
+	return [ _uniq @{$_[0]}, @{$_[1]} ];
 }
 
 sub get_readme_contents {
@@ -1012,55 +1012,55 @@ sub get_installed_cpans {
 
 # look for any (user|group)add commands in the README
 sub get_user_group {
-    exists $_[0] or script_error('get_user_group requires an argument');
-    my $readme = shift;
-    my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
-    return \@cmds;
+	exists $_[0] or script_error('get_user_group requires an argument');
+	my $readme = shift;
+	my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
+	return \@cmds;
 }
 
 # offer to run any user/group add commands
 sub ask_user_group {
-    exists $_[1] or script_error('ask_user_group requires two arguments');
-    my ($cmds, $readme) = @_;
-    say "\n". $readme;
-    print "\nIt looks like this slackbuild requires the following";
-    say ' command(s) to be run first:';
-    say "    # $_" for @$cmds;
-    print 'Shall I run them prior to building? [y] ';
+	exists $_[1] or script_error('ask_user_group requires two arguments');
+	my ($cmds, $readme) = @_;
+	say "\n". $readme;
+	print "\nIt looks like this slackbuild requires the following";
+	say ' command(s) to be run first:';
+	say "    # $_" for @$cmds;
+	print 'Shall I run them prior to building? [y] ';
 	return <STDIN> =~ /^[Yy\n]/ ? $cmds : undef;
 }
 
 # see if the README mentions any options
 sub get_opts {
-    exists $_[0] or script_error('get_opts requires an argument');
-    my $readme = shift;
-    return $readme =~ /[A-Z0-9]+=[^\s]/ ? 1 : undef;
+	exists $_[0] or script_error('get_opts requires an argument');
+	my $readme = shift;
+	return $readme =~ /[A-Z0-9]+=[^\s]/ ? 1 : undef;
 }
 
 # provide an opportunity to set options
 sub ask_opts {
-    exists $_[0] or script_error('ask_opts requires an argument');
-    my ($sbo, $readme) = @_;
-    say "\n". $readme;
-    print "\nIt looks like $sbo has options; would you like to set any";
-    print ' when the slackbuild is run? [n] ';
-    if (<STDIN> =~ /^[Yy]/) {
-        my $ask = sub {
-            print "\nPlease supply any options here, or enter to skip: ";
-            chomp(my $opts = <STDIN>);
-            return() if $opts =~ /^\n/;
-            return $opts;
-        };
-        my $kv_regex = qr/[A-Z0-9]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
-        my $opts = $ask->();
-        return() unless $opts;
-        while ($opts !~ $kv_regex) {
-            warn "Invalid input received.\n";
-            $opts = $ask->();
-        }
-        return $opts;
-    }
-    return();
+	exists $_[0] or script_error('ask_opts requires an argument');
+	my ($sbo, $readme) = @_;
+	say "\n". $readme;
+	print "\nIt looks like $sbo has options; would you like to set any";
+	print ' when the slackbuild is run? [n] ';
+	if (<STDIN> =~ /^[Yy]/) {
+		my $ask = sub {
+			print "\nPlease supply any options here, or enter to skip: ";
+			chomp(my $opts = <STDIN>);
+			return() if $opts =~ /^\n/;
+			return $opts;
+		};
+		my $kv_regex = qr/[A-Z0-9]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
+		my $opts = $ask->();
+		return() unless $opts;
+		while ($opts !~ $kv_regex) {
+			warn "Invalid input received.\n";
+			$opts = $ask->();
+		}
+		return $opts;
+	}
+	return();
 }
 
 # for a given sbo, check for cmds/opts, prompt the user as appropriate
@@ -1099,7 +1099,7 @@ sub process_sbos {
 		NON_INT		=> 0,
 		@_
 	);
-    my $todo = $args{TODO};
+	my $todo = $args{TODO};
 	my $cmds = $args{CMDS};
 	my $opts = $args{OPTS};
 	my $locs = $args{LOCATIONS};
@@ -1129,7 +1129,7 @@ sub process_sbos {
 		}
 	}
 	my $count = 0 unless $args{NON_INT};
-    FIRST: for my $sbo (@$todo) {
+	FIRST: for my $sbo (@$todo) {
 		$count++;
 		my $options = 0;
 		$options = $$opts{$sbo} if defined $$opts{$sbo};
@@ -1178,22 +1178,22 @@ sub process_sbos {
 	        );
 	    }
 	    # move package to $config{PKG_DIR} if defined
-        unless ($config{PKG_DIR} eq 'FALSE') {
-            my $dir = $config{PKG_DIR};
-            unless (-d $dir) {
-                mkdir($dir) or warn "Unable to create $dir\n";
-            }
-            if (-d $dir) {
-                move($pkg, $dir), say "$pkg stored in $dir";
-            } else {
-                warn "$pkg left in $tmpd\n";
-            }
-        } elsif ($args{DISTCLEAN}) {
-            unlink $pkg;
-        }
-    }
+		unless ($config{PKG_DIR} eq 'FALSE') {
+			my $dir = $config{PKG_DIR};
+			unless (-d $dir) {
+				mkdir($dir) or warn "Unable to create $dir\n";
+			}
+			if (-d $dir) {
+				move($pkg, $dir), say "$pkg stored in $dir";
+			} else {
+				warn "$pkg left in $tmpd\n";
+			}
+		} elsif ($args{DISTCLEAN}) {
+			unlink $pkg;
+		}
+	}
 	unlink for @symlinks;
-    return \@failures, $exit;
+	return \@failures, $exit;
 }
 
 # subroutine to print out failures
@@ -1204,5 +1204,5 @@ sub print_failures {
 		for my $failure (@$failures) {
 			warn "  $_: $$failure{$_}" for keys %$failure;
 		}
-    }
+	}
 }
