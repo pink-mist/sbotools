@@ -364,25 +364,24 @@ sub get_from_info {
 	}
 	state $store = {PRGNAM => ['']};
 	my $sbo = get_sbo_from_loc($args{LOCATION});
-	return $$store{$args{GET}} if $$store{PRGNAM}[0] eq $sbo;
+	return $store->{$args{GET}} if $store->{PRGNAM}[0] eq $sbo;
 	# if we're here, we haven't read in the .info file yet.
 	my ($fh, $exit) = open_read("$args{LOCATION}/$sbo.info");
 	return() if $exit;
 	# suck it all in, clean it all up, stuff it all in $store.
 	my $contents = do {local $/; <$fh>};
 	$contents =~ s/("|\\\n)//g;
-	$store = {$contents =~ /^(\w+)=(.*)$/mg};
-	# fill the hash with array refs - even for single values,
-	# since consistency here is a lot easier than sorting it out later
-	for my $key (keys %$store) {
-		if ($$store{$key} =~ /\s/) {
-			my @array = split ' ', $$store{$key};
-			$$store{$key} = \@array;
-		} else {
-			$$store{$key} = [$$store{$key}];
-		}
-	}
-	return exists $$store{$args{GET}} ? $$store{$args{GET}} : undef;
+    my $last_key = '';
+    $store = {};
+    foreach my $line (split /\n/, $contents) {
+      my ($key, $val) = $last_key;
+      if ($line =~ /^([^=\s]+)=(.*)$/) { $key = $1; $val = $2; }
+      elsif ($line =~ /^\s+([^\s].+)$/) {            $val = $1; }
+      else { script_error("error when parsing $sbo.info file. Line: $line") }
+      push @{ $store->{$key} }, ($val ? split(' ', $val) : $val);
+      $last_key = $key;
+    }
+	return $store->{$args{GET}};
 }
 
 # find the version in the tree for a given sbo (provided a location)
