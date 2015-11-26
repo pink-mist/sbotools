@@ -814,7 +814,8 @@ sub do_convertpkg {
 	my $pkg = shift;
 	my $tempfh = tempfile(DIR => $tempdir);
 	my $fn = get_tmp_extfn($tempfh);
-	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d $tmpd | tee $fn";
+	my $c32tmpd = $env_tmp // '/tmp';
+	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d $c32tmpd | tee $fn";
 	if (system($cmd) != 0) {
 		return "convertpkg-compt32 returned non-zero exit status\n",
 			_ERR_CONVERTPKG;
