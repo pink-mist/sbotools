@@ -891,7 +891,7 @@ sub make_clean {
 	my $src = $args{SRC};
 	say "Cleaning for $args{SBO}-$args{VERSION}...";
 	for my $dir (@$src) {
-		remove_tree("$tempdir/$dir") if -d "$tempdir/$dir";
+		remove_tree("$tmpd/$dir") if -d "$tmpd/$dir";
 	}
 	remove_tree("$tmpd/package-$args{SBO}") if
 		-d "$tmpd/package-$args{SBO}";
