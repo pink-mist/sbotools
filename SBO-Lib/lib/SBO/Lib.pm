@@ -900,8 +900,8 @@ sub make_clean {
 		remove_tree("/tmp/package-$args{SBO}") if
 			not defined $env_tmp and
 			-d "/tmp/package-$args{SBO}";
-		remove_tree("$tmpd/$pkg_name") if
-			-d "$tmpd/$pkg_name";
+		remove_tree("$tmpd/package-$pkg_name") if
+			-d "$tmpd/package-$pkg_name";
 	}
 	return 1;
 }
