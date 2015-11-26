@@ -91,8 +91,7 @@ use Fcntl qw(F_SETFD F_GETFD);
 # get $TMP from the env, if defined - we use two variables here because there
 # are times when we need to no if the environment variable is set, and other
 # times where it doesn't matter.
-our $env_tmp;
-$env_tmp = $ENV{TMP} if defined $ENV{TMP};
+our $env_tmp = $ENV{TMP};
 our $tmpd = $env_tmp ? $env_tmp : '/tmp/SBo';
 make_path($tmpd) unless -d $tmpd;
 
