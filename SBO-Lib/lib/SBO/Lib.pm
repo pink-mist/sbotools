@@ -706,6 +706,7 @@ sub get_src_dir {
 		FIRST: while (my $ls = readdir $tsbo_dh) {
 			next FIRST if $ls =~ /^\.[\.]{0,1}$/;
 			next FIRST if $ls =~ /^package-/;
+			next FIRST unless -d "$tmpd/$ls";
 			my $found = 0;
 			seek $fh, 0, 0;
 			SECOND: while (my $line = <$fh>) {
