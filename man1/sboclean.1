@@ -7,7 +7,7 @@ sboclean - clean files left around by sbotools.
 sboclean [-h|-v] [-dwi]
 .SH DESCRIPTION
 .P
-sboclean is used to clean files left around by sbotools, such as downloaded source files ("distfiles"), or work directories under /tmp/SBo (or $TMP). Note that if not run with the -i flag, sboclean will remove anything in the distfiles or /tmp/SBo (or $TMP) directories with extreme prejudice. One of either -d or -w must be specified for this script to do anything.
+sboclean is used to clean files left around by sbotools, such as downloaded source files ("distfiles"), or work directories under /tmp/SBo (or $TMP) and, for compat32 installs, under /tmp (or $TMP). Note that if not run with the -i flag, sboclean will remove anything in the distfiles or /tmp/SBo (or $TMP) folders and any /tmp/package-*-compat32 (or $TMP/package-*-compat32) directories with extreme prejudice. One of either -d or -w must be specified for this script to do anything.
 .SH OPTIONS
 .P
 -h|--help
@@ -27,7 +27,7 @@ Clean distfiles, by default located at /usr/sbo/distfiles.
 .P
 -w|--clean-work
 .RS
-Clean working directories, located, by default under /tmp/SBo.
+Clean working directories, located, by default under /tmp/SBo and, for compat32 installs, by default, /tmp.
 .RE
 .P
 -i|--interactive
