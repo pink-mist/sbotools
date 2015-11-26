@@ -895,6 +895,14 @@ sub make_clean {
 	}
 	remove_tree("$tmpd/package-$args{SBO}") if
 		-d "$tmpd/package-$args{SBO}";
+	if ($args{SBO} =~ /^(.+)-compat32$/) {
+		my $pkg_name = $1;
+		remove_tree("/tmp/package-$args{SBO}") if
+			not defined $env_tmp and
+			-d "/tmp/package-$args{SBO}";
+		remove_tree("$tmpd/$pkg_name") if
+			-d "$tmpd/$pkg_name";
+	}
 	return 1;
 }
 
