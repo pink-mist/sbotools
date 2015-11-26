@@ -710,7 +710,8 @@ sub get_src_dir {
 			my $found = 0;
 			seek $fh, 0, 0;
 			SECOND: while (my $line = <$fh>) {
-				if ($line =~ /$ls/) {
+				chomp ($line);
+				if ($line eq $ls) {
 					$found++;
 					last SECOND;
 				}
