@@ -700,7 +700,6 @@ sub get_pkg_name {
 sub get_src_dir {
 	exists $_[0] or script_error('get_src_dir requires an argument');
 	my $fh = shift;
-	seek $fh, 0, 0;
 	my @src_dirs;
 	# scripts use either $TMP or /tmp/SBo
 	if (opendir(my $tsbo_dh, $tmpd)) {
@@ -708,6 +707,7 @@ sub get_src_dir {
 			next FIRST if $ls =~ /^\.[\.]{0,1}$/;
 			next FIRST if $ls =~ /^package-/;
 			my $found = 0;
+			seek $fh, 0, 0;
 			SECOND: while (my $line = <$fh>) {
 				if ($line =~ /$ls/) {
 					$found++;
