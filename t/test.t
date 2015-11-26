@@ -159,6 +159,15 @@ my $downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/ifuse");
 $link = 'http://www.libimobiledevice.org/downloads/ifuse-1.1.1.tar.bz2';
 is($$downloads{$link}, '8d528a79de024b91f12f8ac67965c37c',
 	'get_sbo_downloads test 03 good.');
+$downloads = get_sbo_downloads(LOCATION => "$sbo_home/multimedia/mpv");
+my @links = qw'
+  https://github.com/mpv-player/mpv/archive/v0.10.0.tar.gz
+  http://www.freehackers.org/~tnagy/release/waf-1.8.12
+';
+is ($$downloads{$links[0]}, 'e81a975e4fa17f500dc2e7ea3d3ecf25',
+    'get_sbo_downloads test 04 good.');
+is ($$downloads{$links[1]}, 'cef4ee82206b1843db082d0b0506bf71',
+    'get_sbo_downloads test 05 good.');
 
 # get_filename_from_link test
 is(get_filename_from_link(
