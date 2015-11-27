@@ -5,3 +5,5 @@
   * Fix issue when TMP is set (https://github.com/pink-mist/sbotools/issues/4)
   * Fix various bugs related to cleanup code
   * Change location of website
+  * Fix downloading of multiple sources in newer slackbuilds
+    (https://github.com/pink-mist/sbotools/issues/5)
