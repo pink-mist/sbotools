@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # Slackware build script for <sbotools>
 # Written by Jacob Pipkin <j@dawnrazor.net>
