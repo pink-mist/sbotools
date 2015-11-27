@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>downloads - sbotools by pink-mist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">sbotools</h1>
+      <h2 class="project-tagline">provides a ports-like interface to slackbuilds.org</h2>
+      <a href="https://github.com/pink-mist/sbotools" class="btn">View on GitHub</a>
+      <a href="https://pink-mist.github.io/sbotools/downloads/sbotools-1.9.tar.gz" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="sbotools" class="anchor" href="#sbotools" aria-hidden="true"><span class="octicon octicon-link"></span></a>documentation</h1>
+
+
+
+<p>Here you can find what documentation is available for the current version of sbotools.</p>
+
+<p>As sbotools is high influenced by FreeBSD’s ports system and its <a href="http://pkgtools.github.com/">pkgtools</a>, the interface will be more or less familiar to anyone familiar with portupgrade, etc.</p>
+
+<p>The first thing which needs to be done after installing sbotools is to pull a local copy of the slackbuilds.org tree, minus the excess bits; this is optionally done automagickally at first run of <a href="/sbotools/documentation/sbofind.1.html">sbofind</a>(1), <a href="/sbotools/documentation/sboupgrade.1.html">sboupgrade</a>(1), or <a href="/sbotools/documentation/sboinstall.1.html">sboinstall</a>(1), or manually via the <a href="/sbotools/documentation/sbosnap.1.html">sbosnap</a>(1) command:
+<code>
+# sbosnap fetch
+</code>
+</p>
+
+<p><a href="/sbotools/documentation/sboupgrade.1.html">sboupgrade</a>(1) and <a href="/sbotools/documentation/sboinstall.1.html">sboinstall</a>(1) on 14.0 or 14.1 will pull the list of requirements from a given slackbuild’s .info file, or on 13.37 will look at a given slackbuild’s README for a list of requirements and, if found, will check to see whether or not those requirements are already installed. For any not installed, sbotools will ask whether or not it should attempt to install it first. This is recursive so that ordering happens correctly. This functions correctly for -compat32 packages as well, and since a -compat32 is only somewhat useful without its 64-bit counterpart installed since the compat32 will have its headers stripped out, sbotools will offer to install the 64-bit version first if it’s not already installed. For various sanity reasons, if the -r flag is provided to bypass viewing the README, no requirement handling/parsing is done. Asking a tool to automatically do such things without reading the relevant README files is a bad, bad, bad idea.</p>
+
+<p>When working with slackbuilds from the 14.0 or 14.1 trees, sbotools will refuse to handle circular requirements. It will tell you as much, and ask if you want to continue, if it encounters any. Note that circular requirements do not always constitute bugs in the slackbuilds, since the REQUIRES field in the .info files includes both build-time and run-time requirements. As always, the user is expected to read and understand what s/he is doing and utilize the tools accordingly.</p>
+
+<p>If there are useradd or groupadd commands in the README which need to be run prior to running a slackbuild, sboupgrade and sboinstall will ask if it should run those commands first. Depending on the format that they’re placed in the README, sbotools may occasionally fail to see them; as always again, the user is expected to read and understand and utilize the tools accordingly.</p>
+
+<p>For slackbuilds with options documented in the README, of the form KEY=value, sboupgrade and sboinstall will provide an opportunity to set any options which one wishes to specify. This is yet another area where parsing mishaps may occur… as always yet again, read, understand, utilize accordingly.</p>
+
+<p>Items which are unique to sbotools compared to FreeBSD’s pkgtools are <a href="/sbotools/documentation/sbofind.1.html">sbofind</a>(1) and <a href="/sbotools/documentation/sboconfig.1.html">sboconfig</a>(1). <a href="/sbotools/documentation/sbofind.1.html">sbofind</a>(1) followed by a search term is approximately equivalent to running the following on a FreeBSD system:
+<code>
+# cd /usr/ports
+# make search name="search_term" display=name,path
+</code>
+</p>
+
+<p>sbofind includes options to display the contents of the .info file and to display the contents of the README file for any slackbuilds it finds.</p>
+
+<p><a href="/sbotools/documentation/sboconfig.1.html">sboconfig</a>(1) is a tool to manage <a href="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</a>(5), the sbotools configuration file. It can also be edited manually; please read the man page before doing so. One thing to note is that the location of the slackbuilds.org tree can be changed from the default, which is /usr/sbo, to any other location via the <a href="/sbotools/documentation/sboconfig.1.html">sboconfig</a>(1) command, or by editing the <a href="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</a>(5) file.</p>
+
+<p>Man pages:</p>
+
+<p><a href="/sbotools/documentation/sbocheck.1.html">sbocheck</a>(1)<br>
+<a href="/sbotools/documentation/sboclean.1.html">sboclean</a>(1)<br>
+<a href="/sbotools/documentation/sboconfig.1.html">sboconfig</a>(1)<br>
+<a href="/sbotools/documentation/sbofind.1.html">sbofind</a>(1)<br>
+<a href="/sbotools/documentation/sboinstall.1.html">sboinstall</a>(1)<br>
+<a href="/sbotools/documentation/sboremove.1.html">sboremove</a>(1)<br>
+<a href="/sbotools/documentation/sbosnap.1.html">sbosnap</a>(1)<br>
+<a href="/sbotools/documentation/sboupgrade.1.html">sboupgrade</a>(1)<br>
+<a href="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</a>(5)</p>
+
+
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/pink-mist/sbotools">sbotools</a> is maintained by <a href="https://github.com/pink-mist">pink-mist</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
