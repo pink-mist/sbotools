@@ -1,20 +1,15 @@
 #!/bin/bash
 
+DOWNLOADDIR="$1"
+PACKAGE="sbotools"
+VERSION=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm | grep -Eo '[0-9]+(\.[0-9]+){0,1}')    
+FILENAME=$PACKAGE-$VERSION.tar.gz
 
-if [[ "$1" == "" || "$2" == "" ]]; then
-	echo "Usage: $(basename $0) package version"
-	exit 1
-fi
+echo "Making package for $PACKAGE-$VERSION." \
+    "Press enter to continue or Ctrl+C to abort."
+read
 
-PACKAGE=$1
-VERSION=$2
-
-PKG_HOME=$HOME/projects/$PACKAGE
-
-if [[ ! -d $PKG_HOME ]]; then
-	echo "$PKG_HOME doesn't seem to exist."
-	exit 1
-fi
+PKG_HOME=`pwd`
 
 function cleanup () {
 	if [[ "$1" != "" ]]; then
@@ -22,7 +17,12 @@ function cleanup () {
 	fi
 }
 
-trap "cleanup $TMP_DIR; exit 2" INT TERM EXIT
+update_info() {
+    INFO=$1
+    MD5=$(md5sum $PKG_HOME/$FILENAME | cut -d' ' -f1)
+    sed -i -e "s/@FILENAME@/$FILENAME/" $INFO
+    sed -i -e "s/@MD5@/$MD5/" $INFO
+}
 
 TMP_DIR=$(mktemp -d /tmp/$PACKAGE.XXXXXXXXXXXX)
 PKG_DIR=$TMP_DIR/$PACKAGE-$VERSION
@@ -46,21 +46,20 @@ if [[ -d $PKG_DIR/slackbuild/$PACKAGE ]]; then
 	fi
 	mv $PKG_DIR/slackbuild/$PACKAGE/* $SBO_DIR
 	rm -rf $PKG_DIR/slackbuild
-	(cd $TMP_DIR
-		tar cjf $PACKAGE.tar.bz2 $PACKAGE/
-	)
-	mv $TMP_DIR/$PACKAGE.tar.bz2 $HOME/SBo/
 fi
 
 
 find $TMP_DIR -type f -name \*~ -exec rm {} \;
 
-FILENAME=$PACKAGE-$VERSION.tar.gz
-
 (cd $TMP_DIR
 	tar czf $FILENAME $PACKAGE-$VERSION/
-	cp $FILENAME $HOME
+	cp $FILENAME $PKG_HOME
 )
+(cd $TMP_DIR
+    update_info "$PACKAGE/$PACKAGE.info"
+	tar cjf $PACKAGE.tar.bz2 $PACKAGE/
+)
+mv $TMP_DIR/$PACKAGE.tar.bz2 $PKG_HOME
 
 cleanup $TMP_DIR
 exit 0
