@@ -15,7 +15,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package SBO::Lib;
-our $VERSION = '1.8';
+our $VERSION = '1.9';
 
 require Exporter;
 our @ISA = qw(Exporter);
