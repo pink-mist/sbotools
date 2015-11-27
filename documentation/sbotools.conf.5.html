@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>downloads - sbotools by pink-mist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">sbotools</h1>
+      <h2 class="project-tagline">provides a ports-like interface to slackbuilds.org</h2>
+      <a href="https://github.com/pink-mist/sbotools" class="btn">View on GitHub</a>
+      <a href="https://pink-mist.github.io/sbotools/downloads/sbotools-1.9.tar.gz" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="sbotools" class="anchor" href="#sbotools" aria-hidden="true"><span class="octicon octicon-link"></span></a></h1>
+
+<H1>sbotools.conf</H1>
+Section: dawnrazor.net (5)<BR>Updated: Setting Orange, The Aftermath 38, 3181 YOLD<BR><A HREF="#index">Index</A>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+sbotools.conf - configuration file for sbotools commands.
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+This file, location at /etc/sbotools/sbotools.conf, contains KEY=VALUE configuration parameters, and is read by all of the sbotools commands. 
+The current configuration keys are as follows:
+DISTCLEAN=(FALSE|TRUE)
+<DL COMPACT><DT><DD>
+If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running <A HREF="/sbotools/documentation/sboupgrade.1.html">sboupgrade</A>(1)/<A HREF="/sbotools/documentation/sboinstall.1.html">sboinstall</A>(1).
+</DL>
+JOBS=(FALSE|#)
+<DL COMPACT><DT><DD>
+If numeric (2,5,10, etc), then that number will be fed to the &quot;-j&quot; argument to make when a SlackBuild which invokes &quot;make&quot; is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
+</DL>
+NOCLEAN=(FALSE|TRUE)
+<DL COMPACT><DT><DD>
+If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo (or $TMP). By default, these directories are removed after building a slackbuild. Setting this option to TRUE causes the working directories to not be cleaned by default. This can be overridden when running <A HREF="/sbotools/documentation/sboupgrade.1.html">sboupgrade</A>(1)/<A HREF="/sbotools/documentation/sboinstall.1.html">sboinstall</A>(1).
+</DL>
+PKG_DIR=(FALSE|/path)
+<DL COMPACT><DT><DD>
+If set to a path, packages will be stored at the given location after building and installing. By default, packages are left where they are deposited by SlackBuilds, which is typically (probably always) /tmp (or $OUTPUT). If PKG_DIR is FALSE and DISTCLEAN is TRUE (either in <A HREF="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</A>(5) or at sboupgrade/sboinstall runtime), the package will be deleted. If this option is set to a path in the filesystem, the package will be stored in that directory, regardless of any DISTCLEAN option.
+</DL>
+SBO_HOME=(/usr/sbo|/path)
+<DL COMPACT><DT><DD>
+If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
+</DL>
+<A NAME="lbAD">&nbsp;</A>
+<H2>SEE ALSO</H2>
+<A HREF="/sbotools/documentation/sbocheck.1.html">sbocheck</A>(1), <A HREF="/sbotools/documentation/sboclean.1.html">sboclean</A>(1), <A HREF="/sbotools/documentation/sboconfig.1.html">sboconfig</A>(1), <A HREF="/sbotools/documentation/sbofind.1.html">sbofind</A>(1), <A HREF="/sbotools/documentation/sboinstall.1.html">sboinstall</A>(1), <A HREF="/sbotools/documentation/sboremove.1.html">sboremove</A>(1), <A HREF="/sbotools/documentation/sbosnap.1.html">sbosnap</A>(1), <A HREF="/sbotools/documentation/sboupgrade.1.html">sboupgrade</A>(1)
+<A NAME="lbAE">&nbsp;</A>
+<H2>AUTHORS</H2>
+Jacob Pipkin &lt;j_[at]_dawnrazor_[dot]_net&gt;
+Luke Williams &lt;xocel_[at]_iquidus_[dot]_org&gt;
+Andreas Guldstrand &lt;andreas_[dot]_guldstrand_[at]_gmail_[dot]_com&gt;
+<P>
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAD">SEE ALSO</A><DD>
+<DT><A HREF="#lbAE">AUTHORS</A><DD>
+</DL>
+<HR>
+This document was created by
+man2html,
+using the manual pages.<BR>
+Time: 12:44:11 GMT, November 27, 2015
+
+
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/pink-mist/sbotools">sbotools</a> is maintained by <a href="https://github.com/pink-mist">pink-mist</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>

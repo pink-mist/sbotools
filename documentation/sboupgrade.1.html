@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>downloads - sbotools by pink-mist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">sbotools</h1>
+      <h2 class="project-tagline">provides a ports-like interface to slackbuilds.org</h2>
+      <a href="https://github.com/pink-mist/sbotools" class="btn">View on GitHub</a>
+      <a href="https://pink-mist.github.io/sbotools/downloads/sbotools-1.9.tar.gz" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="sbotools" class="anchor" href="#sbotools" aria-hidden="true"><span class="octicon octicon-link"></span></a></h1>
+
+<H1>sboupgrade</H1>
+Section: dawnrazor.net (1)<BR>Updated: Setting Orange, The Aftermath 38, 3181 YOLD<BR><A HREF="#index">Index</A>
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+sboupgrade - install or upgrade slackbuilds
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNAPSES</H2>
+sboupgrade [-h|-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-fNrRiz] sbo_name (sbo_name)
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboupgrade will refuse to handle circular requirements. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options.
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+-h|--help
+<DL COMPACT><DT><DD>
+Show help information.
+</DL>
+-v|--version
+<DL COMPACT><DT><DD>
+Show version information.
+</DL>
+-c|--noclean (FALSE|TRUE)
+<DL COMPACT><DT><DD>
+If TRUE, then DO NOT clean working directories after building the slackbuild. These are the directories where the source is unpacked and compiled, and where the package is put together in, which are under /tmp/SBo (or $TMP). By default, these directories are removed after building an slackbuild. This option leaves those directories in place. This can be set as default via the <A HREF="/sbotools/documentation/sboconfig.1.html">sboconfig</A>(1) command. Also see <A HREF="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</A>(5). This option overrides the default.
+</DL>
+-d|--distclean (FALSE|TRUE)
+<DL COMPACT><DT><DD>
+If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles; this option can be set as default via the <A HREF="/sbotools/documentation/sboconfig.1.html">sboconfig</A>(1) command. See also <A HREF="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</A>(5). This option overrides the default.
+</DL>
+-f|--force
+<DL COMPACT><DT><DD>
+Force an upgrade, even if the installed version is equal to or less than the slackbuilds.org version.
+</DL>
+-i|--noinstall
+<DL COMPACT><DT><DD>
+Do not actually install the package created at the end of the build process. So, the slackbuild will be run, and the package will be left in /tmp (or $OUTPUT), or in $PKG_DIR if so defined (see <A HREF="/sbotools/documentation/sboconfig.1.html">sboconfig</A>(1) and <A HREF="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</A>(5)).
+</DL>
+-j|--jobs (FALSE|#)
+<DL COMPACT><DT><DD>
+If numeric (2,5,10, etc), then that number will be fed to the &quot;-j&quot; argument to make when a slackbuild which invokes &quot;make&quot; is run. This only makes sense on multicore systems, where one might set the JOBS to the number of available cores, or half that number, etc.
+</DL>
+-r|--nointeractive
+<DL COMPACT><DT><DD>
+Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade is run, the first thing the command will attempt to do is show you the README for a given slackbuild and ask whether or not you wish to proceed; this option skips the README and bypasses the question. If multiple slackbuilds are specified, this option bypasses them all.
+</DL>
+-z|--force-reqs
+<DL COMPACT><DT><DD>
+When used in combination with the -f option, to force an update even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt. This allows for recursive upgrades, among other things.
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXIT CODES</H2>
+sboinstall can exit with the following exit codes:
+<DL COMPACT><DT><DD>
+<P>
+0: all operations were succesful.
+</DL>
+<DL COMPACT><DT><DD>
+1: a usage error occured, such as specifying invalid options.
+</DL>
+<DL COMPACT><DT><DD>
+3: a .SlackBuild exited non-zero.
+</DL>
+<DL COMPACT><DT><DD>
+4: unable to md5sum verify an SBo's source file(s).
+</DL>
+<DL COMPACT><DT><DD>
+5: unable to download an SBo's source file(s).
+</DL>
+<DL COMPACT><DT><DD>
+6: unable to obtain a required file handle.
+</DL>
+<DL COMPACT><DT><DD>
+7: unable to get required info from the SBo's .info file.
+</DL>
+<DL COMPACT><DT><DD>
+8: unable to unset the exec-on-close bit on a temporary file.
+</DL>
+<DL COMPACT><DT><DD>
+9: multilib hasn't been setup (where required).
+</DL>
+<DL COMPACT><DT><DD>
+10: convertpkg-compat32 exited non-zero.
+</DL>
+<DL COMPACT><DT><DD>
+11: the convertpkg-compat32 script can't be found (where required).
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>BUGS</H2>
+None known, but there may be some. Please report any found to <A HREF="https://github.com/pink-mist/sbotools/issues">https://github.com/pink-mist/sbotools/issues</A> ; patches are always welcome.
+<A NAME="lbAH">&nbsp;</A>
+<H2>SEE ALSO</H2>
+<A HREF="/sbotools/documentation/sbocheck.1.html">sbocheck</A>(1), <A HREF="/sbotools/documentation/sboclean.1.html">sboclean</A>(1), <A HREF="/sbotools/documentation/sboconfig.1.html">sboconfig</A>(1), <A HREF="/sbotools/documentation/sbofind.1.html">sbofind</A>(1), <A HREF="/sbotools/documentation/sboinstall.1.html">sboinstall</A>(1), <A HREF="/sbotools/documentation/sboremove.1.html">sboremove</A>(1), <A HREF="/sbotools/documentation/sbosnap.1.html">sbosnap</A>(1), <A HREF="/sbotools/documentation/sbotools.conf.5.html">sbotools.conf</A>(5)
+<A NAME="lbAI">&nbsp;</A>
+<H2>AUTHORS</H2>
+Jacob Pipkin &lt;j_[at]_dawnrazor_[dot]_net&gt;
+Luke Williams &lt;xocel_[at]_iquidus_[dot]_org&gt;
+Andreas Guldstrand &lt;andreas_[dot]_guldstrand_[at]_gmail_[dot]_com&gt;
+<P>
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNAPSES</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXIT CODES</A><DD>
+<DT><A HREF="#lbAG">BUGS</A><DD>
+<DT><A HREF="#lbAH">SEE ALSO</A><DD>
+<DT><A HREF="#lbAI">AUTHORS</A><DD>
+</DL>
+<HR>
+This document was created by
+man2html,
+using the manual pages.<BR>
+Time: 12:44:10 GMT, November 27, 2015
+
+
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/pink-mist/sbotools">sbotools</a> is maintained by <a href="https://github.com/pink-mist">pink-mist</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
