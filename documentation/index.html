@@ -28,9 +28,7 @@
 <p>As sbotools is high influenced by FreeBSD’s ports system and its <a href="http://pkgtools.github.com/">pkgtools</a>, the interface will be more or less familiar to anyone familiar with portupgrade, etc.</p>
 
 <p>The first thing which needs to be done after installing sbotools is to pull a local copy of the slackbuilds.org tree, minus the excess bits; this is optionally done automagickally at first run of <a href="/sbotools/documentation/sbofind.1.html">sbofind</a>(1), <a href="/sbotools/documentation/sboupgrade.1.html">sboupgrade</a>(1), or <a href="/sbotools/documentation/sboinstall.1.html">sboinstall</a>(1), or manually via the <a href="/sbotools/documentation/sbosnap.1.html">sbosnap</a>(1) command:<br>
-<code>
-# sbosnap fetch<br>
-</code>
+<code># sbosnap fetch</code>
 </p>
 
 <p><a href="/sbotools/documentation/sboupgrade.1.html">sboupgrade</a>(1) and <a href="/sbotools/documentation/sboinstall.1.html">sboinstall</a>(1) on 14.0 or 14.1 will pull the list of requirements from a given slackbuild’s .info file, or on 13.37 will look at a given slackbuild’s README for a list of requirements and, if found, will check to see whether or not those requirements are already installed. For any not installed, sbotools will ask whether or not it should attempt to install it first. This is recursive so that ordering happens correctly. This functions correctly for -compat32 packages as well, and since a -compat32 is only somewhat useful without its 64-bit counterpart installed since the compat32 will have its headers stripped out, sbotools will offer to install the 64-bit version first if it’s not already installed. For various sanity reasons, if the -r flag is provided to bypass viewing the README, no requirement handling/parsing is done. Asking a tool to automatically do such things without reading the relevant README files is a bad, bad, bad idea.</p>
@@ -42,10 +40,8 @@
 <p>For slackbuilds with options documented in the README, of the form KEY=value, sboupgrade and sboinstall will provide an opportunity to set any options which one wishes to specify. This is yet another area where parsing mishaps may occur… as always yet again, read, understand, utilize accordingly.</p>
 
 <p>Items which are unique to sbotools compared to FreeBSD’s pkgtools are <a href="/sbotools/documentation/sbofind.1.html">sbofind</a>(1) and <a href="/sbotools/documentation/sboconfig.1.html">sboconfig</a>(1). <a href="/sbotools/documentation/sbofind.1.html">sbofind</a>(1) followed by a search term is approximately equivalent to running the following on a FreeBSD system:<br>
-<code>
-# cd /usr/ports<br>
-# make search name="search_term" display=name,path
-</code>
+<code># cd /usr/ports</code><br>
+<code># make search name="search_term" display=name,path</code>
 </p>
 
 <p>sbofind includes options to display the contents of the .info file and to display the contents of the README file for any slackbuilds it finds.</p>
