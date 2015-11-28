@@ -245,4 +245,6 @@ a {
     font-size: 0.9rem; } }
 
 .main-content .breadcrumbs {
+	margin-top: -1rem;
+	border-bottom: solid 1px #eff0f1;
 	font-size: 0.8rem; }
