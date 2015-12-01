@@ -34,7 +34,7 @@ find -L . \
 # we set INSTALLMAN3DIR=none to elide the Sort::Versions.3 man page so that we
 # don't clobber one from perl-Sort-Versions or Sort::Versions.
 ( cd SBO-Lib
-	perl Makefile.PL \
+	/usr/bin/perl Makefile.PL \
 	  PREFIX=/usr \
 	  INSTALLDIRS=site \
 	  INSTALLVENDORMAN1DIR=/usr/man/man1 \
