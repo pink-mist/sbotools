@@ -469,13 +469,19 @@ sub get_sbo_downloads {
 }
 
 # given a link, grab the filename from it and prepend $distfiles
-sub get_filename_from_link {
-	exists $_[0] or script_error('get_filename_from_link requires an argument');
+sub _get_fname {
 	my $fn = shift;
 	my $regex = qr#/([^/]+)$#;
-	my $filename = $fn =~ $regex ? $distfiles .'/'. ($fn =~ $regex)[0] : undef;
+	my ($filename) = $fn =~ $regex;
 	$filename =~ s/%2B/+/g if $filename;
 	return $filename;
+
+}
+sub get_filename_from_link {
+	exists $_[0] or script_error('get_filename_from_link requires an argument');
+	my $filename = _get_fname(shift);
+	return undef unless defined $filename;
+	return "$distfiles/$filename";
 }
 
 # for a given file, compute its md5sum
@@ -528,7 +534,7 @@ sub get_distfile {
 	unlink $filename if -f $filename;
 	my $sbosrcarch = sprintf(
 		"ftp://ftp.slackware.org.uk/sbosrcarch/by-md5/%s/%s/%s/%s",
-		substr($info_md5, 0, 1), substr($info_md5, 1, 1), $info_md5, $filename);
+		substr($info_md5, 0, 1), substr($info_md5, 1, 1), $info_md5, _get_fname($link));
 
 	return 1 if
 		system('wget', '--no-check-certificate', $sbosrcarch) == 0 and
