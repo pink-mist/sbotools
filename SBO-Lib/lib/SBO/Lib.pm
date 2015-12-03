@@ -509,12 +509,32 @@ sub get_distfile {
 	mkdir $distfiles unless -d $distfiles;
 	chdir $distfiles;
 	unlink $filename if -f $filename;
+	my $fail = {};
+
+	#  if wget $link && verify, return
+	#  else wget sbosrcarch && verify
 	if (system('wget', '--no-check-certificate', $link) != 0) {
-		return "Unable to wget $link.\n", _ERR_DOWNLOAD;
+		$fail->{msg} = "Unable to wget $link.\n";
+		$fail->{err} = _ERR_DOWNLOAD;
 	}
-	# can't do anything if the link in the .info doesn't lead to a good d/l
-	verify_distfile(@_) ? return 1 : return "md5sum failure for $filename.\n",
-		_ERR_MD5SUM;
+	return 1 if not %$fail and verify_distfile(@_);
+	if (not %$fail) {
+		$fail->{msg} = "md5sum failure for $filename.\n";
+		$fail->{err} = _ERR_MD5SUM;
+	}
+
+	# since the download from the original link either didn't download or
+	# didn't verify, try to get it from sbosrcarch instead
+	unlink $filename if -f $filename;
+	my $sbosrcarch = sprintf(
+		"ftp://ftp.slackware.org.uk/sbosrcarch/by-md5/%s/%s/%s/%s",
+		substr($info_md5, 0, 1), substr($info_md5, 1, 1), $info_md5, $filename);
+
+	return 1 if
+		system('wget', '--no-check-certificate', $sbosrcarch) == 0 and
+		verify_distfile(@_);
+
+	return $fail->{msg}, $fail->{err};
 }
 
 # for a given distfile, figure out what the full path to its symlink will be
