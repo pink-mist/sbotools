@@ -144,6 +144,7 @@ our %config = (
 	PKG_DIR => 'FALSE',
 	SBO_HOME => 'FALSE',
 	LOCAL_OVERRIDES => 'FALSE',
+	SLACKWARE_VERSION => 'FALSE',
 );
 
 # subroutine to suck in config in order to facilitate unit testing
@@ -184,6 +185,7 @@ sub show_version {
 # which is now not needed since this version drops support < 14.0
 # but it's already future-proofed, so leave it.
 sub get_slack_version {
+	return $config{SLACKWARE_VERSION} unless $config{SLACKWARE_VERSION} eq 'FALSE';
 	my %supported = (
 		'14.0' => '14.0',
 		'14.1' => '14.1',

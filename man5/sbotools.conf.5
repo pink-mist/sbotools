@@ -37,6 +37,11 @@ LOCAL_OVERRIDES=(FALSE|/path)
 .RS
 If set to a path, any directory name under that path that matches a slackbuild name will be used instead of anything found on SBo. This will even work if it isn't on SBo at all. It still requires all the usual files present in an SBo directory such as README, name.info, and name.SlackBuild.
 .RE
+.P
+SLACKWARE_VERSION=(FALSE|#.#)
+.RS
+If set to a version specification, use the SBo repository for that version instead of the one you can find in /etc/slackware-version.
+.RE
 .SH SEE ALSO
 .P
 sbocheck(1), sboclean(1), sboconfig(1), sbofind(1), sboinstall(1), sboremove(1), sbosnap(1), sboupgrade(1)

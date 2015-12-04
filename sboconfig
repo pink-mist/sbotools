@@ -43,6 +43,8 @@ Config options (defaults shown):
       SBO_HOME: set the SBo directory.
   -l|--local-overrides FALSE:
       LOCAL_OVERRIDES: a directory containing local overrides.
+  -V|--slackware-version FALSE:
+      SLACKWARE_VERSION: use the SBo repository for this version.
 
 EOF
 }
@@ -51,27 +53,29 @@ my %options;
 
 GetOptions(\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
 	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s',
-	'local-overrides|l=s');
+	'local-overrides|l=s', 'slackware-version|V=s');
 
 show_usage() and exit 0 if exists $options{help};
 show_version() and exit 0 if exists $options{version};
 
 my %valid_confs = (
-	noclean           => 'NOCLEAN',
-	distclean         => 'DISTCLEAN',
-	jobs              => 'JOBS',
-	'pkg-dir'         => 'PKG_DIR',
-	'sbo-home'        => 'SBO_HOME',
-	'local-overrides' => 'LOCAL_OVERRIDES',
+	noclean             => 'NOCLEAN',
+	distclean           => 'DISTCLEAN',
+	jobs                => 'JOBS',
+	'pkg-dir'           => 'PKG_DIR',
+	'sbo-home'          => 'SBO_HOME',
+	'local-overrides'   => 'LOCAL_OVERRIDES',
+	'slackware-version' => 'SLACKWARE_VERSION',
 );
 
 my %params = (
-	NOCLEAN         => 'c|--noclean',
-	DISTCLEAN       => 'd|--distclean',
-	JOBS            => 'j|--jobs',
-	PKG_DIR         => 'p|--pkg-dir',
-	SBO_HOME        => 's|--sbo-home',
-	LOCAL_OVERRIDES => 'l|--local-overrides',
+	NOCLEAN           => 'c|--noclean',
+	DISTCLEAN         => 'd|--distclean',
+	JOBS              => 'j|--jobs',
+	PKG_DIR           => 'p|--pkg-dir',
+	SBO_HOME          => 's|--sbo-home',
+	LOCAL_OVERRIDES   => 'l|--local-overrides',
+	SLACKWARE_VERSION => 'V|--slackware-version',
 );
 
 if (exists $options{list}) {
@@ -108,6 +112,9 @@ if (exists $changes{SBO_HOME}) {
 }
 if (exists $changes{LOCAL_OVERRIDES}) {
 	usage_error("$warn -l") unless $changes{LOCAL_OVERRIDES} =~ qr#^(/|FALSE$)#;
+}
+if (exists $changes{SLACKWARE_VERSION}) {
+	usage_error("$warn -V") unless $changes{SLACKWARE_VERSION} =~ m/^(\d+\.\d+|FALSE)$/;
 }
 
 # safely modify our conf file; write its contents to a temp file, modify the
