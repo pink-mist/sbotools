@@ -143,6 +143,7 @@ our %config = (
 	JOBS => 'FALSE',
 	PKG_DIR => 'FALSE',
 	SBO_HOME => 'FALSE',
+	LOCAL_OVERRIDES => 'FALSE',
 );
 
 # subroutine to suck in config in order to facilitate unit testing
@@ -342,6 +343,19 @@ sub get_sbo_locations {
 		seek $fh, 0, 0;
 	}
 	close $fh;
+
+	# after we've checked the regular sbo locations, we'll see if it needs to
+	# be overridden by a local change
+	my $local = $config{LOCAL_OVERRIDES};
+	unless ( $local eq 'FALSE' ) {
+		for my $sbo (@sbos) {
+			my $loc = "$local/$sbo";
+			next unless -d $loc;
+			$$store{$sbo} = $loc;
+			$locations{$sbo} = $loc;
+		}
+	}
+
 	return %locations;
 }
 }

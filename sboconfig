@@ -41,6 +41,8 @@ Config options (defaults shown):
       PKG_DIR: set a directory to store packages in. 
   -s|--sbo-home /usr/sbo:
       SBO_HOME: set the SBo directory.
+  -l|--local-overrides FALSE:
+      LOCAL_OVERRIDES: a directory containing local overrides.
 
 EOF
 }
@@ -48,25 +50,28 @@ EOF
 my %options;
 
 GetOptions(\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
-	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s');
+	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s',
+	'local-overrides|l=s');
 
 show_usage() and exit 0 if exists $options{help};
 show_version() and exit 0 if exists $options{version};
 
 my %valid_confs = (
-	noclean		=> 'NOCLEAN',
-	distclean	=> 'DISTCLEAN',
-	jobs		=> 'JOBS',
-	'pkg-dir'	=> 'PKG_DIR',
-	'sbo-home'	=> 'SBO_HOME',
+	noclean           => 'NOCLEAN',
+	distclean         => 'DISTCLEAN',
+	jobs              => 'JOBS',
+	'pkg-dir'         => 'PKG_DIR',
+	'sbo-home'        => 'SBO_HOME',
+	'local-overrides' => 'LOCAL_OVERRIDES',
 );
 
 my %params = (
-	NOCLEAN		=> 'c|--noclean',
-	DISTCLEAN	=> 'd|--distclean',
-	JOBS		=> 'j|--jobs',
-	PKG_DIR		=> 'p|--pkg-dir',
-	SBO_HOME	=> 's|--sbo-home',
+	NOCLEAN         => 'c|--noclean',
+	DISTCLEAN       => 'd|--distclean',
+	JOBS            => 'j|--jobs',
+	PKG_DIR         => 'p|--pkg-dir',
+	SBO_HOME        => 's|--sbo-home',
+	LOCAL_OVERRIDES => 'l|--local-overrides',
 );
 
 if (exists $options{list}) {
@@ -100,6 +105,9 @@ if (exists $changes{PKG_DIR}) {
 }
 if (exists $changes{SBO_HOME}) {
 	usage_error("$warn -s") unless $changes{SBO_HOME} =~ qr#^/#;
+}
+if (exists $changes{LOCAL_OVERRIDES}) {
+	usage_error("$warn -l") unless $changes{LOCAL_OVERRIDES} =~ qr#^(/|FALSE$)#;
 }
 
 # safely modify our conf file; write its contents to a temp file, modify the
