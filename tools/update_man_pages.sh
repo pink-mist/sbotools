@@ -1,11 +1,15 @@
 #!/bin/sh
 
 usage_exit() {
-	echo "Usage: $(basename $0) (-d) (-g) version"
+	echo "Usage: $(basename $0) (-d) (-g)"
 	exit 1
 }
 
-if [[ "$1" == "" ]]; then
+if [[ "$1" == "-h" ]]; then
+	usage_exit
+fi
+
+if [[ "$1" == "-?" ]]; then
 	usage_exit
 fi
 
@@ -19,11 +23,7 @@ if [[ "$1" == "-g" ]]; then
 	shift
 fi
 
-if [[ "$1" == "" ]]; then
-	usage_exit
-fi
-
-version="$1"
+VERSION=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm | grep -Eo '[0-9]+(\.[0-9RC]+){0,1}')
 
 if ! [[ -d "./man1" ]]; then
 	echo "you do not seem to be at the right place to run this."

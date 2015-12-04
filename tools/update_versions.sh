@@ -26,8 +26,7 @@ update="
 	slackbuild/sbotools/sbotools.info
 "
 
-old_version=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm \
-	| grep -Eo '[0-9]+(\.[0-9]+){0,1}')
+old_version=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm | grep -Eo '[0-9]+(\.[0-9RC]+){0,1}')
 
 tmpfile=$(mktemp /tmp/XXXXXXXXXX)
 
