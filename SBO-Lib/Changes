@@ -9,6 +9,7 @@
     version of slackware to be used. Useful if you're on -current and
     /etc/slackware-version has been updated, but neither slackbuilds.org or
     sbotools have been updated yet.
+
 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
   * Lots of code cleanup
