@@ -53,6 +53,7 @@ our @EXPORT = qw(
 	process_sbos
 	print_failures
 	usage_error
+	uniq
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -988,7 +989,7 @@ sub get_requires {
 	return $$info[0] ne '' ? $info : undef;
 }
 
-sub _uniq {
+sub uniq {
 	my %seen;
 	return grep { !$seen{$_}++ } @_;
 }
@@ -1010,7 +1011,7 @@ sub _build_queue {
 		push @result, $sbo;
 	}
 
-	return _uniq @result;
+	return uniq @result;
 }
 
 sub get_build_queue {
@@ -1023,7 +1024,7 @@ sub merge_queues {
 	# Results in queue_b being merged into queue_a (without duplicates)
 	exists $_[1] or script_error('merge_queues requires two arguments.');
 
-	return [ _uniq @{$_[0]}, @{$_[1]} ];
+	return [ uniq @{$_[0]}, @{$_[1]} ];
 }
 
 sub get_readme_contents {

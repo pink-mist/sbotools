@@ -42,6 +42,8 @@ Options (defaults shown first where applicable):
     non-interactive; skips README and all prompts.
   -z|--force-reqs:
     when used with -f, will force rebuilding an SBo's requirements as well.
+  --all
+    this flag will upgrade everything reported by sbocheck(1).
 
 EOF
 }
@@ -49,27 +51,35 @@ EOF
 my $noclean = $config{NOCLEAN};
 my $distclean = $config{DISTCLEAN};
 my $jobs = $config{JOBS};
-my ($help, $vers, $force, $no_install, $non_int, $force_reqs);
+my ($help, $vers, $force, $no_install, $non_int, $force_reqs, $all);
 # backwards compatibility options
 my ($install_new, $no_reqs, $compat32);
 
 GetOptions(
-    'help|h'            => \$help,
-    'version|v'         => \$vers,
-    'noclean|c=s'       => \$noclean,
-    'distclean|d=s'     => \$distclean,
-    'force|f'           => \$force,
-    'noinstall|i'       => \$no_install,
-    'jobs|j=s'          => \$jobs,
-	'installnew|N'		=> \$install_new,
-    'nointeractive|r'   => \$non_int,
-    'norequirements|R'  => \$no_reqs,
-    'force-reqs|z'      => \$force_reqs,
-	'compat32|p'		=> \$compat32,
+	'help|h'            => \$help,
+	'version|v'         => \$vers,
+	'noclean|c=s'       => \$noclean,
+	'distclean|d=s'     => \$distclean,
+	'force|f'           => \$force,
+	'noinstall|i'       => \$no_install,
+	'jobs|j=s'          => \$jobs,
+	'installnew|N'      => \$install_new,
+	'nointeractive|r'   => \$non_int,
+	'norequirements|R'  => \$no_reqs,
+	'force-reqs|z'      => \$force_reqs,
+	'compat32|p'        => \$compat32,
+	'all'               => \$all,
 );
 
 show_usage() and exit 0 if $help;
 show_version() and exit 0 if $vers;
+
+if ($all) {
+	print "Checking for updated SlackBuilds...\n";
+	my $updates = get_available_updates();
+	push @ARGV, map { $_->{name} } @$updates;
+}
+
 show_usage() and exit 1 unless exists $ARGV[0];
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
@@ -90,7 +100,7 @@ usage_error("-p|--compat32 does not make sense without -N|--installnew")
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
 slackbuilds_or_fetch();
 
-my @sbos = @ARGV;
+my @sbos = uniq @ARGV;
 
 # pull locations for everything specified on command line.
 my %locations;
