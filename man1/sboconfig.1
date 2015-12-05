@@ -50,7 +50,7 @@ PKG_DIR: If set to a path, packages will be stored at the given location after b
 SBO_HOME: If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
 .RE
 .P
--l|--local-overrides (FALSE|/path)
+-o|--local-overrides (FALSE|/path)
 .RS
 LOCAL_OVERRIDES: If set to a path, any directory name under that path that matches a slackbuild name will be used instead of anything found on SBo. This will even work if it isn't on SBo at all. It still requires all the usual files present in an SBo directory such as README, name.info, and name.SlackBuild.
 .RE
