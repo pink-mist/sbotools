@@ -15,6 +15,7 @@ use warnings FATAL => 'all';
 use SBO::Lib;
 use Getopt::Long;
 use File::Basename;
+use List::Util 'max';
 
 my $self = basename($0);
 
@@ -50,8 +51,7 @@ sub get_update_list {
 	# fits in 80 chars; stuff that doesn't will overflow.
 	my @up_lengths;
 	push @up_lengths, length $$updates[$_]{update} for keys @$updates;
-	my @s_up_lengths = sort {$b <=> $a} @up_lengths;
-	my $up_length = $s_up_lengths[0];
+	my $up_length = max @up_lengths;
 	# "needs updating" bit without version is 30 characters
 	my $remaining = 80 - ($up_length + 30);
 	my @lengths;
@@ -69,8 +69,9 @@ sub get_update_list {
 
 	my @listing;
 	for my $update (@$updates) {
+		my $name = sprintf "%s %s", $$update{name}, $$update{installed};
 		push(@listing, sprintf "%-${min}s  <  needs updating (SBo has %s)",
-			"$$update{name}-$$update{installed}", "$$update{update}");
+			$name, $$update{update});
 	}
 	return \@listing;
 }
