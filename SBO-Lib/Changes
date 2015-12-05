@@ -9,6 +9,10 @@
     version of slackware to be used. Useful if you're on -current and
     /etc/slackware-version has been updated, but neither slackbuilds.org or
     sbotools have been updated yet.
+  * sbocheck: changed output slightly to allow easier copy/pasting
+    (https://github.com/pink-mist/sbotools/issues/10)
+  * sboupgrade: added --all option and small manpage fixes
+    (https://github.com/pink-mist/sbotools/issues/9)
 
 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
