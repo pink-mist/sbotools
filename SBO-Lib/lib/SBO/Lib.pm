@@ -418,7 +418,7 @@ sub get_available_updates {
 		# if we can't find a location, assume invalid and skip
 		next FIRST unless $location;
 		my $version = get_sbo_version($location);
-		if (versioncmp($version, $$pkg_list[$key]{version}) == 1) {
+		if (versioncmp($version, $$pkg_list[$key]{version}) != 0) {
 			push @updates, {
 				name		=> $$pkg_list[$key]{name},
 				installed	=> $$pkg_list[$key]{version},
