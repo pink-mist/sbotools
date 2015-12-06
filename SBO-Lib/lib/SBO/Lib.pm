@@ -17,9 +17,9 @@ use warnings FATAL => 'all';
 package SBO::Lib;
 our $VERSION = '1.9';
 
-require Exporter;
-our @ISA = qw(Exporter);
-our @EXPORT = qw(
+use Exporter 'import';
+
+our @EXPORT_OK = qw(
 	script_error
 	open_fh
 	open_read
@@ -58,6 +58,10 @@ our @EXPORT = qw(
 	$conf_dir
 	$conf_file
 	%config
+);
+
+our %EXPORT_TAGS = (
+	all => \@EXPORT_OK,
 );
 
 use constant {

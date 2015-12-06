@@ -12,7 +12,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib;
+use SBO::Lib qw/ fetch_tree update_tree %config /;
 use File::Basename;
 use Getopt::Long;
 

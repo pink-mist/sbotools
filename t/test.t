@@ -8,7 +8,7 @@ use Test::More;
 use File::Copy;
 use Text::Diff;
 use lib ".";
-use SBO::Lib;
+use SBO::Lib qw/ :all /;
 
 chomp(my $pwd = `pwd`);
 my $sbo_home = "$pwd/sbo";

@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib;
+use SBO::Lib qw/ slackbuilds_or_fetch script_error open_read get_build_queue %config /;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 
