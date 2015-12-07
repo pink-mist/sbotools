@@ -74,9 +74,11 @@ GetOptions(
 show_usage() and exit 0 if $help;
 show_version() and exit 0 if $vers;
 
+my $updates;
 if ($all) {
+	slackbuilds_or_fetch();
 	print "Checking for updated SlackBuilds...\n";
-	my $updates = get_available_updates();
+	$updates = get_available_updates();
 	push @ARGV, map { $_->{name} } @$updates;
 }
 
@@ -120,6 +122,12 @@ for my $sbo (@sbos) {
 my $inst_names = get_inst_names(get_installed_packages('SBO'));
 my %inst_names;
 $inst_names{$_} = 1 for @$inst_names;
+my %updates;
+if (not $non_int or not $force) {
+	$updates //= get_available_updates();
+	$updates{$$_{name}} = 1 for @$updates;
+}
+
 
 # backwards compatibility
 if ($install_new) {
@@ -153,49 +161,44 @@ my $upgrade_queue;
 # doesn't matter what's updatable and what's not if force is specified,
 # but without force, we only want to update what there are updates for
 unless ($force) {
-	my %updates;
-	my $updates = get_available_updates();
-	$updates{$$_{name}} = 1 for @$updates;
-    for my $sbo (@sbos) {
+	for my $sbo (@sbos) {
 		push @$upgrade_queue, $sbo if $updates{$sbo};
-    }
+	}
 } else {
-    if ($force_reqs && ! $non_int) {
-		my $temp_queue;
-        for my $sbo (@sbos) {
-			my $name = $sbo;
-			$name =~ s/-compat32$//;
-			my $queue = get_build_queue([$name], my $warnings);
-			my $queue2;
-			for my $item (@$queue) {
-				push @$queue2, $item if $inst_names{$item};
-			}
-			$queue = $queue2;
-			my $cqueue;
-			# get locations for all the things
-			my %locs = get_sbo_locations($queue);
-			my %clocs;
-			# -compat32-ify the queue and locations if appropriate
-			if ($sbo =~ /-compat32$/) {
-				$cqueue = $queue;
-				s/$/-compat32/g for @$cqueue;
-				$queue = $cqueue;
-				for my $key (keys %locs) {
-					my $val = $locs{$key};
-					$key =~ s/$/-compat32/;
-					$clocs{$key} = $val;
-				}
-				%locs = %clocs;
-			}
-			@locations{keys %locs} = values %locs;
-			$temp_queue = merge_queues($temp_queue, $queue);
-        }
-		$upgrade_queue = $temp_queue;
-    } else {
-		for my $sbo (@sbos) {
-			push @$upgrade_queue, $sbo if $inst_names{$sbo};
+	for my $sbo (@sbos) {
+		push @$upgrade_queue, $sbo if $inst_names{$sbo};
+	}
+}
+
+if (not $non_int) {
+	my $temp_queue;
+	for my $sbo (@sbos) {
+		my $name = $sbo;
+		$name =~ s/-compat32$//;
+		my $queue = get_build_queue([$name], my $warnings);
+		if (not $force_reqs) {
+			@$queue = grep { !$inst_names{$_} or $updates{$_} } @$queue;
 		}
-    }
+		my $cqueue;
+		# get locations for all the things
+		my %locs = get_sbo_locations($queue);
+		my %clocs;
+		# -compat32-ify the queue and locations if appropriate
+		if ($sbo =~ /-compat32$/) {
+			$cqueue = $queue;
+			s/$/-compat32/g for @$cqueue;
+			$queue = $cqueue;
+			for my $key (keys %locs) {
+				my $val = $locs{$key};
+				$key =~ s/$/-compat32/;
+				$clocs{$key} = $val;
+			}
+			%locs = %clocs;
+		}
+		@locations{keys %locs} = values %locs;
+		$temp_queue = merge_queues($temp_queue, $queue);
+	}
+	$upgrade_queue = $temp_queue;
 }
 
 # Get user input regarding upgrades
