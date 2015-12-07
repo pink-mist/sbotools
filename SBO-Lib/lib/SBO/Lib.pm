@@ -407,11 +407,17 @@ sub get_from_info {
 	$store = {};
 	foreach my $line (split /\n/, $contents) {
 		my ($key, $val) = $last_key;
-		if ($line =~ /^([^=\s]+)=(.*)$/) { $key = $1; $val = $2; }
+		if ($line =~ /^([^=\s]+)=(.*)$/)  { $key = $1; $val = $2; }
 		elsif ($line =~ /^\s+([^\s].+)$/) {            $val = $1; }
 		else { script_error("error when parsing $sbo.info file. Line: $line") }
 		push @{ $store->{$key} }, ($val ? split(' ', $val) : $val);
 		$last_key = $key;
+	}
+	# allow local overrides to get away with not having quite all the fields
+	if (is_local($sbo)) {
+		for my $key (qw/DOWNLOAD_x86_64 MD5SUM_x86_64 REQUIRES/) {
+			$store->{$key} //= ['']; # if they don't exist, treat them as empty
+		}
 	}
 	return $store->{$args{GET}};
 }
