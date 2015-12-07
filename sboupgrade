@@ -63,11 +63,8 @@ GetOptions(
 	'force|f'           => \$force,
 	'noinstall|i'       => \$no_install,
 	'jobs|j=s'          => \$jobs,
-	'installnew|N'      => \$install_new,
 	'nointeractive|r'   => \$non_int,
-	'norequirements|R'  => \$no_reqs,
 	'force-reqs|z'      => \$force_reqs,
-	'compat32|p'        => \$compat32,
 	'all'               => \$all,
 );
 
@@ -94,10 +91,6 @@ if ($jobs) {
 
 usage_error("-r|--nointeractive and -z|--force-reqs can not be used together.")
 	if $non_int && $force_reqs;
-usage_error("-R|--norequirements does not make sense without -N|--installnew")
-	if $no_reqs && ! $install_new;
-usage_error("-p|--compat32 does not make sense without -N|--installnew")
-	if $compat32 && ! $install_new;
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
 slackbuilds_or_fetch();
@@ -126,34 +119,6 @@ my %updates;
 if (not $non_int or not $force) {
 	$updates //= get_available_updates();
 	$updates{$$_{name}} = 1 for @$updates;
-}
-
-
-# backwards compatibility
-if ($install_new) {
-	# warn about future removal and pause for five seconds - which hopefully
-	# might encourage the user to read and take note of the warning.
-	warn "-N is deprecated and will disappear in a future release.\n";
-	select((select(STDOUT), $| = 1)[0]);
-	print("."), sleep 1 for 1..5;
-	say '';
-	$| = 0;
-	for my $sbo (@sbos) {
-		my $name = $sbo;
-		$name =~ s/$/-compat32/ if $compat32 && $sbo !~ /-compat32$/;
-		unless ($inst_names{$name}) {
-			my @args = ('/usr/sbin/sboinstall');
-			push @args, $noclean ? '-cTRUE' : '-cFALSE';
-			push @args, $distclean ? '-dTRUE' : '-dFALSE';
-			push @args, '-R' if $no_reqs;
-			push @args, '-p' if $compat32;
-			push @args, '-i' if $no_install;
-			push @args, '-r' if $non_int;
-			push @args, '-R' if $no_reqs;
-			push @args, "-j$jobs" if $jobs;
-			system(@args, $sbo);
-		}
-	}
 }
 
 my $upgrade_queue;
