@@ -1007,7 +1007,7 @@ sub get_requires {
 	my $location = get_sbo_location(shift);
 	return() unless $location;
 	my $info = get_from_info(LOCATION => $location, GET => 'REQUIRES');
-	return $$info[0] ne '' ? $info : undef;
+	return $info;
 }
 
 sub uniq {
@@ -1050,6 +1050,7 @@ sub merge_queues {
 
 sub get_readme_contents {
 	exists $_[0] or script_error('get_readme_contents requires an argument.');
+	return undef, _ERR_OPENFH if not defined $_[0];
 	my ($fh, $exit) = open_read(shift .'/README');
 	return undef, $exit if $exit;
 	my $readme = do {local $/; <$fh>};
@@ -1141,6 +1142,7 @@ sub ask_opts {
 sub user_prompt {
 	exists $_[1] or script_error('user_prompt requires two arguments.');
 	my ($sbo, $location) = @_;
+	if (not defined $location) { usage_error("Unable to locate $sbo in the SlackBuilds.org tree."); }
 	my ($readme, $exit) = get_readme_contents($location);
 	if (is_local($sbo)) { print "\nFound $sbo in local overrides.\n"; $exit = 0; }
 	return $readme, undef, $exit if $exit;
