@@ -1136,7 +1136,7 @@ sub user_prompt {
 	exists $_[1] or script_error('user_prompt requires two arguments.');
 	my ($sbo, $location) = @_;
 	my ($readme, $exit) = get_readme_contents($location);
-	if (is_local($sbo)) { print "Found $sbo in local overrides.\n\n"; $exit = 0; }
+	if (is_local($sbo)) { print "\nFound $sbo in local overrides.\n"; $exit = 0; }
 	return $readme, undef, $exit if $exit;
 	# check for user/group add commands, offer to run any found
 	my $user_group = get_user_group($readme);
