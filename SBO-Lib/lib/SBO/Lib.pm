@@ -1275,3 +1275,7 @@ sub print_failures {
 		}
 	}
 }
+
+'ok';
+
+__END__
