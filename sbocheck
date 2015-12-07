@@ -12,7 +12,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ update_tree get_available_updates script_error open_fh /;
+use SBO::Lib qw/ update_tree get_available_updates script_error open_fh is_local /;
 use Getopt::Long;
 use File::Basename;
 use List::Util 'max';
@@ -53,7 +53,7 @@ sub get_update_list {
 	push @up_lengths, length $$updates[$_]{update} for keys @$updates;
 	my $up_length = max @up_lengths;
 	# "needs updating" bit without version is 30 characters
-	my $remaining = 80 - ($up_length + 30);
+	my $remaining = 80 - ($up_length + 44);
 	my @lengths;
 	push @lengths, length "$$updates[$_]{name}-$$updates[$_]{installed}"
 		for keys @$updates;
@@ -70,7 +70,9 @@ sub get_update_list {
 	my @listing;
 	for my $update (@$updates) {
 		my $name = sprintf "%s %s", $$update{name}, $$update{installed};
-		push(@listing, sprintf "%-${min}s  <  needs updating (SBo has %s)",
+		my $upd = "SBo has %s";
+		if (is_local($$update{name})) { $upd = "%s from local overrides"; }
+		push(@listing, sprintf "%-${min}s  <  needs updating ($upd)",
 			$name, $$update{update});
 	}
 	return \@listing;

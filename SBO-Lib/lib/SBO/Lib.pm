@@ -54,6 +54,7 @@ our @EXPORT_OK = qw(
 	print_failures
 	usage_error
 	uniq
+	is_local
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -310,6 +311,7 @@ sub get_inst_names {
 {
 	# a state variable for get_sbo_location and get_sbo_locations
 	my $store = {};
+	my %local;
 
 sub get_sbo_location {
 	exists $_[0] or script_error('get_sbo_location requires an argument.');
@@ -360,10 +362,19 @@ sub get_sbo_locations {
 			next unless -d $loc;
 			$$store{$sbo} = $loc;
 			$locations{$sbo} = $loc;
+			$local{$sbo} = $local;
 		}
 	}
 
 	return %locations;
+}
+
+sub is_local {
+	exists $_[0] or script_error('is_local requires an argument.');
+	my $sbo = shift;
+	# Make sure we have checked for the slackbuild in question:
+	get_sbo_location($sbo);
+	return !!$local{$sbo};
 }
 }
 
@@ -1125,6 +1136,7 @@ sub user_prompt {
 	exists $_[1] or script_error('user_prompt requires two arguments.');
 	my ($sbo, $location) = @_;
 	my ($readme, $exit) = get_readme_contents($location);
+	if (is_local($sbo)) { print "Found $sbo in local overrides.\n\n"; $exit = 0; }
 	return $readme, undef, $exit if $exit;
 	# check for user/group add commands, offer to run any found
 	my $user_group = get_user_group($readme);
