@@ -19,6 +19,7 @@
     https://github.com/pink-mist/sbotools/issues/15)
   * sboinstall, sboupgrade: Give a useful error message if a dependency cannot
     be found (https://github.com/pink-mist/sbotools/issues/16)
+  * sbofind manpage: add missing -q option.
 
 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
