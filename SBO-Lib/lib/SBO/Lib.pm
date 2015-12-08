@@ -93,6 +93,7 @@ use File::Temp qw(tempdir tempfile);
 use File::Find;
 use File::Basename;
 use Fcntl qw(F_SETFD F_GETFD);
+use Cwd;
 
 # get $TMP from the env, if defined - we use two variables here because there
 # are times when we need to no if the environment variable is set, and other
@@ -179,7 +180,8 @@ read_config();
 
 # some stuff we'll need later - define first two as our for unit testing
 our $distfiles = "$config{SBO_HOME}/distfiles";
-our $slackbuilds_txt = "$config{SBO_HOME}/SLACKBUILDS.TXT";
+our $repo_path = "$config{SBO_HOME}/repo";
+our $slackbuilds_txt = "$repo_path/SLACKBUILDS.TXT";
 my $name_regex = '\ASLACKBUILD\s+NAME:\s+';
 
 sub show_version {
@@ -235,36 +237,97 @@ sub pull_sbo_tree {
 	if ($url eq 'FALSE') {
 		my $slk_version = get_slack_version();
 		$url = "rsync://slackbuilds.org/slackbuilds/$slk_version/";
+	} else {
+		unlink($slackbuilds_txt);
 	}
-	unlink($slackbuilds_txt);
 	my $res = 0;
-	if ($url =~ m!^rsync://!) { $res = rsync_sbo_tree($url); }
-	elsif ($url =~ m!^git://!) { $res = git_sbo_tree($url); }
-	else { usage_error("Unknown protocol in repo URL: $url"); }
+	if ($url =~ m!^rsync://!) {
+		$res = rsync_sbo_tree($url);
+	} else {
+		$res = git_sbo_tree($url);
+	}
 
+	my $wanted = sub {
+		$File::Find::name ? chown 0, 0, $File::Find::name
+						  : chown 0, 0, $File::Find::dir;
+	};
+	find($wanted, $repo_path);
 	if ($res and not chk_slackbuilds_txt()) {
 		generate_slackbuilds_txt();
 	}
 }
 
-# rsync the sbo tree from slackbuilds.org to $config{SBO_HOME}
+# rsync the sbo tree from slackbuilds.org to $repo_path
 sub rsync_sbo_tree {
 	exists $_[0] or script_error('rsync_sbo_tree requires an argument.');	
 	my $url = shift;
 	$url .= '/' unless $url =~ m!/$!; # make sure $url ends with /
-	my @arg = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
-	push @arg, '--delete', "${url}*";
-	my $out = system @arg, $config{SBO_HOME};
-	my $wanted = sub {
-		$File::Find::name ? chown 0, 0, $File::Find::name
-						  : chown 0, 0, $File::Find::dir;
-	};
-	find($wanted, $config{SBO_HOME});
-	say 'Finished.' and return $out;
+	my @args = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc' '--delete', $url);
+	return system(@args, $repo_path) == 0;
 }
 
-sub git_sbo_tree { ... }
-sub generate_slackbuilds_txt { ... }
+sub git_sbo_tree {
+	exists $_[0] or script_error('git_sbo_tree requires an argument.');
+	my $url = shift;
+	if (-d "$repo_path/.git" and check_git_remote($repo_path, $url)) {
+		my $cwd = getcwd();
+		chdir $repo_path;
+		system(qw/ git reset HEAD --hard /) == 0 or chdir $cwd and return 0;
+		system(qw/ git fetch /) == 0 or chdir $cwd and return 0;
+		system(qw/ git pull /) == 0 or chdir $cwd and return 0;
+		chdir $cwd and return 1;
+	} else {
+		my $cwd = getcwd();
+		chdir $config{SBO_HOME};
+		remove_tree($repo_path) if -d $repo_path;
+		system(qw/ git clone /, $url, $repo_path) == 0 or chdir $cwd and return 0;
+		chdir $cwd and return 1;
+	}
+	return 0;
+}
+
+sub check_git_remote {
+	exists $_[1] or script_error('check_git_remote requires two arguments.');
+	my ($path, $url) = @_;
+	my ($fh, $exit) = open_read("$path/.git/config");
+	return 0 if $exit;
+
+	while (my $line = readline($fh)) {
+		chomp $line;
+		if ($line eq '[remote "origin"]') {
+			REMOTE: while (my $remote = readline($fh)) {
+				last REMOTE if $remote =~ /^\[/;
+				return 1 if $remote =~ /^\s*url\s*=\s*\Q$url\E$/;
+				return 0 if $remote =~ /^\s*url\s*=/;
+			}
+		}
+	}
+	return 0;
+}
+
+sub generate_slackbuilds_txt {
+	my ($fh, $exit) = open_fh($slackbuilds_txt, '>');
+	return 0 if $exit;
+
+	opendir(my $dh, $repo_path) or return 0;
+	my @categories =
+		grep { -d "$repo_path/$_" }
+		grep { $_ !~ /^\./ }
+		readdir($dh);
+	close $dh;
+
+	for my $cat (@categories) {
+		opendir(my $cat_dh, "$repo_path/$cat") or return 0;
+		while (my $package = readdir($cat_dh)) {
+			next if $package =~ /^\.\.?$/;
+			next unless -f "$repo_path/$cat/$package/$package.info";
+			print { $fh } "SLACKBUILD LOCATION: ./$cat/$package\n";
+		}
+		close $cat_dh;
+	}
+	close $fh;
+	return 1;
+}
 
 # wrappers for differing checks and output
 sub fetch_tree {
@@ -279,7 +342,7 @@ sub update_tree {
 	pull_sbo_tree(), return 1;
 }
 
-# if the SLACKBUILDS.TXT is not in $config{SBO_HOME}, we assume the tree has
+# if the SLACKBUILDS.TXT is not in $repo_path, we assume the tree has
 # not been populated there; prompt the user to automagickally pull the tree.
 sub slackbuilds_or_fetch {
 	unless (chk_slackbuilds_txt()) {
@@ -368,7 +431,7 @@ sub get_sbo_locations {
 		while (my $line = <$fh>) {
 			if (my $loc = ($line =~ $regex)[0]) {
 				# save what we found for later requests
-				$$store{$sbo} = "$config{SBO_HOME}$loc";
+				$$store{$sbo} = $repo_path . $loc;
 				$locations{$sbo} = $$store{$sbo};
 			}
 		}
@@ -401,7 +464,7 @@ sub is_local {
 }
 }
 
-# pull the sbo name from a $location: $config{SBO_HOME}/system/wine, etc.
+# pull the sbo name from a $location: $repo_path/system/wine, etc.
 sub get_sbo_from_loc {
 	exists $_[0] or script_error('get_sbo_from_loc requires an argument.');
 	return (shift =~ qr#/([^/]+)$#)[0];
