@@ -6,7 +6,8 @@
 # script to remove an installed SlackBuild
 #
 # authors: Luke Williams <xocel@iquidus.org>
-# 		   Jacob Pipkin <j@dawnrazor.net>
+#          Jacob Pipkin <j@dawnrazor.net>
+#          Andreas Guldstrand <andreas.guldstrand@gmail.com>
 # license: WTFPL <http://sam.zoy.org/wtfpl/COPYING>
 
 use 5.16.0;
