@@ -151,6 +151,7 @@ our %config = (
 	SBO_HOME => 'FALSE',
 	LOCAL_OVERRIDES => 'FALSE',
 	SLACKWARE_VERSION => 'FALSE',
+	REPO => 'FALSE',
 );
 
 # subroutine to suck in config in order to facilitate unit testing
@@ -229,11 +230,30 @@ sub check_home {
 	return 1;
 }
 
+sub pull_sbo_tree {
+	my $url = $config{REPO};
+	if ($url eq 'FALSE') {
+		my $slk_version = get_slack_version();
+		$url = "rsync://slackbuilds.org/slackbuilds/$slk_version/";
+	}
+	unlink($slackbuilds_txt);
+	my $res = 0;
+	if ($url =~ m!^rsync://!) { $res = rsync_sbo_tree($url); }
+	elsif ($url =~ m!^git://!) { $res = git_sbo_tree($url); }
+	else { usage_error("Unknown protocol in repo URL: $url"); }
+
+	if ($res and not chk_slackbuilds_txt()) {
+		generate_slackbuilds_txt();
+	}
+}
+
 # rsync the sbo tree from slackbuilds.org to $config{SBO_HOME}
 sub rsync_sbo_tree {
-	my $slk_version = get_slack_version();
+	exists $_[0] or script_error('rsync_sbo_tree requires an argument.');	
+	my $url = shift;
+	$url .= '/' unless $url =~ m!/$!; # make sure $url ends with /
 	my @arg = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc');
-	push @arg, '--delete', "rsync://slackbuilds.org/slackbuilds/$slk_version/*";
+	push @arg, '--delete', "${url}*";
 	my $out = system @arg, $config{SBO_HOME};
 	my $wanted = sub {
 		$File::Find::name ? chown 0, 0, $File::Find::name
@@ -243,17 +263,20 @@ sub rsync_sbo_tree {
 	say 'Finished.' and return $out;
 }
 
+sub git_sbo_tree { ... }
+sub generate_slackbuilds_txt { ... }
+
 # wrappers for differing checks and output
 sub fetch_tree {
 	check_home();
 	say 'Pulling SlackBuilds tree...';
-	rsync_sbo_tree(), return 1;
+	pull_sbo_tree(), return 1;
 }
 
 sub update_tree {
 	fetch_tree(), return() unless chk_slackbuilds_txt();
 	say 'Updating SlackBuilds tree...';
-	rsync_sbo_tree(), return 1;
+	pull_sbo_tree(), return 1;
 }
 
 # if the SLACKBUILDS.TXT is not in $config{SBO_HOME}, we assume the tree has
