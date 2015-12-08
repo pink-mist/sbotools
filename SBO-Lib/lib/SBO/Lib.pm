@@ -15,7 +15,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package SBO::Lib;
-our $VERSION = '1.9';
+our $VERSION = '2.0';
 
 use Exporter 'import';
 
