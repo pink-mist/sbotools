@@ -45,6 +45,8 @@ Config options (defaults shown):
       LOCAL_OVERRIDES: a directory containing local overrides.
   -V|--slackware-version FALSE:
       SLACKWARE_VERSION: use the SBo repository for this version.
+  -r|--repo FALSE:
+      REPO: use a repository other than SBo.
 
 EOF
 }
@@ -53,7 +55,7 @@ my %options;
 
 GetOptions(\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
 	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s',
-	'local-overrides|o=s', 'slackware-version|V=s');
+	'local-overrides|o=s', 'slackware-version|V=s', 'repo|r=s');
 
 show_usage() and exit 0 if exists $options{help};
 show_version() and exit 0 if exists $options{version};
@@ -66,6 +68,7 @@ my %valid_confs = (
 	'sbo-home'          => 'SBO_HOME',
 	'local-overrides'   => 'LOCAL_OVERRIDES',
 	'slackware-version' => 'SLACKWARE_VERSION',
+	'repo'              => 'REPO',
 );
 
 my %params = (
@@ -76,6 +79,7 @@ my %params = (
 	SBO_HOME          => 's|--sbo-home',
 	LOCAL_OVERRIDES   => 'o|--local-overrides',
 	SLACKWARE_VERSION => 'V|--slackware-version',
+	REPO              => 'r|--repo',
 );
 
 if (exists $options{list}) {

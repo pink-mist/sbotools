@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ slackbuilds_or_fetch script_error open_read get_build_queue %config /;
+use SBO::Lib qw/ slackbuilds_or_fetch script_error open_read get_build_queue %config $slackbuilds_txt $repo_path /;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 
@@ -67,7 +67,7 @@ sub perform_search {
 	my (@findings, $name, $found);
 	my $name_regex = qr/NAME:\s+(.*\Q$search\E.*)$/i;
 	my $loc_regex = qr/LOCATION:\s+(.*)$/;
-	my ($fh, $exit) = open_read "$config{SBO_HOME}/SLACKBUILDS.TXT";
+	my ($fh, $exit) = open_read $slackbuilds_txt;
 	if ($exit) {
 		warn $fh;
 		exit $exit;
@@ -79,7 +79,7 @@ sub perform_search {
 			if (my ($location) = ($line =~ $loc_regex)[0]) {
 				$found = 0;
 				$location =~ s#^\.##;
-				push @findings, {$name => $config{SBO_HOME} . $location};
+				push @findings, {$name => $repo_path . $location};
 			}
 		}
 	}

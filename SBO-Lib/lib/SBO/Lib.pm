@@ -59,6 +59,8 @@ our @EXPORT_OK = qw(
 	$conf_dir
 	$conf_file
 	%config
+	$slackbuilds_txt
+	$repo_path
 );
 
 our %EXPORT_TAGS = (
@@ -321,6 +323,7 @@ sub generate_slackbuilds_txt {
 		while (my $package = readdir($cat_dh)) {
 			next if $package =~ /^\.\.?$/;
 			next unless -f "$repo_path/$cat/$package/$package.info";
+			print { $fh } "SLACKBUILD NAME: $package\n";
 			print { $fh } "SLACKBUILD LOCATION: ./$cat/$package\n";
 		}
 		close $cat_dh;
