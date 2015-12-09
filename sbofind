@@ -72,6 +72,7 @@ sub perform_search {
 		warn $fh;
 		exit $exit;
 	}
+	my %local;
 	FIRST: while (my $line = <$fh>) {
 		unless ($found) {
 			$found++, next FIRST if $name = ($line =~ $name_regex)[0];
@@ -79,9 +80,24 @@ sub perform_search {
 			if (my ($location) = ($line =~ $loc_regex)[0]) {
 				$found = 0;
 				$location =~ s#^\.##;
-				push @findings, {$name => $repo_path . $location};
+				if ($config{LOCAL_OVERRIDES} ne 'FALSE' and -d "$config{LOCAL_OVERRIDES}/$name") {
+					push @findings, {name => $name, location => "$config{LOCAL_OVERRIDES}/$name", local => 1 };
+					$local{$name} = 1;
+				} else {
+					push @findings, {name => $name, location => $repo_path . $location};
+				}
 			}
 		}
+	}
+	if ($config{LOCAL_OVERRIDES} ne 'FALSE') {
+		opendir(my $dh, $config{LOCAL_OVERRIDES});
+		while (my $dir = readdir($dh)) {
+			next if $local{$dir};
+			if ($dir =~ /$search/) {
+				push @findings, {name => $dir, location => "$config{LOCAL_OVERRIDES}/$dir", local => 1 };
+			}
+		}
+		closedir $dh;
 	}
 	return \@findings;
 }
@@ -115,15 +131,15 @@ my $findings = perform_search($search);
 # pretty formatting
 if (exists $$findings[0]) {
 	for my $hash (@$findings) {
-		for my $key (keys %$hash) {
-			my $val = $hash->{$key};
-			say "SBo:    $key";
-			say "Path:   $val";
-			say "info:   ". get_file_contents("$val/$key.info") if $show_info;
-			say "README: ". get_file_contents("$val/README") if $show_readme;
-			say "Queue:  ". show_build_queue("$key") if $show_queue;
-			say '';
-		}
+		my $name = $hash->{name};
+		my $location = $hash->{location};
+		my $sbo = "SBo:   "; $sbo = "Local: " if $hash->{local};
+		say "$sbo $name";
+		say "Path:   $location";
+		say "info:   ". get_file_contents("$location/$name.info") if $show_info;
+		say "README: ". get_file_contents("$location/README") if $show_readme;
+		say "Queue:  ". show_build_queue($name) if $show_queue;
+		say '';
 	}
 } else {
 	say "Nothing found for search term: $search";
