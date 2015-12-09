@@ -93,7 +93,7 @@ sub perform_search {
 		opendir(my $dh, $config{LOCAL_OVERRIDES});
 		while (my $dir = readdir($dh)) {
 			next if $local{$dir};
-			if ($dir =~ /$search/) {
+			if ($dir =~ /\Q$search\E/) {
 				push @findings, {name => $dir, location => "$config{LOCAL_OVERRIDES}/$dir", local => 1 };
 			}
 		}
