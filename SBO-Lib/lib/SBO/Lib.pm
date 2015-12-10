@@ -220,16 +220,15 @@ sub chk_slackbuilds_txt {
 }
 
 # check for the validity of new $config{SBO_HOME}
-sub check_home {
-	my $sbo_home = $config{SBO_HOME};
-	if (-d $sbo_home) {
-		opendir(my $home_handle, $sbo_home);
-		FIRST: while (my $dir = readdir $home_handle) {
+sub check_repo {
+	if (-d $repo_path) {
+		opendir(my $repo_handle, $repo_path);
+		FIRST: while (my $dir = readdir $repo_handle) {
 			next FIRST if $dir =~ /^\.[\.]{0,1}$/;
-			usage_error("$sbo_home exists and is not empty. Exiting.\n");
+			usage_error("$repo_path exists and is not empty. Exiting.\n");
 		}
 	} else {
-		make_path($sbo_home) or usage_error("Unable to create $sbo_home.\n");
+		make_path($repo_path) or usage_error("Unable to create $repo_path.\n");
 	}
 	return 1;
 }
@@ -334,7 +333,7 @@ sub generate_slackbuilds_txt {
 
 # wrappers for differing checks and output
 sub fetch_tree {
-	check_home();
+	check_repo();
 	say 'Pulling SlackBuilds tree...';
 	pull_sbo_tree(), return 1;
 }
