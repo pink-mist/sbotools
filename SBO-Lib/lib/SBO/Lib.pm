@@ -216,7 +216,26 @@ sub get_slack_version {
 
 # does the SLACKBUILDS.TXT file exist in the sbo tree?
 sub chk_slackbuilds_txt {
+	if (-f "$config{SBO_HOME}/SLACKBUILDS.TXT") { migrate_repo(); }
 	return -f $slackbuilds_txt ? 1 : undef;
+}
+
+# Checks if the first argument equals any of the subsequent ones
+sub in {
+	my ($first, @rest) @_;
+	foreach my $arg (@rest) { return 1 if $first eq $arg; }
+	return 0;
+}
+
+# Move everything in /usr/sbo except distfiles and repo dirs into repo dir
+sub migrate_repo {
+	make_path($repo_path) unless -d $repo_path;
+	opendir(my $dh, $config{SBO_HOME});
+	foreach my $entry (readdir($dh)) {
+		next if in($entry => qw/ . .. repo distfiles /);
+		move("$config{SBO_HOME}/$entry", "$repo_path/$entry");
+	}
+	close $dh;
 }
 
 # check for the validity of new $config{SBO_HOME}
