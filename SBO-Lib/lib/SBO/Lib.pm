@@ -55,6 +55,7 @@ our @EXPORT_OK = qw(
 	usage_error
 	uniq
 	is_local
+	in
 	$tempdir
 	$conf_dir
 	$conf_file
@@ -222,8 +223,11 @@ sub chk_slackbuilds_txt {
 
 # Checks if the first argument equals any of the subsequent ones
 sub in {
-	my ($first, @rest) @_;
-	foreach my $arg (@rest) { return 1 if $first eq $arg; }
+	my ($first, @rest) = @_;
+	foreach my $arg (@rest) {
+		return 1 if ref $arg eq 'Regexp' and $first =~ $arg;
+		return 1 if $first eq $arg;
+	}
 	return 0;
 }
 
@@ -243,7 +247,7 @@ sub check_repo {
 	if (-d $repo_path) {
 		opendir(my $repo_handle, $repo_path);
 		FIRST: while (my $dir = readdir $repo_handle) {
-			next FIRST if $dir =~ /^\.[\.]{0,1}$/;
+			next FIRST if in($dir => qw/ . .. /);
 			usage_error("$repo_path exists and is not empty. Exiting.\n");
 		}
 	} else {
@@ -339,7 +343,7 @@ sub generate_slackbuilds_txt {
 	for my $cat (@categories) {
 		opendir(my $cat_dh, "$repo_path/$cat") or return 0;
 		while (my $package = readdir($cat_dh)) {
-			next if $package =~ /^\.\.?$/;
+			next if in($package => qw/ . .. /);
 			next unless -f "$repo_path/$cat/$package/$package.info";
 			print { $fh } "SLACKBUILD NAME: $package\n";
 			print { $fh } "SLACKBUILD LOCATION: ./$cat/$package\n";
@@ -875,8 +879,7 @@ sub get_src_dir {
 	# scripts use either $TMP or /tmp/SBo
 	if (opendir(my $tsbo_dh, $tmpd)) {
 		FIRST: while (my $ls = readdir $tsbo_dh) {
-			next FIRST if $ls =~ /^\.[\.]{0,1}$/;
-			next FIRST if $ls =~ /^package-/;
+			next FIRST if in($ls => qw/ . .. /, qr/^package-/);
 			next FIRST unless -d "$tmpd/$ls";
 			my $found = 0;
 			seek $fh, 0, 0;
@@ -942,7 +945,7 @@ sub perform_sbo {
 	my $src_ls_fh = tempfile(DIR => $tempdir);
 	if (opendir(my $tsbo_dh, $tmpd)) {
 		FIRST: while (my $dir = readdir $tsbo_dh) {
-			next FIRST if $dir =~ /^\.[\.]{0,1}$/;
+			next FIRST if in($dir => qw/ . .. /);
 			say {$src_ls_fh} $dir;
 		}
 	}

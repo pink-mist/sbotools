@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ usage_error script_error /;
+use SBO::Lib qw/ usage_error script_error in /;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 use File::Path qw(remove_tree);
@@ -73,7 +73,7 @@ sub remove_stuff {
 	my $dir = shift;
 	opendir(my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
-		next FIRST if $ls =~ /^(\.){1,2}$/;
+		next FIRST if in($ls => qw/ . .. /);
 		rm_full("$dir/$ls");
 	}
 }
