@@ -14,4 +14,5 @@ env
 run sboconfig -V 14.1
 run sbosnap fetch
 run sbofind sbotools
-sudo t/do_tests.sh
+cd t
+sudo do_tests.sh
