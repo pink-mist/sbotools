@@ -1,2 +1,7 @@
+language: perl
+perl:
+    - "5.22"
+    - "5.18"
+    - "5.16"
 install: true
 script: t/travis.sh
