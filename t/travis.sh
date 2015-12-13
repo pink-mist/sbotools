@@ -11,6 +11,4 @@ run() {
 
 run sboconfig -V 14.1
 run sbosnap fetch
-
-echo "Not actually testing anything. Just verifying travis runs this."
-exit 0
+run sbofind ffmpeg
