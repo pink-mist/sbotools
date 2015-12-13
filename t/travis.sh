@@ -11,4 +11,5 @@ run() {
 
 run sboconfig -V 14.1
 run sbosnap fetch
-run sbofind ffmpeg
+run sbofind sbotools
+yes | run sboinstall -i sbotools
