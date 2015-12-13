@@ -6,11 +6,11 @@ set -x
 
 PERL=`which perl`
 run() {
-	sudo $PERL -I"SBO-Lib/lib" "$*"
+	sudo $PERL -I"SBO-Lib/lib" "$@"
 }
 
-run(sboconfig -V 14.1)
-run(sbosnap fetch)
+run sboconfig -V 14.1
+run sbosnap fetch
 
 echo "Not actually testing anything. Just verifying travis runs this."
 exit 0
