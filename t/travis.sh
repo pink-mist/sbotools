@@ -12,4 +12,5 @@ run() {
 run sboconfig -V 14.1
 run sbosnap fetch
 run sbofind sbotools
-yes | run sboinstall -i sbotools
+[[ 3 -eq yes | run sboinstall -i sbotools ]]
+t/do_tests.sh
