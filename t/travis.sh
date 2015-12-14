@@ -20,6 +20,8 @@ cd t
 sudo $PERL prep.pl
 sudo $PERL test.t
 cd $CWD
+
+# Test alternative repo
 sudo rm -rf /usr/sbo
 [ ! -e /usr/sbo/repo/SLACKBUILDS.TXT ]
 run sboconfig -r https://github.com/Ponce/slackbuilds.git
@@ -27,3 +29,16 @@ run sbosnap fetch
 [ -e /usr/sbo/repo/SLACKBUILDS.TXT ]
 [ ! -e /usr/sbo/repo/SLACKBUILDS.TXT.gz ]
 run sbofind sbotools
+
+# Test local overrides
+run sboconfig -o $CWD/t/LO
+run sboinstall -r nonexistentslackbuild
+ls -la /var/log/packages
+run sboremove --nointeractive nonexistentslackbuild
+ls -la /var/log/packages
+
+sudo /sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz
+run sbocheck
+WC=$(wc -l /var/log/sbocheck.log)
+[ "$WC" = "1 /var/log/sbocheck.log" ]
+run sboupgrade -r nonexistentslackbuild

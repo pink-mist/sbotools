@@ -1,0 +1,7 @@
+#!/bin/bash
+PRGNAM="nonexistentslackbuild"
+VERSION=${VERSION:-1.0}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+OUTPUT=${OUTPUT:-/tmp}
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-noarch-$BUILD$TAG.tgz
