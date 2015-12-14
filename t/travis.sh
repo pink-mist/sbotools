@@ -5,14 +5,16 @@ set -e
 set -x
 
 PERL=`which perl`
+I="SBO-Lib/lib"
 run() {
-	sudo $PERL -I"SBO-Lib/lib" "$@"
+	sudo $PERL "$@"
 }
 
 env
 
-run sboconfig -V 14.1
-run sbosnap fetch
-run sbofind sbotools
+run -I$I sboconfig -V 14.1
+run -I$I sbosnap fetch
+run -I$I sbofind sbotools
 cd t
-sudo ./do_tests.sh
+run prep.pl
+run test.t
