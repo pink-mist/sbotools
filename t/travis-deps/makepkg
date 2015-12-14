@@ -22,4 +22,4 @@ done
 
 touch $1
 
-echo "Slackware package $1 created.
+echo "Slackware package $1 created."
