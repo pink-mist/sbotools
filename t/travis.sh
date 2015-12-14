@@ -26,3 +26,4 @@ run sboconfig -r https://github.com/Ponce/slackbuilds.git
 run sbosnap fetch
 [ -e /usr/sbo/repo/SLACKBUILDS.TXT ]
 [ ! -e /usr/sbo/repo/SLACKBUILDS.TXT.gz ]
+run sbofind sbotools
