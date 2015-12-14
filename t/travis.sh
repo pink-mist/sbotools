@@ -49,3 +49,10 @@ run sboupgrade -r nonexistentslackbuild
 y
 END
 ) || [ "$?" = "1" ]
+
+# Test sboupgrade --all
+sudo /sbin/removepkg nonexistentslackbuild
+sudo /sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz
+run sboupgrade -r --all
+[ -e /var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo ]
+[ ! -e /var/log/packages/nonexistentslackbuild-0.9-noarch-1_SBo ]
