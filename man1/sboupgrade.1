@@ -47,7 +47,7 @@ If numeric (2,5,10, etc), then that number will be fed to the "-j" argument to m
 .P
 -r|--nointeractive
 .RS
-Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade is run, the first thing the command will attempt to do is show you the README for a given slackbuild and ask whether or not you wish to proceed; this option skips the README and bypasses the question. If multiple slackbuilds are specified, this option bypasses them all.
+Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade is run, the first thing the command will attempt to do is show you the README for a given slackbuild and ask whether or not you wish to proceed; this option skips the README and bypasses the question. This also disables dependency resolution, since you have no way of confirming which dependencies you actually want to install. If multiple slackbuilds are specified, this option bypasses them all.
 .RE
 .P
 -z|--force-reqs
