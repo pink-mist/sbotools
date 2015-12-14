@@ -51,6 +51,9 @@ if (-f '/etc/slackware-version') {
 $version = '14.1' unless $version;
 is(get_slack_version(), $version, 'get_slack_version is good');
 
+# make sure we migrate when we should
+ok(-f "$sbo_home/SLACKBUILDS.TXT", 'SLACKBUILDS.TXT exists pre-migration');
+
 # chk_slackbuilds_txt tests
 is(chk_slackbuilds_txt(), 1, 'chk_slackbuilds_txt is good');
 move("$repo_path/SLACKBUILDS.TXT", "$sbo_home/SLACKBUILDS.TXT.moved");
@@ -509,4 +512,11 @@ is($regex, '(?^u: xapian-bindings-[^-]+.tar.gz)', 'get_dc_regex test 04.1');
 is($initial, ' ', 'get_dc_regex test 04.2');
 
 # end of tests.
+
+# move things back to pre-migration state
+foreach my $fname (glob("$repo_path/*")) {
+	move $fname, $sbo_home;
+}
+unlink $repo_path;
+
 done_testing();
