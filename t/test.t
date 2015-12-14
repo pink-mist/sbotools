@@ -17,8 +17,10 @@ $conf_file = "$pwd/sbotools.conf";
 $SBO::Lib::conf_file = $conf_file;
 read_config;
 $config{SBO_HOME} = $sbo_home;
+my $repo_path = "$sbo_home/repo";
+$SBO::Lib::repo_path = $repo_path;
 $SBO::Lib::distfiles = "$sbo_home/distfiles";
-$SBO::Lib::slackbuilds_txt = "$sbo_home/SLACKBUILDS.TXT";
+$SBO::Lib::slackbuilds_txt = "$repo_path/SLACKBUILDS.TXT";
 
 # config settings tests
 is($config{DISTCLEAN}, 'FALSE', 'config{DISTCLEAN} is good');
