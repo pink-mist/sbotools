@@ -39,7 +39,10 @@ if [[ -d $PKG_DIR/t ]]; then
 fi
 if [[ -d $PKG_DIR/tools ]]; then
 	rm -rf $PKG_DIR/tools
-fi	
+fi
+if [[ -f $PKG_DIR/README.md ]]; then
+	rm $PKG_DIR/README.md
+fi
 if [[ -d $PKG_DIR/slackbuild/$PACKAGE ]]; then
 	if [[ -f $PKG_DIR/slackbuild/$PACKAGE/README ]]; then
 		cp $PKG_DIR/slackbuild/$PACKAGE/README $PKG_DIR/
