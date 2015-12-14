@@ -511,12 +511,23 @@ $line = '( tar xvf xapian-bindings-$VERSION.tar.gz';
 is($regex, '(?^u: xapian-bindings-[^-]+.tar.gz)', 'get_dc_regex test 04.1');
 is($initial, ' ', 'get_dc_regex test 04.2');
 
+# test sbosrcarch
+$symlinks = check_distfiles(LOCATION => "$repo_path/audio/test");
+my $sym = $symlinks->[0];
+my $fn = "eawpats12_full.tar.gz";
+is ($sym, "$repo_path/audio/test/$fn", 'symlink is in the right place');
+ok (-l $sym, 'symlink is actually a symlink');
+is (readlink($sym), "$sbo_home/distfiles/$fn", 'symlink leads to the right place');
+ok (unlink(readlink($sym), $sym), "deleting $fn works");
+
+
+
 # move things back to pre-migration state
 foreach my $fname (glob("$repo_path/*")) {
 	is(system('mv', $fname, $sbo_home), 0, "moving $fname to pre-migration place works");
 }
-is(system('rmdir', $repo_path), 0, "removing $repo_path works");
-is(system('rmdir', "$sbo_home/../test_sbo/repo", "$sbo_home/../test_sbo"), 0, "removing test_sbo works");
+ok (rmdir($repo_path), "removing $repo_path works");
+ok (do { rmdir("$sbo_home/../test_sbo/repo") and rmdir("$sbo_home/../test_sbo") }, "removing test_sbo works");
 
 # end of tests.
 
