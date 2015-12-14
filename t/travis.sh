@@ -42,3 +42,10 @@ run sbocheck
 WC=$(wc -l /var/log/sbocheck.log)
 [ "$WC" = "1 /var/log/sbocheck.log" ]
 run sboupgrade -r nonexistentslackbuild
+
+# Test missing dep
+(
+	run sboinstall nonexistentslackbuild2 <<END
+y
+END
+) || [ "$?" = "1" ]
