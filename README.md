@@ -13,6 +13,7 @@
       whatever is found in the regular repository.
        - https://github.com/pink-mist/sbotools/issues/8
        - https://github.com/pink-mist/sbotools/issues/13
+       - https://github.com/pink-mist/sbotools/issues/14
        - https://github.com/pink-mist/sbotools/issues/15
     * SLACKWARE_VERSION setting
 
@@ -43,6 +44,8 @@
        - https://github.com/pink-mist/sbotools/issues/16
     * manpage fixes
        - https://github.com/pink-mist/sbotools/issues/17
+    * sboupgrade handles dependencies better
+       - https://github.com/pink-mist/sbotools/issues/12
 
 * 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
