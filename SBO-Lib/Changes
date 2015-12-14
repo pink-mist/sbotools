@@ -1,25 +1,33 @@
 2.0 - Unreleased
-  * Use system perl when running and installing sbotools
-  * Try to use sbosrcarch if a download fails
-    (https://github.com/pink-mist/sbotools/issues/7)
-  * LOCAL_OVERRIDES setting added allowing locally maintained packages
-    to override what might or might not be on SBo
-    (https://github.com/pink-mist/sbotools/issues/8)
-  * SLACKWARE_VERSION setting added to allow the repository for a different
-    version of slackware to be used. Useful if you're on -current and
-    /etc/slackware-version has been updated, but neither slackbuilds.org or
-    sbotools have been updated yet.
-  * sbocheck: changed output slightly to allow easier copy/pasting
-    (https://github.com/pink-mist/sbotools/issues/10)
-  * sboupgrade: added --all option, small manpage fixes, fixed bug in dependency
-    handling (https://github.com/pink-mist/sbotools/issues/9
-    https://github.com/pink-mist/sbotools/issues/12)
-  * sbocheck, sboinstall, sboupgrade: Messages that a local override is being
-    used added (https://github.com/pink-mist/sbotools/issues/13
-    https://github.com/pink-mist/sbotools/issues/15)
-  * sboinstall, sboupgrade: Give a useful error message if a dependency cannot
-    be found (https://github.com/pink-mist/sbotools/issues/16)
-  * sbofind manpage: add missing -q option.
+  * Major new features
+    * LOCAL_OVERRIDES setting
+      Allows to keep a directory with local slackbuild dirs that will override
+      whatever is found in the regular repository.
+       - https://github.com/pink-mist/sbotools/issues/8
+       - https://github.com/pink-mist/sbotools/issues/13
+       - https://github.com/pink-mist/sbotools/issues/15
+    * SLACKWARE_VERSION setting
+      Allows to specify the slackware version to sync from SBo. Previously only
+      the version in your /etc/slackware-version was used for this, and if that
+      had gotten updated in -current, you'd have needed to wait both for a new
+      version of sbotools, as well as SBo to get the new repository online
+      before sbotools would work for you again.
+    * REPO setting
+      This will override the SLACKWARE_VERSION setting. It's used to specify an
+      absolute URL for the SBo repository you want to sync with.
+       - https://github.com/pink-mist/sbotools/issues/6
+    * Use sbosrcarch source archive if download fails
+       - https://github.com/pink-mist/sbotools/issues/7
+    * sboupgrade --all option to upgrade everything listed by sbocheck
+       - https://github.com/pink-mist/sbotools/issues/9
+  * Minor/bugfixes/documentation fixes
+    * Use system perl when running and installing sbotools
+    * sbocheck output changed
+       - https://github.com/pink-mist/sbotools/issues/10
+       - https://github.com/pink-mist/sbotools/issues/13
+    * Better debug messages on errors
+       - https://github.com/pink-mist/sbotools/issues/16
+    * manpage fixes
 
 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
