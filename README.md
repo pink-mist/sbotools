@@ -8,18 +8,21 @@
 * 2.0 - Unreleased
   * Major new features
     * LOCAL_OVERRIDES setting
+
       Allows to keep a directory with local slackbuild dirs that will override
       whatever is found in the regular repository.
        - https://github.com/pink-mist/sbotools/issues/8
        - https://github.com/pink-mist/sbotools/issues/13
        - https://github.com/pink-mist/sbotools/issues/15
     * SLACKWARE_VERSION setting
+
       Allows to specify the slackware version to sync from SBo. Previously only
       the version in your /etc/slackware-version was used for this, and if that
       had gotten updated in -current, you'd have needed to wait both for a new
       version of sbotools, as well as SBo to get the new repository online
       before sbotools would work for you again.
     * REPO setting
+
       This will override the SLACKWARE_VERSION setting. It's used to specify an
       absolute URL for the SBo repository you want to sync with.
        - https://github.com/pink-mist/sbotools/issues/6
@@ -27,6 +30,10 @@
        - https://github.com/pink-mist/sbotools/issues/7
     * sboupgrade --all option to upgrade everything listed by sbocheck
        - https://github.com/pink-mist/sbotools/issues/9
+    * Travis CI integration
+
+      Every push will now cause the test-suite to be run
+       - https://github.com/pink-mist/sbotools/issues/18
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools
     * sbocheck output changed
@@ -35,6 +42,7 @@
     * Better debug messages on errors
        - https://github.com/pink-mist/sbotools/issues/16
     * manpage fixes
+       - https://github.com/pink-mist/sbotools/issues/17
 
 * 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18

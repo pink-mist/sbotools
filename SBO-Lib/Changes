@@ -20,6 +20,9 @@
        - https://github.com/pink-mist/sbotools/issues/7
     * sboupgrade --all option to upgrade everything listed by sbocheck
        - https://github.com/pink-mist/sbotools/issues/9
+    * Travis CI integration
+      Every push will now cause the test-suite to be run
+       - https://github.com/pink-mist/sbotools/issues/18
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools
     * sbocheck output changed
@@ -28,6 +31,7 @@
     * Better debug messages on errors
        - https://github.com/pink-mist/sbotools/issues/16
     * manpage fixes
+       - https://github.com/pink-mist/sbotools/issues/17
 
 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
