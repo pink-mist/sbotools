@@ -77,7 +77,7 @@ FIRST: for my $sub (@subs) {
 	my $has = 'FALSE';
 	SECOND: while (my $line = <$file_h>) {
 		if ($found eq 'FALSE') {
-			$found = 'TRUE', next SECOND if $line =~ /\@EXPORT/;
+			$found = 'TRUE', next SECOND if $line =~ /our \@EXPORT_OK/;
 		} else {
 			last SECOND if $line =~ /^\);$/;
 			$has = 'TRUE', last SECOND if $line =~ /$sub/;
@@ -90,8 +90,8 @@ FIRST: for my $sub (@subs) {
 close $file_h;
 tie my @file, 'Tie::File', "$pwd/SBO/Lib.pm";
 FIRST: for my $line (@file) {
-	if ($line =~ /\@EXPORT/) {
-		$line = "our \@EXPORT = qw(". join ' ', @not_exported;
+	if ($line =~ /our \@EXPORT_OK/) {
+		$line = "our \@EXPORT_OK = qw(". join ' ', @not_exported;
 	}
 	$line =~ s/^/#/ if $line =~ /^read_config;$/;
 }
