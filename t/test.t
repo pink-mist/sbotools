@@ -513,10 +513,10 @@ is($initial, ' ', 'get_dc_regex test 04.2');
 
 # move things back to pre-migration state
 foreach my $fname (glob("$repo_path/*")) {
-	print "Moving $fname\n";
 	is(system('mv', $fname, $sbo_home), 0, "moving $fname to pre-migration place works");
 }
-unlink $repo_path;
+is(system('rmdir', $repo_path), 0, "removing $repo_path works");
+is(system('rmdir', "$sbo_home/../test_sbo/repo", "$sbo_home/../test_sbo"), 0, "removing test_sbo works");
 
 # end of tests.
 
