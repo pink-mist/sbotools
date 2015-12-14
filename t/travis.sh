@@ -32,6 +32,7 @@ run sbofind sbotools
 
 # Test local overrides
 run sboconfig -o $CWD/t/LO
+run sbofind nonexistentslackbuild
 run sboinstall -r nonexistentslackbuild
 ls -la /var/log/packages
 run sboremove --nointeractive nonexistentslackbuild
