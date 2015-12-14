@@ -6,3 +6,5 @@ perl:
 sudo: required
 install: sudo bash t/travis-deps/install.sh
 script: t/travis.sh
+notifications:
+    irc: "chat.freenode.net#sbotools"
