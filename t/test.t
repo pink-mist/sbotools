@@ -511,12 +511,13 @@ $line = '( tar xvf xapian-bindings-$VERSION.tar.gz';
 is($regex, '(?^u: xapian-bindings-[^-]+.tar.gz)', 'get_dc_regex test 04.1');
 is($initial, ' ', 'get_dc_regex test 04.2');
 
-# end of tests.
-
 # move things back to pre-migration state
 foreach my $fname (glob("$repo_path/*")) {
-	move $fname, $sbo_home;
+	print "Moving $fname\n";
+	is(system('mv', $fname, $sbo_home), 0, "moving $fname to pre-migration place works");
 }
 unlink $repo_path;
+
+# end of tests.
 
 done_testing();
