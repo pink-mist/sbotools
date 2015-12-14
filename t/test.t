@@ -15,7 +15,7 @@ my $sbo_home = "$pwd/sbo";
 
 $conf_file = "$pwd/sbotools.conf";
 $SBO::Lib::conf_file = $conf_file;
-@SBO::Lib::config{'LOCAL_OVERRIDES', 'REPO', 'SLACKWARE_VERSION'} = ('FALSE', 'FALSE', 'FALSE');
+@SBO::Lib::config{'LOCAL_OVERRIDES', 'REPO'} = ('FALSE', 'FALSE');
 read_config;
 $config{SBO_HOME} = $sbo_home;
 my $repo_path = "$sbo_home/repo";
