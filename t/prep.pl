@@ -24,6 +24,7 @@ for my $thing (qw(interactive compat32 no_readme jobs distclean noclean
 	pr($thing);
 }
 
+print {$write} "use List::Util 'max';\n";
 print {$write} "my \%required_by;\n";
 print {$write} "our \@confirmed;\n";
 print {$write} "my \%locations;\n";
@@ -93,7 +94,8 @@ FIRST: for my $line (@file) {
 	if ($line =~ /our \@EXPORT_OK/) {
 		$line = "our \@EXPORT_OK = qw(". join ' ', @not_exported;
 	}
-	$line =~ s/^/#/ if $line =~ /^read_config;$/;
+	$line =~ s/^/#/ if $line =~ /^(read_config;|__END__)$/;
+	$line =~ s/^/1; #/ if $line =~ /^'ok';$/;
 }
 
 my $found = 0;

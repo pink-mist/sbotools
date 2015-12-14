@@ -15,6 +15,7 @@ my $sbo_home = "$pwd/sbo";
 
 $conf_file = "$pwd/sbotools.conf";
 $SBO::Lib::conf_file = $conf_file;
+@SBO::Lib::config{'LOCAL_OVERRIDES', 'REPO', 'SLACKWARE_VERSION'} = ('FALSE', 'FALSE', 'FALSE');
 read_config;
 $config{SBO_HOME} = $sbo_home;
 my $repo_path = "$sbo_home/repo";
@@ -28,6 +29,7 @@ is($config{JOBS}, 2, 'config{JOBS} is good');
 is($config{NOCLEAN}, 'FALSE', 'config{NOCLEAN} is good');
 is($config{PKG_DIR}, 'FALSE', 'config{PKG_DIR} is good');
 is($config{SBO_HOME}, "$pwd/sbo", 'config{SBO_HOME} is good');
+is($config{LOCAL_OVERRIDES}, 'FALSE', 'config{LOCAL_OVERRIDES} is good');
 
 # open_read, open_fh tests
 my $fh = open_read('./test.t');
@@ -51,10 +53,10 @@ is(get_slack_version(), $version, 'get_slack_version is good');
 
 # chk_slackbuilds_txt tests
 is(chk_slackbuilds_txt(), 1, 'chk_slackbuilds_txt is good');
-move("$sbo_home/SLACKBUILDS.TXT", "$sbo_home/SLACKBUILDS.TXT.moved");
+move("$repo_path/SLACKBUILDS.TXT", "$sbo_home/SLACKBUILDS.TXT.moved");
 is(chk_slackbuilds_txt(), undef,
 	'chk_slackbuilds_txt returns false with no SLACKBUILDS.TXT');
-move("$sbo_home/SLACKBUILDS.TXT.moved", "$sbo_home/SLACKBUILDS.TXT");
+move("$sbo_home/SLACKBUILDS.TXT.moved", "$repo_path/SLACKBUILDS.TXT");
 
 # slackbuilds_or_fetch test
 is(slackbuilds_or_fetch(), 1, 'slackbuilds_or_fetch is good');
@@ -108,7 +110,7 @@ for my $key (keys @$installed) {
 print "completed pseudo-random testing of get_installed_packages 'ALL' \n";
 
 # get_sbo_location/get_sbo_locations tests
-is(get_sbo_location ('nginx'), "$sbo_home/network/nginx",
+is(get_sbo_location ('nginx'), "$repo_path/network/nginx",
 	'get_sbo_location is good');
 is(get_sbo_locations('omgwtfbbq'), 0,
 	'get_sbo_locations returns false with not-an-sbo input');
@@ -116,13 +118,13 @@ is(get_sbo_location ('omgwtfbbq'), undef,
     'get_sbo_location returns false with not-an-sbo input');
 my @finds = qw(nginx gmpc);
 my %locs = get_sbo_locations(@finds);
-is($locs{nginx}, "$sbo_home/network/nginx",
+is($locs{nginx}, "$repo_path/network/nginx",
 	'get_sbo_locations passed array #1 good');
-is($locs{gmpc}, "$sbo_home/audio/gmpc", 'get_sbo_locations passed array #2 good');
+is($locs{gmpc}, "$repo_path/audio/gmpc", 'get_sbo_locations passed array #2 good');
 %locs = get_sbo_locations(\@finds);
-is($locs{nginx}, "$sbo_home/network/nginx",
+is($locs{nginx}, "$repo_path/network/nginx",
 	'get_sbo_locations passed array ref #1 good');
-is($locs{gmpc}, "$sbo_home/audio/gmpc",
+is($locs{gmpc}, "$repo_path/audio/gmpc",
 	'get_sbo_locations passed array ref #2 good');
 
 # get_available_updates tests
@@ -141,7 +143,7 @@ for my $key (keys @$updates) {
 is(get_arch(), 'x86_64', 'get_arch is good');
 
 # get_download_info tests
-my $dl_info = get_download_info(LOCATION => "$sbo_home/system/wine", X64 => 0);
+my $dl_info = get_download_info(LOCATION => "$repo_path/system/wine", X64 => 0);
 my $link = 'http://downloads.sf.net/wine/source/1.4/wine-1.4.1.tar.bz2';
 is($$dl_info{$link}, '0c28702ed478df7a1c097f3a9c4cabd6',
 	'get_download_info test 01 good.');
@@ -150,18 +152,18 @@ is($$dl_info{$link}, '97159d77631da13952fe87e846cf1f3b',
 	'get_download_info test 02 good.');
 
 # get_sbo_downloads tests
-$dl_info = get_sbo_downloads(LOCATION => "$sbo_home/system/wine");
+$dl_info = get_sbo_downloads(LOCATION => "$repo_path/system/wine");
 $link = 'http://downloads.sf.net/wine/source/1.4/wine-1.4.1.tar.bz2';
 is($$dl_info{$link}, '0c28702ed478df7a1c097f3a9c4cabd6',
 	'get_sbo_downloads test 01 good.');
 $link = 'http://www.unrealize.co.uk/source/dibeng-max-2010-11-12.zip';
 is($$dl_info{$link}, '97159d77631da13952fe87e846cf1f3b',
 	'get_sbo_downloads test 02 good.');
-my $downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/ifuse");
+my $downloads = get_sbo_downloads(LOCATION => "$repo_path/system/ifuse");
 $link = 'http://www.libimobiledevice.org/downloads/ifuse-1.1.1.tar.bz2';
 is($$downloads{$link}, '8d528a79de024b91f12f8ac67965c37c',
 	'get_sbo_downloads test 03 good.');
-$downloads = get_sbo_downloads(LOCATION => "$sbo_home/multimedia/mpv");
+$downloads = get_sbo_downloads(LOCATION => "$repo_path/multimedia/mpv");
 my @links = qw'
   https://github.com/mpv-player/mpv/archive/v0.10.0.tar.gz
   http://www.freehackers.org/~tnagy/release/waf-1.8.12
@@ -187,17 +189,17 @@ is(verify_distfile("http://dawnrazor.net/test.file",
 	'593d3125d3170f0b5326a40a253aa6fd'), 1, 'verify_distfile good');
 
 # get_sbo_version test
-is(get_sbo_version("$sbo_home/system/wine"), '1.4.1', 'get_sbo_version good');
+is(get_sbo_version("$repo_path/system/wine"), '1.4.1', 'get_sbo_version good');
 
 # get_symlink_from_filename test
 is(get_symlink_from_filename("$sbo_home/distfiles/test.file",
-	"$sbo_home/system/laptop-mode-tools"),
-	"$sbo_home/system/laptop-mode-tools/test.file",
+	"$repo_path/system/laptop-mode-tools"),
+	"$repo_path/system/laptop-mode-tools/test.file",
 	'get_symlink_from_filename good');
 
 # check_x32 tests
-ok(check_x32("$sbo_home/system/wine"), 'check_x32 true for 32-bit only wine');
-ok(!(check_x32("$sbo_home/system/ifuse")),
+ok(check_x32("$repo_path/system/wine"), 'check_x32 true for 32-bit only wine');
+ok(!(check_x32("$repo_path/system/ifuse")),
 	'check_x32 false for not-32-bit-only ifuse');
 
 # check_multilib tests
@@ -208,12 +210,12 @@ if (-x '/usr/sbin/convertpkg-compat32') {
 }
 
 # create_symlinks tests
-$downloads = get_sbo_downloads(LOCATION => "$sbo_home/system/wine", 32 => 1);
-my $symlinks = create_symlinks("$sbo_home/system/wine", $downloads);
+$downloads = get_sbo_downloads(LOCATION => "$repo_path/system/wine", 32 => 1);
+my $symlinks = create_symlinks("$repo_path/system/wine", $downloads);
 my ($have1, $have2);
 for my $sl (@$symlinks) {
-	$have1++ if $sl eq "$sbo_home/system/wine/wine-1.4.1.tar.bz2";
-	$have2++ if $sl eq "$sbo_home/system/wine/dibeng-max-2010-11-12.zip";
+	$have1++ if $sl eq "$repo_path/system/wine/wine-1.4.1.tar.bz2";
+	$have2++ if $sl eq "$repo_path/system/wine/dibeng-max-2010-11-12.zip";
 }
 ok($have1, '$create_symlinks test 1 passed.');
 ok($have2, '$create_symlinks test 2 passed.');
@@ -249,17 +251,19 @@ is(get_pkg_name($tempfh), 'skype-2.2.0.35-i486-1_SBo.tgz', 'get_pkg_name good');
 #rmdir '/tmp/SBo/test.2.d';
 
 # check_distfiles test
-$symlinks = check_distfiles(LOCATION => "$sbo_home/perl/perl-Sort-Versions");
-is($$symlinks[0], "$sbo_home/perl/perl-Sort-Versions/Sort-Versions-1.5.tar.gz",
+$symlinks = check_distfiles(LOCATION => "$repo_path/perl/perl-Sort-Versions");
+is($$symlinks[0], "$repo_path/perl/perl-Sort-Versions/Sort-Versions-1.5.tar.gz",
 	'check_distfiles test 01');
 
-# check_home tests
+# check_repo tests
 $config{SBO_HOME} = "$pwd/test_sbo";
-ok(check_home(), 'check_home returns true with new non-existent directory');
-ok(-d "$pwd/test_sbo", 'check_home creates $config{SBO_HOME}');
-ok(check_home(), 'check_home returns true with new existent empty directory');
+$SBO::Lib::repo_path = "$config{SBO_HOME}/repo";
+ok(check_repo(), 'check_repo returns true with new non-existent directory');
+ok(-d "$pwd/test_sbo", 'check_repo creates $config{SBO_HOME}');
+ok(check_repo(), 'check_repo returns true with new existent empty directory');
 rmdir "$pwd/test_sbo";
 $config{SBO_HOME} = $sbo_home;
+$SBO::Lib::repo_path = "$config{SBO_HOME}/repo";
 
 # get_sbo_from_loc tests
 is(get_sbo_from_loc('/home/d4wnr4z0r/sbo.git/system/ifuse'), 'ifuse',
@@ -277,7 +281,7 @@ unlink $distfile;
 
 # rewrite_slackbuild/revert_slackbuild tests
 my $rewrite_dir = tempdir(CLEANUP => 1);
-copy("$sbo_home/system/ifuse/ifuse.SlackBuild", $rewrite_dir);
+copy("$repo_path/system/ifuse/ifuse.SlackBuild", $rewrite_dir);
 my $slackbuild = "$rewrite_dir/ifuse.SlackBuild";
 $tempfh = tempfile(DIR => $rewrite_dir);
 my $tempfn = get_tmp_extfn($tempfh);
@@ -310,7 +314,7 @@ is(diff("$slackbuild.orig", $slackbuild, {STYLE => 'OldStyle'}),
 is(revert_slackbuild($slackbuild), 1, 'revert_slackbuild is good again');
 
 # get_from_info tests
-my $test_loc = "$sbo_home/system/ifuse";
+my $test_loc = "$repo_path/system/ifuse";
 my %params = (LOCATION => $test_loc);
 my $info = get_from_info(%params, GET => 'VERSION');
 is($$info[0], '1.1.1', 'get_from_info GET => VERSION is good');
@@ -325,11 +329,11 @@ my $listing = get_update_list();
 say $_ for @$listing;
 s/\s//g for @$listing;
 for my $item (@$listing) {
-	is($item, 'ffmpeg-0.8.7<needsupdating(SBohas0.11.1)',
+	is($item, 'ffmpeg0.8.7<needsupdating(SBohas0.11.1)',
 		'get_update_list output good for ffmpeg') if $item =~ /^ffmpeg/;
-	is($item, 'libdvdnav-4.1.3<needsupdating(SBohas4.2.0)',
+	is($item, 'libdvdnav4.1.3<needsupdating(SBohas4.2.0)',
 		'get_update_list output test, libdvdnav') if $item =~ /^libdvdnav/;
-	is($item, 'mutagen-1.15<needsupdating(SBohas1.20)',
+	is($item, 'mutagen1.15<needsupdating(SBohas1.20)',
 		'get_update_list output good for mutagen') if $item =~ /^atkmm/;
 }
 
@@ -339,22 +343,22 @@ is(remove_stuff('/omg/wtf/bbq'), 1, 'remove_stuff good for invalid input');
 # perform_search tests
 my $findings = perform_search('desktop');
 for my $found (@$findings) {
-	for my $key (keys %$found) {
-		my $section = 'desktop';;
-		if ($key eq 'libdesktop-agnostic') {
-			$section = 'libraries';
-		} elsif ($key eq 'mendeleydesktop') {
-			$section = 'academic';
-		} elsif ($key eq 'gtk-recordmydesktop' || $key eq 'huludesktop') {
-			$section = 'multimedia';
-		} elsif ($key eq 'gnome-python-desktop') {
-			$section = 'python';
-		} elsif ($key eq 'gsettings-desktop-schemas') {
-			$section = 'system';
-		}
-		is($$found{$key}, "$sbo_home/$section/$key",
-			'perform_search good for $search eq desktop');
+	my $name = $found->{name};
+	my $location = $found->{location};
+	my $section = 'desktop';;
+	if ($name eq 'libdesktop-agnostic') {
+		$section = 'libraries';
+	} elsif ($name eq 'mendeleydesktop') {
+		$section = 'academic';
+	} elsif ($name eq 'gtk-recordmydesktop' || $name eq 'huludesktop') {
+		$section = 'multimedia';
+	} elsif ($name eq 'gnome-python-desktop') {
+		$section = 'python';
+	} elsif ($name eq 'gsettings-desktop-schemas') {
+		$section = 'system';
 	}
+	is($location, "$repo_path/$section/$name",
+		'perform_search good for $search eq desktop');
 }
 
 # get_inst_names test
@@ -376,17 +380,17 @@ is($$reqs[1], 'libmpd', $say);
 is($$reqs[2], 'vala', $say);
 $reqs = get_requires('doomseeker');
 is($$reqs[0], '%README%', 'get_requires good for REQUIRES="%README%"');
-is(get_requires('krb5'), undef, 'get_requires good for REQUIRES=""');
+is(get_requires('krb5')->[0], '', 'get_requires good for REQUIRES=""');
 
 # get_user_group tests
-$fh = open_read("$sbo_home/network/nagios/README");
+$fh = open_read("$repo_path/network/nagios/README");
 my $readme = do {local $/; <$fh>};
 close $fh;
 my $cmds = get_user_group($readme);
 is($$cmds[0], 'groupadd -g 213 nagios', 'get_user_group good for # groupadd');
 is($$cmds[1], 'useradd -u 213 -d /dev/null -s /bin/false -g nagios nagios',
 	'get_user_group for # useradd');
-$fh = open_read("$sbo_home/network/havp/README");
+$fh = open_read("$repo_path/network/havp/README");
 $readme = do {local $/; <$fh>};
 close $fh;
 $cmds = get_user_group($readme);
@@ -395,11 +399,11 @@ is($$cmds[1], 'useradd -u 256 -d /dev/null -s /bin/false -g clamav havp',
 	'get_user_group good for useradd');
 
 # get_opts test
-$fh = open_read("$sbo_home/games/vbam/README");
+$fh = open_read("$repo_path/games/vbam/README");
 $readme = do {local $/; <$fh>};
 close $fh;
 ok(get_opts($readme), 'get_opts good where README defines opts');
-$fh = open_read("$sbo_home/audio/gmpc/README");
+$fh = open_read("$repo_path/audio/gmpc/README");
 $readme = do {local $/; <$fh>};
 close $fh;
 ok(! (get_opts($readme)), 'get_opts good where README does not define opts');
@@ -467,7 +471,7 @@ $count = @SBO::Lib::confirmed;
 is($count, 4, 'confirm_remove good for duplicate sbo');
 
 # test get_readme_contents
-ok(get_readme_contents("$sbo_home/network/nagios"), 'get_readme_contents is good');
+ok(get_readme_contents("$repo_path/network/nagios"), 'get_readme_contents is good');
 
 # test get_dl_fns
 $downloads = [
