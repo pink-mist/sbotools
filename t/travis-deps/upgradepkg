@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# Stripped down and useless version of this script merely used for testing.
+# But some bits taken from the original, so here's the original copyright
+# notice.
+
+# Copyright 1999  Patrick Volkerding, Moorhead, Minnesota, USA
+# Copyright 2001, 2002, 2003  Slackware Linux, Inc., Concord, California, USA
+# Copyright 2009, 2015  Patrick J. Volkerding, Sebeka, MN, USA
+# Copyright 2015  Michal Nazarewicz <mina86@mina86.com>
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Modified to handle either old 8.3 or new package-version-arch-build.tgz
+# packages, Sat Nov 17 14:25:58 PST 2001 volkerdi
+#
+# Rewritten to clean out _all_ old packages of a given basename, not just
+# the first one found, Thu Apr  4 01:01:05 PST 2002 volkerdi
+#
+# Added --install-new and --reinstall, Fri May 31 14:11:14 PDT 2002 volkerdi
+# Added --dry-run, Sat Apr 26 18:13:29 PDT 2003
+#
+# Sat Apr 25 21:18:53 UTC 2009
+# Support new compression types and package extensions.
+# Converted to use new pkgbase() function to remove pathname and
+# valid package extensions.
+#
+# Sat 17 Jan 16:21:32 UTC 2015  mina86
+# Various optimisation mostly resolving around avoiding having to fork
+# and call cut, basename and other helper commands.  Slight
+# refactoring of code calling removepkg.
+
+
+while [[ $# > 1 ]]
+do
+key="$1"
+
+case $key in
+	--dryrun)
+		DRYRUN=1
+		;;
+	--install-new)
+		NEW=1
+		;;
+	--reinstall)
+		REINSTALL=1
+		;;
+	--verbose)
+		VERBOSE=1
+		;;
+esac
+shift
+done
+
+PACKAGE="$1"
+
+pkgbase() {
+  PKGRETURN=${1##*/}
+  case "$PKGRETURN" in *.t[gblx]z)
+    PKGRETURN=${PKGRETURN%.*}
+  esac
+  echo "$PKGRETURN"
+}
+
+package_name() {
+  STRING=$(pkgbase "$1")
+  case "$STRING" in
+  *-*-*-*)
+    # At least four segments, strip version arch and build and return name:
+    echo "${STRING%-*-*-*}"
+    ;;
+  *)
+    # Old style package name with one segment or we don't have four
+    # segments: return the old-style (or out of spec) package name.
+    echo $STRING
+  esac
+}
+
+for ARG; do
+  OLD=${ARG%'%'*}
+  NEW=${ARG#*'%'}
+
+  INCOMINGDIR=$(dirname $NEW)
+  NNAME=${NEW##*/}
+  ONAME=${OLD##*/}
+  NEW=$(pkgbase $NEW)
+  OLD=$(pkgbase $OLD)
+
+  SHORT="$(package_name $OLD)"
+  if [ ! -r /var/log/packages/$OLD ]; then
+	  if ls /var/log/packages/$SHORT* &>/dev/null ; then
+		  for installed_package in /var/log/packages/$SHORT* ; do
+			  if [ "$(package_name $installed_package)" = "$SHORT" ]; then
+				  OLD="${installed_package##*/}"
+				  break
+			  fi
+		  done
+	  fi
+  fi
+
+  /sbin/removepkg $OLD
+  /sbin/installpkg $INCOMINGDIR/$NNAME
+done

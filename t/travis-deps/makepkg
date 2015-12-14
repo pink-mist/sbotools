@@ -1,0 +1,25 @@
+#!/bin/bash
+
+while [[ $# > 1 ]]
+do
+key="$1"
+
+case $key in
+	-l|--linkadd)
+		LINKADD="$2"
+		shift
+		;;
+	-c|--chown)
+		CHOWN="$2"
+		shift
+		;;
+	-p|--prepend)
+		PREPEND=1
+		;;
+esac
+shift
+done
+
+touch $1
+
+echo "Slackware package $1 created.
