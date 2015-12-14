@@ -1668,6 +1668,9 @@ SLACKBUILD MD5SUM: 8ebcf0583f3077346ebace93c8ea166f
 SLACKBUILD MD5SUM_x86_64: 
 SLACKBUILD SHORT DESCRIPTION:  eawpats (MIDI instrument patches)
 
+SLACKBUILD NAME: test
+SLACKBUILD LOCATION: ./audio/test
+
 SLACKBUILD NAME: ecasound
 SLACKBUILD LOCATION: ./audio/ecasound
 SLACKBUILD FILES: README ecasound.SlackBuild ecasound.info python_module_dir.diff slack-desc
