@@ -1,8 +1,6 @@
-# sbotools [![Build Status](https://travis-ci.org/pink-mist/sbotools.svg?branch=master)](https://travis-ci.org/pink-mist/sbotools)
+# sbotools [![Build Status](https://travis-ci.org/pink-mist/sbotools.svg)](https://travis-ci.org/pink-mist/sbotools)
 
-**sbotools** provides a ports-like interface to slackbuilds.org.
-
-[sbotools](https://pink-mist.github.io/sbotools/)
+**[sbotools](https://pink-mist.github.io/sbotools/)** provides a ports-like interface to [slackbuilds.org](http://www.slackbuilds.org/).
 
 ## Changes
 * 2.0 - Unreleased
