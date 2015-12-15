@@ -55,10 +55,10 @@ SKIP: {
 
 # 11-16: Test local overrides
 is (run(cmd => [qw/ sboconfig -o /, "$RealBin/LO"]), "Setting LOCAL_OVERRIDES to $RealBin/LO...\n", 'setting LOCAL_OVERRIDES works');
+my $skip = 0;
 SKIP: {
-	my $skip = 0;
 	if ($ENV{TEST_ONLINE} ne '1') { $skip = system(qw! touch /usr/sbo/repo/SLACKBUILDS.txt !) == 0 }
-	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.txt", 13 if $skip;
+	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.txt", 9 if $skip;
 
 	is (run(cmd => [qw/ sbofind nonexistentslackbuild /]), <<"LOCAL", "sbofind finds local overrides");
 Local:  nonexistentslackbuild2
@@ -80,9 +80,21 @@ LOCAL
 	my ($output, $ret) = capture_merged { system(qw/bash -c/, "$^X -I$lib $path/sboinstall nonexistentslackbuild2 <<END\ny\nEND\n") and $? >> 8; };
 	is ($ret, 1, "sboinstall nonexistentslackbuild2 has correct exit code");
 	is ($output, "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n", 'sboinstall nonexistentslackbuild2 has correct output');
+}
 
 # 19-23: Test sboupgrade --all
+SKIP: {
+	my @files = glob("/var/log/packages/nonexistentslackbuild-*");
+	skip 'nonexistentslackbuild not installed', 1 if @files == 0;
+
 	is (system(qw!/sbin/removepkg nonexistentslackbuild!), 0, 'removepkging nonexistentslackbuild works');
+}
+SKIP: {
+	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.txt", 4 if $skip;
+
+	my @files = glob("/var/log/packages/nonexistentslackbuild-*");
+	skip 'Cannot test if nonexistentslackbuild is already installed', 4 if @files;
+
 	is (system(qw!/sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz!), 0, 'installpkg old version works');
 	like (run(cmd => [qw/ sboupgrade --all /]),
 		qr/Checking for updated SlackBuilds.*nonexistentslackbuild added to upgrade queue.*Cleaning for nonexistentslackbuild/s, 'sboupgrade --all works');
