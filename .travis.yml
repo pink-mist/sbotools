@@ -3,8 +3,10 @@ perl:
     - "5.22"
     - "5.18"
     - "5.16"
+env:
+    - TEST_ONLINE=1
 sudo: required
-install: sudo bash t/travis-deps/install.sh
-script: t/travis.sh
-notifications:
-    irc: "chat.freenode.net#sbotools"
+install:
+    - sudo bash t/travis-deps/install.sh
+    - cpanm Text::Diff Capture::Tiny Test::Output
+script: sudo prove t/*.t
