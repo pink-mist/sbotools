@@ -57,7 +57,7 @@ SKIP: {
 is (run(cmd => [qw/ sboconfig -o /, "$RealBin/LO"]), "Setting LOCAL_OVERRIDES to $RealBin/LO...\n", 'setting LOCAL_OVERRIDES works');
 my $skip = 0;
 SKIP: {
-	if ($ENV{TEST_ONLINE} ne '1') { $skip = system(qw! touch /usr/sbo/repo/SLACKBUILDS.txt !) == 0 }
+	if ($ENV{TEST_ONLINE} ne '1') { $skip = !(system(qw! mkdir -p /usr/sbo/repo !) == 0 and system(qw! touch /usr/sbo/repo/SLACKBUILDS.txt !) == 0) }
 	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.txt", 9 if $skip;
 
 	is (run(cmd => [qw/ sbofind nonexistentslackbuild /]), <<"LOCAL", "sbofind finds local overrides");
