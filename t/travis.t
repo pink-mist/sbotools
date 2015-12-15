@@ -55,7 +55,7 @@ Path:   $RealBin/LO/nonexistentslackbuild
 
 LOCAL
 like (run(cmd => [qw/ sboinstall -r nonexistentslackbuild /]), qr/nonexistentslackbuild added to install queue[.].*perf[.]dummy' saved.*Cleaning for nonexistentslackbuild-1[.]0/s, 'sboinstall works (LOCAL_OVERRIDES)');
-like (run(cmd => [qw/ sboremove --nointeractive nonexistentialslackbuild /]), qr/Removing 1 package\(s\).*nonexistentialslackbuild.*All operations have completed/s, 'sboremove works');
+like (run(cmd => [qw/ sboremove --nointeractive nonexistentslackbuild /]), qr/Removing 1 package\(s\).*nonexistentslackbuild.*All operations have completed/s, 'sboremove works');
 
 is (system(qw!sudo /sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz!), 0, 'Old version fake installed');
 like (run(cmd => [qw/ sbocheck /]), qr/Updating SlackBuilds tree.*Checking for updated SlackBuilds.*nonexistentslackbuild 0[.]9.*needs updating/s, 'sbocheck finds old version');
@@ -68,7 +68,7 @@ is ($output, "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tre
 
 # 19-23: Test sboupgrade --all
 is (system(qw!sudo /sbin/removepkg nonexistentslackbuild!), 0, 'removepkging nonexistentslackbuild works');
-is (system(qw!sudo /sbin installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz!), 0, 'installpkg old version works');
+is (system(qw!sudo /sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz!), 0, 'installpkg old version works');
 like (run(cmd => [qw/ sboupgrade --all /]), qr/Checking for updated SlackBuilds.*nonexistentslackbuild added to upgrade queue.*Cleaning for nonexistentslackbuild/s, 'sboupgrade --all works');
 ok (-e "/var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo", 'updated package is installed');
 ok (! -e  "/var/log/packages/nonexistentslackbuild-0.9-noarch-1_SBo", 'old package is removed');
