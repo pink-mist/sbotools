@@ -96,7 +96,7 @@ SKIP: {
 	skip 'Cannot test if nonexistentslackbuild is already installed', 4 if @files;
 
 	is (system(qw!/sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz!), 0, 'installpkg old version works');
-	like (run(cmd => [qw/ sboupgrade --all /]),
+	like (run(cmd => [qw/ sboupgrade -r --all /]),
 		qr/Checking for updated SlackBuilds.*nonexistentslackbuild added to upgrade queue.*Cleaning for nonexistentslackbuild/s, 'sboupgrade --all works');
 	ok (-e "/var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo", 'updated package is installed');
 	ok (! -e  "/var/log/packages/nonexistentslackbuild-0.9-noarch-1_SBo", 'old package is removed');
