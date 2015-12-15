@@ -4,7 +4,7 @@ use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 use Test::More;
-use Capture::Tiny;
+use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 
 if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
