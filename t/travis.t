@@ -25,7 +25,7 @@ sub run {
 	my $cmd = shift @{ $args{cmd} };
 	my @cmd = ('sudo', $^X, "-I$lib", "$path/$cmd", @{ $args{cmd} });
 	my $exit = $args{exit};
-	my ($output, $return) = capture_merged { system(@cmd) };
+	my ($output, $return) = capture_merged { system(@cmd) and $? >> 8; };
 	return $output if $return == $exit;
 	return "Command $cmd ($path/$cmd) exited with $return instead of $exit";
 }
