@@ -32,7 +32,7 @@ sub run {
 }
 
 # 1-3: Test SLACKWARE_VERSION
-is (run(cmd => [qw/ sboconfig -V 14.1 /]), "Setting SLACKWARE_VERSION to 14.1...\n", 'setting SLACKWAERE_VERSION works');
+is (run(cmd => [qw/ sboconfig -V 14.1 /]), "Setting SLACKWARE_VERSION to 14.1...\n", 'setting SLACKWARE_VERSION works');
 SKIP: {
 	skip 'Not doing online tests without TEST_ONLINE=1', 2 if $ENV{TEST_ONLINE} ne '1';
 
