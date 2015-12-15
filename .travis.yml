@@ -5,6 +5,7 @@ perl:
     - "5.16"
 env:
     - TEST_ONLINE=1
+    - TEST_ONLINE=0
 sudo: required
 install:
     - sudo bash t/travis-deps/install.sh
