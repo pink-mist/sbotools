@@ -8,7 +8,7 @@ use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 
 if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
-	plan tests => 23;
+	plan tests => 24;
 } else {
 	plan skip_all => 'Only run these tests under Travis CI (TRAVIS=true)';
 }
@@ -53,7 +53,7 @@ SKIP: {
 	is (run(cmd => [qw/ sbofind sbotools /]), "SBo:    sbotools\nPath:   /usr/sbo/repo/system/sbotools\n\n", 'sbofind works');
 }
 
-# 11-16: Test local overrides
+# 11-17: Test local overrides
 is (run(cmd => [qw/ sboconfig -o /, "$RealBin/LO"]), "Setting LOCAL_OVERRIDES to $RealBin/LO...\n", 'setting LOCAL_OVERRIDES works');
 my $skip = 0;
 SKIP: {
@@ -76,13 +76,13 @@ LOCAL
 	like (run(cmd => [qw/ sboupgrade -r nonexistentslackbuild /]),
 		qr/nonexistentslackbuild added to upgrade queue.*Upgrade queue: nonexistentslackbuild/s, 'sboupgrade upgrades old version');
 
-# 17-18: Test missing dep
+# 18-19: Test missing dep
 	my ($output, $ret) = capture_merged { system(qw/bash -c/, "$^X -I$lib $path/sboinstall nonexistentslackbuild2 <<END\ny\nEND\n") and $? >> 8; };
 	is ($ret, 1, "sboinstall nonexistentslackbuild2 has correct exit code");
 	is ($output, "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n", 'sboinstall nonexistentslackbuild2 has correct output');
 }
 
-# 19-23: Test sboupgrade --all
+# 20-24: Test sboupgrade --all
 SKIP: {
 	my @files = glob("/var/log/packages/nonexistentslackbuild-*");
 	skip 'nonexistentslackbuild not installed', 1 if @files == 0;
