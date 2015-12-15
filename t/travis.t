@@ -27,7 +27,7 @@ sub run {
 	my $exit = $args{exit};
 	my ($output, $return) = capture_merged { system(@cmd) };
 	return $output if $return == $exit;
-	return "Command $cmd exited with $return instead of $exit";
+	return "Command $cmd ($path/$cmd) exited with $return instead of $exit";
 }
 
 # 1-3: Test SLACKWARE_VERSION
@@ -38,14 +38,14 @@ is (run(cmd => [qw/ sbofind sbotools /]), "SBo:    sbotools\nPath:   /usr/sbo/re
 # 4-10: Test alternative REPO
 is (system(qw!sudo rm -rf /usr/sbo!), 0, 'Removing /usr/sbo works');
 ok (! -e "/usr/sbo/repo/SLACKBUILDS.TXT", "SLACKBUILDS.TXT doesn't exist");
-is (run(cmd => [qw! sboconfig -r https://github.com/Ponce/slackbuilds.git !]), "Setting REPO to https://github.com/Ponce/slackbuilds.git...", 'setting REPO works');
+is (run(cmd => [qw! sboconfig -r https://github.com/Ponce/slackbuilds.git !]), "Setting REPO to https://github.com/Ponce/slackbuilds.git...\n", 'setting REPO works');
 like (run(cmd => [qw/ sbosnap fetch /]), qr!Pulling SlackBuilds tree.*Cloning into '/usr/sbo/repo'!s, 'sbosnap fetch works from alternative REPO');
 ok (-e "/usr/sbo/repo/SLACKBUILDS.TXT", "SLACKBUILDS.TXT exists (REPO)");
 ok (! -e "/usr/sbo/repo/SLACKBUILDS.TXT.gz", "SLACKBUILDS.TXT.gz doesn't exist (REPO)");
 is (run(cmd => [qw/ sbofind sbotools /]), "SBo:    sbotools\nPath:   /usr/sbo/repo/system/sbotools\n\n", 'sbofind works');
 
 # 11-16: Test local overrides
-is (run(cmd => [qw/ sboconfig -o /, "$RealBin/LO"]), "Setting LOCAL_OVERRIDES to $RealBin/LO", 'setting LOCAL_OVERRIDES works');
+is (run(cmd => [qw/ sboconfig -o /, "$RealBin/LO"]), "Setting LOCAL_OVERRIDES to $RealBin/LO\n", 'setting LOCAL_OVERRIDES works');
 is (run(cmd => [qw/ sbofind nonexistentslackbuild /]), <<"LOCAL", "sbofind finds local overrides");
 Local:  nonexistentslackbuild2
 Path:   $RealBin/LO/nonexistentslackbuild2
