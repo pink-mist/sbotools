@@ -41,7 +41,7 @@ ok (! -e "/usr/sbo/repo/SLACKBUILDS.TXT", "SLACKBUILDS.TXT doesn't exist");
 is (run(cmd => [qw! sboconfig -r https://github.com/Ponce/slackbuilds.git !]), "Setting REPO to https://github.com/Ponce/slackbuilds.git...", 'setting REPO works');
 like (run(cmd => [qw/ sbosnap fetch /]), qr!Pulling SlackBuilds tree.*Cloning into '/usr/sbo/repo'!s, 'sbosnap fetch works from alternative REPO');
 ok (-e "/usr/sbo/repo/SLACKBUILDS.TXT", "SLACKBUILDS.TXT exists (REPO)");
-ok (! -e "/usr/sbo/repo/SLACKBUILDS.TXT.gz" "SLACKBUILDS.TXT.gz doesn't exist (REPO)");
+ok (! -e "/usr/sbo/repo/SLACKBUILDS.TXT.gz", "SLACKBUILDS.TXT.gz doesn't exist (REPO)");
 is (run(cmd => [qw/ sbofind sbotools /]), "SBo:    sbotools\nPath:   /usr/sbo/repo/system/sbotools\n\n", 'sbofind works');
 
 # 11-16: Test local overrides
