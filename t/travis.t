@@ -25,13 +25,12 @@ sub run {
 		@_
 	);
 	my $cmd = shift @{ $args{cmd} };
-	my @args = @{ $args{cmd} };
-	my @cmd = ($^X, "-I$lib", "$path/$cmd", @args);
+	my @cmd = ($^X, "-I$lib", "$path/$cmd", @{ $args{cmd} });
 	my $exit = $args{exit};
 	my ($output, $return) = capture_merged {
 		my $ret;
 		if (defined(my $input = $args{input})) {
-			$ret = system(qw/bash -c/, "$^X -I$lib $path/$cmd @args <<END\n$input\nEND\n") && $? >> 8;
+			$ret = system(qw/bash -c/, "@cmd <<END\n$input\nEND\n") && $? >> 8;
 		}
 		else {
 			$ret = system(@cmd) && $? >> 8;
