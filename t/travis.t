@@ -24,6 +24,7 @@ sub run {
 		input => undef,
 		test => 1,
 		expected => undef,
+		name => undef,
 		@_
 	);
 	my $cmd = shift @{ $args{cmd} };
@@ -42,8 +43,8 @@ sub run {
 	};
 	return unless $args{test};
 
-	my $test = $args{test} // "Testing run of $cmd (@{ $args{cmd} })";
-	subtest $test => sub {
+	my $name = $args{name} // "Testing run of $cmd (@{ $args{cmd} })";
+	subtest $name => sub {
 		plan tests => 2;
 
 		is ($return, $exit, "$cmd (@{ $args{cmd} }) exited with correct exitcode");
@@ -69,7 +70,7 @@ SKIP: {
 # 4-10: Test alternative REPO
 is (system(qw!rm -rf /usr/sbo!), 0, 'Removing /usr/sbo works');
 ok (! -e "/usr/sbo/repo/SLACKBUILDS.TXT", "SLACKBUILDS.TXT doesn't exist");
-run (cmd => [qw! sboconfig -r https://github.com/Ponce/slackbuilds.git !], expected => "Setting REPO to https://github.com/Ponce/slackbuilds.git...\n", test => 'Alternative REPO');
+run (cmd => [qw! sboconfig -r https://github.com/Ponce/slackbuilds.git !], expected => "Setting REPO to https://github.com/Ponce/slackbuilds.git...\n", name => 'Alternative REPO');
 SKIP: {
 	skip 'Not doing online tests without TEST_ONLINE=1', 4 if $ENV{TEST_ONLINE} ne '1';
 
@@ -80,7 +81,7 @@ SKIP: {
 }
 
 # 11-17: Test local overrides
-run (cmd => [qw/ sboconfig -o /, "$RealBin/LO"], expected => "Setting LOCAL_OVERRIDES to $RealBin/LO...\n", test => 'LOCAL_OVERRIDES');
+run (cmd => [qw/ sboconfig -o /, "$RealBin/LO"], expected => "Setting LOCAL_OVERRIDES to $RealBin/LO...\n", name => 'LOCAL_OVERRIDES');
 my $skip = 0;
 SKIP: {
 	if ($ENV{TEST_ONLINE} ne '1') { $skip = !(system(qw! mkdir -p /usr/sbo/repo !) == 0 and system(qw! touch /usr/sbo/repo/SLACKBUILDS.TXT !) == 0) }
