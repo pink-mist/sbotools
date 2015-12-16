@@ -8,7 +8,7 @@ OUTPUT=${OUTPUT:-/tmp}
 
 mkdir -p $TMP/$PRGNAM-$VERSION
 cp README $TMP/$PRGNAM-$VERSION
-mkdir -p $OUTPUT/package-$PRGNAM
-cp README $OUTPUT/package-$PRGNAM
+mkdir -p $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION
+cp README $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION
 
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-noarch-$BUILD$TAG.tgz
