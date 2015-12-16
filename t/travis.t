@@ -21,12 +21,23 @@ sub run {
 	my %args = (
 		exit => 0,
 		cmd => [],
+		input => undef
 		@_
 	);
 	my $cmd = shift @{ $args{cmd} };
-	my @cmd = ($^X, "-I$lib", "$path/$cmd", @{ $args{cmd} });
+	my @args = @{ $args{cmd} };
+	my @cmd = ($^X, "-I$lib", "$path/$cmd", @args);
 	my $exit = $args{exit};
-	my ($output, $return) = capture_merged { system(@cmd) and $? >> 8; };
+	my ($output, $return) = capture_merged {
+		my $ret;
+		if (defined(my $input = $args{input})) {
+			$ret = system(qw/bash -c/, "$^X -I$lib $path/$cmd @args <<END\n$input\nEND\n") and $? >> 8;
+		}
+		else {
+			$ret = system(@cmd) and $? >> 8;
+		}
+		$ret;
+	};
 	return $output if $return == $exit;
 	return "Command $cmd ($path/$cmd) exited with $return instead of $exit";
 }
@@ -76,13 +87,12 @@ LOCAL
 	like (run(cmd => [qw/ sboupgrade -r nonexistentslackbuild /]),
 		qr/nonexistentslackbuild added to upgrade queue.*Upgrade queue: nonexistentslackbuild/s, 'sboupgrade upgrades old version');
 
-# 18-19: Test missing dep
-	my ($output, $ret) = capture_merged { system(qw/bash -c/, "$^X -I$lib $path/sboinstall nonexistentslackbuild2 <<END\ny\nEND\n") and $? >> 8; };
-	is ($ret, 1, "sboinstall nonexistentslackbuild2 has correct exit code");
-	is ($output, "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n", 'sboinstall nonexistentslackbuild2 has correct output');
+# 18: Test missing dep
+	is (run(cmd => [qw/ sboisntall nonexistentslackbuilds2 /], input => 'y'),
+		"Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n", 'sboinstall nonexistentslackbuild2 has correct output');
 }
 
-# 20-24: Test sboupgrade --all
+# 19-23: Test sboupgrade --all
 SKIP: {
 	my @files = glob("/var/log/packages/nonexistentslackbuild-*");
 	skip 'nonexistentslackbuild not installed', 1 if @files == 0;
@@ -101,3 +111,9 @@ SKIP: {
 	ok (-e "/var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo", 'updated package is installed');
 	ok (! -e  "/var/log/packages/nonexistentslackbuild-0.9-noarch-1_SBo", 'old package is removed');
 }
+
+# 24: Test sboupgrade -f
+if (not glob("/var/log/packages/nonexistentslackbuild-*")) {
+	run(cmd => [qw/ sboinstall -r nonexistentslackbuild /]);
+}
+like( run(cmd => [qw/ sboupgrade -f nonexistentslackbuild /], input => "y\ny"), qr/Proceed with nonexistentslackbuild\?.*Upgrade queue: nonexistentslackbuild$/s, 'sboupgrade -f works');
