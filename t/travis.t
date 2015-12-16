@@ -24,7 +24,6 @@ sub run {
 		input => undef,
 		test => 1,
 		expected => undef,
-		test => undef,
 		@_
 	);
 	my $cmd = shift @{ $args{cmd} };
@@ -44,7 +43,7 @@ sub run {
 	return unless $args{test};
 
 	my $test = $args{test} // "Testing run of $cmd (@{ $args{cmd} })";
-	subtest $test {
+	subtest $test => sub {
 		plan tests => 2;
 
 		is ($return, $exit, "$cmd (@{ $args{cmd} }) exited with correct exitcode");
@@ -101,15 +100,15 @@ Local:  nonexistentslackbuild
 Path:   $RealBin/LO/nonexistentslackbuild
 
 LOCAL
-	run (cmd => [qw/ sboinstall -r nonexistentslackbuild /]),
+	run (cmd => [qw/ sboinstall -r nonexistentslackbuild /],
 		expected => qr/nonexistentslackbuild added to install queue[.].*perf[.]dummy' saved.*Cleaning for nonexistentslackbuild-1[.]0/s);
 	run (cmd => [qw/ sboremove --nointeractive nonexistentslackbuild /], expected => qr/Removing 1 package\(s\).*nonexistentslackbuild.*All operations have completed/s);
 	is (system(qw!/sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz!), 0, 'Old version fake installed');
 	run (cmd => [qw/ sbocheck /], expected => qr/Updating SlackBuilds tree.*Checking for updated SlackBuilds.*nonexistentslackbuild 0[.]9.*needs updating/s);
-	run (cmd => [qw/ sboupgrade -r nonexistentslackbuild /]), expected => qr/nonexistentslackbuild added to upgrade queue.*Upgrade queue: nonexistentslackbuild/s);
+	run (cmd => [qw/ sboupgrade -r nonexistentslackbuild /], expected => qr/nonexistentslackbuild added to upgrade queue.*Upgrade queue: nonexistentslackbuild/s);
 
 # 18: Test missing dep
-	run(cmd => [qw/ sboinstall nonexistentslackbuilds2 /], input => 'y', exit => 1, expected => "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n");
+	run(cmd => [qw/ sboinstall nonexistentslackbuild2 /], input => 'y', exit => 1, expected => "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n");
 }
 
 # 19-23: Test sboupgrade --all
