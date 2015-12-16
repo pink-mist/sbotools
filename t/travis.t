@@ -8,7 +8,7 @@ use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 
 if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
-	plan tests => 24;
+	plan tests => 26;
 } else {
 	plan skip_all => 'Only run these tests under Travis CI (TRAVIS=true)';
 }
@@ -112,8 +112,24 @@ SKIP: {
 	ok (! -e  "/var/log/packages/nonexistentslackbuild-0.9-noarch-1_SBo", 'old package is removed');
 }
 
-# 24: Test sboupgrade -f
 if (not glob("/var/log/packages/nonexistentslackbuild-*")) {
 	run(cmd => [qw/ sboinstall -r nonexistentslackbuild /]);
 }
-like( run(cmd => [qw/ sboupgrade -f nonexistentslackbuild /], input => "y\ny"), qr/Proceed with nonexistentslackbuild\?.*Upgrade queue: nonexistentslackbuild$/s, 'sboupgrade -f works');
+if (not glob("/var/log/packages/nonexistentslackbuild4-*")) {
+	run(cmd => [qw/ sboinstall nonexistentslackbuild4 /], input => "y\ny\ny");
+}
+# 24-25: Test sboupgrade -f
+like (run(cmd => [qw/ sboupgrade -f nonexistentslackbuild /], input => "y\ny"), qr/Proceed with nonexistentslackbuild\?.*Upgrade queue: nonexistentslackbuild$/s, 'sboupgrade -f works');
+like (run(cmd => [qw/ sboupgrade -f nonexistentslackbuild4 /], input => "y\ny"), qr/Proceed with nonexistentslackbuild4\?.*Upgrade queue: nonexistentslackbuild4$/s, 'sboupgrade -f with requirements works');
+
+# 26: Test sboupgrade -f -z
+like (run(cmd => [qw/ sboupgrade -f -z nonexistentslackbuild4 /], input => "y\ny\ny"),
+	qr/nonexistentslackbuild5 added to upgrade queue.*nonexistentslackbuild4 added to upgrade queue.*Upgrade queue: nonexistentslackbuild5 nonexistentslackbuild4$/s,
+	'sboupgrade -f -z works with requirements');
+
+# Cleanup
+capture_merged {
+	system(qw!/sbin/removepkg nonexistentslackbuild!);
+	system(qw!/sbin/removepkg nonexistentslackbuild4!);
+	system(qw!/sbin/removepkg nonexistentslackbuild5!);
+};
