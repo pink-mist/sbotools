@@ -21,10 +21,9 @@ sub run {
 	my %args = (
 		exit => 0,
 		cmd => [],
-		input => undef
+		input => undef,
 		@_
 	);
-	note explain \%args;
 	my $cmd = shift @{ $args{cmd} };
 	return undef unless defined $cmd;
 	my @cmd = ($^X, "-I$lib", "$path/$cmd", @{ $args{cmd} });
