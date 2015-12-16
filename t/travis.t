@@ -72,6 +72,12 @@ SKIP: {
 	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.TXT", 9 if $skip;
 
 	is (run(cmd => [qw/ sbofind nonexistentslackbuild /]), <<"LOCAL", "sbofind finds local overrides");
+Local:  nonexistentslackbuild5
+Path:   /home/travis/build/pink-mist/sbotools/t/LO/nonexistentslackbuild5
+
+Local:  nonexistentslackbuild4
+Path:   /home/travis/build/pink-mist/sbotools/t/LO/nonexistentslackbuild4
+
 Local:  nonexistentslackbuild2
 Path:   $RealBin/LO/nonexistentslackbuild2
 
@@ -88,8 +94,8 @@ LOCAL
 		qr/nonexistentslackbuild added to upgrade queue.*Upgrade queue: nonexistentslackbuild/s, 'sboupgrade upgrades old version');
 
 # 18: Test missing dep
-	is (run(cmd => [qw/ sboisntall nonexistentslackbuilds2 /], input => 'y'),
-		"Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n", 'sboinstall nonexistentslackbuild2 has correct output');
+	is (run(cmd => [qw/ sboinstall nonexistentslackbuilds2 /], input => 'y', exit => 1),
+		"Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n", 'sboinstall nonexistentslackbuild2 has correct output and exitcode');
 }
 
 # 19-23: Test sboupgrade --all
@@ -119,12 +125,12 @@ if (not glob("/var/log/packages/nonexistentslackbuild4-*")) {
 	run(cmd => [qw/ sboinstall nonexistentslackbuild4 /], input => "y\ny\ny");
 }
 # 24-25: Test sboupgrade -f
-like (run(cmd => [qw/ sboupgrade -f nonexistentslackbuild /], input => "y\ny"), qr/Proceed with nonexistentslackbuild\?.*Upgrade queue: nonexistentslackbuild$/s, 'sboupgrade -f works');
-like (run(cmd => [qw/ sboupgrade -f nonexistentslackbuild4 /], input => "y\ny"), qr/Proceed with nonexistentslackbuild4\?.*Upgrade queue: nonexistentslackbuild4$/s, 'sboupgrade -f with requirements works');
+like (run(cmd => [qw/ sboupgrade -f nonexistentslackbuild /], input => "y\ny"), qr/Proceed with nonexistentslackbuild\?.*Upgrade queue: nonexistentslackbuild\n/s, 'sboupgrade -f works');
+like (run(cmd => [qw/ sboupgrade -f nonexistentslackbuild4 /], input => "y\ny"), qr/Proceed with nonexistentslackbuild4\?.*Upgrade queue: nonexistentslackbuild4\n/s, 'sboupgrade -f with requirements works');
 
 # 26: Test sboupgrade -f -z
 like (run(cmd => [qw/ sboupgrade -f -z nonexistentslackbuild4 /], input => "y\ny\ny"),
-	qr/nonexistentslackbuild5 added to upgrade queue.*nonexistentslackbuild4 added to upgrade queue.*Upgrade queue: nonexistentslackbuild5 nonexistentslackbuild4$/s,
+	qr/nonexistentslackbuild5 added to upgrade queue.*nonexistentslackbuild4 added to upgrade queue.*Upgrade queue: nonexistentslackbuild5 nonexistentslackbuild4\n/s,
 	'sboupgrade -f -z works with requirements');
 
 # Cleanup
