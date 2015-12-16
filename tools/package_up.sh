@@ -1,6 +1,5 @@
 #!/bin/bash
 
-DOWNLOADDIR="$1"
 PACKAGE="sbotools"
 VERSION=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm | grep -Eo '[0-9]+(\.[0-9RC]+){0,1}')
 FILENAME=$PACKAGE-$VERSION.tar.gz
@@ -11,7 +10,7 @@ read
 
 PKG_HOME=`pwd`
 
-function cleanup () {
+cleanup() {
 	if [[ "$1" != "" ]]; then
 		rm -rf $1
 	fi
@@ -34,15 +33,11 @@ for i in $(ls $PKG_HOME); do
 	cp -R $PKG_HOME/$i $PKG_DIR
 done
 
-if [[ -d $PKG_DIR/t ]]; then
-	rm -rf $PKG_DIR/t
-fi
-if [[ -d $PKG_DIR/tools ]]; then
-	rm -rf $PKG_DIR/tools
-fi
-if [[ -f $PKG_DIR/README.md ]]; then
-	rm $PKG_DIR/README.md
-fi
+for remove in t tools README.md TODO do
+	if [[ -e $PKG_DIR/$remove ]]; then
+		rm -rf $PKG_DIR/$remove
+	fi
+done
 if [[ -d $PKG_DIR/slackbuild/$PACKAGE ]]; then
 	if [[ -f $PKG_DIR/slackbuild/$PACKAGE/README ]]; then
 		cp $PKG_DIR/slackbuild/$PACKAGE/README $PKG_DIR/
@@ -55,7 +50,7 @@ fi
 find $TMP_DIR -type f -name \*~ -exec rm {} \;
 
 (cd $TMP_DIR
-	tar czf $FILENAME $PACKAGE-$VERSION/
+	tar cvzf $FILENAME $PACKAGE-$VERSION/
 	cp $FILENAME $PKG_HOME
 )
 (cd $TMP_DIR
