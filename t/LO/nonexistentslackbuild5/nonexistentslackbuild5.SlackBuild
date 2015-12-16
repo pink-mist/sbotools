@@ -10,5 +10,6 @@ mkdir -p $TMP/$PRGNAM-$VERSION
 cp README $TMP/$PRGNAM-$VERSION
 mkdir -p $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION
 cp README $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION
+cd $OUTPUT/package-$PRGNAM
 
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-noarch-$BUILD$TAG.tgz
