@@ -31,10 +31,10 @@ sub run {
 	my ($output, $return) = capture_merged {
 		my $ret;
 		if (defined(my $input = $args{input})) {
-			$ret = system(qw/bash -c/, "$^X -I$lib $path/$cmd @args <<END\n$input\nEND\n") and $? >> 8;
+			$ret = system(qw/bash -c/, "$^X -I$lib $path/$cmd @args <<END\n$input\nEND\n") && $? >> 8;
 		}
 		else {
-			$ret = system(@cmd) and $? >> 8;
+			$ret = system(@cmd) && $? >> 8;
 		}
 		$ret;
 	};
@@ -132,4 +132,7 @@ capture_merged {
 	system(qw!/sbin/removepkg nonexistentslackbuild!);
 	system(qw!/sbin/removepkg nonexistentslackbuild4!);
 	system(qw!/sbin/removepkg nonexistentslackbuild5!);
+	unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
+	unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
+	unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
 };
