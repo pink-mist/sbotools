@@ -138,7 +138,7 @@ if (not glob("/var/log/packages/nonexistentslackbuild4-*")) {
 }
 # 24-25: Test sboupgrade -f
 run (cmd => [qw/ sboupgrade -f nonexistentslackbuild /], input => "y\ny", expected => qr/Proceed with nonexistentslackbuild\?.*Upgrade queue: nonexistentslackbuild\n/s);
-run (cmd => [qw/ sboupgrade -f nonexistentslackbuild4 /], input => "y\ny"), expected => qr/Proceed with nonexistentslackbuild4\?.*Upgrade queue: nonexistentslackbuild4\n/s);
+run (cmd => [qw/ sboupgrade -f nonexistentslackbuild4 /], input => "y\ny", expected => qr/Proceed with nonexistentslackbuild4\?.*Upgrade queue: nonexistentslackbuild4\n/s);
 
 # 26: Test sboupgrade -f -z
 run (cmd => [qw/ sboupgrade -f -z nonexistentslackbuild4 /], input => "y\ny\ny",
