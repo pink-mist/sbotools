@@ -25,6 +25,7 @@ sub run {
 		@_
 	);
 	my $cmd = shift @{ $args{cmd} };
+	return undef unless defined $cmd;
 	my @cmd = ($^X, "-I$lib", "$path/$cmd", @{ $args{cmd} });
 	my $exit = $args{exit};
 	my ($output, $return) = capture_merged {
