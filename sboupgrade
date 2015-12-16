@@ -122,22 +122,21 @@ if (not $non_int or not $force) {
 	$updates{$$_{name}} = 1 for @$updates;
 }
 
-my $upgrade_queue;
+my $upgrade_queue = [];
 
 # doesn't matter what's updatable and what's not if force is specified,
 # but without force, we only want to update what there are updates for
-unless ($force) {
-	for my $sbo (@sbos) {
-		push @$upgrade_queue, $sbo if $updates{$sbo};
+if ($non_int) {
+	if ($force) {
+		for my $sbo (@sbos) {
+			push @$upgrade_queue, $sbo if $inst_names{$sbo};
+		}
+	} else {
+		for my $sbo (@sbos) {
+			push @$upgrade_queue, $sbo if $updates{$sbo};
+		}
 	}
 } else {
-	for my $sbo (@sbos) {
-		push @$upgrade_queue, $sbo if $inst_names{$sbo};
-	}
-}
-
-if (not $non_int) {
-	my $temp_queue;
 	for my $sbo (@sbos) {
 		my $name = $sbo;
 		$name =~ s/-compat32$//;
@@ -145,6 +144,7 @@ if (not $non_int) {
 		if (not $force_reqs) {
 			@$queue = grep { !$inst_names{$_} or $updates{$_} } @$queue;
 		}
+		push @$queue, $name if $force;
 		my $cqueue;
 		# get locations for all the things
 		my %locs = get_sbo_locations($queue);
@@ -162,9 +162,8 @@ if (not $non_int) {
 			%locs = %clocs;
 		}
 		@locations{keys %locs} = values %locs;
-		$temp_queue = merge_queues($temp_queue, $queue);
+		$upgrade_queue = merge_queues($upgrade_queue, $queue);
 	}
-	$upgrade_queue = $temp_queue;
 }
 
 # Get user input regarding upgrades
