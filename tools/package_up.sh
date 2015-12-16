@@ -33,7 +33,7 @@ for i in $(ls $PKG_HOME); do
 	cp -R $PKG_HOME/$i $PKG_DIR
 done
 
-for remove in t tools README.md TODO do
+for remove in t tools README.md TODO; do
 	if [[ -e $PKG_DIR/$remove ]]; then
 		rm -rf $PKG_DIR/$remove
 	fi
