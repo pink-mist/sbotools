@@ -1053,7 +1053,7 @@ sub do_slackbuild {
 	return $version, $pkg, $src;
 }
 
-# remove work directories (source and packaging dirs under /tmp/SBo or $TMP)
+# remove work directories (source and packaging dirs under /tmp/SBo or $TMP and /tmp or $OUTPUT)
 sub make_clean {
 	my %args = (
 		SBO		=> '',
@@ -1069,8 +1069,11 @@ sub make_clean {
 	for my $dir (@$src) {
 		remove_tree("$tmpd/$dir") if -d "$tmpd/$dir";
 	}
-	remove_tree("$tmpd/package-$args{SBO}") if
-		-d "$tmpd/package-$args{SBO}";
+
+	my $output = $ENV{OUTPUT} // '/tmp';
+	remove_tree("$output/package-$args{SBO}") if
+		-d "$output/package-$args{SBO}";
+
 	if ($args{SBO} =~ /^(.+)-compat32$/) {
 		my $pkg_name = $1;
 		remove_tree("/tmp/package-$args{SBO}") if
