@@ -41,7 +41,7 @@ sub make_slackbuilds_txt {
 	if ($_[0]) {
 		if ($made) { return system(qw!rm -rf!, $fname); }
 	} else {
-		if (not -e $fname) { $made = 1; system('touch', $fname); }
+		if (not -e $fname) { $made = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $fname); }
 	}
 }
 
