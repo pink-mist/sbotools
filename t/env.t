@@ -52,12 +52,12 @@ sub set_lo {
 	state $set = 0;
 	state $lo;
 	if ($_[0]) {
-		if ($set) { run (cmd => [qw/ sboconfig -o /, $lo], test => 0); }
+		if ($set) { script (qw/ sboconfig -o /, $lo, { test => 0 }); }
 	} else {
-		($lo) = run (cmd => [qw/ sboconfig -l /], expected => qr/LOCAL_OVERRIDES=(.*)/, test => 0);
+		($lo) = script (qw/ sboconfig -l /, { expected => qr/LOCAL_OVERRIDES=(.*)/, test => 0 });
 		note "Saving original value of LOCAL_OVERRIDES: $lo";
 		$set = 1;
-		run (cmd => [qw/ sboconfig -o /, "$RealBin/LO"], test => 0);
+		script (qw/ sboconfig -o /, "$RealBin/LO", { test => 0 });
 	}
 }
 
