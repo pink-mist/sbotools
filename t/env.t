@@ -55,6 +55,7 @@ sub set_lo {
 		if ($set) { script (qw/ sboconfig -o /, $lo, { test => 0 }); }
 	} else {
 		($lo) = script (qw/ sboconfig -l /, { expected => qr/LOCAL_OVERRIDES=(.*)/, test => 0 });
+		$lo //= 'FALSE';
 		note "Saving original value of LOCAL_OVERRIDES: $lo";
 		$set = 1;
 		script (qw/ sboconfig -o /, "$RealBin/LO", { test => 0 });
