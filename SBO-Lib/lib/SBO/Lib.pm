@@ -1295,14 +1295,15 @@ sub process_sbos {
 	my $locs = $args{LOCATIONS};
 	my $jobs = $args{JOBS} =~ /^\d+$/ ? $args{JOBS} : 0;
 	exists $$todo[0] or script_error('process_sbos requires TODO.');
-	my (@failures, @symlinks, $temp_syms, $exit);
+	my (@failures, @symlinks, $err);
 	FIRST: for my $sbo (@$todo) {
 		my $compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
-		($temp_syms, $exit) = check_distfiles(
+		my ($temp_syms, $exit) = check_distfiles(
 			LOCATION => $$locs{$sbo}, COMPAT32 => $compat32
 		);
 		# if $exit is defined, prompt to proceed or return with last $exit
 		if ($exit) {
+			$err = $exit;
 			my $fail = $temp_syms;
 			push @failures, {$sbo => $fail};
 			# return now if we're not interactive
@@ -1316,6 +1317,8 @@ sub process_sbos {
 				unlink for @symlinks;
 				return \@failures, $exit;
 			}
+		} else {
+			push @symlinks, @$temp_syms;
 		}
 	}
 	my $count = 0 unless $args{NON_INT};
@@ -1383,7 +1386,7 @@ sub process_sbos {
 		}
 	}
 	unlink for @symlinks;
-	return \@failures, $exit;
+	return \@failures, $err;
 }
 
 # subroutine to print out failures
