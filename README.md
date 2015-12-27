@@ -8,11 +8,7 @@
     * LOCAL_OVERRIDES setting
 
       Allows to keep a directory with local slackbuild dirs that will override
-      whatever is found in the regular repository.
-       - https://github.com/pink-mist/sbotools/issues/8
-       - https://github.com/pink-mist/sbotools/issues/13
-       - https://github.com/pink-mist/sbotools/issues/14
-       - https://github.com/pink-mist/sbotools/issues/15
+      whatever is found in the regular repository. #8 #13 #14 #15
     * SLACKWARE_VERSION setting
 
       Allows to specify the slackware version to sync from SBo. Previously only
@@ -23,35 +19,25 @@
     * REPO setting
 
       This will override the SLACKWARE_VERSION setting. It's used to specify an
-      absolute URL for the SBo repository you want to sync with.
-       - https://github.com/pink-mist/sbotools/issues/6
-    * Use sbosrcarch source archive if download fails
-       - https://github.com/pink-mist/sbotools/issues/7
-    * sboupgrade --all option to upgrade everything listed by sbocheck
-       - https://github.com/pink-mist/sbotools/issues/9
+      absolute URL for the SBo repository you want to sync with. #6
+    * Use sbosrcarch source archive if download fails #7
+    * sboupgrade --all option to upgrade everything listed by sbocheck. #9
     * Travis CI integration
 
-      Every push will now cause the test-suite to be run
-       - https://github.com/pink-mist/sbotools/issues/18
+      Every push will now cause the test-suite to be run. #18
   * Minor/bugfixes/documentation fixes
-    * Use system perl when running and installing sbotools
-    * sbocheck output changed
-       - https://github.com/pink-mist/sbotools/issues/10
-       - https://github.com/pink-mist/sbotools/issues/13
-    * Better debug messages on errors
-       - https://github.com/pink-mist/sbotools/issues/16
-    * manpage fixes
-       - https://github.com/pink-mist/sbotools/issues/17
-    * sboupgrade handles dependencies better
-       - https://github.com/pink-mist/sbotools/issues/12
+    * Use system perl when running and installing sbotools.
+    * sbocheck output changed. #10 #13
+    * Better debug messages on errors. #16
+    * manpage fixes. #17
+    * sboupgrade handles dependencies better. #12
 
 * 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
   * Lots of code cleanup
-  * Rewrite build-queue code (https://github.com/pink-mist/sbotools/issues/2)
-  * Fix issue when TMP is set (https://github.com/pink-mist/sbotools/issues/4)
+  * Rewrite build-queue code. #2
+  * Fix issue when TMP is set. #4
   * Fix various bugs related to cleanup code
   * Change location of website
-  * Fix downloading of multiple sources in newer slackbuilds
-    (https://github.com/pink-mist/sbotools/issues/5)
+  * Fix downloading of multiple sources in newer slackbuilds. #5
 
