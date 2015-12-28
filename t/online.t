@@ -18,7 +18,7 @@ use lib ".";
 use SBO::Lib qw/ :all /;
 
 if (defined $ENV{TEST_ONLINE} and $ENV{TEST_ONLINE} eq '1') {
-	plan tests => 6;
+	plan tests => 7;
 } else {
 	plan skip_all => 'Not doing online tests unless TEST_ONLINE is set to 1';
 }
@@ -75,7 +75,23 @@ sub {
 	ok (unlink(readlink($sym), $sym), "deleting $fn works");
 };
 
-# 6: move things back to pre-migration state
+# 6: test pull_sbo_tree
+SKIP: {
+	skip "Travis doesn't have a new enough rsync", 1 if $ENV{TRAVIS};
+
+	local $SBO::Lib::repo_path = "$repo_path/tmp";
+	local $SBO::Lib::config{SLACKWARE_VERSION} = '14.2';
+	local $SBO::Lib::config{REPO} = 'rsync://slackbuilds.org/slackbuilds/14.1/';
+	check_repo();
+
+	use Capture::Tiny 'capture_stdout';
+	my $stdout = capture_stdout( sub { pull_sbo_tree() } );
+	like ($stdout, qr/100%/, 'pull_sbo_tree output correct');
+
+	system('rm', '-rf', $SBO::Lib::repo_path);
+}
+
+# 7: move things back to pre-migration state
 subtest 'move things back to pre-migration state',
 sub {
 	foreach my $fname (glob("$repo_path/*")) {
