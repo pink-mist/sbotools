@@ -286,7 +286,7 @@ sub rsync_sbo_tree {
 	exists $_[0] or script_error('rsync_sbo_tree requires an argument.');	
 	my $url = shift;
 	$url .= '/' unless $url =~ m!/$!; # make sure $url ends with /
-	my @args = ('rsync', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc', '--delete', $url);
+	my @args = ('rsync', '--info=progress2', '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc', '--delete', $url);
 	return system(@args, $repo_path) == 0;
 }
 
