@@ -14,4 +14,8 @@ install:
     - cpanm Text::Diff Capture::Tiny Test::Output
 script: bash -c 'PROVE=`which prove`; sudo $PROVE -v t/*.t'
 notifications:
-    irc: "chat.freenode.net#sbotools"
+    irc:
+        channels:
+            - "chat.freenode.net#sbotools"
+        on_success: change
+        on_failure: change
