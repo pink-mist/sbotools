@@ -24,7 +24,7 @@ script (qw/ sboconfig -V 14.1 /, { expected => "Setting SLACKWARE_VERSION to 14.
 SKIP: {
 	skip 'Not doing online tests without TEST_ONLINE=1', 2 if $ENV{TEST_ONLINE} ne '1';
 
-	script (qw/ sbosnap fetch /, { expected => "Pulling SlackBuilds tree...\n" });
+	script (qw/ sbosnap fetch /, { expected => qr/\APulling SlackBuilds tree\.\.\.\n/ });
 	script (qw/ sbofind sbotools /, { expected => "SBo:    sbotools\nPath:   /usr/sbo/repo/system/sbotools\n\n" });
 }
 
