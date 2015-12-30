@@ -1,5 +1,5 @@
 #!/bin/bash
-PRGNAM="nonexistentslackbuild"
+PRGNAM="failingslackbuild"
 VERSION=${VERSION:-1.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
