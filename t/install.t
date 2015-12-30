@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 8;
+	plan tests => 9;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -27,6 +27,7 @@ sub cleanup {
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
+		unlink "$RealBin/LO/failingslackbuild/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
@@ -93,6 +94,9 @@ script (qw/ sboremove nonexistentslackbuild5 /, { input => "y\ny", test => 0 });
 # 8: sboinstall nonexistentslackbuild4
 script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny", expected => qr/nonexistentslackbuild5 added to install queue.*Install queue: nonexistentslackbuild5/s });
 script (qw/ sboremove nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\ny", test => 0 });
+
+# 9: sboinstall failingslackbuild
+script (qw/ sboinstall failingslackbuild /, { input => "y\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n\z/, exit => 3 });
 
 # Cleanup
 END {
