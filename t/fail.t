@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 6;
+	plan tests => 9;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -22,17 +22,35 @@ $path = "$RealBin/../";
 sub cleanup {
 	capture_merged {
 		unlink "$RealBin/LO-fail/failingslackbuild/perf.dummy";
+		unlink "$RealBin/LO-fail/failingslackbuild2/perf.dummy";
 		unlink "$RealBin/LO-fail/failingdownload/perf.dummy.fail";
+		unlink "$RealBin/LO-fail/failingdownload2/perf.dummy.fail";
 		unlink "$RealBin/LO-fail/failingmd5sum/perf.dummy";
+		unlink "$RealBin/LO-fail/failingmd5sum2/perf.dummy";
+		unlink "$RealBin/LO-fail/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO-fail/nonexistentslackbuild2/perf.dummy";
+		unlink "$RealBin/LO-fail/nonexistentslackbuild3/perf.dummy";
+		unlink "$RealBin/LO-fail/nonexistentslackbuild4/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/failingslackbuild-1.0!);
+		system(qw!rm -rf /tmp/SBo/failingslackbuild2-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingdownload-1.0!);
+		system(qw!rm -rf /tmp/SBo/failingdownload2-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingmd5sum-1.0!);
+		system(qw!rm -rf /tmp/SBo/failingmd5sum2-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild2-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild3-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/package-failingslackbuild!);
+		system(qw!rm -rf /tmp/package-failingslackbuild2!);
 		system(qw!rm -rf /tmp/package-failingdownload!);
+		system(qw!rm -rf /tmp/package-failingdownload2!);
 		system(qw!rm -rf /tmp/package-failingmd5sum!);
+		system(qw!rm -rf /tmp/package-failingmd5sum2!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild2!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild3!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild4!);
 	};
 }
 
@@ -84,6 +102,18 @@ SKIP: {
 
 	script (qw/ sboinstall nonexistentslackbuild3 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5});
 	script (qw/ sboinstall nonexistentslackbuild4 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n  failingmd5sum: md5sum failure for /usr/sbo/distfiles/perf[.]dummy[.]\n!, exit => 4});
+}
+
+# 7: Failing build with working dep
+script (qw/ sboinstall failingslackbuild2 /, {input => "y\ny\ny", expected => qr/Failures:\n  failingslackbuild2: failingslackbuild2[.]SlackBuild return non-zero\n\z/, exit => 3 });
+script (qw/ sboremove nonexistentslackbuild /, {input => "y\ny", test => 0 });
+
+# 8-9: Failing download and md5sum with working dep
+SKIP: {
+	skipt "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
+
+	script (qw/ sboinstall failingdownload2 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 3 });
+	script (qw/ sboinstall failingmd5sum2 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 3 });
 }
 
 # Cleanup
