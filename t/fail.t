@@ -139,7 +139,7 @@ script (qw/ sboinstall malformed-readme /, { expected => "A fatal script error h
 
 # 13: Malformed slackbuild - no .SlackBuild
 script (qw/ sboinstall malformed-slackbuild /,
-	{ input => "y\ny", expected => qr!\QFailures:\n  malformed-slackbuild: Unable to backup $RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild to $RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild.orig\E!, exit => 6 });
+	{ input => "y\ny", expected => qr!Failures:\n  malformed-slackbuild: Unable to backup \Q$RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild to $RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild.orig\E!, exit => 6 });
 
 # Cleanup
 END {
