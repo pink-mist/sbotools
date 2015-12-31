@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 1;
+	plan tests => 2;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -22,8 +22,14 @@ $path = "$RealBin/../";
 sub cleanup {
 	capture_merged {
 		unlink "$RealBin/LO-fail/failingslackbuild/perf.dummy";
+		unlink "$RealBin/LO-fail/failingdownload/perf.dummy.fail";
+		unlink "$RealBin/LO-fail/failingmd5sum/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/failingslackbuild-1.0!);
+		system(qw!rm -rf /tmp/SBo/failingdownload-1.0!);
+		system(qw!rm -rf /tmp/SBo/failingmd5sum-1.0!);
 		system(qw!rm -rf /tmp/package-failingslackbuild!);
+		system(qw!rm -rf /tmp/package-failingdownload!);
+		system(qw!rm -rf /tmp/package-failingmd5sum!);
 	};
 }
 
@@ -57,6 +63,9 @@ set_lo();
 
 # 1: Failing slackbuild script
 script (qw/ sboinstall failingslackbuild /, { input => "y\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n\z/, exit => 3 });
+
+# 2: Failing download
+script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n\z!, exit => 5 });
 
 # Cleanup
 END {
