@@ -110,7 +110,7 @@ script (qw/ sboremove nonexistentslackbuild /, {input => "y\ny", test => 0 });
 
 # 8-9: Failing download and md5sum with working dep
 SKIP: {
-	skipt "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
+	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
 
 	script (qw/ sboinstall failingdownload2 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 3 });
 	script (qw/ sboinstall failingmd5sum2 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 3 });
