@@ -993,9 +993,21 @@ sub do_convertpkg {
 	my $pkg = shift;
 	my $tempfh = tempfile(DIR => $tempdir);
 	my $fn = get_tmp_extfn($tempfh);
+
+	# get a tempfile to store the exit status of the slackbuild
+	my $exit_temp = tempfile(DIR => $tempdir);
+	my ($exit_fn, $exit) = get_tmp_extfn($exit_temp);
+	return $exit_fn, undef, $exit if $exit;
+
 	my $c32tmpd = $env_tmp // '/tmp';
-	my $cmd = "/usr/sbin/convertpkg-compat32 -i $pkg -d $c32tmpd | tee $fn";
-	if (system($cmd) != 0) {
+	my $cmd = "( /bin/bash -c '/usr/sbin/convertpkg-compat32 -i $pkg -d $c32tmpd'; echo \$? > $exit_fn ) | tee $fn";
+	my $ret = system('/bin/bash', '-c', $cmd);
+
+	# If the system call worked, check the saved exit status
+	seek $exit_temp, 0, 0;
+	$ret = do {local $/; <$exit_temp>} if $ret == 0;
+
+	if ($ret != 0) {
 		return "convertpkg-compt32 returned non-zero exit status\n",
 			_ERR_CONVERTPKG;
 	}
