@@ -1,0 +1,55 @@
+#!/bin/bash
+
+while [[ $# > 1 ]]
+do
+key="$1"
+
+case $key in
+	-i)
+		INPUT="$2"
+		shift
+		;;
+	-o)
+		OUTPKG="$2"
+		shift
+		;;
+	-d)
+		DESTINATION="$2"
+		shift
+		;;
+	-s)
+		DESC="$2"
+		shift
+		;;
+	-e)
+		EXT="$2"
+		shift
+		;;
+esac
+shift
+done
+
+ARCH=${ARCH:-$(uname -m)}
+TAG=${TAG:-compat32}
+OUTPUT=${OUTPUT:-/tmp}
+TMP=${TMP:-/tmp}
+EXT=${EXT:-tgz}
+PKGFILE="$(basename ${INPUT})"
+PKGPATH="$(cd $(dirname ${INPUT}); pwd)/$(basename ${INPUT})"
+PKGNAM=$(echo $PKGFILE | rev | cut -f4- -d- | rev)
+VERSION=$(echo $PKGFILE | rev | cut -f3 -d- | rev)
+BUILD=$(echo $PKGFILE | rev | cut -f1 -d- | cut -f2- -d. | rev)
+OUTPKG=${OUTPKG:-"${PKGNAM}-compat32-${VERSION}-${ARCH}-${BUILD}${TAG}.${EXT}"}
+PKGNAM32=$(echo $OUTPKG | rev | cut -f4- -d- | rev)
+
+echo "Converting package $PKGNAM (version $VERSION) to $OUTPKG ($PKGNAM32)"
+
+if [ "$PKGNAM" = "multilibfail" ]
+then
+	exit 1
+fi
+
+touch $OUTPUT/$OUTPKG
+echo "Slackware package $OUTPUT/$OUTPKG created."
+
+echo "Package created: $OUTPUT/$OUTPKG"

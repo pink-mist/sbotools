@@ -11,11 +11,12 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 13;
+	plan tests => 16;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
 $ENV{TEST_ONLINE} //= 0;
+$ENV{TEST_MULTILIB} //= 0;
 
 $path = "$RealBin/../";
 
@@ -140,6 +141,33 @@ script (qw/ sboinstall malformed-readme /, { expected => "A fatal script error h
 # 13: Malformed slackbuild - no .SlackBuild
 script (qw/ sboinstall malformed-slackbuild /,
 	{ input => "y\ny", expected => qr!Failures:\n  malformed-slackbuild: Unable to backup \Q$RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild to $RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild.orig\E!, exit => 6 });
+
+# 14: Multilib fails - no multilib
+SKIP: {
+	skip "No multilib test only valid when TEST_MULTILIB=0", 1 unless $ENV{TEST_MULTILIB} == 0;
+	skip "/etc/profile.d/32dev.sh exists", 1 if -e "/etc/profile.d/32dev.sh";
+
+	script (qw/ sboinstall -p nonexistentslackbuild /, { input => "y\ny\ny", expected => qr/Failures:\n  nonexistentslackbuild-compat32: compat32 requires multilib[.]\n/, exit => 9 });
+	script (qw/ sboremove nonexistentslackbuild /, { input => "y\ny", test => 0 });
+}
+
+# 15: Multilib fails - no convertpkg
+SKIP: {
+	skip "No convertpkg test only valid when TEST_MULTILIB=1", 1 unless $ENV{TEST_MULTILIB} == 1;
+	skip "/etc/profile.d/32dev.sh doesn't exist", 1 unless -e "/etc/profile.d/32dev.sh";
+	skip "/usr/sbin/convertpkg-compat32 exists", 1 if -e "/usr/sbin/convertpkg-compat32";
+
+	script (qw/ sboinstall -p nonexistentslackbuild /, { input => "y\ny\ny", expected => qr!Failures:\n  nonexistentslackbuild-compat32: compat32 requires /usr/sbin/convertpkg-compat32[.]\n!, exit => 11 });
+}
+
+# 16: Multilib fails - convertpkg fail
+SKIP: {
+	skip "Multilib convertpkg fail test only valid if TEST_MULTILIB=2", 1 unless $ENV{TEST_MULTILIB} == 2;
+	skip "No /etc/profile.d/32dev.sh", 1 unless -e "/etc/profile.d/32dev.sh";
+	skip "No /usr/sbin/convertpkg-compat32", 1 unless -e "/usr/sbin/convertpkg-compat32";
+
+	script (qw/ sboinstall -p multilibfail /, { input => "y\ny\ny", expected => qr//, exit => 9 });
+}
 
 # Cleanup
 END {
