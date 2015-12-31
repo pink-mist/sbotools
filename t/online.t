@@ -60,20 +60,24 @@ chk_slackbuilds_txt();
 }
 
 # 5: test sbosrcarch
-subtest 'sbosrcarch tests',
-sub {
-	plan tests => 5;
+SKIP: {
+	skip "Not doing sbosrcarch test under Travis CI", 1 if $ENV{TRAVIS};
 
-	my $symlinks;
-	stderr_like ( sub { $symlinks = check_distfiles(LOCATION => "$repo_path/audio/test"); },
-		qr/ERROR 404: Not Found[.].*Resolving slackware[.]uk/s, 'link not found, using sbosrcarch');
-	my $sym = $symlinks->[0];
-	my $fn = "eawpats12_full.tar.gz";
-	is ($sym, "$repo_path/audio/test/$fn", 'symlink is in the right place');
-	ok (-l $sym, 'symlink is actually a symlink');
-	is (readlink($sym), "$sbo_home/distfiles/$fn", 'symlink leads to the right place');
-	ok (unlink(readlink($sym), $sym), "deleting $fn works");
-};
+	subtest 'sbosrcarch tests',
+	sub {
+		plan tests => 5;
+
+		my $symlinks;
+		stderr_like ( sub { $symlinks = check_distfiles(LOCATION => "$repo_path/audio/test"); },
+			qr/ERROR 404: Not Found[.].*Resolving slackware[.]uk/s, 'link not found, using sbosrcarch');
+		my $sym = $symlinks->[0];
+		my $fn = "eawpats12_full.tar.gz";
+		is ($sym, "$repo_path/audio/test/$fn", 'symlink is in the right place');
+		ok (-l $sym, 'symlink is actually a symlink');
+		is (readlink($sym), "$sbo_home/distfiles/$fn", 'symlink leads to the right place');
+		ok (unlink(readlink($sym), $sym), "deleting $fn works");
+	};
+}
 
 # 6: test pull_sbo_tree
 SKIP: {
