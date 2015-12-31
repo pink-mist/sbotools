@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 4;
+	plan tests => 6;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -78,14 +78,13 @@ SKIP: {
 # 4: Failing dependency
 script (qw/ sboinstall nonexistentslackbuild2 /, { input => "y\ny\ny\nn", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 3 });
 
+# 5-6: Failing download and md5sum in dependency
 SKIP: {
 	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
 
-	script (qw/ sboinstall nonexistentslackbuild3 /);
-	script (qw/ sboinstall nonexistentslackbuild4 /);
+	script (qw/ sboinstall nonexistentslackbuild3 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5});
+	script (qw/ sboinstall nonexistentslackbuild4 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n  failingmd5sum: md5sum failure for /usr/sbo/distfiles/perf[.]dummy[.]\n!, exit => 4});
 }
-
-
 
 # Cleanup
 END {
