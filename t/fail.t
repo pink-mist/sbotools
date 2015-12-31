@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 9;
+	plan tests => 13;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -31,6 +31,10 @@ sub cleanup {
 		unlink "$RealBin/LO-fail/nonexistentslackbuild2/perf.dummy";
 		unlink "$RealBin/LO-fail/nonexistentslackbuild3/perf.dummy";
 		unlink "$RealBin/LO-fail/nonexistentslackbuild4/perf.dummy";
+		unlink "$RealBin/LO-fail/malformed-noinfo/perf.dummy";
+		unlink "$RealBin/LO-fail/malformed-info/perf.dummy";
+		unlink "$RealBin/LO-fail/malformed-readme/perf.dummy";
+		unlink "$RealBin/LO-fail/malformed-slackbuild/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/failingslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingslackbuild2-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingdownload-1.0!);
@@ -41,6 +45,10 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild2-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild3-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
+		system(qw!rm -rf /tmp/SBo/malformed-noinfo-1.0!);
+		system(qw!rm -rf /tmp/SBo/malformed-info-1.0!);
+		system(qw!rm -rf /tmp/SBo/malformed-readme-1.0!);
+		system(qw!rm -rf /tmp/SBo/malformed-slackbuild-1.0!);
 		system(qw!rm -rf /tmp/package-failingslackbuild!);
 		system(qw!rm -rf /tmp/package-failingslackbuild2!);
 		system(qw!rm -rf /tmp/package-failingdownload!);
@@ -51,6 +59,10 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild2!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild3!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild4!);
+		system(qw!rm -rf /tmp/package-malformed-noinfo!);
+		system(qw!rm -rf /tmp/package-malformed-info!);
+		system(qw!rm -rf /tmp/package-malformed-readme!);
+		system(qw!rm -rf /tmp/package-malformed-slackbuild!);
 	};
 }
 
@@ -115,6 +127,19 @@ SKIP: {
 	script (qw/ sboinstall failingdownload2 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 5 });
 	script (qw/ sboinstall failingmd5sum2 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 4 });
 }
+
+# 10: Malformed slackbuild - no .info
+script (qw/ sboinstall malformed-noinfo /, { expected => "A fatal script error has occurred:\nopen_fh, $RealBin/LO-fail/malformed-noinfo/malformed-noinfo.info is not a file\nExiting.\n", exit => 2 });
+
+# 11: Malformed slackbuild - malformed .info
+script (qw/ sboinstall malformed-info /, { input => "y\ny\nn", expected => qr!Failures:\n  malformed-info: Unable to get download info from $RealBin/LO-fail/malformed-info/malformed-info[.]info\n!, exit => 7 });
+
+# 12: Malformed slackbuild - no readme
+script (qw/ sboinstall malformed-readme /, { expected => "A fatal script error has occurred:\nopen_fh, $RealBin/LO-fail/malformed-readme/README is not a file\nExiting.\n", exit => 2 });
+
+# 13: Malformed slackbuild - no .SlackBuild
+script (qw/ sboinstall malformed-slackbuild /,
+	{ input => "y\ny", expected => qr!\QFailures:\n  malformed-slackbuild: Unable to backup $RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild to $RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild.orig\E!, exit => 6 });
 
 # Cleanup
 END {
