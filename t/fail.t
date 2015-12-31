@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 2;
+	plan tests => 3;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -70,6 +70,9 @@ SKIP: {
 
 	script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5 });
 }
+
+# 3: Failing dependency
+script (qw/ sboinstall nonexistentslackbuild2 /, { input => "y\ny\ny\nn", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n\z/, exit => 3 });
 
 # Cleanup
 END {
