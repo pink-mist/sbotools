@@ -100,20 +100,20 @@ script (qw/ sboinstall nonexistentslackbuild2 /, { input => "y\ny\ny\nn", expect
 SKIP: {
 	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
 
-	script (qw/ sboinstall nonexistentslackbuild3 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5});
-	script (qw/ sboinstall nonexistentslackbuild4 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n  failingmd5sum: md5sum failure for /usr/sbo/distfiles/perf[.]dummy[.]\n!, exit => 4});
+	script (qw/ sboinstall nonexistentslackbuild3 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5 });
+	script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n  failingmd5sum: md5sum failure for /usr/sbo/distfiles/perf[.]dummy[.]\n!, exit => 4 });
 }
 
 # 7: Failing build with working dep
-script (qw/ sboinstall failingslackbuild2 /, {input => "y\ny\ny", expected => qr/Failures:\n  failingslackbuild2: failingslackbuild2[.]SlackBuild return non-zero\n\z/, exit => 3 });
-script (qw/ sboremove nonexistentslackbuild /, {input => "y\ny", test => 0 });
+script (qw/ sboinstall failingslackbuild2 /, { input => "y\ny\ny", expected => qr/Failures:\n  failingslackbuild2: failingslackbuild2[.]SlackBuild return non-zero\n\z/, exit => 3 });
+script (qw/ sboremove nonexistentslackbuild /, { input => "y\ny", test => 0 });
 
 # 8-9: Failing download and md5sum with working dep
 SKIP: {
 	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
 
-	script (qw/ sboinstall failingdownload2 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 3 });
-	script (qw/ sboinstall failingmd5sum2 /, {input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 3 });
+	script (qw/ sboinstall failingdownload2 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 5 });
+	script (qw/ sboinstall failingmd5sum2 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n!, exit => 4 });
 }
 
 # Cleanup
