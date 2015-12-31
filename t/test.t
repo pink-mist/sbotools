@@ -254,10 +254,13 @@ ok(!(check_x32("$repo_path/system/ifuse")),
 	'check_x32 false for not-32-bit-only ifuse');
 
 # 36: check_multilib tests
-if (-x '/usr/sbin/convertpkg-compat32') {
-	ok(check_multilib(), 'check_multilib good');
-} else {
-	ok(!check_multilib(), 'check_multilib good');
+SKIP: {
+	skip "This is useless to test if TEST_MULTILIB=1", 1 if ($ENV{TEST_MULTILIB} // 0) == 1;
+	if (-x '/usr/sbin/convertpkg-compat32') {
+		ok(check_multilib(), 'check_multilib good');
+	} else {
+		ok(!check_multilib(), 'check_multilib good');
+	}
 }
 
 # 37: create_symlinks tests
