@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 9;
+	plan tests => 8;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -94,9 +94,6 @@ script (qw/ sboremove nonexistentslackbuild5 /, { input => "y\ny", test => 0 });
 # 8: sboinstall nonexistentslackbuild4
 script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny", expected => qr/nonexistentslackbuild5 added to install queue.*Install queue: nonexistentslackbuild5/s });
 script (qw/ sboremove nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\ny", test => 0 });
-
-# 9: sboinstall failingslackbuild
-script (qw/ sboinstall failingslackbuild /, { input => "y\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n\z/, exit => 3 });
 
 # Cleanup
 END {
