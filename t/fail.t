@@ -24,12 +24,15 @@ sub cleanup {
 		unlink "$RealBin/LO-fail/failingslackbuild/perf.dummy";
 		unlink "$RealBin/LO-fail/failingdownload/perf.dummy.fail";
 		unlink "$RealBin/LO-fail/failingmd5sum/perf.dummy";
+		unlink "$RealBin/LO-fail/nonexistentslackbuild2/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/failingslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingdownload-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingmd5sum-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild2-1.0!);
 		system(qw!rm -rf /tmp/package-failingslackbuild!);
 		system(qw!rm -rf /tmp/package-failingdownload!);
 		system(qw!rm -rf /tmp/package-failingmd5sum!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild2!);
 	};
 }
 
@@ -72,7 +75,7 @@ SKIP: {
 }
 
 # 3: Failing dependency
-script (qw/ sboinstall nonexistentslackbuild2 /, { input => "y\ny\ny\nn", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n\z/, exit => 3 });
+script (qw/ sboinstall nonexistentslackbuild2 /, { input => "y\ny\ny\nn", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 3 });
 
 # Cleanup
 END {
