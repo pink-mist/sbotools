@@ -36,6 +36,7 @@ sub cleanup {
 		unlink "$RealBin/LO-fail/malformed-info/perf.dummy";
 		unlink "$RealBin/LO-fail/malformed-readme/perf.dummy";
 		unlink "$RealBin/LO-fail/malformed-slackbuild/perf.dummy";
+		unlink "$RealBin/LO-fail/multilibfail/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/failingslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingslackbuild2-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingdownload-1.0!);
@@ -50,6 +51,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/malformed-info-1.0!);
 		system(qw!rm -rf /tmp/SBo/malformed-readme-1.0!);
 		system(qw!rm -rf /tmp/SBo/malformed-slackbuild-1.0!);
+		system(qw!rm -rf /tmp/SBo/multilibfail-1.0!);
 		system(qw!rm -rf /tmp/package-failingslackbuild!);
 		system(qw!rm -rf /tmp/package-failingslackbuild2!);
 		system(qw!rm -rf /tmp/package-failingdownload!);
@@ -64,6 +66,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-malformed-info!);
 		system(qw!rm -rf /tmp/package-malformed-readme!);
 		system(qw!rm -rf /tmp/package-malformed-slackbuild!);
+		system(qw!rm -rf /tmp/package-multilibfail!);
 	};
 }
 
