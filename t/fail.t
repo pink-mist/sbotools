@@ -163,10 +163,11 @@ SKIP: {
 # 16: Multilib fails - convertpkg fail
 SKIP: {
 	skip "Multilib convertpkg fail test only valid if TEST_MULTILIB=2", 1 unless $ENV{TEST_MULTILIB} == 2;
+	skip "This test is designed to be run in the Travis CI environment", 1 unless $ENV{TRAVIS};
 	skip "No /etc/profile.d/32dev.sh", 1 unless -e "/etc/profile.d/32dev.sh";
 	skip "No /usr/sbin/convertpkg-compat32", 1 unless -e "/usr/sbin/convertpkg-compat32";
 
-	script (qw/ sboinstall -p multilibfail /, { input => "y\ny\ny", expected => qr//, exit => 9 });
+	script (qw/ sboinstall -p multilibfail /, { input => "y\ny\ny", expected => qr/Failures:\n  multilibfail-compat32: convertpkg-compt32 returned non-zero exit status\n/, exit => 10 });
 }
 
 # Cleanup
