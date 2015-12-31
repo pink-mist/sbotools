@@ -65,7 +65,11 @@ set_lo();
 script (qw/ sboinstall failingslackbuild /, { input => "y\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n\z/, exit => 3 });
 
 # 2: Failing download
-script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n\z!, exit => 5 });
+SKIP: {
+	skip "Not doing online tests", 1 unless $ENV{TEST_ONLINE};
+
+	script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n\z!, exit => 5 });
+}
 
 # Cleanup
 END {
