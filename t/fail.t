@@ -68,7 +68,7 @@ script (qw/ sboinstall failingslackbuild /, { input => "y\ny", expected => qr/Fa
 SKIP: {
 	skip "Not doing online tests", 1 unless $ENV{TEST_ONLINE};
 
-	script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n\z!, exit => 5 });
+	script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5 });
 }
 
 # Cleanup
