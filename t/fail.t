@@ -69,7 +69,7 @@ script (qw/ sboinstall failingslackbuild /, { input => "y\ny", expected => qr/Fa
 
 # 2-3: Failing download and md5sum
 SKIP: {
-	skip "Not doing online tests", 1 unless $ENV{TEST_ONLINE};
+	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
 
 	script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5 });
 	script (qw/ sboinstall failingmd5sum /, { input => "y\ny\nn", expected => qr!Failures:\n  failingmd5sum: md5sum failure for /usr/sbo/distfiles/perf[.]dummy[.]\n!, exit => 4 });
@@ -77,6 +77,15 @@ SKIP: {
 
 # 4: Failing dependency
 script (qw/ sboinstall nonexistentslackbuild2 /, { input => "y\ny\ny\nn", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 3 });
+
+SKIP: {
+	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
+
+	script (qw/ sboinstall nonexistentslackbuild3 /);
+	script (qw/ sboinstall nonexistentslackbuild4 /);
+}
+
+
 
 # Cleanup
 END {
