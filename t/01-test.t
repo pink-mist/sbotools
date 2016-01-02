@@ -44,7 +44,7 @@ is($config{LOCAL_OVERRIDES}, 'FALSE', 'config{LOCAL_OVERRIDES} is good');
 
 # 7: open_read, open_fh tests
 {
-	my $fh = open_read('./test.t');
+	my $fh = open_read(__FILE__);
 	is(ref $fh, 'GLOB', 'open_read works');
 	close $fh;
 }
