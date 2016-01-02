@@ -8,7 +8,7 @@ use Test::More;
 use Test::Output;
 use File::Copy;
 use Text::Diff;
-use FindBin '$RealBin';
+use FindBin '$RealBin', '$RealScript';
 
 BEGIN {
 	chdir($RealBin);
@@ -44,7 +44,7 @@ is($config{LOCAL_OVERRIDES}, 'FALSE', 'config{LOCAL_OVERRIDES} is good');
 
 # 7: open_read, open_fh tests
 {
-	my $fh = open_read(__FILE__);
+	my $fh = open_read($RealScript);
 	is(ref $fh, 'GLOB', 'open_read works');
 	close $fh;
 }
