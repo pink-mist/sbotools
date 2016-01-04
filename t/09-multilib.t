@@ -56,8 +56,8 @@ cleanup();
 make_slackbuilds_txt();
 set_lo();
 
-# 1: Failing slackbuild script
-script (qw/ sboinstall multilibsbo /, { input => "y\ny", expected => qr// });
+# 1: Testing multilibsbo
+script (qw/ sboinstall -p multilibsbo /, { input => "y\ny\ny", expected => qr/Cleaning for multilibsbo-compat32-1[.]0[.][.][.]\n/ });
 
 # Cleanup
 END {
