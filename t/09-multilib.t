@@ -12,7 +12,7 @@ use Test::Execute;
 
 $ENV{TEST_MULTILIB} //= 0;
 if ($ENV{TEST_INSTALL} and ($ENV{TEST_MULTILIB} == 2)) {
-	plan tests => 1;
+	plan tests => 2;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1 and TEST_MULTILIB=2';
 }
@@ -22,9 +22,13 @@ $path = "$RealBin/../";
 
 sub cleanup {
 	capture_merged {
+		system(qw!/sbin/removepkg multilibsbo multilibsbo-compat32 multilibsbo2 multilibsbo2-compat32!);
 		unlink "$RealBin/LO-multilib/multilibsbo/perf.dummy";
+		unlink "$RealBin/LO-multilib/multilibsbo2/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/multilibsbo-1.0!);
+		system(qw!rm -rf /tmp/SBo/multilibsbo2-1.0!);
 		system(qw!rm -rf /tmp/package-multilibsbo!);
+		system(qw!rm -rf /tmp/package-multilibsbo2!);
 	};
 }
 
@@ -58,6 +62,10 @@ set_lo();
 
 # 1: Testing multilibsbo
 script (qw/ sboinstall -p multilibsbo /, { input => "y\ny\ny", expected => qr/Cleaning for multilibsbo-compat32-1[.]0[.][.][.]\n/ });
+system(qw!/sbin/removepkg multilibsbo multilibsbo-compat32!);
+
+# 2: Testing multilibsbo with dependencies
+script (qw/ sboinstall -p multilibsbo2 /, { input => "y\ny\ny\ny\ny", expected => qr/Cleaning for multilibsbo2-compat32-1[.]0[.][.][.]\n/ });
 
 # Cleanup
 END {
