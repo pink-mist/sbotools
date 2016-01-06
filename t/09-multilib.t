@@ -12,7 +12,7 @@ use Test::Execute;
 
 $ENV{TEST_MULTILIB} //= 0;
 if ($ENV{TEST_INSTALL} and ($ENV{TEST_MULTILIB} == 2)) {
-	plan tests => 2;
+	plan tests => 3;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1 and TEST_MULTILIB=2';
 }
@@ -25,10 +25,13 @@ sub cleanup {
 		system(qw!/sbin/removepkg multilibsbo multilibsbo-compat32 multilibsbo2 multilibsbo2-compat32!);
 		unlink "$RealBin/LO-multilib/multilibsbo/perf.dummy";
 		unlink "$RealBin/LO-multilib/multilibsbo2/perf.dummy";
+		unlink "$RealBin/LO-multilib/multilibsbo3/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/multilibsbo-1.0!);
 		system(qw!rm -rf /tmp/SBo/multilibsbo2-1.0!);
+		system(qw!rm -rf /tmp/SBo/multilibsbo3-1.0!);
 		system(qw!rm -rf /tmp/package-multilibsbo!);
 		system(qw!rm -rf /tmp/package-multilibsbo2!);
+		system(qw!rm -rf /tmp/package-multilibsbo3!);
 	};
 }
 
@@ -66,6 +69,9 @@ system(qw!/sbin/removepkg multilibsbo multilibsbo-compat32!);
 
 # 2: Testing multilibsbo with dependencies
 script (qw/ sboinstall -p multilibsbo2 /, { input => "y\ny\ny\ny\ny", expected => qr/Cleaning for multilibsbo2-compat32-1[.]0[.][.][.]\n/ });
+
+# 3: Testing 32-bit only multilibsbo3
+script (qw/ sboinstall multilibsbo3 /, { input => "y\ny", expected => qr/Cleaning for multilibsbo3-1[.]0[.][.][.]/ });
 
 # Cleanup
 END {
