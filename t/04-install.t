@@ -27,7 +27,6 @@ sub cleanup {
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
-		unlink "$RealBin/LO/failingslackbuild/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
