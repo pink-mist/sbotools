@@ -1,7 +1,10 @@
 #!/usr/bin/perl
 #$Id: versions.t,v 1.9 2003/08/24 22:33:03 ed Exp $
 
+use 5.006;
 use strict;
+use warnings;
+
 use Sort::Versions;
 use Test::More;
 
