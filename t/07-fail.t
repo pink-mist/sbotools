@@ -105,7 +105,7 @@ script (qw/ sboinstall failingslackbuild /, { input => "y\ny", expected => qr/Fa
 SKIP: {
 	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
 
-	script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5 });
+	script (qw/ sboinstall failingdownload /, { input => "y\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://pink-mist[.]github[.]io/sbotools/testing/perf[.]dummy[.]fail[.]\n!, exit => 5 });
 	script (qw/ sboinstall failingmd5sum /, { input => "y\ny\nn", expected => qr!Failures:\n  failingmd5sum: md5sum failure for /usr/sbo/distfiles/perf[.]dummy[.]\n!, exit => 4 });
 }
 
@@ -116,7 +116,7 @@ script (qw/ sboinstall nonexistentslackbuild2 /, { input => "y\ny\ny\nn", expect
 SKIP: {
 	skip "Not doing online tests", 2 unless $ENV{TEST_ONLINE};
 
-	script (qw/ sboinstall nonexistentslackbuild3 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://www[.]pastemobile[.]org/perf[.]dummy[.]fail[.]\n!, exit => 5 });
+	script (qw/ sboinstall nonexistentslackbuild3 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n  failingdownload: Unable to wget http://pink-mist[.]github[.]io/sbotools/testing/perf[.]dummy[.]fail[.]\n!, exit => 5 });
 	script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny\ny\nn", expected => qr!Failures:\n  failingmd5sum: md5sum failure for /usr/sbo/distfiles/perf[.]dummy[.]\n!, exit => 4 });
 }
 
