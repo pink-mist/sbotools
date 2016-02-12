@@ -15,7 +15,7 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib qw/ usage_error script_error $tempdir open_read open_fh %config $conf_dir $conf_file show_version /;
 use File::Basename;
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case_always);
 use File::Copy;
 use File::Path qw(make_path);
 use File::Temp qw(tempfile);;
