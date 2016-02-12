@@ -49,6 +49,9 @@ SKIP: {
 	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.TXT", 9 if $skip;
 
 	script (qw/ sbofind nonexistentslackbuild /, { expected => <<"LOCAL" });
+Local:  nonexistentslackbuild6
+Path:   /home/travis/build/pink-mist/sbotools/t/LO/nonexistentslackbuild6
+
 Local:  nonexistentslackbuild5
 Path:   /home/travis/build/pink-mist/sbotools/t/LO/nonexistentslackbuild5
 
