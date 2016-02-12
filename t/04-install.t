@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 8;
+	plan tests => 9;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -24,15 +24,19 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuild!);
 		system(qw!/sbin/removepkg nonexistentslackbuild4!);
 		system(qw!/sbin/removepkg nonexistentslackbuild5!);
+		system(qw!/sbin/removepkg nonexistentslackbuild6!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
+		unlink "$RealBin/LO/nonexistentslackbuild6/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild6-1.0!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild4!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild6!);
 	};
 }
 
@@ -93,6 +97,9 @@ script (qw/ sboremove nonexistentslackbuild5 /, { input => "y\ny", test => 0 });
 # 8: sboinstall nonexistentslackbuild4
 script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny", expected => qr/nonexistentslackbuild5 added to install queue.*Install queue: nonexistentslackbuild5/s });
 script (qw/ sboremove nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\ny", test => 0 });
+
+# 9: sboinstall nonexistentslackbuild6
+script (qw/ sboinstall nonexistentslackbuild6 /, { input => "y\ny", expected => qr/nonexistentslackbuild6 added to install queue.*Install queue: nonexistentslackbuild6/s });
 
 # Cleanup
 END {

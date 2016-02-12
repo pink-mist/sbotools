@@ -1,5 +1,6 @@
 #!/bin/bash
 mkdir -p /var/log/packages
+touch "/var/log/packages/aaa_base-14.1-x86_64-1"
 cp -a t/travis-deps/*pkg /sbin/
 echo "127.0.0.1 slackware.uk" >> /etc/hosts
 
