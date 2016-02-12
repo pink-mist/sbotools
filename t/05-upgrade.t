@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 13;
+	plan tests => 14;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -24,27 +24,34 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuild!);
 		system(qw!/sbin/removepkg nonexistentslackbuild4!);
 		system(qw!/sbin/removepkg nonexistentslackbuild5!);
+		system(qw!/sbin/removepkg nonexistentslackbuild6!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
+		unlink "$RealBin/LO/nonexistentslackbuild6/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild5/perf.dummy";
+		unlink "$RealBin/LO2/nonexistentslackbuild6/perf.dummy";
 		unlink "$RealBin/LO3/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO3/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO3/nonexistentslackbuild5/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-0.9!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-0.9!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-0.9!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild6-0.9!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild6-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.1!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.1!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.1!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild6-1.1!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild4!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild6!);
 	};
 }
 
@@ -101,21 +108,25 @@ script (qw/ sboupgrade -f nonexistentslackbuild4 /, { input => "y\ny", expected 
 script (qw/ sboupgrade -f nonexistentslackbuild5 /, { input => "y\ny", expected => qr/Proceed with nonexistentslackbuild5\b.*Upgrade queue: nonexistentslackbuild5\n/s });
 script (qw/ sboupgrade -f -z nonexistentslackbuild4 /, { input => "y\ny\ny", expected => qr/Proceed with nonexistentslackbuild5\b.*Proceed with nonexistentslackbuild4\b.*Upgrade queue: nonexistentslackbuild5 nonexistentslackbuild4\n/s });
 
-# 8: sboupgrade nonexistentslackbuild when it needs to be upgraded
+# 8: sboupgrade works with nonexistentslackbuild6
+install( 'LO2', 'nonexistentslackbuild6' );
+script (qw/ sboupgrade nonexistentslackbuild6 /, { input => "y\ny", expected => qr/Proceed with nonexistentslackbuild6\b.*Upgrade queue: nonexistentslackbuild6\n/s });
+
+# 9: sboupgrade nonexistentslackbuild when it needs to be upgraded
 install( 'LO2', 'nonexistentslackbuild' );
 script (qw/ sboupgrade nonexistentslackbuild /, { input => "y\ny", expected => qr/Proceed with nonexistentslackbuild\b.*Upgrade queue: nonexistentslackbuild\n/s });
 
-# 9: sboupgrade nonexistentslackbuild4 and 5 when they need to be upgraded
+# 10: sboupgrade nonexistentslackbuild4 and 5 when they need to be upgraded
 install( 'LO2', 'nonexistentslackbuild5', 'nonexistentslackbuild4' );
 script (qw/ sboupgrade nonexistentslackbuild4 /, { input => "y\ny\ny", expected => qr/Proceed with nonexistentslackbuild5\b.*Proceed with nonexistentslackbuild4\b.*Upgrade queue: nonexistentslackbuild5 nonexistentslackbuild4\n/s });
 
-# 10-11: sboupgrade nonexistentslackbuild4 and 5 when only 5 needs an update
+# 11-12: sboupgrade nonexistentslackbuild4 and 5 when only 5 needs an update
 install( 'LO3', 'nonexistentslackbuild5', 'nonexistentslackbuild4' );
 script (qw/ sboupgrade nonexistentslackbuild4 /, { input => "y\ny", expected => qr/Proceed with nonexistentslackbuild5\b.*Upgrade queue: nonexistentslackbuild5\n/s });
 install( 'LO3', 'nonexistentslackbuild5', 'nonexistentslackbuild4' );
 script (qw/ sboupgrade -f nonexistentslackbuild4 /, { input => "y\ny\ny", expected => qr/Proceed with nonexistentslackbuild5\b.*Proceed with nonexistentslackbuild4\b.*Upgrade queue: nonexistentslackbuild5 nonexistentslackbuild4\n/s });
 
-# 12-13: sboupgrade --all
+# 13-14: sboupgrade --all
 install( 'LO2', 'nonexistentslackbuild' );
 my @sbos = glob("/var/log/packages/*_SBo");
 script (qw/ sboupgrade --all /, { input => ("n\n" x (@sbos+1)), expected => qr/Proceed with nonexistentslackbuild\b/ });
