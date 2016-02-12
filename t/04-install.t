@@ -99,7 +99,7 @@ script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny", expected => 
 script (qw/ sboremove nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\ny", test => 0 });
 
 # 9: sboinstall nonexistentslackbuild6
-script (qw/ sboinstall nonexistentslackbuild6 /, { input => "y\ny", expected => qr/nonexistentslackbuild6 added to install queue.*Install queue: nonexistentslackbuild6/s });
+script (qw/ sboinstall nonexistentslackbuild6 /, { input => "y\ny", expected => qr/aaa_base already installed.*nonexistentslackbuild6 added to install queue.*Install queue: nonexistentslackbuild6/s });
 
 # Cleanup
 END {
