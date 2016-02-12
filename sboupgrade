@@ -98,6 +98,12 @@ slackbuilds_or_fetch();
 
 my @sbos = uniq @ARGV;
 
+# Filter out standard packages
+my $std_installs = get_inst_names(get_installed_packages('STD'));
+my %std_names;
+$std_names{$_} = 1 for @$std_installs;
+@sbos = grep { not $std_names{$_} } @sbos;
+
 # pull locations for everything specified on command line.
 my %locations;
 for my $sbo (@sbos) {
@@ -169,6 +175,8 @@ if ($non_int) {
 # Get user input regarding upgrades
 my (@temp_queue, %commands, %options);
 FIRST: for my $sbo (@$upgrade_queue) {
+	next FIRST if $std_names{$sbo};
+
     unless ($non_int) {
 		my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
 		if ($exit) {

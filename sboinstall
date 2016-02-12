@@ -93,9 +93,18 @@ if ($no_reqs or $non_int) {
 	}
 }
 
+# get lists of installed packages and perl modules from CPAN
+my $inst_names = get_inst_names(get_installed_packages 'ALL');
+my $pms = get_installed_cpans();
+s/::/-/g for @$pms;
+my %inst_names;
+$inst_names{$_} = 1 for @$inst_names;
+
 # populate %locations and sanity check
 %locations = get_sbo_locations($build_queue);
 for my $sbo (@$build_queue) {
+	next if $inst_names{$sbo};
+
 	usage_error("Unable to locate $sbo in the SlackBuilds.org tree.") unless
 		$locations{$sbo};
 	if ($compat32) {
@@ -104,17 +113,9 @@ for my $sbo (@$build_queue) {
 	}
 }
 
-# get lists of installed packages and perl modules from CPAN
-my $inst_names = get_inst_names(get_installed_packages 'ALL');
-my $pms = get_installed_cpans();
-s/::/-/g for @$pms;
-
 # check for already-installeds and prompt for the rest
 my (@temp_queue, %commands, %options);
 my $added = ' added to install queue.';
-my %inst_names;
-$inst_names{$_} = 1 for @$inst_names;
-
 FIRST: for my $sbo (@$build_queue) {
     my $name = $compat32 ? "$sbo-compat32" : $sbo;
 
