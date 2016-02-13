@@ -299,9 +299,9 @@ sub git_sbo_tree {
 	if (-d "$repo_path/.git" and check_git_remote($repo_path, $url)) {
 		my $cwd = getcwd();
 		chdir $repo_path;
-		system(qw/ git reset HEAD --hard /) == 0 or chdir $cwd and return 0;
-		system(qw/ git fetch /) == 0 or chdir $cwd and return 0;
-		system(qw/ git pull /) == 0 or chdir $cwd and return 0;
+		system(qw! git fetch !) == 0 or chdir $cwd and return 0;
+		system(qw! git reset --hard origin !) == 0 or chdir $cwd and return 0;
+		unlink "$repo_path/SLACKBUILDS.TXT";
 		chdir $cwd and return 1;
 	} else {
 		my $cwd = getcwd();
