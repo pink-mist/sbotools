@@ -25,12 +25,14 @@
     * Travis CI integration
 
       Every push will now cause the test-suite to be run. #18
+    * Hundreds of new unit-tests.
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools.
     * sbocheck output changed. #10 #13
     * Better debug messages on errors. #16
     * manpage fixes. #17
     * sboupgrade handles dependencies better. #12
+    * Update bundled Sort::Versions to 1.62.
 
 * 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18

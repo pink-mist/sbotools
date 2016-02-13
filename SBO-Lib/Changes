@@ -24,6 +24,7 @@
     * Travis CI integration
       Every push will now cause the test-suite to be run
        - https://github.com/pink-mist/sbotools/issues/18
+    * Hundreds of new unit-tests.
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools
     * sbocheck output changed
@@ -35,6 +36,7 @@
        - https://github.com/pink-mist/sbotools/issues/17
     * sboupgrade handles dependencies better
        - https://github.com/pink-mist/sbotools/issues/12
+    * Update bundled Sort::Versions to 1.62
 
 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
