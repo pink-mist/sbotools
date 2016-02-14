@@ -1336,12 +1336,11 @@ sub process_sbos {
 			push @symlinks, @$temp_syms;
 		}
 	}
-	my $count = 0 unless $args{NON_INT};
+	my $count = 0;
 	FIRST: for my $sbo (@$todo) {
 		$count++;
-		my $options = 0;
-		$options = $$opts{$sbo} if defined $$opts{$sbo};
-		my $cmds = $$cmds{$sbo} if defined $$cmds{$sbo};
+		my $options = $$opts{$sbo} // 0;
+		my $cmds = $$cmds{$sbo} // [];
 		for my $cmd (@$cmds) {
 			system($cmd) == 0 or warn "\"$cmd\" exited non-zero\n";
 		}
@@ -1360,7 +1359,7 @@ sub process_sbos {
 			# return now if we're not interactive
 			return \@failures, $exit if $args{NON_INT};
 			# or if this is the last $sbo
-			return \@failures, $exit if $count == @$todo;
+			return \@failures, $exit if !$args{NON_INT} and $count == @$todo;
 			say "Failure encountered while building $sbo:";
 			say "  $fail";
 			print 'Do you want to proceed [n] ';
