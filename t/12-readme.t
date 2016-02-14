@@ -60,7 +60,6 @@ cleanup();
 make_slackbuilds_txt();
 set_lo();
 
-
 # 1: sboinstall envsettingtest - fail
 script (qw/ sboinstall envsettingtest /, { input => "n\ny\ny", exit => 3, expected => qr{It looks like envsettingtest has options; would you like to set any when the slackbuild is run.*FOO isn't bar!.*envsettingtest: envsettingtest.SlackBuild return non-zero}s });
 
