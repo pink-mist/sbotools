@@ -1359,7 +1359,7 @@ sub process_sbos {
 			# return now if we're not interactive
 			return \@failures, $exit if $args{NON_INT};
 			# or if this is the last $sbo
-			return \@failures, $exit if !$args{NON_INT} and $count == @$todo;
+			return \@failures, $exit if $count == @$todo;
 			say "Failure encountered while building $sbo:";
 			say "  $fail";
 			print 'Do you want to proceed [n] ';
