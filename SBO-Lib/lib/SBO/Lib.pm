@@ -394,7 +394,7 @@ sub get_installed_packages {
 	my @installed;
 
 	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-([^-]+)$#;
-	for my $path (<$pkg_db/*>) {
+	for my $path (glob("$pkg_db/*")) {
 		if (my ($name, $version, $build) = ($path =~ $regex)[0,1,2]) {
 			# valid types: STD, SBO
 			my $type = 'STD';
