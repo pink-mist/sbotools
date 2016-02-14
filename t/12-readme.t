@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 5;
+	plan tests => 6;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -28,6 +28,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/envsettingtest2-1.0!);
 		system(qw!rm -rf /tmp/package-envsettingtest!);
 		system(qw!rm -rf /tmp/package-envsettingtest2!);
+		system(qw/ userdel test /);
 	};
 }
 
@@ -76,6 +77,15 @@ script (qw/ sboinstall envsettingtest2 /, { input => "n\ny\ny\nFOO=quux\ny\ny\nn
 # 5: sboinstall envsettingtest2 - success
 script (qw/ sboinstall envsettingtest2 /, { input => "y\nFOO=bar\ny\ny\nFOO=quux\ny\ny", expected => qr{It looks like envsettingtest has options.*Please supply any options here.*It looks like envsettingtest2 has options.*Please supply any options here.*Install queue: envsettingtest envsettingtest2.*Cleaning for envsettingtest2-1[.]0}s });
 script (qw/ sboremove envsettingtest2 /, { input => "y\ny\ny", test => 0 });
+
+# 6: sboinstall commandinreadme
+SKIP: {
+	skip "Only run useradd/groupadd commands under Travis CI", 1 unless (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true');
+
+	script (qw/ sboinstall commandinreadme /, { input => "y\ny\ny", expected => qr{It looks like this slackbuild requires the following command\(s\) to be run first:.*groupadd -g 200 test.*useradd -u 200 -g 200 -d /tmp test.*Shall I run them prior to building.*}s });
+	script (qw/ sboremove commandinreadme /, { input => "y\ny", test => 0 });
+	capture_merged { system(qw/ userdel test /); };
+}
 
 # Cleanup
 END {
