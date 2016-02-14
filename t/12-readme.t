@@ -28,7 +28,6 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/envsettingtest2-1.0!);
 		system(qw!rm -rf /tmp/package-envsettingtest!);
 		system(qw!rm -rf /tmp/package-envsettingtest2!);
-		system(qw/ userdel test /);
 	};
 }
 
