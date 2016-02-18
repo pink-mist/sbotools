@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 16;
+	plan tests => 17;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -24,6 +24,7 @@ sub cleanup {
 	capture_merged {
 		unlink "$RealBin/LO-fail/failingslackbuild/perf.dummy";
 		unlink "$RealBin/LO-fail/failingslackbuild2/perf.dummy";
+		unlink "$RealBin/LO-fail/failingslackbuild3/perf.dummy";
 		unlink "$RealBin/LO-fail/failingdownload/perf.dummy.fail";
 		unlink "$RealBin/LO-fail/failingdownload2/perf.dummy.fail";
 		unlink "$RealBin/LO-fail/failingmd5sum/perf.dummy";
@@ -39,6 +40,7 @@ sub cleanup {
 		unlink "$RealBin/LO-fail/multilibfail/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/failingslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingslackbuild2-1.0!);
+		system(qw!rm -rf /tmp/SBo/failingslackbuild3-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingdownload-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingdownload2-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingmd5sum-1.0!);
@@ -54,6 +56,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/multilibfail-1.0!);
 		system(qw!rm -rf /tmp/package-failingslackbuild!);
 		system(qw!rm -rf /tmp/package-failingslackbuild2!);
+		system(qw!rm -rf /tmp/package-failingslackbuild3!);
 		system(qw!rm -rf /tmp/package-failingdownload!);
 		system(qw!rm -rf /tmp/package-failingdownload2!);
 		system(qw!rm -rf /tmp/package-failingmd5sum!);
@@ -172,6 +175,9 @@ SKIP: {
 
 	script (qw/ sboinstall -p multilibfail /, { input => "y\ny\ny", expected => qr/Failures:\n  multilibfail-compat32: convertpkg-compt32 returned non-zero exit status\n/, exit => 10 });
 }
+
+# 17: Slackbuild exits 0 but doesn't create a package
+script (qw/ sboinstall failingslackbuild3 /, { input => "y\ny", expected => qr/Failures:\n  failingslackbuild3: failingslackbuild3.SlackBuild didn't create a package\n\z/, exit => 3 });
 
 # Cleanup
 END {

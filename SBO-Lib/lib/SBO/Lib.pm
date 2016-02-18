@@ -983,6 +983,7 @@ sub perform_sbo {
 	# return error now if the slackbuild didn't exit 0
 	return "$sbo.SlackBuild return non-zero\n", undef, _ERR_BUILD if $out != 0;
 	my $pkg = get_pkg_name($tempfh);
+	return "$sbo.SlackBuild didn't create a package\n", undef, _ERR_BUILD if not defined $pkg;
 	my $src = get_src_dir($src_ls_fh);
 	return $pkg, $src;
 }
