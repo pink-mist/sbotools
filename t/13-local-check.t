@@ -51,14 +51,35 @@ sub set_lo {
 	}
 }
 
+sub set_repo {
+	state $set = 0;
+	state $orig;
+	if ($_[0]) {
+		if ($set) {
+			capture_merged { system(qw!rm -rf /usr/sbo/repo!); system('mv', "$RealBin/repo.backup", "/usr/sbo/repo"); } if -e "$RealBin/repo.backup";
+			script (qw/ sboconfig -r /, $orig, { test => 0 });
+		}
+	} else {
+		($orig) = script (qw/ sboconfig -l /, { expected => qr/REPO=(.*)/, test => 0 });
+		$orig //= 'FALSE';
+		note "Saving original value of REPO: $orig";
+		$set = 1;
+		script (qw/ sboconfig -r /, "file://$RealBin/gitrepo/", { test => 0 });
+		capture_merged { system(qw! mv /usr/sbo/repo !, "$RealBin/repo.backup"); } if -e "/usr/sbo/repo";
+	}
+}
+
+
 cleanup();
 make_slackbuilds_txt();
 set_lo();
+set_repo();
 
 # 1: ...
 
 # Cleanup
 END {
+	set_repo('delete');
 	set_lo('delete');
 	make_slackbuilds_txt('delete');
 	cleanup();
