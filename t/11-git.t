@@ -54,7 +54,7 @@ cleanup();
 
 # initialise repo
 capture_merged { system(<<"END"); };
-cd $RealBin; rm -rf gitrepo; mkdir gitrepo; cd gitrepo;
+cd "$RealBin"; rm -rf gitrepo; mkdir gitrepo; cd gitrepo;
 git init;
 echo "echo Hello" > test; git add test; git commit -m 'initial';
 git checkout -b b1; echo 'echo "Hello World."' > test; git commit -am 'branch commit';
@@ -68,7 +68,7 @@ script (qw/ sbosnap fetch /, { expected => qr!Pulling SlackBuilds tree.*Cloning 
 
 # make a conflict
 capture_merged { system(<<"END"); };
-cd $RealBin; cd gitrepo; git reset --hard b1
+cd "$RealBin"; cd gitrepo; git reset --hard b1
 END
 
 # 2: sbosnap update through merge conflict
