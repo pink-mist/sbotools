@@ -78,6 +78,8 @@ sub run {
 			SKIP: { skip "Expected output undefined", 1 }
 		} elsif (ref $expected eq 'Regexp') {
 			like ($output, $expected, "$name - output");
+		} elsif (ref $expected eq 'CODE') {
+			ok ($expected->($output), "$name - output");
 		} else {
 			is ($output, $expected, "$name - output");
 		}
