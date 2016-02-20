@@ -13,10 +13,11 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ update_tree get_available_updates script_error open_fh is_local show_version /;
+use SBO::Lib qw/ update_tree get_available_updates script_error open_fh is_local show_version get_local_outdated_versions /;
 use Getopt::Long;
 use File::Basename;
 use List::Util 'max';
+use Data::Dumper;
 
 my $self = basename($0);
 
@@ -45,36 +46,68 @@ update_tree();
 # retrieve and format list of available updates
 sub get_update_list {
 	print "Checking for updated SlackBuilds...\n";
-	my $updates = get_available_updates();
-	return() unless exists $$updates[0];
-	# consistent formatting - determine longest version string, which will tell
-	# us the max minimum length of the left side of the output for stuff that
-	# fits in 80 chars; stuff that doesn't will overflow.
-	my @up_lengths;
-	push @up_lengths, length $$updates[$_]{update} for keys @$updates;
-	my $up_length = max @up_lengths;
-	# "needs updating" bit without version is 30 characters
-	my $remaining = 80 - ($up_length + 44);
-	my @lengths;
-	push @lengths, length "$$updates[$_]{name}-$$updates[$_]{installed}"
-		for keys @$updates;
-	my @s_lengths = sort {$b <=> $a} @lengths;
-	my $min;
-	FIRST: for my $len (@s_lengths) {
-		if ($len < $remaining) {
-			$min = $len;
-			last FIRST;
+	my @updates = @{ get_available_updates() };
+	my @outdated = get_local_outdated_versions();
+	return() unless @outdated + @updates;
+
+	my %updates;
+	for my $update (@updates) {
+		$updates{$update->{name}} = {
+			installed => $update->{installed},
+			available => $update->{update},
+			local => is_local($update->{name})
+		};
+	}
+	for my $update (@outdated) {
+		my $name = $update->{name};
+		$updates{$name}{installed} //= $update->{version};
+		$updates{$name}{sbo} = $update->{orig};
+		$updates{$name}{local} = 1;
+	}
+
+# Output should look like this where the < is aligned to the longest sboname 1.0 string (excepting ones that would then wrap):
+# sboname 1.0  <  needs updating (1.1 from overrides)
+# sboname 1.0  <  needs updating (1.1 from SBo)
+# sboname 1.0  <  needs updating (1.1 from overrides, 1.2 from SBo)
+# sboname 1.0  <  override outdated (1.1 from SBo)
+
+	my $max = 0;
+	foreach my $sbo (keys %updates) {
+		my $info = $updates{$sbo};
+		my $current = sprintf "%s %s", $sbo, $info->{installed};
+
+		my $available = '';
+		if (defined $info->{available} and defined $info->{sbo}) {
+			$available = sprintf "needs updating (%s from overrides, %s from SBo)", $info->{available}, $info->{sbo};
+		}
+		elsif ($info->{available}) {
+			$available = sprintf "needs updating (%s from %s)", $info->{available}, $info->{local} ? "overrides" : "SBo";
+		}
+		else {
+			$available = sprintf "override outdated (%s from SBo)", $info->{sbo};
+		}
+		$info->{name_str} = $current;
+		$info->{upd_str} = $available;
+
+		my $str = sprintf "%s  <  %s", $current, $available;
+		if (length($str) < 80) {
+			$max = length($current) if length($current) > $max;
 		}
 	}
-	$min = $remaining unless $min;
 
 	my @listing;
-	for my $update (@$updates) {
-		my $name = sprintf "%s %s", $$update{name}, $$update{installed};
-		my $upd = "SBo has %s";
-		if (is_local($$update{name})) { $upd = "%s from local overrides"; }
-		push(@listing, sprintf "%-${min}s  <  needs updating ($upd)",
-			$name, $$update{update});
+	foreach my $sbo (sort keys %updates) {
+		my $info = $updates{$sbo};
+
+		my $str = sprintf "%s  <  %s", $info->{name_str}, $info->{upd_str};
+		if (length($str) < 80) {
+			$str = sprintf "%-*s  <  %s", $max, $info->{name_str}, $info->{upd_str};
+			my $adjust = 1;
+			while (length($str) > 80) {
+				$str = sprintf "%-*s  <  %s", $max-$adjust++, $info->{name_str}, $info->{upd_str};
+			}
+		}
+		push @listing, $str;
 	}
 	return \@listing;
 }

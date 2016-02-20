@@ -55,6 +55,9 @@ our @EXPORT_OK = qw(
 	usage_error
 	uniq
 	is_local
+	get_orig_location
+	get_orig_version
+	get_local_outdated_versions
 	in
 	$tempdir
 	$conf_dir
@@ -426,6 +429,7 @@ sub get_inst_names {
 	# a state variable for get_sbo_location and get_sbo_locations
 	my $store = {};
 	my %local;
+	my %orig;
 
 sub get_sbo_location {
 	exists $_[0] or script_error('get_sbo_location requires an argument.');
@@ -475,6 +479,7 @@ sub get_sbo_locations {
 			my $loc = "$local/$sbo";
 			next unless -d $loc;
 			$$store{$sbo} = $loc;
+			$orig{$sbo} //= $locations{$sbo};
 			$locations{$sbo} = $loc;
 			$local{$sbo} = $local;
 		}
@@ -489,6 +494,45 @@ sub is_local {
 	# Make sure we have checked for the slackbuild in question:
 	get_sbo_location($sbo);
 	return !!$local{$sbo};
+}
+
+sub get_orig_location {
+	exists $_[0] or script_error('get_orig_location requires an argument.');
+	my $sbo = shift;
+	# Make sure we have checked for the slackbuild in question:
+	get_sbo_location($sbo);
+	return $orig{$sbo};
+}
+
+sub get_orig_version {
+	exists $_[0] or script_error('get_orig_version requires an argument.');
+	my $sbo = shift;
+
+	my $location = get_orig_location($sbo);
+
+	return $location if not defined $location;
+
+	return get_sbo_version($location);
+}
+
+sub get_local_outdated_versions {
+	my @outdated;
+
+	my $local = $config{LOCAL_OVERRIDES};
+	unless ( $local eq 'FALSE' ) {
+		my $pkglist = get_installed_packages('SBO');
+		my @local = grep { is_local($_->{name}) } @$pkglist;
+
+		foreach my $sbo (@local) {
+			my $orig = get_orig_version($sbo->{name});
+			next if not defined $orig;
+			next if not versioncmp($orig, $sbo->{version});
+
+			push @outdated, { %$sbo, orig => $orig };
+		}
+	}
+
+	return @outdated;
 }
 }
 
@@ -508,9 +552,9 @@ sub get_from_info {
 	unless ($args{LOCATION} && $args{GET}) {
 		script_error('get_from_info requires LOCATION and GET.');
 	}
-	state $store = {PRGNAM => ['']};
+	state $store = {LOCATION => ['']};
 	my $sbo = get_sbo_from_loc($args{LOCATION});
-	return $store->{$args{GET}} if $store->{PRGNAM}[0] eq $sbo;
+	return $store->{$args{GET}} if $store->{LOCATION}[0] eq $args{LOCATION};
 	# if we're here, we haven't read in the .info file yet.
 	my ($fh, $exit) = open_read("$args{LOCATION}/$sbo.info");
 	return() if $exit;
@@ -519,6 +563,7 @@ sub get_from_info {
 	$contents =~ s/("|\\\n)//g;
 	my $last_key = '';
 	$store = {};
+	$store->{LOCATION} = [$args{LOCATION}];
 	foreach my $line (split /\n/, $contents) {
 		my ($key, $val) = $last_key;
 		if ($line =~ /^([^=\s]+)=(.*)$/)  { $key = $1; $val = $2; }

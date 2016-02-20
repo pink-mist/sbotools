@@ -10,20 +10,21 @@ use lib $RealBin;
 use lib "$RealBin/../SBO-Lib/lib";
 use Test::Execute;
 
-if ($ENV{TEST_INSTALL}) {
-	plan tests => 0;
+if ($ENV{TEST_INSTALL} and $ENV{TRAVIS}) {
+	plan tests => 2;
 } else {
-	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
+	plan skip_all => "Only run these tests if TEST_INSTALL=1 and we're running under Travis CI";
 }
 
 $path = "$RealBin/../";
 
 sub cleanup {
 	capture_merged {
-		system(qw!/sbin/removepkg ...!);
-		unlink "$RealBin/LO-.../.../perf.dummy";
-		system(qw!rm -rf /tmp/SBo/...-1.0!);
-		system(qw!rm -rf /tmp/package-...!);
+		system(qw!/sbin/removepkg nonexistentslackbuild!);
+		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
+		system(qw!rm -rf!, "$RealBin/gitrepo");
 	};
 }
 
@@ -47,8 +48,19 @@ sub set_lo {
 		$lo //= 'FALSE';
 		note "Saving original value of LOCAL_OVERRIDES: $lo";
 		$set = 1;
-		script (qw/ sboconfig -o /, "$RealBin/LO-...", { test => 0 });
+		script (qw/ sboconfig -o /, "$RealBin/LO", { test => 0 });
 	}
+}
+
+sub setup_gitrepo {
+	capture_merged { system(<<"END"); };
+		cd "$RealBin"; rm -rf gitrepo; mkdir gitrepo; cd gitrepo;
+		git init;
+
+		mkdir -p "test/nonexistentslackbuild";
+		cp "$RealBin/LO2/nonexistentslackbuild/nonexistentslackbuild.info" "test/nonexistentslackbuild"
+		git add "test"; git commit -m 'initial';
+END
 }
 
 sub set_repo {
@@ -73,9 +85,17 @@ sub set_repo {
 cleanup();
 make_slackbuilds_txt();
 set_lo();
+setup_gitrepo();
 set_repo();
 
-# 1: ...
+script (qw/ sbosnap fetch /, { test => 0 });
+
+# 1: sbocheck without having installed nonexistentslackbuild should not show it
+script (qw/ sbocheck /, { expected => sub { $_[0] !~ /nonexistentslackbuild/ } });
+
+# 2: sbocheck should list nonexistentslackbuild as being newer on SBo after we've installed it
+script (qw/ sboinstall nonexistentslackbuild /, { input => "y\ny", test => 0 });
+script (qw/ sbocheck /, { expected => qr/nonexistentslackbuild/ });
 
 # Cleanup
 END {
