@@ -63,6 +63,7 @@ sub run {
 	}
 
 	$name //= "Testing run of @cmd";
+	local $Test::Builder::Level = $Test::Builder::Level + 2;
 	subtest $name => sub {
 		plan tests => 2;
 
