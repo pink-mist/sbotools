@@ -118,11 +118,13 @@ update_git() {
 	return 0
 }
 
+date_return=0
 if [[ "$date" == "true" ]]; then
 	update_date
 	date_return=$?
 fi
 
+git_return=0
 if [[ "$git" == "true" ]]; then
 	update_git
 	git_return=$?
