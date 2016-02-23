@@ -9,6 +9,14 @@ if [[ "$1" == "" ]]; then
 	usage_exit
 fi
 
+if [[ "$1" == "-?" ]]; then
+	usage_exit
+fi
+
+if [[ "$1" == "-h" ]]; then
+	usage_exit
+fi
+
 if [[ "$1" == "-g" ]]; then
 	git=true
 	shift
