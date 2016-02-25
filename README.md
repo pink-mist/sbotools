@@ -8,31 +8,33 @@
     * LOCAL_OVERRIDES setting
 
       Allows to keep a directory with local slackbuild dirs that will override
-      whatever is found in the regular repository. #8 #13 #14 #15
+      whatever is found in the regular repository. #8 #13 #14 #15 #19 #20
     * SLACKWARE_VERSION setting
 
       Allows to specify the slackware version to sync from SBo. Previously only
       the version in your /etc/slackware-version was used for this, and if that
       had gotten updated in -current, you'd have needed to wait both for a new
       version of sbotools, as well as SBo to get the new repository online
-      before sbotools would work for you again.
+      before sbotools would work for you again. #19
     * REPO setting
 
       This will override the SLACKWARE_VERSION setting. It's used to specify an
-      absolute URL for the SBo repository you want to sync with. #6
-    * Use sbosrcarch source archive if download fails #7
-    * sboupgrade --all option to upgrade everything listed by sbocheck. #9
+      absolute URL for the SBo repository you want to sync with. #6 #19 #27
+    * Use sbosrcarch source archive if download fails #7 #19 #24
+    * sboupgrade --all option to upgrade everything listed by sbocheck. #9 #19
     * Travis CI integration
 
       Every push will now cause the test-suite to be run. #18
-    * Hundreds of new unit-tests.
+    * Hundreds of new unit-tests. #18 #19 #23 #24 #25 #27 #28 #31 #32 #33 #35
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools.
-    * sbocheck output changed. #10 #13
+    * sbocheck output changed. #10 #13 #20
     * Better debug messages on errors. #16
     * manpage fixes. #17
-    * sboupgrade handles dependencies better. #12
+    * sboupgrade handles dependencies better. #12 #28
     * Update bundled Sort::Versions to 1.62.
+    * sboinstall/upgrade: small bugfixes. #21 #35
+    * sbosnap: display download progress, update git trees better. #26 #27
 
 * 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18

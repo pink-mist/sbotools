@@ -7,36 +7,63 @@
        - https://github.com/pink-mist/sbotools/issues/13
        - https://github.com/pink-mist/sbotools/issues/14
        - https://github.com/pink-mist/sbotools/issues/15
+       - https://github.com/pink-mist/sbotools/issues/19
+       - https://github.com/pink-mist/sbotools/issues/20
     * SLACKWARE_VERSION setting
       Allows to specify the slackware version to sync from SBo. Previously only
       the version in your /etc/slackware-version was used for this, and if that
       had gotten updated in -current, you'd have needed to wait both for a new
       version of sbotools, as well as SBo to get the new repository online
       before sbotools would work for you again.
+       - https://github.com/pink-mist/sbotools/issues/19
     * REPO setting
       This will override the SLACKWARE_VERSION setting. It's used to specify an
       absolute URL for the SBo repository you want to sync with.
        - https://github.com/pink-mist/sbotools/issues/6
+       - https://github.com/pink-mist/sbotools/issues/19
+       - https://github.com/pink-mist/sbotools/issues/27
     * Use sbosrcarch source archive if download fails
        - https://github.com/pink-mist/sbotools/issues/7
+       - https://github.com/pink-mist/sbotools/issues/19
+       - https://github.com/pink-mist/sbotools/issues/24
     * sboupgrade --all option to upgrade everything listed by sbocheck
        - https://github.com/pink-mist/sbotools/issues/9
+       - https://github.com/pink-mist/sbotools/issues/19
     * Travis CI integration
       Every push will now cause the test-suite to be run
        - https://github.com/pink-mist/sbotools/issues/18
     * Hundreds of new unit-tests.
+       - https://github.com/pink-mist/sbotools/issues/18
+       - https://github.com/pink-mist/sbotools/issues/19
+       - https://github.com/pink-mist/sbotools/issues/23
+       - https://github.com/pink-mist/sbotools/issues/24
+       - https://github.com/pink-mist/sbotools/issues/25
+       - https://github.com/pink-mist/sbotools/issues/27
+       - https://github.com/pink-mist/sbotools/issues/28
+       - https://github.com/pink-mist/sbotools/issues/31
+       - https://github.com/pink-mist/sbotools/issues/32
+       - https://github.com/pink-mist/sbotools/issues/33
+       - https://github.com/pink-mist/sbotools/issues/35
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools
     * sbocheck output changed
        - https://github.com/pink-mist/sbotools/issues/10
        - https://github.com/pink-mist/sbotools/issues/13
+       - https://github.com/pink-mist/sbotools/issues/20
     * Better debug messages on errors
        - https://github.com/pink-mist/sbotools/issues/16
     * manpage fixes
        - https://github.com/pink-mist/sbotools/issues/17
     * sboupgrade handles dependencies better
        - https://github.com/pink-mist/sbotools/issues/12
+       - https://github.com/pink-mist/sbotools/issues/28
     * Update bundled Sort::Versions to 1.62
+    * sboinstall/upgrade: small bugfixes
+       - https://github.com/pink-mist/sbotools/issues/21
+       - https://github.com/pink-mist/sbotools/issues/35
+    * sbosnap: display download progress, update git trees better
+       - https://github.com/pink-mist/sbotools/issues/26
+       - https://github.com/pink-mist/sbotools/issues/27
 
 1.9 - 2015-11-27
   * Make it compatible with perls newer than 5.18
