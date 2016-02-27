@@ -129,7 +129,7 @@ sub usage_error {
 
 # sub for opening files, second arg is like '<','>', etc
 sub open_fh {
-	exists $_[1] or script_error 'open_fh requires two arguments';
+	@_ == 2 or script_error 'open_fh requires two arguments';
 	unless ($_[1] eq '>') {
 		-f $_[0] or script_error "open_fh, $_[0] is not a file";
 	}
@@ -286,7 +286,7 @@ sub pull_sbo_tree {
 
 # rsync the sbo tree from slackbuilds.org to $repo_path
 sub rsync_sbo_tree {
-	exists $_[0] or script_error('rsync_sbo_tree requires an argument.');	
+	@_ == 1 or script_error('rsync_sbo_tree requires an argument.');
 	my $url = shift;
 	$url .= '/' unless $url =~ m!/$!; # make sure $url ends with /
 	my @info;
@@ -297,7 +297,7 @@ sub rsync_sbo_tree {
 }
 
 sub git_sbo_tree {
-	exists $_[0] or script_error('git_sbo_tree requires an argument.');
+	@_ == 1 or script_error('git_sbo_tree requires an argument.');
 	my $url = shift;
 	if (-d "$repo_path/.git" and check_git_remote($repo_path, $url)) {
 		my $cwd = getcwd();
@@ -317,7 +317,7 @@ sub git_sbo_tree {
 }
 
 sub check_git_remote {
-	exists $_[1] or script_error('check_git_remote requires two arguments.');
+	@_ == 2 or script_error('check_git_remote requires two arguments.');
 	my ($path, $url) = @_;
 	my ($fh, $exit) = open_read("$path/.git/config");
 	return 0 if $exit;
@@ -392,7 +392,7 @@ sub slackbuilds_or_fetch {
 # pull an array of hashes, each hash containing the name and version of a 
 # package currently installed. Gets filtered using STD, SBO or ALL.
 sub get_installed_packages {
-	exists $_[0] or script_error('get_installed_packages requires an argument.');
+	@_ == 1 or script_error('get_installed_packages requires an argument.');
 	my $filter = shift;
 	my @installed;
 
@@ -417,7 +417,7 @@ sub get_installed_packages {
 # for a ref to an array of hashes of installed packages, return an array ref
 # consisting of just their names
 sub get_inst_names {
-	exists $_[0] or script_error('get_inst_names requires an argument.');
+	@_ == 1 or script_error('get_inst_names requires an argument.');
 	my $inst = shift;
 	my @installed;
 	push @installed, $$_{name} for @$inst;
@@ -432,7 +432,7 @@ sub get_inst_names {
 	my %orig;
 
 sub get_sbo_location {
-	exists $_[0] or script_error('get_sbo_location requires an argument.');
+	@_ >= 1 or script_error('get_sbo_location requires an argument.');
 	my @sbos = @_;
 	if (ref $sbos[0] eq 'ARRAY') {
 		my $tmp = $sbos[0];
@@ -445,7 +445,7 @@ sub get_sbo_location {
 }
 
 sub get_sbo_locations {
-	exists $_[0] or script_error('get_sbo_locations requires an argument.');
+	@_ >= 1 or script_error('get_sbo_locations requires an argument.');
 	my @sbos = @_;
 	if (ref $sbos[0] eq 'ARRAY') {
 		my $tmp = $sbos[0];
@@ -489,7 +489,7 @@ sub get_sbo_locations {
 }
 
 sub is_local {
-	exists $_[0] or script_error('is_local requires an argument.');
+	@_ == 1 or script_error('is_local requires an argument.');
 	my $sbo = shift;
 	# Make sure we have checked for the slackbuild in question:
 	get_sbo_location($sbo);
@@ -497,7 +497,7 @@ sub is_local {
 }
 
 sub get_orig_location {
-	exists $_[0] or script_error('get_orig_location requires an argument.');
+	@_ == 1 or script_error('get_orig_location requires an argument.');
 	my $sbo = shift;
 	# Make sure we have checked for the slackbuild in question:
 	get_sbo_location($sbo);
@@ -505,7 +505,7 @@ sub get_orig_location {
 }
 
 sub get_orig_version {
-	exists $_[0] or script_error('get_orig_version requires an argument.');
+	@_ == 1 or script_error('get_orig_version requires an argument.');
 	my $sbo = shift;
 
 	my $location = get_orig_location($sbo);
@@ -538,7 +538,7 @@ sub get_local_outdated_versions {
 
 # pull the sbo name from a $location: $repo_path/system/wine, etc.
 sub get_sbo_from_loc {
-	exists $_[0] or script_error('get_sbo_from_loc requires an argument.');
+	@_ == 1 or script_error('get_sbo_from_loc requires an argument.');
 	return (shift =~ qr#/([^/]+)$#)[0];
 }
 
@@ -583,7 +583,7 @@ sub get_from_info {
 
 # find the version in the tree for a given sbo (provided a location)
 sub get_sbo_version {
-	exists $_[0] or script_error('get_sbo_version requires an argument.');
+	@_ == 1 or script_error('get_sbo_version requires an argument.');
 	my $version = get_from_info(LOCATION => shift, GET => 'VERSION');
 	return $$version[0] ? $$version[0] : undef;
 }
@@ -675,7 +675,7 @@ sub _get_fname {
 
 }
 sub get_filename_from_link {
-	exists $_[0] or script_error('get_filename_from_link requires an argument');
+	@_ == 1 or script_error('get_filename_from_link requires an argument');
 	my $filename = _get_fname(shift);
 	return undef unless defined $filename;
 	return "$distfiles/$filename";
@@ -695,7 +695,7 @@ sub compute_md5sum {
 # for a given distfile, see whether or not it exists, and if so, if its md5sum
 # matches the sbo's .info file
 sub verify_distfile {
-	exists $_[1] or script_error('verify_distfile requires two arguments.');
+	@_ == 2 or script_error('verify_distfile requires two arguments.');
 	my ($link, $info_md5) = @_;
 	my $filename = get_filename_from_link($link);
 	return() unless -f $filename;
@@ -706,7 +706,7 @@ sub verify_distfile {
 # for a given distfile, attempt to retrieve it and, if successful, check its
 # md5sum against that in the sbo's .info file
 sub get_distfile {
-	exists $_[1] or script_error('get_distfile requires two arguments');
+	@_ == 2 or script_error('get_distfile requires two arguments');
 	my ($link, $info_md5) = @_;
 	my $filename = get_filename_from_link($link);
 	mkdir $distfiles unless -d $distfiles;
@@ -742,7 +742,7 @@ sub get_distfile {
 
 # for a given distfile, figure out what the full path to its symlink will be
 sub get_symlink_from_filename {
-	exists $_[1] or script_error(
+	@_ == 2 or script_error(
 		'get_symlink_from_filename requires two arguments');
 	-f $_[0] or script_error(
 		'get_symlink_from_filename first argument is not a file');
@@ -752,7 +752,7 @@ sub get_symlink_from_filename {
 
 # determine whether or not a given sbo is 32-bit only
 sub check_x32 {
-	exists $_[0] or script_error('check_x32 requires an argument.');
+	@_ == 1 or script_error('check_x32 requires an argument.');
 	my $dl = get_from_info(LOCATION => shift, GET => 'DOWNLOAD_x86_64');
 	return $$dl[0] =~ /UN(SUPPOR|TES)TED/ ? 1 : undef;
 }
@@ -851,7 +851,7 @@ sub rewrite_slackbuild {
 
 # move a backed-up .SlackBuild file back into place
 sub revert_slackbuild {
-	exists $_[0] or script_error('revert_slackbuild requires an argument');
+	@_ == 1 or script_error('revert_slackbuild requires an argument');
 	my $slackbuild = shift;
 	if (-f "$slackbuild.orig") {
 		unlink $slackbuild if -f $slackbuild;
@@ -896,7 +896,7 @@ sub check_distfiles {
 # given a location and a list of download links, assemble a list of symlinks,
 # and create them.
 sub create_symlinks {
-	exists $_[1] or script_error('create_symlinks requires two arguments.');
+	@_ == 2 or script_error('create_symlinks requires two arguments.');
 	my ($location, $downloads) = @_;
 	my @symlinks;
 	for my $link (keys %$downloads) {
@@ -921,7 +921,7 @@ sub get_pkg_name {
 }
 
 sub get_src_dir {
-	exists $_[0] or script_error('get_src_dir requires an argument');
+	@_ == 1 or script_error('get_src_dir requires an argument');
 	my $fh = shift;
 	my @src_dirs;
 	# scripts use either $TMP or /tmp/SBo
@@ -948,7 +948,7 @@ sub get_src_dir {
 
 # return a filename from a temp fh for use externally
 sub get_tmp_extfn {
-	exists $_[0] or script_error('get_tmp_extfn requires an argument.');
+	@_ == 1 or script_error('get_tmp_extfn requires an argument.');
 	my $fh = shift;
 	unless (fcntl($fh, F_SETFD, 0)) {
 		return "Can't unset exec-on-close bit.\n", _ERR_F_SETFD;
@@ -1035,7 +1035,7 @@ sub perform_sbo {
 
 # run convertpkg on a package to turn it into a -compat32 thing
 sub do_convertpkg {
-	exists $_[0] or script_error('do_convertpkg requires an argument.');
+	@_ == 1 or script_error('do_convertpkg requires an argument.');
 	my $pkg = shift;
 	my $tempfh = tempfile(DIR => $tempdir);
 	my $fn = get_tmp_extfn($tempfh);
@@ -1171,7 +1171,7 @@ sub make_distclean {
 
 # run upgradepkg for a created package
 sub do_upgradepkg {
-	exists $_[0] or script_error('do_upgradepkg requires an argument.');
+	@_ == 1 or script_error('do_upgradepkg requires an argument.');
 	system('/sbin/upgradepkg', '--reinstall', '--install-new', shift);
 	return 1;
 }
@@ -1210,20 +1210,20 @@ sub _build_queue {
 }
 
 sub get_build_queue {
-	exists $_[1] or script_error('get_build_queue requires two arguments.');
+	@_ == 2 or script_error('get_build_queue requires two arguments.');
 	return [ _build_queue(@_) ];
 }
 
 sub merge_queues {
 	# Usage: merge_queues(\@queue_a, \@queue_b);
 	# Results in queue_b being merged into queue_a (without duplicates)
-	exists $_[1] or script_error('merge_queues requires two arguments.');
+	@_ == 2 or script_error('merge_queues requires two arguments.');
 
 	return [ uniq @{$_[0]}, @{$_[1]} ];
 }
 
 sub get_readme_contents {
-	exists $_[0] or script_error('get_readme_contents requires an argument.');
+	@_ == 1 or script_error('get_readme_contents requires an argument.');
 	return undef, _ERR_OPENFH if not defined $_[0];
 	my ($fh, $exit) = open_read(shift .'/README');
 	return undef, $exit if $exit;
@@ -1261,7 +1261,7 @@ sub get_installed_cpans {
 
 # look for any (user|group)add commands in the README
 sub get_user_group {
-	exists $_[0] or script_error('get_user_group requires an argument');
+	@_ == 1 or script_error('get_user_group requires an argument');
 	my $readme = shift;
 	my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
 	return \@cmds;
@@ -1269,7 +1269,7 @@ sub get_user_group {
 
 # offer to run any user/group add commands
 sub ask_user_group {
-	exists $_[1] or script_error('ask_user_group requires two arguments');
+	@_ == 2 or script_error('ask_user_group requires two arguments');
 	my ($cmds, $readme) = @_;
 	say "\n". $readme;
 	print "\nIt looks like this slackbuild requires the following";
@@ -1281,14 +1281,15 @@ sub ask_user_group {
 
 # see if the README mentions any options
 sub get_opts {
-	exists $_[0] or script_error('get_opts requires an argument');
+	@_ == 1 or script_error('get_opts requires an argument');
 	my $readme = shift;
 	return $readme =~ /[A-Z0-9]+=[^\s]/ ? 1 : undef;
 }
 
 # provide an opportunity to set options
 sub ask_opts {
-	exists $_[0] or script_error('ask_opts requires an argument');
+	# TODO: check number of args
+	@_ >= 1 or script_error('ask_opts requires an argument');
 	my ($sbo, $readme) = @_;
 	say "\n". $readme;
 	print "\nIt looks like $sbo has options; would you like to set any";
@@ -1314,7 +1315,7 @@ sub ask_opts {
 
 # for a given sbo, check for cmds/opts, prompt the user as appropriate
 sub user_prompt {
-	exists $_[1] or script_error('user_prompt requires two arguments.');
+	@_ == 2 or script_error('user_prompt requires two arguments.');
 	my ($sbo, $location) = @_;
 	if (not defined $location) { usage_error("Unable to locate $sbo in the SlackBuilds.org tree."); }
 	my ($readme, $exit) = get_readme_contents($location);
@@ -1355,7 +1356,7 @@ sub process_sbos {
 	my $opts = $args{OPTS};
 	my $locs = $args{LOCATIONS};
 	my $jobs = $args{JOBS} =~ /^\d+$/ ? $args{JOBS} : 0;
-	exists $$todo[0] or script_error('process_sbos requires TODO.');
+	@$todo >= 1 or script_error('process_sbos requires TODO.');
 	my (@failures, @symlinks, $err);
 	FIRST: for my $sbo (@$todo) {
 		my $compat32 = $sbo =~ /-compat32$/ ? 1 : 0;
