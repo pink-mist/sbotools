@@ -116,8 +116,8 @@ our $pkg_db = '/var/log/packages';
 
 # subroutine for throwing internal script errors
 sub script_error {
-	exists $_[0] ? warn "A fatal script error has occurred:\n$_[0]\nExiting.\n"
-				 : warn "A fatal script error has occurred. Exiting.\n";
+	@_ >= 1 ? warn "A fatal script error has occurred:\n$_[0]\nExiting.\n"
+	        : warn "A fatal script error has occurred. Exiting.\n";
 	exit _ERR_SCRIPT;
 }
 
