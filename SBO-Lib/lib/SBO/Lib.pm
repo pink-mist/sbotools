@@ -111,7 +111,7 @@ make_path($tmpd) unless -d $tmpd;
 our $tempdir = tempdir(CLEANUP => 1, DIR => $tmpd);
 
 # define this to facilitate unit testing - should only ever be modified from
-# t/test.t
+# t/01-test.t
 our $pkg_db = '/var/log/packages';
 
 # subroutine for throwing internal script errors
