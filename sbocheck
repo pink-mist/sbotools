@@ -109,16 +109,15 @@ sub get_update_list {
 		}
 		push @listing, $str;
 	}
-	return \@listing;
+	return @listing;
 }
 
 # print list of updates
 sub print_output {
-	exists $_[0] or script_error('print_output requires an argument');
-	my $listing = shift;
-	if (exists $$listing[0]) {
+	my @listing = @_;
+	if (@listing) {
 		print "\n";
-		say $_ for @$listing;
+		say $_ for @listing;
 		print "\n";
 		# save a log of available updates
 		my $logfile = '/var/log/sbocheck.log';
@@ -128,7 +127,7 @@ sub print_output {
 		if ($exit) {
 			warn $log_fh if $exit;
 		} else {
-			say {$log_fh} $_ for @$listing;
+			say {$log_fh} $_ for @listing;
 			close $log_fh;
 			say "A copy of the above result is kept in $logfile\n";
 		}
@@ -137,7 +136,7 @@ sub print_output {
 	}
 }
 
-my $output = get_update_list();
-print_output($output);
+my @listing = get_update_list();
+print_output(@listing);
 
 exit 0;

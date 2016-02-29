@@ -396,13 +396,13 @@ subtest 'get_update_list tests',
 sub {
 	plan tests => 5;
 
-	my $listing;
-	stdout_is(sub { $listing = get_update_list(); }, "Checking for updated SlackBuilds...\n", 'output of get_update_list() good');
-	s/\s//g for @$listing;
-	is (shift(@$listing), 'adobe-reader9.5.1_enu<needsupdating(9.5.1fromSBo)', 'get_update_list listing good for adobe-reader');
-	is (shift(@$listing), 'ffmpeg0.8.7<needsupdating(0.11.1fromSBo)', 'get_update_list listing good for ffmpeg');
-	is (shift(@$listing), 'libdvdnav4.1.3<needsupdating(4.2.0fromSBo)', 'get_update_list listing test, libdvdnav');
-	is (shift(@$listing), 'mutagen1.15<needsupdating(1.20fromSBo)', 'get_update_list listing good for mutagen');
+	my @listing;
+	stdout_is(sub { @listing = get_update_list(); }, "Checking for updated SlackBuilds...\n", 'output of get_update_list() good');
+	s/\s//g for @listing;
+	is (shift(@listing), 'adobe-reader9.5.1_enu<needsupdating(9.5.1fromSBo)', 'get_update_list listing good for adobe-reader');
+	is (shift(@listing), 'ffmpeg0.8.7<needsupdating(0.11.1fromSBo)', 'get_update_list listing good for ffmpeg');
+	is (shift(@listing), 'libdvdnav4.1.3<needsupdating(4.2.0fromSBo)', 'get_update_list listing test, libdvdnav');
+	is (shift(@listing), 'mutagen1.15<needsupdating(1.20fromSBo)', 'get_update_list listing good for mutagen');
 };
 
 # 47: remove_stuff test - can only really test for invalid input
