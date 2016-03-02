@@ -433,11 +433,8 @@ sub get_inst_names {
 
 sub get_sbo_location {
 	@_ >= 1 or script_error('get_sbo_location requires an argument.');
-	my @sbos = @_;
-	if (ref $sbos[0] eq 'ARRAY') {
-		my $tmp = $sbos[0];
-		@sbos = @$tmp;
-	}
+	my @sbos = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+
 	# if we already have the location, return it now.
 	return $$store{$sbos[0]} if exists $$store{$sbos[0]};
 	my %locations = get_sbo_locations(@sbos);
