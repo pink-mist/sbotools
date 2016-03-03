@@ -264,7 +264,7 @@ SKIP: {
 }
 
 # 37: create_symlinks tests
-subtest 'create_sumlinks tests',
+subtest 'create_symlinks tests',
 sub {
 	plan tests => 2;
 
