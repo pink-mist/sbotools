@@ -416,7 +416,7 @@ sub {
 
 	my $ret;
 	stdout_is (sub { $ret = remove_stuff('/omg/wtf/bbq') }, "Nothing to do.\n", 'output for remove_stuff good');
-	is($ret, 1, 'remove_stuff good for invalid input');
+	is($ret, 0, 'remove_stuff good for invalid input');
 };
 
 # 48: perform_search tests

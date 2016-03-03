@@ -69,13 +69,14 @@ sub rm_full {
 
 sub remove_stuff {
 	exists $_[0] or script_error 'remove_stuff requires an argument.';
-	-d $_[0] or say 'Nothing to do.' and return 1;
+	-d $_[0] or say 'Nothing to do.' and return 0;
 	my $dir = shift;
 	opendir(my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
 		next FIRST if in($ls => qw/ . .. /);
 		rm_full("$dir/$ls");
 	}
+	return 1
 }
 
 sub clean_c32 {
