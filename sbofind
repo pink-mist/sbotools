@@ -20,7 +20,7 @@ use Getopt::Long qw(:config bundling);
 my $self = basename($0);
 
 sub show_usage {
-	print <<EOF
+	print <<"EOF";
 Usage: $self (search_term)
 
 Options:
@@ -39,6 +39,7 @@ Example:
   $self libsexy 
 
 EOF
+	return 1;
 }
 
 my ($help, $vers, $show_info, $show_readme, $show_queue);
@@ -62,7 +63,7 @@ slackbuilds_or_fetch();
 
 # find anything with $search in its name
 sub perform_search {
-	exists $_[0] or script_error 'perform_search requires an argument.';
+	@_ == 1 or script_error 'perform_search requires an argument.';
 	my $search = shift;
 	my (@findings, $name, $found);
 	my $name_regex = qr/NAME:\s+(.*\Q$search\E.*)$/i;
@@ -75,6 +76,7 @@ sub perform_search {
 	my %local;
 	FIRST: while (my $line = <$fh>) {
 		unless ($found) {
+			# TODO: fix this monstrosity
 			$found++, next FIRST if $name = ($line =~ $name_regex)[0];
 		} else {
 			if (my ($location) = ($line =~ $loc_regex)[0]) {
@@ -104,9 +106,10 @@ sub perform_search {
 
 # pull the contents of a file into a variable and format it for output
 sub get_file_contents {
-	exists $_[0] or script_error 'get_file_contents requires an argument';
-	-f $_[0] or return "$_[0] doesn't exist.\n";
-	my ($fh, $exit) = open_read(shift);
+	@_ == 1 or script_error 'get_file_contents requires an argument';
+	my $file = shift;
+	-f $file or return "$file doesn't exist.\n";
+	my ($fh, $exit) = open_read($file);
 	if ($exit) {
 		warn $fh;
 		return();
@@ -121,7 +124,7 @@ sub get_file_contents {
 
 # get build queue and return it as a single line. 
 sub show_build_queue {
-	exists $_[0] or script_error('show_build_queue requires an argument.');
+	@_ == 1 or script_error('show_build_queue requires an argument.');
 	my $queue = get_build_queue([shift], {});
 	return join(" ", reverse @$queue);
 }

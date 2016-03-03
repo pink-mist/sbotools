@@ -21,7 +21,7 @@ use File::Copy;
 my $self = basename($0);
 
 sub show_usage {
-    print <<EOF
+    print <<"EOF";
 Usage: $self (options) [package]
 
 Options (defaults shown first where applicable):
@@ -47,6 +47,7 @@ Options (defaults shown first where applicable):
     this flag will upgrade everything reported by sbocheck(1).
 
 EOF
+	return 1;
 }
 
 my $noclean = $config{NOCLEAN};

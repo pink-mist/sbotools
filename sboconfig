@@ -23,7 +23,7 @@ use File::Temp qw(tempfile);;
 my $self = basename($0);
 
 sub show_usage {
-	print <<EOF
+	print <<"EOF";
 Usage: $self [options] [arguments]
 
 Options:
@@ -50,6 +50,7 @@ Config options (defaults shown):
       REPO: use a repository other than SBo.
 
 EOF
+	return 1;
 }
 
 my %options;
@@ -128,8 +129,8 @@ if (exists $changes{SLACKWARE_VERSION}) {
 # them all at once, instead of only a single one and having to call it once for
 # each option specified to the script.
 sub config_write {
-	exists $_[1] or script_error('config_write requires two arguments.');
 	my ($key, $val) = @_;
+	@_ == 2 or script_error('config_write requires two arguments.');
 	if (! -d $conf_dir) {
 		mkdir $conf_dir or usage_error("Unable to create $conf_dir. Exiting.");
 	}
@@ -147,6 +148,7 @@ sub config_write {
 		tie my @temp, 'Tie::File', $tempfh;
 		my $has;
 		my $regex = qr/\A\Q$key\E=/;
+		# TODO: fix this monstrosity
 		FIRST: for my $tmpline (@temp) {
 			$has++, $tmpline = "$key=$val", last FIRST if $tmpline =~ $regex;
 		}
@@ -163,7 +165,6 @@ sub config_write {
 			exit $exit;
 		}
 		print {$conffh} $contents or return();
-		close $conffh, close $tempfh;
 	} else {
 		# no config file, easiest case of all.
 		my ($fh, $exit) = open_fh($conf_file, '>') or return();

@@ -21,7 +21,7 @@ my $sbo_home = $config{SBO_HOME};
 my $self = basename($0);
 
 sub show_usage {
-	print <<EOF
+	print <<"EOF";
 Usage: $self [options|command]
 
 Options:
@@ -36,6 +36,7 @@ Commands:
           (generally, you may prefer "sbocheck" over "$self update")
 
 EOF
+	return 1;
 }
 
 show_usage() and exit 1 unless exists $ARGV[0];

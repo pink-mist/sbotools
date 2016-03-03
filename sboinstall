@@ -20,7 +20,7 @@ use File::Basename;
 my $self = basename($0);
 
 sub show_usage {
-	print <<EOF
+	print <<"EOF";
 Usage: $self [options] sbo
 
 Options (defaults shown first where applicable):
@@ -44,6 +44,7 @@ Options (defaults shown first where applicable):
     view the README but do not parse requirements, commands, or options.
 
 EOF
+	return 1;
 }
 
 my $noclean = $config{NOCLEAN};

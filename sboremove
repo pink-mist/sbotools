@@ -20,7 +20,7 @@ use File::Basename;
 my $self = basename ($0);
 
 sub show_usage {
-	print <<EOF
+	print <<"EOF";
 Usage: $self [options] sbo
 
 Options (defaults shown first where applicable):
@@ -34,6 +34,7 @@ Options (defaults shown first where applicable):
 Note: optional dependencies need to be removed separately. 
 
 EOF
+	return 1;
 }
 
 my ($help, $vers, $non_int, $alwaysask, @excluded);
@@ -92,6 +93,7 @@ sub get_reverse_reqs {
 			}		
 		}	
 	}
+	return 1;
 }
 get_reverse_reqs($inst_names);
 
@@ -119,6 +121,7 @@ sub confirm_remove {
 		$found++ if $sbo eq $conf;
 	}
 	push @confirmed, $sbo unless $found;
+	return 1;
 }
 
 # Check if packages in queue are actually installed on system 

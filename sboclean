@@ -21,7 +21,7 @@ use File::Path qw(remove_tree);
 my $self = basename($0);
 
 sub show_usage {
-	print <<EOF
+	print <<"EOF";
 Usage: $self (options) [package]
 
 Options:
@@ -37,6 +37,7 @@ Options:
     be interactive.
 
 EOF
+	return 1;
 }
 
 my ($help, $vers, $clean_dist, $clean_work, $interactive);
@@ -56,7 +57,7 @@ usage_error("You must specify at least one of -d or -w.") unless
 	($clean_dist || $clean_work);
 
 sub rm_full {
-	exists $_[0] or script_error('rm_full requires an argument.');
+	@_ == 1 or script_error('rm_full requires an argument.');
 	my $full = shift;
 	if ($interactive) {
 		print "Remove $full? [n] ";
@@ -68,9 +69,9 @@ sub rm_full {
 }
 
 sub remove_stuff {
-	exists $_[0] or script_error 'remove_stuff requires an argument.';
-	-d $_[0] or say 'Nothing to do.' and return 0;
+	@_ == 1 or script_error 'remove_stuff requires an argument.';
 	my $dir = shift;
+	-d $dir or say 'Nothing to do.' and return 0;
 	opendir(my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
 		next FIRST if in($ls => qw/ . .. /);
@@ -86,6 +87,7 @@ sub clean_c32 {
 		next FIRST unless $ls =~ /^package-.+-compat32$/;
 		rm_full("$dir/$ls");
 	}
+	return 1;
 }
 
 remove_stuff($config{SBO_HOME} .'/distfiles') if $clean_dist;

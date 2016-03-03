@@ -22,7 +22,7 @@ use Data::Dumper;
 my $self = basename($0);
 
 sub show_usage {
-	print <<EOF
+	print <<"EOF";
 Usage: $self
 
 Options:
@@ -32,6 +32,7 @@ Options:
     version information.
 
 EOF
+	return 1;
 }
 
 my ($help, $vers);
@@ -134,6 +135,7 @@ sub print_output {
 	} else {
 		say "\nNo updates available.";
 	}
+	return 1;
 }
 
 my @listing = get_update_list();
