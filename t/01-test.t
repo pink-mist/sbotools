@@ -422,7 +422,7 @@ sub {
 # 48: perform_search tests
 subtest 'perform_search tests',
 sub {
-	plan tests => 7;
+	plan tests => 9;
 
 	my $findings = perform_search('desktop');
 	for my $found (@$findings) {
@@ -443,6 +443,20 @@ sub {
 		is($location, "$repo_path/$section/$name",
 			'perform_search good for $search eq desktop');
 	}
+
+	# Test tag searching
+	my $tag_fn = "$repo_path/TAGS.txt";
+	my ($tag_fh) = open_fh $tag_fn, '>';
+	print {$tag_fh} <<'END';
+libdesktop-agnostic: testingtags
+END
+	close $tag_fh;
+
+	$findings = perform_search('testingtags');
+	is ((scalar @$findings), 1, 'tag search works');
+	is ($findings->[0]{name}, 'libdesktop-agnostic', 'and it returns the correct result.');
+
+	unlink $tag_fn;
 };
 
 # 49: get_inst_names test
