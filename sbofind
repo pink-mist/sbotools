@@ -67,15 +67,17 @@ sub perform_search {
 	my $search_arg = shift;
 
 	# first get a bunch of names from the TAGS.txt if it's available
-	my ($t_fh, $t_exit) = open_read "$config{SBO_HOME}/repo/TAGS.txt";
+	my $tags_file = "$config{SBO_HOME}/repo/TAGS.txt";
 	my @names;
-	unless ($t_exit) {
-		while (my $line = <$t_fh>) {
-			if ($line =~ /^(\S+):\s.*\Q$search_arg\E/) {
-				push @names, $1;
+	if (-r $tags_file) {
+		my ($t_fh, $t_exit) = open_read "$config{SBO_HOME}/repo/TAGS.txt";
+		unless ($t_exit) {
+			while (my $line = <$t_fh>) {
+				if ($line =~ /^(\S+):\s.*\Q$search_arg\E/) {
+					push @names, $1;
+				}
 			}
 		}
-		close $t_fh;
 	}
 
 	my $loc_regex = qr/LOCATION:\s+\.?(.*)$/;
