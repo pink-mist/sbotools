@@ -64,29 +64,50 @@ slackbuilds_or_fetch();
 # find anything with $search in its name
 sub perform_search {
 	@_ == 1 or script_error 'perform_search requires an argument.';
-	my $search = shift;
-	my (@findings, $name, $found);
-	my $name_regex = qr/NAME:\s+(.*\Q$search\E.*)$/i;
-	my $loc_regex = qr/LOCATION:\s+(.*)$/;
+	my $search_arg = shift;
+
+	# first get a bunch of names from the TAGS.txt if it's available
+	my ($t_fh, $t_exit) = open_read "$config{SBO_HOME}/repo/TAGS.txt";
+	my @names;
+	unless ($t_exit) {
+		while (my $line = <$t_fh>) {
+			if ($line =~ /^(\S+):\s.*\Q$search_arg\E/) {
+				push @names, $1;
+			}
+		}
+		close $t_fh;
+	}
+
+	my $loc_regex = qr/LOCATION:\s+\.?(.*)$/;
 	my ($fh, $exit) = open_read $slackbuilds_txt;
 	if ($exit) {
 		warn $fh;
 		exit $exit;
 	}
-	my %local;
+	my (%local, @findings);
 	FIRST: while (my $line = <$fh>) {
-		unless ($found) {
-			# TODO: fix this monstrosity
-			$found++, next FIRST if $name = ($line =~ $name_regex)[0];
-		} else {
-			if (my ($location) = ($line =~ $loc_regex)[0]) {
-				$found = 0;
-				$location =~ s#^\.##;
+		next FIRST unless $line =~ /NAME:/;
+
+		# Try to match either the search string or any of the names from the TAGS.txt
+		foreach my $search ($search_arg, @names) {
+			if (my ($name) = $line =~ /NAME:\s+(.*\Q$search\E.*)$/i) {
+
+				# If the name matches a local override, use its location
 				if ($config{LOCAL_OVERRIDES} ne 'FALSE' and -d "$config{LOCAL_OVERRIDES}/$name") {
 					push @findings, {name => $name, location => "$config{LOCAL_OVERRIDES}/$name", local => 1 };
 					$local{$name} = 1;
-				} else {
-					push @findings, {name => $name, location => $repo_path . $location};
+					next FIRST;
+				}
+
+				# Otherwise the location should be in the next line
+				LOCATION: {
+					my $loc_line = <$fh>;
+					if (my ($location) = $loc_line =~ $loc_regex) {
+						push @findings, {name => $name, location => $repo_path . $location};
+						next FIRST;
+					} else {
+						redo LOCATION; # But if it isn't, we try again...
+					}
 				}
 			}
 		}
@@ -95,7 +116,7 @@ sub perform_search {
 		opendir(my $dh, $config{LOCAL_OVERRIDES});
 		while (my $dir = readdir($dh)) {
 			next if $local{$dir};
-			if ($dir =~ /\Q$search\E/) {
+			if ($dir =~ /\Q$search_arg\E/) {
 				push @findings, {name => $dir, location => "$config{LOCAL_OVERRIDES}/$dir", local => 1 };
 			}
 		}
