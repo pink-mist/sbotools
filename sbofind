@@ -89,8 +89,8 @@ sub perform_search {
 		next FIRST unless $line =~ /NAME:/;
 
 		# Try to match either the search string or any of the names from the TAGS.txt
-		foreach my $search ($search_arg, @names) {
-			if (my ($name) = $line =~ /NAME:\s+(.*\Q$search\E.*)$/i) {
+		foreach my $search (".*" . quotemeta($search_arg) . ".*", map { quotemeta } @names) {
+			if (my ($name) = $line =~ /NAME:\s+($search)$/i) {
 
 				# If the name matches a local override, use its location
 				if ($config{LOCAL_OVERRIDES} ne 'FALSE' and -d "$config{LOCAL_OVERRIDES}/$name") {
