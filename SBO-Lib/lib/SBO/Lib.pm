@@ -416,8 +416,10 @@ sub get_installed_packages {
 
 	# Otherwise, mark the SBO ones and filter
 	my @sbos = map { $_->{name} } grep { $_->{build} =~ m/_SBo(|compat32)$/ } @pkgs;
-	my %locations = get_sbo_locations(map { s/-compat32//gr } @sbos);
-	foreach my $sbo (@sbos) { $types{$sbo} = 'SBO' if $locations{ $sbo =~ s/-compat32//gr }; }
+	if (@sbos) {
+		my %locations = get_sbo_locations(map { s/-compat32//gr } @sbos);
+		foreach my $sbo (@sbos) { $types{$sbo} = 'SBO' if $locations{ $sbo =~ s/-compat32//gr }; }
+	}
 	return [ map { +{ name => $_->{name}, version => $_->{version} } } grep { $types{$_->{name}} eq $filter } @pkgs ];
 }
 
