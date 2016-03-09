@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PACKAGE="sbotools"
-VERSION=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm | grep -Eo '[0-9]+(\.[0-9RC]+){0,1}')
+VERSION=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm | grep -Eo '[0-9]+(\.[0-9RC@gita-f]+){0,1}')
 FILENAME=$PACKAGE-$VERSION.tar.gz
 
 echo "Making package for $PACKAGE-$VERSION." \
