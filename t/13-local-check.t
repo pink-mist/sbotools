@@ -91,7 +91,7 @@ set_repo();
 script (qw/ sbosnap fetch /, { test => 0 });
 
 # 1: sbocheck without having installed nonexistentslackbuild should not show it
-script (qw/ sbocheck /, { expected => sub { $_[0] !~ /nonexistentslackbuild/ } });
+script (qw/ sbocheck /, { expected => sub { $_[0] !~ /nonexistentslackbuild/, note => 1 } });
 
 # 2: sbocheck should list nonexistentslackbuild as being newer on SBo after we've installed it
 script (qw/ sboinstall nonexistentslackbuild /, { input => "y\ny", test => 0 });
