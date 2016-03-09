@@ -234,6 +234,13 @@ sub in {
 	return 0;
 }
 
+sub idx {
+	for my $idx (1 .. $#_) {
+		$_[0] eq $_[$idx] and return $idx - 1;
+	}
+	return undef;
+}
+
 # Move everything in /usr/sbo except distfiles and repo dirs into repo dir
 sub migrate_repo {
 	make_path($repo_path) unless -d $repo_path;
@@ -394,24 +401,24 @@ sub slackbuilds_or_fetch {
 sub get_installed_packages {
 	@_ == 1 or script_error('get_installed_packages requires an argument.');
 	my $filter = shift;
-	my @installed;
 
-	my $regex = qr#/([^/]+)-([^-]+)-[^-]+-([^-]+)$#;
-	for my $path (glob("$pkg_db/*")) {
-		if (my ($name, $version, $build) = ($path =~ $regex)[0,1,2]) {
-			# valid types: STD, SBO
-			my $type = 'STD';
-			if ($build =~ m/_SBo(|compat32)$/) {
-				my $sbo = $name;
-				$sbo =~ s/-compat32//g if $name =~ /-compat32$/;
-				$type = 'SBO' if get_sbo_location($sbo);
-			}
-			if ($filter eq $type or $filter eq 'ALL') {
-				push @installed, {name => $name, version => $version};
-			}
-		}
+	# Valid types: STD, SBO
+	my (@pkgs, %types);
+	foreach my $pkg (glob("$pkg_db/*")) {
+		my ($name, $version, $build) = $pkg =~ m#/([^/]+)-([^-]+)-[^-]+-([^-]+)$#
+			or next;
+		push @pkgs, { name => $name, version => $version, build => $build };
+		$types{$name} = 'STD';
 	}
-	return \@installed;
+
+	# If we want all packages, let's just return them all
+	return [ map { +{ name => $_->{name}, version => $_->{version} } } @pkgs ] if $filter eq 'ALL';
+
+	# Otherwise, mark the SBO ones and filter
+	my @sbos = map { $_->{name} } grep { $_->{build} =~ m/_SBo(|compat32)$/ } @pkgs;
+	my %locations = get_sbo_locations(map { s/-compat32//gr } @sbos);
+	foreach my $sbo (@sbos) { $types{$sbo} = 'SBO' if $locations{ $sbo =~ s/-compat32//gr }; }
+	return [ map { +{ name => $_->{name}, version => $_->{version} } } grep { $types{$_->{name}} eq $filter } @pkgs ];
 }
 
 # for a ref to an array of hashes of installed packages, return an array ref
@@ -444,27 +451,30 @@ sub get_sbo_location {
 sub get_sbo_locations {
 	@_ >= 1 or script_error('get_sbo_locations requires an argument.');
 	my @sbos = @_;
-	if (ref $sbos[0] eq 'ARRAY') {
-		my $tmp = $sbos[0];
-		@sbos = @$tmp;
-	}
+	@sbos = @{ $sbos[0] } if ref $sbos[0] eq 'ARRAY';
+
 	my %locations;
 	my ($fh, $exit) = open_read($slackbuilds_txt);
 	if ($exit) {
 		warn $fh;
 		exit $exit;
 	}
-	FIRST: for my $sbo (@sbos) {
-		$locations{$sbo} = $$store{$sbo}, next FIRST if exists $$store{$sbo};
-		my $regex = qr#LOCATION:\s+\.(/[^/]+/\Q$sbo\E)$#;
-		while (my $line = <$fh>) {
-			if (my $loc = ($line =~ $regex)[0]) {
-				# save what we found for later requests
-				$$store{$sbo} = $repo_path . $loc;
-				$locations{$sbo} = $$store{$sbo};
-			}
-		}
-		seek $fh, 0, 0;
+
+	# if an sbo is already in the $store, set the %location for it and filter it out
+	@sbos = grep { exists $$store{$_} ? ($locations{$_} = $$store{$_}, 0) : 1 } @sbos;
+	return %locations unless @sbos;
+
+	while (my $line = <$fh>) {
+		my ($loc, $sbo) = $line =~ m!LOCATION:\s+\.(/[^/]+/([^/\n]+))$!
+			or next;
+		my $found = idx($sbo, @sbos);
+		next unless defined $found;
+
+		$$store{$sbo} = $repo_path . $loc;
+		$locations{$sbo} = $$store{$sbo};
+
+		splice @sbos, $found, 1;
+		last unless @sbos;
 	}
 	close $fh;
 
@@ -472,7 +482,7 @@ sub get_sbo_locations {
 	# be overridden by a local change
 	my $local = $config{LOCAL_OVERRIDES};
 	unless ( $local eq 'FALSE' ) {
-		for my $sbo (@sbos) {
+		for my $sbo (@sbos, keys %locations) {
 			my $loc = "$local/$sbo";
 			next unless -d $loc;
 			$$store{$sbo} = $loc;
