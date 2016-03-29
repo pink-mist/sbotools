@@ -18,4 +18,4 @@ install:
     - cpanm Text::Diff Capture::Tiny Test::Output Devel::Cover
 script:
     - bash -c 'export PERL5OPT=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine; PROVE=`which prove`; sudo -E $PROVE -v t/*.t;'
-    - cover -report text
+    - [ -e cover_db ] && bash -c 'COVER=`which cover`; sudo $COVER -report text'
