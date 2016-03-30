@@ -14,3 +14,4 @@ then
 	touch /etc/profile.d/32dev.sh
 	cp -a t/travis-deps/convertpkg-compat32 /usr/sbin
 fi
+echo "travis-deps/install.sh: Done.";
