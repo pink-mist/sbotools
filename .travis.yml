@@ -19,6 +19,7 @@ install:
 script:
     - bash -c 'PROVE=`which prove`; sudo PERL5OPT=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine,+ignore,t/,+ignore,prove,db,/home/travis/build/pink-mist/sbotools/cover_db $PROVE -v t/*.t;'
     - bash -c 'COVER=`which cover`; sudo $COVER || echo "Problem reading the cover_db."; exit 0'
-    - mv cover_db "cover_db-$TRAVIS_JOB_NUMBER"
+    - sudo chmod -R a+x cover_db; "tar cvf cover_db-${TRAVIS_JOB_NUMBER}.tar" cover_db
 addons:
-    artifacts: true
+    artifacts:
+        paths: cover_db-${TRAVIS_JOB_NUMBER}.tar
