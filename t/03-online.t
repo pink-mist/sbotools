@@ -44,7 +44,7 @@ chk_slackbuilds_txt();
 	stderr_like(sub { ($symlinks, $exit) = check_distfiles(LOCATION => "$repo_path/perl/perl-Sort-Versions"); },
 		qr/Resolving search[.]cpan[.]org/, 'check_distfiles output good');
 	SKIP: {
-		skip 1, "check_distfiles errored out." if defined $exit;
+		skip "check_distfiles errored out.", 1 if defined $exit;
 		is($symlinks->[0], "$repo_path/perl/perl-Sort-Versions/Sort-Versions-1.5.tar.gz",
 			'check_distfiles test 01');
 	}
