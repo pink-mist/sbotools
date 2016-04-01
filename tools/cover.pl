@@ -58,3 +58,7 @@ foreach my $build_dir (glob("cover_db/$build.*/")) {
 }
 
 system 'cover', '-write', "cover_db/$build", glob("cover_db/$build.*/cover_db/");
+
+my $output = shift // "cover_db/$build";
+
+system 'cover', '-outputdir', $output;
