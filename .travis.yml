@@ -27,3 +27,9 @@ script:
 addons:
     artifacts:
         paths: "./cover_db.tar"
+notifications:
+    irc:
+        channels:
+            - "chat.freenode.net#sbotools"
+        on_success: change
+        on_failure: change
