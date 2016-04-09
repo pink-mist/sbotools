@@ -241,6 +241,18 @@ sub idx {
 	return undef;
 }
 
+sub indent {
+	my ($indent, $text) = @_;
+	return $text unless $indent;
+
+	my @lines = split /\n/, $text;
+	foreach my $line (@lines) {
+		next unless length($line);
+		$line = (" " x $indent) . $line;
+	}
+	return join "\n", @lines;
+}
+
 # Move everything in /usr/sbo except distfiles and repo dirs into repo dir
 sub migrate_repo {
 	make_path($repo_path) unless -d $repo_path;
