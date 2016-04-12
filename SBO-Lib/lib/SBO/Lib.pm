@@ -836,6 +836,7 @@ sub rewrite_slackbuild {
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	my $arch_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
 	my $dc_regex = qr/(?<![a-z])(tar|p7zip|unzip|ar|rpm2cpio|sh)\s+/;
+	my $make_regex = qr/^\s*make\s*$/;
 	# tie the slackbuild, because this is the easiest way to handle this.
 	tie my @sb_file, 'Tie::File', $slackbuild;
 	# if we're dealing with a compat32, we need to change the tar line(s) so
@@ -865,6 +866,7 @@ sub rewrite_slackbuild {
 		if (exists $$changes{arch_out}) {
 			$line =~ s/\$ARCH/$$changes{arch_out}/ if $line =~ $arch_regex;
 		}
+		$line =~ s/make/make \$MAKEOPTS/ if $line =~ $make_regex;
 	}
 	untie @sb_file;
 	return 1;
