@@ -73,7 +73,7 @@ sub perform_search {
 		my ($t_fh, $t_exit) = open_read "$config{SBO_HOME}/repo/TAGS.txt";
 		unless ($t_exit) {
 			while (my $line = <$t_fh>) {
-				if ($line =~ /^(\S+):\s.*\Q$search_arg\E/) {
+				if ($line =~ /^(\S+):\s.*\Q$search_arg\E/i) {
 					push @names, $1;
 				}
 			}
