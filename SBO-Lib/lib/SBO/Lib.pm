@@ -866,7 +866,9 @@ sub rewrite_slackbuild {
 		if (exists $$changes{arch_out}) {
 			$line =~ s/\$ARCH/$$changes{arch_out}/ if $line =~ $arch_regex;
 		}
-		$line =~ s/make/make \$MAKEOPTS/ if $line =~ $make_regex;
+		if (exists $changes->{jobs}) {
+			$line =~ s/make/make \$MAKEOPTS/ if $line =~ $make_regex;
+		}
 	}
 	untie @sb_file;
 	return 1;
@@ -1008,6 +1010,9 @@ sub perform_sbo {
 			$changes{arch_out} = 'i486';
 		}
 		$cmd .= '. /etc/profile.d/32dev.sh &&';
+	}
+	if ($args{JOBS} and $args{JOBS} ne 'FALSE') {
+		$changes{jobs} = 1;
 	}
 	$cmd .= " $args{OPTS}" if $args{OPTS};
 	$cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
