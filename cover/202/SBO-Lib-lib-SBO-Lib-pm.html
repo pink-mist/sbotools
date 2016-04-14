@@ -20,7 +20,7 @@ http://www.pjcj.net
 <h1>File Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">SBO-Lib/lib/SBO/Lib.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c1">83.9%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c1">80.3%</td></tr>
 </table>
 <div><br/></div>
 <table>
@@ -211,7 +211,7 @@ http://www.pjcj.net
 <tr><td class="h">205</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;14.0&#39; =&gt; &#39;14.0&#39;,</td></tr>
 <tr><td class="h">206</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;14.1&#39; =&gt; &#39;14.1&#39;,</td></tr>
 <tr><td class="h">207</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</td></tr>
-<tr><td class="h">208</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($fh, $exit) = open_read(&#39;/etc/slackware-version&#39;);</td></tr>
+<tr><td class="h">208</td><td><div class="c3">3056</div><div class="c3">3056</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L208">3056</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($fh, $exit) = open_read(&#39;/etc/slackware-version&#39;);</td></tr>
 <tr><td class="h">209</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ($exit) {</td></tr>
 <tr><td class="h">210</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;warn $fh;</td></tr>
 <tr><td class="h">211</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit $exit;</td></tr>
@@ -226,7 +226,7 @@ http://www.pjcj.net
 <tr><td class="h">220</td><td colspan="5"></td></tr><tr><td class="h">221</td><td></td><td></td><td></td><td></td><td class="s"># does the SLACKBUILDS.TXT file exist in the sbo tree?</td></tr>
 <tr><td class="h">222</td><td></td><td></td><td></td><td></td><td class="s">sub chk_slackbuilds_txt {</td></tr>
 <tr><td class="h">223</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (-f &quot;$config{SBO_HOME}/SLACKBUILDS.TXT&quot;) { migrate_repo(); }</td></tr>
-<tr><td class="h">224</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return -f $slackbuilds_txt ? 1 : undef;</td></tr>
+<tr><td class="h">224</td><td><div class="c3">3056</div><div class="c3">3056</div><div class="c3">3056</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L224">3056</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return -f $slackbuilds_txt ? 1 : undef;</td></tr>
 <tr><td class="h">225</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">226</td><td colspan="5"></td></tr><tr><td class="h">227</td><td></td><td></td><td></td><td></td><td class="s"># Checks if the first argument equals any of the subsequent ones</td></tr>
 <tr><td class="h">228</td><td></td><td></td><td></td><td></td><td class="s">sub in {</td></tr>
@@ -240,7 +240,7 @@ http://www.pjcj.net
 <tr><td class="h">236</td><td colspan="5"></td></tr><tr><td class="h">237</td><td></td><td></td><td></td><td></td><td class="s">sub idx {</td></tr>
 <tr><td class="h">238</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for my $idx (1 .. $#_) {</td></tr>
 <tr><td class="h">239</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$_[0] eq $_[$idx] and return $idx - 1;</td></tr>
-<tr><td class="h">240</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">240</td><td><div class="c3">3056</div><div class="c3">3056</div><div class="c3">3056</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L240">3056</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">241</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return undef;</td></tr>
 <tr><td class="h">242</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">243</td><td colspan="5"></td></tr><tr><td class="h">244</td><td></td><td></td><td></td><td></td><td class="s">sub indent {</td></tr>
@@ -305,14 +305,14 @@ http://www.pjcj.net
 <tr><td class="h">309</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $url = shift;</td></tr>
 <tr><td class="h">310</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$url .= &#39;/&#39; unless $url =~ m!/$!; # make sure $url ends with /</td></tr>
 <tr><td class="h">311</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @info;</td></tr>
-<tr><td class="h">312</td><td><div class="c3">4584</div><div class="c3">4584</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L312">4584</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# only slackware versions above 14.1 have an rsync that supports --info=progress2</td></tr>
+<tr><td class="h">312</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# only slackware versions above 14.1 have an rsync that supports --info=progress2</td></tr>
 <tr><td class="h">313</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (versioncmp(get_slack_version(), &#39;14.1&#39;) == 1) { @info = (&#39;--info=progress2&#39;); }</td></tr>
 <tr><td class="h">314</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @args = (&#39;rsync&#39;, @info, &#39;-a&#39;, &#39;--exclude=*.tar.gz&#39;, &#39;--exclude=*.tar.gz.asc&#39;, &#39;--delete&#39;, $url);</td></tr>
 <tr><td class="h">315</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return system(@args, $repo_path) == 0;</td></tr>
 <tr><td class="h">316</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">317</td><td colspan="5"></td></tr><tr><td class="h">318</td><td></td><td></td><td></td><td></td><td class="s">sub git_sbo_tree {</td></tr>
 <tr><td class="h">319</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@_ == 1 or script_error(&#39;git_sbo_tree requires an argument.&#39;);</td></tr>
-<tr><td class="h">320</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $url = shift;</td></tr>
+<tr><td class="h">320</td><td><div class="c3">3056</div><div class="c3">3056</div><div class="c3">3056</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L320">3056</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $url = shift;</td></tr>
 <tr><td class="h">321</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (-d &quot;$repo_path/.git&quot; and check_git_remote($repo_path, $url)) {</td></tr>
 <tr><td class="h">322</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $cwd = getcwd();</td></tr>
 <tr><td class="h">323</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chdir $repo_path;</td></tr>
@@ -328,7 +328,7 @@ http://www.pjcj.net
 <tr><td class="h">333</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chdir $cwd and return 1;</td></tr>
 <tr><td class="h">334</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">335</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 0;</td></tr>
-<tr><td class="h">336</td><td><div class="c3">4584</div><div class="c3">4584</div><div class="c3">4584</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L336">4584</a></div></td><td class="s">}</td></tr>
+<tr><td class="h">336</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">337</td><td colspan="5"></td></tr><tr><td class="h">338</td><td></td><td></td><td></td><td></td><td class="s">sub check_git_remote {</td></tr>
 <tr><td class="h">339</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@_ == 2 or script_error(&#39;check_git_remote requires two arguments.&#39;);</td></tr>
 <tr><td class="h">340</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($path, $url) = @_;</td></tr>
@@ -1113,7 +1113,7 @@ http://www.pjcj.net
 <tr><td class="h">1196</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">1197</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
 <tr><td class="h">1198</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">1199</td><td colspan="5"></td></tr><tr><td class="h">1200</td><td></td><td></td><td></td><td></td><td class="s"># run upgradepkg for a created package</td></tr>
+<tr><td class="h">1199</td><td colspan="5"></td></tr><tr><td class="h">1200</td><td><div class="c3">3056</div></td><td></td><td></td><td></td><td class="s"># run upgradepkg for a created package</td></tr>
 <tr><td class="h">1201</td><td></td><td></td><td></td><td></td><td class="s">sub do_upgradepkg {</td></tr>
 <tr><td class="h">1202</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@_ == 1 or script_error(&#39;do_upgradepkg requires an argument.&#39;);</td></tr>
 <tr><td class="h">1203</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;system(&#39;/sbin/upgradepkg&#39;, &#39;--reinstall&#39;, &#39;--install-new&#39;, shift);</td></tr>
@@ -1273,7 +1273,7 @@ http://www.pjcj.net
 <tr><td class="h">1373</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OPTS =&gt; &#39;&#39;,</td></tr>
 <tr><td class="h">1374</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JOBS =&gt; &#39;FALSE&#39;,</td></tr>
 <tr><td class="h">1375</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LOCATIONS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; &#39;&#39;,</td></tr>
-<tr><td class="h">1376</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOINSTALL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; 0,</td></tr>
+<tr><td class="h">1376</td><td><div class="c3">3056</div><div class="c3">3056</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L1376">3056</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOINSTALL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; 0,</td></tr>
 <tr><td class="h">1377</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOCLEAN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; &#39;FALSE&#39;,</td></tr>
 <tr><td class="h">1378</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DISTCLEAN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; &#39;FALSE&#39;,</td></tr>
 <tr><td class="h">1379</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NON_INT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; 0,</td></tr>
@@ -1382,7 +1382,7 @@ http://www.pjcj.net
 <tr><td class="h">1485</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;warn &quot;Failures:\n&quot;;</td></tr>
 <tr><td class="h">1486</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for my $failure (@$failures) {</td></tr>
 <tr><td class="h">1487</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;warn &quot;&nbsp;&nbsp;$_: $$failure{$_}&quot; for keys %$failure;</td></tr>
-<tr><td class="h">1488</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1488</td><td><div class="c3">3056</div><div class="c3">3056</div><div class="c3">3056</div></td><td></td><td></td><td><div class="c3"><a href="SBO-Lib-lib-SBO-Lib-pm--subroutine.html#L1488">3056</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">1489</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">1490</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">1491</td><td colspan="5"></td></tr><tr><td class="h">1492</td><td></td><td></td><td></td><td></td><td class="s">&#39;ok&#39;;</td></tr>

@@ -25,36 +25,36 @@ http://www.pjcj.net
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L1488">1488</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if exists $options{&#39;help&#39;}</td></tr>
-<tr><td class="h"><a id="L1512">1512</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if exists $options{&#39;version&#39;}</td></tr>
-<tr><td class="h"><a id="L2088">2088</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $options{&#39;list&#39;})</td></tr>
-<tr><td class="h"><a id="L2232">2232</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless keys %options &gt; 0</td></tr>
-<tr><td class="h"><a id="L2376">2376</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if exists $options{$key}</td></tr>
-<tr><td class="h"><a id="L2496">2496</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;NOCLEAN&#39;})</td></tr>
-<tr><td class="h"><a id="L2520">2520</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;NOCLEAN&#39;} =~ /^(TRUE|FALSE)$/u</td></tr>
-<tr><td class="h"><a id="L2568">2568</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;DISTCLEAN&#39;})</td></tr>
-<tr><td class="h"><a id="L2592">2592</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;DISTCLEAN&#39;} =~ /^(TRUE|FALSE)$/u</td></tr>
-<tr><td class="h"><a id="L2640">2640</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;JOBS&#39;})</td></tr>
-<tr><td class="h"><a id="L2664">2664</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $changes{&#39;JOBS&#39;} =~ /^(\d+|FALSE)$/u</td></tr>
-<tr><td class="h"><a id="L2712">2712</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;PKG_DIR&#39;})</td></tr>
-<tr><td class="h"><a id="L2736">2736</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;PKG_DIR&#39;} =~ qr&quot;^(/|FALSE$)&quot;u</td></tr>
-<tr><td class="h"><a id="L2784">2784</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;SBO_HOME&#39;})</td></tr>
-<tr><td class="h"><a id="L2808">2808</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;SBO_HOME&#39;} =~ qr&quot;^/&quot;u</td></tr>
-<tr><td class="h"><a id="L2856">2856</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;LOCAL_OVERRIDES&#39;})</td></tr>
-<tr><td class="h"><a id="L2880">2880</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $changes{&#39;LOCAL_OVERRIDES&#39;} =~ qr&quot;^(/|FALSE$)&quot;u</td></tr>
-<tr><td class="h"><a id="L2928">2928</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;SLACKWARE_VERSION&#39;})</td></tr>
-<tr><td class="h"><a id="L2952">2952</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $changes{&#39;SLACKWARE_VERSION&#39;} =~ /^(\d+\.\d+|FALSE)$/u</td></tr>
-<tr><td class="h"><a id="L3192">3192</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless @_ == 2</td></tr>
-<tr><td class="h"><a id="L3216">3216</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (-d $main::conf_dir)</td></tr>
-<tr><td class="h"><a id="L3240">3240</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless mkdir $main::conf_dir</td></tr>
-<tr><td class="h"><a id="L3288">3288</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (-f $main::conf_file) { }</td></tr>
-<tr><td class="h"><a id="L3360">3360</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
-<tr><td class="h"><a id="L3672">3672</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $tmpline =~ /$regex/u</td></tr>
-<tr><td class="h"><a id="L3768">3768</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $has</td></tr>
-<tr><td class="h"><a id="L3912">3912</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
-<tr><td class="h"><a id="L4008">4008</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless print {$conffh;} $contents</td></tr>
-<tr><td class="h"><a id="L4080">4080</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless my($fh, $exit) = open_fh($main::conf_file, &#39;&gt;&#39;)</td></tr>
-<tr><td class="h"><a id="L4104">4104</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
+<tr><td class="h"><a id="L992">992</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if exists $options{&#39;help&#39;}</td></tr>
+<tr><td class="h"><a id="L1008">1008</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if exists $options{&#39;version&#39;}</td></tr>
+<tr><td class="h"><a id="L1392">1392</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $options{&#39;list&#39;})</td></tr>
+<tr><td class="h"><a id="L1488">1488</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless keys %options &gt; 0</td></tr>
+<tr><td class="h"><a id="L1584">1584</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if exists $options{$key}</td></tr>
+<tr><td class="h"><a id="L1664">1664</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;NOCLEAN&#39;})</td></tr>
+<tr><td class="h"><a id="L1680">1680</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;NOCLEAN&#39;} =~ /^(TRUE|FALSE)$/u</td></tr>
+<tr><td class="h"><a id="L1712">1712</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;DISTCLEAN&#39;})</td></tr>
+<tr><td class="h"><a id="L1728">1728</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;DISTCLEAN&#39;} =~ /^(TRUE|FALSE)$/u</td></tr>
+<tr><td class="h"><a id="L1760">1760</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;JOBS&#39;})</td></tr>
+<tr><td class="h"><a id="L1776">1776</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $changes{&#39;JOBS&#39;} =~ /^(\d+|FALSE)$/u</td></tr>
+<tr><td class="h"><a id="L1808">1808</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;PKG_DIR&#39;})</td></tr>
+<tr><td class="h"><a id="L1824">1824</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;PKG_DIR&#39;} =~ qr&quot;^(/|FALSE$)&quot;u</td></tr>
+<tr><td class="h"><a id="L1856">1856</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;SBO_HOME&#39;})</td></tr>
+<tr><td class="h"><a id="L1872">1872</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $changes{&#39;SBO_HOME&#39;} =~ qr&quot;^/&quot;u</td></tr>
+<tr><td class="h"><a id="L1904">1904</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;LOCAL_OVERRIDES&#39;})</td></tr>
+<tr><td class="h"><a id="L1920">1920</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $changes{&#39;LOCAL_OVERRIDES&#39;} =~ qr&quot;^(/|FALSE$)&quot;u</td></tr>
+<tr><td class="h"><a id="L1952">1952</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $changes{&#39;SLACKWARE_VERSION&#39;})</td></tr>
+<tr><td class="h"><a id="L1968">1968</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $changes{&#39;SLACKWARE_VERSION&#39;} =~ /^(\d+\.\d+|FALSE)$/u</td></tr>
+<tr><td class="h"><a id="L2128">2128</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless @_ == 2</td></tr>
+<tr><td class="h"><a id="L2144">2144</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (-d $main::conf_dir)</td></tr>
+<tr><td class="h"><a id="L2160">2160</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless mkdir $main::conf_dir</td></tr>
+<tr><td class="h"><a id="L2192">2192</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (-f $main::conf_file) { }</td></tr>
+<tr><td class="h"><a id="L2240">2240</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
+<tr><td class="h"><a id="L2448">2448</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $tmpline =~ /$regex/u</td></tr>
+<tr><td class="h"><a id="L2512">2512</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $has</td></tr>
+<tr><td class="h"><a id="L2608">2608</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
+<tr><td class="h"><a id="L2672">2672</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless print {$conffh;} $contents</td></tr>
+<tr><td class="h"><a id="L2720">2720</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless my($fh, $exit) = open_fh($main::conf_file, &#39;&gt;&#39;)</td></tr>
+<tr><td class="h"><a id="L2736">2736</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
 </table>
 </body>
 </html>
