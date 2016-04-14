@@ -112,14 +112,14 @@ http://www.pjcj.net
 <tr><td class="h">99</td><td colspan="5"></td></tr><tr><td class="h">100</td><td></td><td></td><td></td><td></td><td class="s">my @sbos = uniq @ARGV;</td></tr>
 <tr><td class="h">101</td><td colspan="5"></td></tr><tr><td class="h">102</td><td></td><td></td><td></td><td></td><td class="s"># Filter out standard packages</td></tr>
 <tr><td class="h">103</td><td></td><td></td><td></td><td></td><td class="s">my $std_installs = get_inst_names(get_installed_packages(&#39;STD&#39;));</td></tr>
-<tr><td class="h">104</td><td></td><td></td><td></td><td></td><td class="s">my %std_names;</td></tr>
+<tr><td class="h">104</td><td><div class="c3">132</div><div class="c3">132</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L104">132</a></div></td><td class="s">my %std_names;</td></tr>
 <tr><td class="h">105</td><td></td><td></td><td></td><td></td><td class="s">$std_names{$_} = 1 for @$std_installs;</td></tr>
 <tr><td class="h">106</td><td></td><td></td><td></td><td></td><td class="s">@sbos = grep { not $std_names{$_} } @sbos;</td></tr>
 <tr><td class="h">107</td><td colspan="5"></td></tr><tr><td class="h">108</td><td></td><td></td><td></td><td></td><td class="s"># pull locations for everything specified on command line.</td></tr>
 <tr><td class="h">109</td><td></td><td></td><td></td><td></td><td class="s">my %locations;</td></tr>
 <tr><td class="h">110</td><td></td><td></td><td></td><td></td><td class="s">for my $sbo (@sbos) {</td></tr>
 <tr><td class="h">111</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $name = $sbo;</td></tr>
-<tr><td class="h">112</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$name =~ s/-compat32//;</td></tr>
+<tr><td class="h">112</td><td><div class="c3">132</div><div class="c3">132</div><div class="c3">132</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L112">132</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$name =~ s/-compat32//;</td></tr>
 <tr><td class="h">113</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$locations{$sbo} = get_sbo_location($name);</td></tr>
 <tr><td class="h">114</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;Unable to locate $sbo in the SlackBuilds.org tree.&quot;) unless</td></tr>
 <tr><td class="h">115</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$locations{$sbo};</td></tr>
@@ -127,20 +127,20 @@ http://www.pjcj.net
 <tr><td class="h">117</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;compat32 Perl SBos are not supported.&quot;)</td></tr>
 <tr><td class="h">118</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if $locations{$sbo} =~ qr|/perl/[^/]+$|;</td></tr>
 <tr><td class="h">119</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">120</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">120</td><td><div class="c3">132</div><div class="c3">132</div><div class="c3">132</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L120">132</a></div></td><td class="s">}</td></tr>
 <tr><td class="h">121</td><td colspan="5"></td></tr><tr><td class="h">122</td><td></td><td></td><td></td><td></td><td class="s"># get a list of installed SBos to check upgradability against</td></tr>
 <tr><td class="h">123</td><td></td><td></td><td></td><td></td><td class="s">my $inst_names = get_inst_names(get_installed_packages(&#39;SBO&#39;));</td></tr>
 <tr><td class="h">124</td><td></td><td></td><td></td><td></td><td class="s">my %inst_names;</td></tr>
 <tr><td class="h">125</td><td></td><td></td><td></td><td></td><td class="s">$inst_names{$_} = 1 for @$inst_names;</td></tr>
 <tr><td class="h">126</td><td></td><td></td><td></td><td></td><td class="s">my %updates;</td></tr>
 <tr><td class="h">127</td><td></td><td></td><td></td><td></td><td class="s">if (not $non_int or not $force) {</td></tr>
-<tr><td class="h">128</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$updates //= get_available_updates();</td></tr>
+<tr><td class="h">128</td><td><div class="c3">132</div><div class="c3">132</div><div class="c3">132</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L128">132</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$updates //= get_available_updates();</td></tr>
 <tr><td class="h">129</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$updates{$$_{name}} = 1 for @$updates;</td></tr>
 <tr><td class="h">130</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">131</td><td colspan="5"></td></tr><tr><td class="h">132</td><td></td><td></td><td></td><td></td><td class="s">my $upgrade_queue = [];</td></tr>
 <tr><td class="h">133</td><td colspan="5"></td></tr><tr><td class="h">134</td><td></td><td></td><td></td><td></td><td class="s"># doesn&#39;t matter what&#39;s updatable and what&#39;s not if force is specified,</td></tr>
 <tr><td class="h">135</td><td></td><td></td><td></td><td></td><td class="s"># but without force, we only want to update what there are updates for</td></tr>
-<tr><td class="h">136</td><td></td><td></td><td></td><td></td><td class="s">if ($non_int) {</td></tr>
+<tr><td class="h">136</td><td><div class="c3">132</div><div class="c3">132</div><div class="c3">132</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L136">132</a></div></td><td class="s">if ($non_int) {</td></tr>
 <tr><td class="h">137</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ($force) {</td></tr>
 <tr><td class="h">138</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for my $sbo (@sbos) {</td></tr>
 <tr><td class="h">139</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push @$upgrade_queue, $sbo if $inst_names{$sbo};</td></tr>
@@ -148,7 +148,7 @@ http://www.pjcj.net
 <tr><td class="h">141</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {</td></tr>
 <tr><td class="h">142</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for my $sbo (@sbos) {</td></tr>
 <tr><td class="h">143</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push @$upgrade_queue, $sbo if $updates{$sbo};</td></tr>
-<tr><td class="h">144</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">144</td><td><div class="c3">132</div><div class="c3">132</div><div class="c3">132</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L144">132</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">145</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">146</td><td></td><td></td><td></td><td></td><td class="s">} else {</td></tr>
 <tr><td class="h">147</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for my $sbo (@sbos) {</td></tr>
@@ -156,7 +156,7 @@ http://www.pjcj.net
 <tr><td class="h">149</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$name =~ s/-compat32$//;</td></tr>
 <tr><td class="h">150</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $queue = get_build_queue([$name], my $warnings);</td></tr>
 <tr><td class="h">151</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (not $force_reqs) {</td></tr>
-<tr><td class="h">152</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@$queue = grep { !$inst_names{$_} or $updates{$_} } @$queue;</td></tr>
+<tr><td class="h">152</td><td><div class="c3">132</div><div class="c3">132</div><div class="c3">132</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L152">132</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@$queue = grep { !$inst_names{$_} or $updates{$_} } @$queue;</td></tr>
 <tr><td class="h">153</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">154</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push @$queue, $name if $force;</td></tr>
 <tr><td class="h">155</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $cqueue;</td></tr>
@@ -172,7 +172,7 @@ http://www.pjcj.net
 <tr><td class="h">165</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $val = $locs{$key};</td></tr>
 <tr><td class="h">166</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$key =~ s/$/-compat32/;</td></tr>
 <tr><td class="h">167</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$clocs{$key} = $val;</td></tr>
-<tr><td class="h">168</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">168</td><td><div class="c3">132</div></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">169</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%locs = %clocs;</td></tr>
 <tr><td class="h">170</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">171</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@locations{keys %locs} = values %locs;</td></tr>
@@ -194,7 +194,7 @@ http://www.pjcj.net
 <tr><td class="h">189</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">190</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(@temp_queue, $sbo);</td></tr>
 <tr><td class="h">191</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$commands{$sbo} = $cmds;</td></tr>
-<tr><td class="h">192</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$options{$sbo} = $opts;</td></tr>
+<tr><td class="h">192</td><td><div class="c0">0</div></td><td></td><td></td><td><div class="c0"><a href="sboupgrade--subroutine.html#L192">0</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$options{$sbo} = $opts;</td></tr>
 <tr><td class="h">193</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say &quot;$sbo added to upgrade queue.&quot;;&nbsp;&nbsp;</td></tr>
 <tr><td class="h">194</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;} else {</td></tr>
 <tr><td class="h">195</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push(@temp_queue, $sbo);</td></tr>
@@ -208,7 +208,7 @@ http://www.pjcj.net
 <tr><td class="h">204</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;print &quot;\nAre you sure you wish to continue? [y]: &quot;;</td></tr>
 <tr><td class="h">205</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;exit 0 unless &lt;STDIN&gt; =~ /^[Yy\n]/;</td></tr>
 <tr><td class="h">206</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">207</td><td colspan="5"></td></tr><tr><td class="h">208</td><td><div class="c3">264</div><div class="c3">264</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L208">264</a></div></td><td class="s">my ($failures, $exit) = process_sbos(</td></tr>
+<tr><td class="h">207</td><td colspan="5"></td></tr><tr><td class="h">208</td><td></td><td></td><td></td><td></td><td class="s">my ($failures, $exit) = process_sbos(</td></tr>
 <tr><td class="h">209</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; $upgrade_queue,</td></tr>
 <tr><td class="h">210</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CMDS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; \%commands,</td></tr>
 <tr><td class="h">211</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OPTS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&gt; \%options,</td></tr>
@@ -223,7 +223,7 @@ http://www.pjcj.net
 <tr><td class="h">220</td><td colspan="5"></td></tr><tr><td class="h">221</td><td></td><td></td><td></td><td></td><td class="s">if ($exit) {</td></tr>
 <tr><td class="h">222</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit $exit;</td></tr>
 <tr><td class="h">223</td><td></td><td></td><td></td><td></td><td class="s">} else {</td></tr>
-<tr><td class="h">224</td><td><div class="c3">264</div><div class="c3">264</div><div class="c3">264</div></td><td></td><td></td><td><div class="c3"><a href="sboupgrade--subroutine.html#L224">264</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit 0;</td></tr>
+<tr><td class="h">224</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit 0;</td></tr>
 <tr><td class="h">225</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 </table>
 </body>

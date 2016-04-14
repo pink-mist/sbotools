@@ -112,7 +112,7 @@ http://www.pjcj.net
 <tr><td class="h">99</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$changes{$value} = $options{$key} if exists $options{$key};</td></tr>
 <tr><td class="h">100</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">101</td><td colspan="5"></td></tr><tr><td class="h">102</td><td></td><td></td><td></td><td></td><td class="s">my $warn = &#39;You have provided an invalid parameter for&#39;;</td></tr>
-<tr><td class="h">103</td><td colspan="5"></td></tr><tr><td class="h">104</td><td></td><td></td><td></td><td></td><td class="s">if (exists $changes{NOCLEAN}) {</td></tr>
+<tr><td class="h">103</td><td colspan="5"></td></tr><tr><td class="h">104</td><td><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L104">356</a></div></td><td class="s">if (exists $changes{NOCLEAN}) {</td></tr>
 <tr><td class="h">105</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;$warn -c&quot;) unless $changes{NOCLEAN} =~ /^(TRUE|FALSE)$/;</td></tr>
 <tr><td class="h">106</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">107</td><td></td><td></td><td></td><td></td><td class="s">if (exists $changes{DISTCLEAN}) {</td></tr>
@@ -120,7 +120,7 @@ http://www.pjcj.net
 <tr><td class="h">109</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">110</td><td></td><td></td><td></td><td></td><td class="s">if (exists $changes{JOBS}) {</td></tr>
 <tr><td class="h">111</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;$warn -j&quot;) unless $changes{JOBS} =~ /^(\d+|FALSE)$/;</td></tr>
-<tr><td class="h">112</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">112</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L112">356</a></div></td><td class="s">}</td></tr>
 <tr><td class="h">113</td><td></td><td></td><td></td><td></td><td class="s">if (exists $changes{PKG_DIR}) {</td></tr>
 <tr><td class="h">114</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;$warn -p&quot;) unless $changes{PKG_DIR} =~ qr#^(/|FALSE$)#;</td></tr>
 <tr><td class="h">115</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
@@ -128,14 +128,14 @@ http://www.pjcj.net
 <tr><td class="h">117</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;$warn -s&quot;) unless $changes{SBO_HOME} =~ qr#^/#;</td></tr>
 <tr><td class="h">118</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">119</td><td></td><td></td><td></td><td></td><td class="s">if (exists $changes{LOCAL_OVERRIDES}) {</td></tr>
-<tr><td class="h">120</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;$warn -o&quot;) unless $changes{LOCAL_OVERRIDES} =~ qr#^(/|FALSE$)#;</td></tr>
+<tr><td class="h">120</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L120">356</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;$warn -o&quot;) unless $changes{LOCAL_OVERRIDES} =~ qr#^(/|FALSE$)#;</td></tr>
 <tr><td class="h">121</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">122</td><td></td><td></td><td></td><td></td><td class="s">if (exists $changes{SLACKWARE_VERSION}) {</td></tr>
 <tr><td class="h">123</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage_error(&quot;$warn -V&quot;) unless $changes{SLACKWARE_VERSION} =~ m/^(\d+\.\d+|FALSE)$/;</td></tr>
 <tr><td class="h">124</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">125</td><td colspan="5"></td></tr><tr><td class="h">126</td><td></td><td></td><td></td><td></td><td class="s"># safely modify our conf file; write its contents to a temp file, modify the</td></tr>
 <tr><td class="h">127</td><td></td><td></td><td></td><td></td><td class="s"># temp file, write the contents of the temp file back to the conf file</td></tr>
-<tr><td class="h">128</td><td></td><td></td><td></td><td></td><td class="s"># TODO: if multiple options are provided to this script, this sub should write</td></tr>
+<tr><td class="h">128</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L128">356</a></div></td><td class="s"># TODO: if multiple options are provided to this script, this sub should write</td></tr>
 <tr><td class="h">129</td><td></td><td></td><td></td><td></td><td class="s"># them all at once, instead of only a single one and having to call it once for</td></tr>
 <tr><td class="h">130</td><td></td><td></td><td></td><td></td><td class="s"># each option specified to the script.</td></tr>
 <tr><td class="h">131</td><td></td><td></td><td></td><td></td><td class="s">sub config_write {</td></tr>
@@ -143,7 +143,7 @@ http://www.pjcj.net
 <tr><td class="h">133</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@_ == 2 or script_error(&#39;config_write requires two arguments.&#39;);</td></tr>
 <tr><td class="h">134</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (! -d $conf_dir) {</td></tr>
 <tr><td class="h">135</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mkdir $conf_dir or usage_error(&quot;Unable to create $conf_dir. Exiting.&quot;);</td></tr>
-<tr><td class="h">136</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">136</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L136">356</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">137</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (-f $conf_file) {</td></tr>
 <tr><td class="h">138</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $tempfh = tempfile(DIR =&gt; $tempdir);</td></tr>
 <tr><td class="h">139</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($conffh, $exit) = open_read($conf_file);</td></tr>
@@ -151,7 +151,7 @@ http://www.pjcj.net
 <tr><td class="h">141</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;warn $conffh;</td></tr>
 <tr><td class="h">142</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit $exit;</td></tr>
 <tr><td class="h">143</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">144</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $conftents = do {local $/; &lt;$conffh&gt;};</td></tr>
+<tr><td class="h">144</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L144">356</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $conftents = do {local $/; &lt;$conffh&gt;};</td></tr>
 <tr><td class="h">145</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print {$tempfh} $conftents;</td></tr>
 <tr><td class="h">146</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# tie the temp file so that if $key is already there, we just change </td></tr>
 <tr><td class="h">147</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# that line and untie it</td></tr>
@@ -159,7 +159,7 @@ http://www.pjcj.net
 <tr><td class="h">149</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $has;</td></tr>
 <tr><td class="h">150</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $regex = qr/\A\Q$key\E=/;</td></tr>
 <tr><td class="h">151</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# TODO: fix this monstrosity</td></tr>
-<tr><td class="h">152</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIRST: for my $tmpline (@temp) {</td></tr>
+<tr><td class="h">152</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L152">356</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIRST: for my $tmpline (@temp) {</td></tr>
 <tr><td class="h">153</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$has++, $tmpline = &quot;$key=$val&quot;, last FIRST if $tmpline =~ $regex;</td></tr>
 <tr><td class="h">154</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">155</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;untie @temp;</td></tr>
@@ -167,7 +167,7 @@ http://www.pjcj.net
 <tr><td class="h">157</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print {$tempfh} &quot;$key=$val\n&quot; unless $has;</td></tr>
 <tr><td class="h">158</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# then overwrite the conf file with the contents of the temp file</td></tr>
 <tr><td class="h">159</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;seek $tempfh, 0, 0;</td></tr>
-<tr><td class="h">160</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $contents = do {local $/; &lt;$tempfh&gt;};</td></tr>
+<tr><td class="h">160</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L160">356</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $contents = do {local $/; &lt;$tempfh&gt;};</td></tr>
 <tr><td class="h">161</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close $conffh;</td></tr>
 <tr><td class="h">162</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;($conffh, $exit) = open_fh($conf_file, &#39;&gt;&#39;);</td></tr>
 <tr><td class="h">163</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ($exit) {</td></tr>
@@ -175,7 +175,7 @@ http://www.pjcj.net
 <tr><td class="h">165</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit $exit;</td></tr>
 <tr><td class="h">166</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">167</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print {$conffh} $contents or return();</td></tr>
-<tr><td class="h">168</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {</td></tr>
+<tr><td class="h">168</td><td><div class="c3">356</div><div class="c3">356</div><div class="c3">356</div></td><td></td><td></td><td><div class="c3"><a href="sboconfig--subroutine.html#L168">356</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {</td></tr>
 <tr><td class="h">169</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# no config file, easiest case of all.</td></tr>
 <tr><td class="h">170</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($fh, $exit) = open_fh($conf_file, &#39;&gt;&#39;) or return();</td></tr>
 <tr><td class="h">171</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ($exit) {</td></tr>
@@ -190,7 +190,7 @@ http://www.pjcj.net
 <tr><td class="h">180</td><td colspan="5"></td></tr><tr><td class="h">181</td><td></td><td></td><td></td><td></td><td class="s">for my $key (keys %changes) {</td></tr>
 <tr><td class="h">182</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $value = $changes{$key};</td></tr>
 <tr><td class="h">183</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say &quot;Setting $key to $value...&quot;;</td></tr>
-<tr><td class="h">184</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;config_write($key, $value);</td></tr>
+<tr><td class="h">184</td><td><div class="c3">356</div></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;config_write($key, $value);</td></tr>
 <tr><td class="h">185</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">186</td><td colspan="5"></td></tr><tr><td class="h">187</td><td></td><td></td><td></td><td></td><td class="s">exit 0;</td></tr>
 </table>

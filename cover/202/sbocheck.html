@@ -111,7 +111,7 @@ http://www.pjcj.net
 <tr><td class="h">100</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach my $sbo (sort keys %updates) {</td></tr>
 <tr><td class="h">101</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $info = $updates{$sbo};</td></tr>
 <tr><td class="h">102</td><td colspan="5"></td></tr><tr><td class="h">103</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $str = sprintf &quot;%s&nbsp;&nbsp;&lt;&nbsp;&nbsp;%s&quot;, $info-&gt;{name_str}, $info-&gt;{upd_str};</td></tr>
-<tr><td class="h">104</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (length($str) &lt; 80) {</td></tr>
+<tr><td class="h">104</td><td><div class="c3">28</div><div class="c3">28</div></td><td></td><td></td><td><div class="c3"><a href="sbocheck--subroutine.html#L104">28</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (length($str) &lt; 80) {</td></tr>
 <tr><td class="h">105</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$str = sprintf &quot;%-*s&nbsp;&nbsp;&lt;&nbsp;&nbsp;%s&quot;, $max, $info-&gt;{name_str}, $info-&gt;{upd_str};</td></tr>
 <tr><td class="h">106</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $adjust = 1;</td></tr>
 <tr><td class="h">107</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while (length($str) &gt; 80) {</td></tr>
@@ -119,14 +119,14 @@ http://www.pjcj.net
 <tr><td class="h">109</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">110</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">111</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push @listing, $str;</td></tr>
-<tr><td class="h">112</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">112</td><td><div class="c3">28</div><div class="c3">28</div><div class="c3">28</div></td><td></td><td></td><td><div class="c3"><a href="sbocheck--subroutine.html#L112">28</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">113</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return @listing;</td></tr>
 <tr><td class="h">114</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">115</td><td colspan="5"></td></tr><tr><td class="h">116</td><td></td><td></td><td></td><td></td><td class="s"># print list of updates</td></tr>
 <tr><td class="h">117</td><td></td><td></td><td></td><td></td><td class="s">sub print_output {</td></tr>
 <tr><td class="h">118</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @listing = @_;</td></tr>
 <tr><td class="h">119</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (@listing) {</td></tr>
-<tr><td class="h">120</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print &quot;\n&quot;;</td></tr>
+<tr><td class="h">120</td><td><div class="c3">28</div><div class="c3">28</div><div class="c3">28</div></td><td></td><td></td><td><div class="c3"><a href="sbocheck--subroutine.html#L120">28</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print &quot;\n&quot;;</td></tr>
 <tr><td class="h">121</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say $_ for @listing;</td></tr>
 <tr><td class="h">122</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print &quot;\n&quot;;</td></tr>
 <tr><td class="h">123</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# save a log of available updates</td></tr>
@@ -134,7 +134,7 @@ http://www.pjcj.net
 <tr><td class="h">125</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unlink $logfile if -f $logfile;</td></tr>
 <tr><td class="h">126</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($log_fh, $exit) = open_fh($logfile, &#39;&gt;&#39;);</td></tr>
 <tr><td class="h">127</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# non-fatal</td></tr>
-<tr><td class="h">128</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ($exit) {</td></tr>
+<tr><td class="h">128</td><td><div class="c3">28</div><div class="c3">28</div><div class="c3">28</div></td><td></td><td></td><td><div class="c3"><a href="sbocheck--subroutine.html#L128">28</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ($exit) {</td></tr>
 <tr><td class="h">129</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;warn $log_fh if $exit;</td></tr>
 <tr><td class="h">130</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {</td></tr>
 <tr><td class="h">131</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say {$log_fh} $_ for @listing;</td></tr>
@@ -142,13 +142,13 @@ http://www.pjcj.net
 <tr><td class="h">133</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say &quot;A copy of the above result is kept in $logfile\n&quot;;</td></tr>
 <tr><td class="h">134</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">135</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {</td></tr>
-<tr><td class="h">136</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say &quot;\nNo updates available.&quot;;</td></tr>
+<tr><td class="h">136</td><td><div class="c3">28</div><div class="c3">28</div><div class="c3">28</div></td><td></td><td></td><td><div class="c3"><a href="sbocheck--subroutine.html#L136">28</a></div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;say &quot;\nNo updates available.&quot;;</td></tr>
 <tr><td class="h">137</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
 <tr><td class="h">138</td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
 <tr><td class="h">139</td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
 <tr><td class="h">140</td><td colspan="5"></td></tr><tr><td class="h">141</td><td></td><td></td><td></td><td></td><td class="s">my @listing = get_update_list();</td></tr>
 <tr><td class="h">142</td><td></td><td></td><td></td><td></td><td class="s">print_output(@listing);</td></tr>
-<tr><td class="h">143</td><td colspan="5"></td></tr><tr><td class="h">144</td><td></td><td></td><td></td><td></td><td class="s">exit 0;</td></tr>
+<tr><td class="h">143</td><td colspan="5"></td></tr><tr><td class="h">144</td><td><div class="c3">28</div><div class="c3">28</div><div class="c3">28</div></td><td></td><td></td><td><div class="c3"><a href="sbocheck--subroutine.html#L144">28</a></div></td><td class="s">exit 0;</td></tr>
 </table>
 </body>
 </html>

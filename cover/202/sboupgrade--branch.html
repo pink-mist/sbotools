@@ -25,36 +25,36 @@ http://www.pjcj.net
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L1168">1168</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $help</td></tr>
-<tr><td class="h"><a id="L1184">1184</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $vers</td></tr>
-<tr><td class="h"><a id="L1232">1232</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($all)</td></tr>
-<tr><td class="h"><a id="L1344">1344</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless exists $ARGV[0]</td></tr>
-<tr><td class="h"><a id="L1376">1376</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">$noclean eq &#39;TRUE&#39; ? :</td></tr>
-<tr><td class="h"><a id="L1392">1392</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">$distclean eq &#39;TRUE&#39; ? :</td></tr>
-<tr><td class="h"><a id="L1424">1424</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($jobs)</td></tr>
-<tr><td class="h"><a id="L1440">1440</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $jobs =~ /^\d+$/u or $jobs eq &#39;FALSE&#39;</td></tr>
-<tr><td class="h"><a id="L1504">1504</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $non_int and $force_reqs</td></tr>
-<tr><td class="h"><a id="L1832">1832</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $locations{$sbo}</td></tr>
-<tr><td class="h"><a id="L1856">1856</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($sbo =~ /-compat32$/u)</td></tr>
-<tr><td class="h"><a id="L1880">1880</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $locations{$sbo} =~ qr&quot;/perl/[^/]+$&quot;u</td></tr>
-<tr><td class="h"><a id="L2032">2032</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless ($non_int and $force)</td></tr>
-<tr><td class="h"><a id="L2176">2176</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($non_int) { }</td></tr>
-<tr><td class="h"><a id="L2192">2192</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($force) { }</td></tr>
-<tr><td class="h"><a id="L2224">2224</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $inst_names{$sbo}</td></tr>
-<tr><td class="h"><a id="L2288">2288</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $updates{$sbo}</td></tr>
-<tr><td class="h"><a id="L2416">2416</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($force_reqs)</td></tr>
-<tr><td class="h"><a id="L2432">2432</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless not $inst_names{$_}</td></tr>
-<tr><td class="h"><a id="L2464">2464</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $force</td></tr>
-<tr><td class="h"><a id="L2560">2560</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($sbo =~ /-compat32$/u)</td></tr>
-<tr><td class="h"><a id="L2864">2864</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $std_names{$sbo}</td></tr>
-<tr><td class="h"><a id="L2896">2896</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not $non_int) { }</td></tr>
-<tr><td class="h"><a id="L2928">2928</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
-<tr><td class="h"><a id="L2992">2992</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($cmds)</td></tr>
-<tr><td class="h"><a id="L3008">3008</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $cmds eq &#39;N&#39;</td></tr>
-<tr><td class="h"><a id="L3216">3216</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $$upgrade_queue[0]</td></tr>
-<tr><td class="h"><a id="L3248">3248</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($non_int)</td></tr>
-<tr><td class="h"><a id="L3280">3280</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless &lt;STDIN&gt; =~ /^[Yy\n]/u</td></tr>
-<tr><td class="h"><a id="L3536">3536</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit) { }</td></tr>
+<tr><td class="h"><a id="L584">584</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $help</td></tr>
+<tr><td class="h"><a id="L592">592</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $vers</td></tr>
+<tr><td class="h"><a id="L616">616</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($all)</td></tr>
+<tr><td class="h"><a id="L672">672</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless exists $ARGV[0]</td></tr>
+<tr><td class="h"><a id="L688">688</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">$noclean eq &#39;TRUE&#39; ? :</td></tr>
+<tr><td class="h"><a id="L696">696</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">$distclean eq &#39;TRUE&#39; ? :</td></tr>
+<tr><td class="h"><a id="L712">712</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($jobs)</td></tr>
+<tr><td class="h"><a id="L720">720</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $jobs =~ /^\d+$/u or $jobs eq &#39;FALSE&#39;</td></tr>
+<tr><td class="h"><a id="L752">752</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $non_int and $force_reqs</td></tr>
+<tr><td class="h"><a id="L920">920</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $locations{$sbo}</td></tr>
+<tr><td class="h"><a id="L928">928</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($sbo =~ /-compat32$/u)</td></tr>
+<tr><td class="h"><a id="L944">944</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $locations{$sbo} =~ qr&quot;/perl/[^/]+$&quot;u</td></tr>
+<tr><td class="h"><a id="L1016">1016</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless ($non_int and $force)</td></tr>
+<tr><td class="h"><a id="L1088">1088</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($non_int) { }</td></tr>
+<tr><td class="h"><a id="L1096">1096</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($force) { }</td></tr>
+<tr><td class="h"><a id="L1112">1112</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $inst_names{$sbo}</td></tr>
+<tr><td class="h"><a id="L1144">1144</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $updates{$sbo}</td></tr>
+<tr><td class="h"><a id="L1208">1208</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($force_reqs)</td></tr>
+<tr><td class="h"><a id="L1216">1216</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless not $inst_names{$_}</td></tr>
+<tr><td class="h"><a id="L1232">1232</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $force</td></tr>
+<tr><td class="h"><a id="L1280">1280</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($sbo =~ /-compat32$/u)</td></tr>
+<tr><td class="h"><a id="L1432">1432</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $std_names{$sbo}</td></tr>
+<tr><td class="h"><a id="L1448">1448</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not $non_int) { }</td></tr>
+<tr><td class="h"><a id="L1464">1464</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit)</td></tr>
+<tr><td class="h"><a id="L1496">1496</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($cmds)</td></tr>
+<tr><td class="h"><a id="L1504">1504</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if $cmds eq &#39;N&#39;</td></tr>
+<tr><td class="h"><a id="L1608">1608</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $upgrade_queue-&gt;[0]</td></tr>
+<tr><td class="h"><a id="L1624">1624</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($non_int)</td></tr>
+<tr><td class="h"><a id="L1640">1640</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless &lt;STDIN&gt; =~ /^[Yy\n]/u</td></tr>
+<tr><td class="h"><a id="L1768">1768</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($exit) { }</td></tr>
 </table>
 </body>
 </html>
