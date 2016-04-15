@@ -58,6 +58,8 @@ sub run {
 	if (not $test) {
 		if (defined $expected and ref $expected eq 'Regexp') {
 			return $output =~ $expected;
+		} elsif (defined $expected and ref $expected eq 'CODE') {
+			return $expected->($output);
 		}
 		return $return;
 	}
@@ -90,14 +92,14 @@ sub run {
 
 sub script {
 	my @cmd;
-	while (exists $_[0] and not defined reftype($_[0])) {
+	while (@_ and not defined reftype($_[0])) {
 		my $arg = shift @_;
 		push @cmd, $arg;
 	}
 
 	my %args;
-	if (reftype($_[0]) eq 'HASH') { %args = %{ $_[0] }; }
-	else { croak "Unknown argument passed: $_[0]"; }
+	if (@_ and reftype($_[0]) eq 'HASH') { %args = %{ $_[0] }; }
+	elsif (@_) { croak "Unknown argument passed: $_[0]"; }
 	if (exists $args{cmd} and @cmd) { croak "More than one command passed"; }
 	if (exists $args{cmd}) { @cmd = @{ $args{cmd} }; }
 
