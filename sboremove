@@ -31,7 +31,7 @@ Options (defaults shown first where applicable):
   -a|--alwaysask:
     always ask to remove, even if required by other packages on system.
 
-Note: optional dependencies need to be removed separately. 
+Note: optional dependencies need to be removed separately.
 
 EOF
 	return 1;

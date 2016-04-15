@@ -31,7 +31,7 @@ Options (defaults shown first where applicable):
   -c|--noclean (FALSE|TRUE):
     set whether or not to clean working files/directories after the build.
   -d|--distclean (TRUE|FALSE):
-   set whether or not to clean distfiles afterward. 
+   set whether or not to clean distfiles afterward.
   -i|--noinstall:
     do not run installpkg at the end of the build process.
   -j|--jobs (FALSE|#):

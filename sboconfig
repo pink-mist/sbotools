@@ -39,7 +39,7 @@ Config options (defaults shown):
   -j|--jobs FALSE:
       JOBS: numeric -j setting to feed to make for multicore systems.
   -p|--pkg-dir FALSE:
-      PKG_DIR: set a directory to store packages in. 
+      PKG_DIR: set a directory to store packages in.
   -s|--sbo-home /usr/sbo:
       SBO_HOME: set the SBo directory.
   -o|--local-overrides FALSE:

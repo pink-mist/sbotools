@@ -25,18 +25,18 @@ Usage: $self (search_term)
 
 Options:
   -h|--help:
-	this screen.
+    this screen.
   -v|--verison:
-	version information.
+    version information.
   -i|--info:
-	show the .info for each found item.
+    show the .info for each found item.
   -r|--readme:
-	show the README for each found item.
+    show the README for each found item.
   -q|--queue:
-	show the build queue for each found item.
+    show the build queue for each found item.
 
 Example:
-  $self libsexy 
+  $self libsexy
 
 EOF
 	return 1;
