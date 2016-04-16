@@ -7,6 +7,7 @@ use Exporter 'import';
 use Test::More;
 use Test::Execute;
 use FindBin '$RealBin';
+use lib "$RealBin/../SBO-Lib/lib";
 
 # From Test::Execute
 $path = "$RealBin/../";
@@ -29,6 +30,7 @@ our @EXPORT_OK = qw/
   set_pkg_dir
   set_sbo_home
   make_slackbuilds_txt
+  restore_perf_dummy
 /;
 
 local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -87,6 +89,13 @@ my $made = undef;
 my $fname = "/usr/sbo/repo/SLACKBUILDS.TXT";
 sub make_slackbuilds_txt {
 	if (not -e $fname) { $made = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $fname); }
+}
+
+sub restore_perf_dummy {
+	if (!-e '/usr/sbo/distfiles/perf.dummy') {
+		system('mkdir', '-p', '/usr/sbo/distfiles');
+		system('cp', "$RealBin/travis-deps/perf.dummy", '/usr/sbo/distfiles');
+	}
 }
 
 # Restore original values when exiting
