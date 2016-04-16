@@ -90,7 +90,10 @@ if (exists $options{list}) {
 	exit 0;
 }
 
-show_usage() and exit 0 unless keys %options > 0;
+if (not %options) {
+	show_usage();
+	exit 0;
+}
 
 # setup what's being changed, sanity check.
 my %changes;
