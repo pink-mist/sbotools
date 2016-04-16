@@ -46,9 +46,10 @@ GetOptions(
 	'alwaysask|a'		=> \$alwaysask,
 );
 
-show_usage() and exit 0 if $help;
-show_version() and exit 0 if $vers;
-show_usage() and exit 1 unless exists $ARGV[0];
+if ($help) { show_usage(); exit 0 }
+if ($vers) { show_version(); exit 0 }
+
+if (!@ARGV) { show_usage(); exit 1 }
 
 # ensure that all provided arguments are valid sbos
 my @sbos;

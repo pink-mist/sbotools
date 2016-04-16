@@ -39,8 +39,8 @@ my ($help, $vers);
 
 GetOptions('help|h' => \$help, 'version|v' => \$vers);
 
-show_usage() and exit 0 if $help;
-show_version() and exit 0 if $vers;
+if ($help) { show_usage(); exit 0 }
+if ($vers) { show_version(); exit 0 }
 
 update_tree();
 

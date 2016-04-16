@@ -70,8 +70,8 @@ GetOptions(
 	'all'               => \$all,
 );
 
-show_usage() and exit 0 if $help;
-show_version() and exit 0 if $vers;
+if ($help) { show_usage(); exit 0 }
+if ($vers) { show_version(); exit 0 }
 
 my $updates;
 if ($all) {
@@ -79,9 +79,10 @@ if ($all) {
 	print "Checking for updated SlackBuilds...\n";
 	$updates = get_available_updates();
 	push @ARGV, map { $_->{name} } @$updates;
+	if (!@ARGV) { print "Nothing to update.\n"; exit 0 }
 }
 
-show_usage() and exit 1 unless exists $ARGV[0];
+if (!@ARGV) { show_usage(); exit 1 }
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;

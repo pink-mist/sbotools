@@ -52,10 +52,10 @@ GetOptions(
 	'queue|q'   => \$show_queue,
 );
 
-show_usage() and exit 0 if $help;
-show_version() and exit 0 if $vers;
+if ($help) { show_usage(); exit 0 }
+if ($vers) { show_version(); exit 0 }
 
-show_usage() and exit 1 unless exists $ARGV[0];
+if (!@ARGV) { show_usage(); exit 1 }
 my $search = $ARGV[0];
 
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree

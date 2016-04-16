@@ -59,8 +59,8 @@ GetOptions(\%options, 'help|h', 'version|v', 'list|l', 'noclean|c=s',
 	'distclean|d=s', 'jobs|j=s', 'pkg-dir|p=s', 'sbo-home|s=s',
 	'local-overrides|o=s', 'slackware-version|V=s', 'repo|r=s');
 
-show_usage() and exit 0 if exists $options{help};
-show_version() and exit 0 if exists $options{version};
+if ($options{help}) { show_usage(); exit 0 }
+if ($options{version}) { show_version(); exit 0 }
 
 my %valid_confs = (
 	noclean             => 'NOCLEAN',

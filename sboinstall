@@ -64,9 +64,10 @@ GetOptions(
 	'norequirements|R'	=> \$no_reqs,
 );
 
-show_usage() and exit 0 if $help;
-show_version() and exit 0 if $vers;
-show_usage() and exit 1 unless exists $ARGV[0];
+if ($help) { show_usage(); exit 0 }
+if ($vers) { show_version(); exit 0 }
+
+if (!@ARGV) { show_usage(); exit 1 }
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
