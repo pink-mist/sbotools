@@ -57,7 +57,7 @@ usage_error("You must specify at least one of -d or -w.") unless
 	($clean_dist || $clean_work);
 
 sub rm_full {
-	@_ == 1 or script_error('rm_full requires an argument.');
+	script_error('rm_full requires an argument.') unless @_ == 1;
 	my $full = shift;
 	if ($interactive) {
 		print "Remove $full? [n] ";
@@ -69,7 +69,7 @@ sub rm_full {
 }
 
 sub remove_stuff {
-	@_ == 1 or script_error 'remove_stuff requires an argument.';
+	script_error 'remove_stuff requires an argument.' unless @_ == 1;
 	my $dir = shift;
 	-d $dir or say 'Nothing to do.' and return 0;
 	opendir(my $dh, $dir);

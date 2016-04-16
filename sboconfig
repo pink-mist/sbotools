@@ -130,7 +130,7 @@ if (exists $changes{SLACKWARE_VERSION}) {
 # each option specified to the script.
 sub config_write {
 	my ($key, $val) = @_;
-	@_ == 2 or script_error('config_write requires two arguments.');
+	script_error('config_write requires two arguments.') unless @_ == 2;
 	if (! -d $conf_dir) {
 		mkdir $conf_dir or usage_error("Unable to create $conf_dir. Exiting.");
 	}
