@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ slackbuilds_or_fetch script_error open_read get_build_queue %config $slackbuilds_txt $repo_path show_version in /;
+use SBO::Lib qw/ slackbuilds_or_fetch script_error open_read get_build_queue %config $slackbuilds_txt $repo_path show_version in indent /;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 
@@ -138,11 +138,7 @@ sub get_file_contents {
 		return();
 	}
 	my $contents = do {local $/; <$fh>};
-	for ($contents) {
-		s/\n/\n        /g;
-		s/\n        $//g;
-	}
-	return $contents;
+	return "\n" . indent 6, $contents;
 }
 
 # get build queue and return it as a single line. 
