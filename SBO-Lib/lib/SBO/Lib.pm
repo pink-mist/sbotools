@@ -59,6 +59,7 @@ our @EXPORT_OK = qw(
 	get_orig_version
 	get_local_outdated_versions
 	in
+	indent
 	$tempdir
 	$conf_dir
 	$conf_file
