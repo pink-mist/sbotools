@@ -31,6 +31,7 @@ our @EXPORT_OK = qw/
   set_sbo_home
   make_slackbuilds_txt
   restore_perf_dummy
+  replace_tags_txt
 /;
 
 local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -98,6 +99,24 @@ sub restore_perf_dummy {
 	}
 }
 
+my $tags = 0;
+my $tags_txt = '/usr/sbo/repo/TAGS.txt';
+sub replace_tags_txt {
+	if (-e $tags_txt) {
+		if (! $tags) {
+			$tags = 2;
+			system('mv', $tags_txt, "$tags_txt.bak");
+		}
+	} else {
+		$tags = 1 if $tags == 0;
+	}
+
+	system('mkdir', '-p', '/usr/sbo/repo');
+	open my $fh, '>', $tags_txt;
+	print $fh $_ for @_;
+	close $fh;
+}
+
 # Restore original values when exiting
 END {
 	if (%config) {
@@ -105,6 +124,12 @@ END {
 	}
 	if ($made) {
 		system(qw!rm -rf!, $fname);
+	}
+	if ($tags) {
+		system(qw!rm -rf !, $tags_txt);
+	}
+	if ($tags == 2) {
+		system('mv', "$tags_txt.bak", $tags_txt);
 	}
 }
 
