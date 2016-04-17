@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use Test::Sbotools qw/ set_lo set_jobs sboinstall sboremove sboconfig /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 4;
+	plan tests => 6;
 } else {
 	plan skip_all => "Only run these tests if TEST_INSTALL=1";
 }
@@ -58,6 +58,17 @@ sboconfig(qw/ -j FALSE /, { test => 0 });
 	ok ($time < 5, "-j 2 took less time than otherwise");
 }
 sboremove('nonexistentslackbuild', { input => "y\ny", test => 0 });
+
+# 5: sboinstall -j 0 with jobs set to 2
+sboconfig(qw/ -j 2 /, { test => 0 });
+{
+	my ($time) = sboinstall(qw/ -j 0 -r nonexistentslackbuild /, { expected => qr/^real\s+\d+m([\d.]+)s$/m, test => 0 });
+	ok ($time > 5, "-j 0 took the expected amount of time");
+}
+sboremove('nonexistentslackbuild', { input => "y\ny", test => 0 });
+
+#6: sboinstall -j invalid
+sboinstall(qw/ -j invalid nonexistentslackbuild /, { exit => 1, expected => "You have provided an invalid value for -j|--jobs\n" });
 
 
 # Cleanup
