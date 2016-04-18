@@ -319,20 +319,23 @@ sub rsync_sbo_tree {
 sub git_sbo_tree {
 	script_error('git_sbo_tree requires an argument.') unless @_ == 1;
 	my $url = shift;
+	my $cwd = getcwd();
+	my $res;
 	if (-d "$repo_path/.git" and check_git_remote($repo_path, $url)) {
-		my $cwd = getcwd();
 		chdir $repo_path;
-		system(qw! git fetch !) == 0 or chdir $cwd and return 0;
-		system(qw! git reset --hard origin !) == 0 or chdir $cwd and return 0;
-		unlink "$repo_path/SLACKBUILDS.TXT";
-		chdir $cwd and return 1;
+		$res = eval {
+			die if system(qw! git fetch !) != 0; # if system() doesn't return 0, there was an error
+			die if system(qw! git reset --hard origin !) != 0;
+			unlink "$repo_path/SLACKBUILDS.TXT";
+			1;
+		};
 	} else {
-		my $cwd = getcwd();
 		chdir $config{SBO_HOME};
 		remove_tree($repo_path) if -d $repo_path;
-		system(qw/ git clone /, $url, $repo_path) == 0 or chdir $cwd and return 0;
-		chdir $cwd and return 1;
+		$res = system(qw/ git clone /, $url, $repo_path) == 0;
+		return 1 if chdir $cwd and $res;
 	}
+	return 1 if chdir $cwd and $res;
 	return 0;
 }
 
