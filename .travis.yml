@@ -15,7 +15,7 @@ env:
 sudo: required
 install:
     - sudo bash t/travis-deps/install.sh
-    - cpanm Text::Diff Capture::Tiny Test::Output Devel::Cover
+    - cpanm Text::Diff Capture::Tiny Test::Output Devel::Cover Test::Exit
 script:
     - bash -c '
       PROVE=`which prove`;
