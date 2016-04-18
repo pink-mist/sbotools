@@ -297,10 +297,7 @@ sub pull_sbo_tree {
 		$res = git_sbo_tree($url);
 	}
 
-	my $wanted = sub {
-		$File::Find::name ? chown 0, 0, $File::Find::name
-						  : chown 0, 0, $File::Find::dir;
-	};
+	my $wanted = sub { chown 0, 0, $File::Find::name; };
 	find($wanted, $repo_path);
 	if ($res and not chk_slackbuilds_txt()) {
 		generate_slackbuilds_txt();
