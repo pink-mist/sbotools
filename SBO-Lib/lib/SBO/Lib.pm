@@ -342,6 +342,7 @@ sub git_sbo_tree {
 sub check_git_remote {
 	script_error('check_git_remote requires two arguments.') unless @_ == 2;
 	my ($path, $url) = @_;
+	return 0 unless -f "$path/.git/config";
 	my ($fh, $exit) = open_read("$path/.git/config");
 	return 0 if $exit;
 
