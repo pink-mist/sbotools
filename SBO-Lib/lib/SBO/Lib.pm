@@ -298,7 +298,7 @@ sub pull_sbo_tree {
 	}
 
 	my $wanted = sub { chown 0, 0, $File::Find::name; };
-	find($wanted, $repo_path);
+	find($wanted, $repo_path) if -d $repo_path;
 	if ($res and not chk_slackbuilds_txt()) {
 		generate_slackbuilds_txt();
 	}
