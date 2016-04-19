@@ -126,7 +126,7 @@ SKIP: {
 	system(qw! rm -r /usr/sbo/repo !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
 	my ($fh) = open_fh('/usr/sbo/repo/.git/config', '>');
-	print $fh qq'[remote "origin"]\n'; print $fh "url=\n";
+	print $fh qq'[remote "origin"]\n'; print $fh "foo=bar\n"; print $fh "url=\n";
 	close $fh;
 
 	undef $res;
