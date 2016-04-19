@@ -333,7 +333,6 @@ sub git_sbo_tree {
 		chdir $config{SBO_HOME};
 		remove_tree($repo_path) if -d $repo_path;
 		$res = system(qw/ git clone /, $url, $repo_path) == 0;
-		return 1 if chdir $cwd and $res;
 	}
 	return 1 if chdir $cwd and $res;
 	return 0;
