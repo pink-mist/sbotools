@@ -8,22 +8,10 @@ use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
 use lib "$RealBin/../SBO-Lib/lib";
-use Test::Execute;
+use Test::Sbotools qw/ make_slackbuilds_txt sbocheck sboclean sboconfig sbofind sboinstall sboremove sbosnap sboupgrade /;
 use SBO::Lib;
 
 plan tests => 8;
-
-$path = "$RealBin/../";
-
-sub make_slackbuilds_txt {
-	state $made = 0;
-	my $fname = "/usr/sbo/repo/SLACKBUILDS.TXT";
-	if ($_[0]) {
-		if ($made) { return system(qw!rm -rf!, $fname); }
-	} else {
-		if (not -e $fname) { $made = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $fname); }
-	}
-}
 
 make_slackbuilds_txt();
 
@@ -35,16 +23,12 @@ licensed under the WTFPL
 VERSION
 
 # 1-8: test -v output of sbo* scripts
-script (qw/ sbocheck -v /, { expected => $ver_text });
-script (qw/ sboclean -v /, { expected => $ver_text });
-script (qw/ sboconfig -v /, { expected => $ver_text });
-script (qw/ sbofind -v /, { expected => $ver_text });
-script (qw/ sboinstall -v /, { expected => $ver_text });
-script (qw/ sboremove -v /, { expected => $ver_text });
-script (qw/ sbosnap -v /, { expected => $ver_text });
-script (qw/ sboupgrade -v /, { expected => $ver_text });
+sbocheck '-v', { expected => $ver_text };
+sboclean '-v', { expected => $ver_text };
+sboconfig '-v', { expected => $ver_text };
+sbofind '-v', { expected => $ver_text };
+sboinstall '-v', { expected => $ver_text };
+sboremove '-v', { expected => $ver_text };
+sbosnap '-v', { expected => $ver_text };
+sboupgrade '-v', { expected => $ver_text };
 
-# Cleanup
-END {
-	make_slackbuilds_txt('delete');
-}
