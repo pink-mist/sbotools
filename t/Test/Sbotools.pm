@@ -52,7 +52,15 @@ sub set_pkg_dir { _set_config('PKG_DIR', @_); }
 sub set_sbo_home { _set_config('SBO_HOME', @_); }
 sub set_lo { _set_config('LOCAL_OVERRIDES', @_); }
 sub set_version { _set_config('SLACKWARE_VERSION', @_); }
-sub set_repo { _set_config('REPO', @_); }
+
+my $repo = 0;
+sub set_repo {
+	_set_config('REPO', @_);
+	if (-e "/usr/sbo/repo" and not $repo) {
+		$repo = 1;
+		system(qw! mv /usr/sbo/repo !, "$RealBin/repo.backup");
+	}
+}
 
 my %config;
 my %settings = (
@@ -130,6 +138,10 @@ END {
 	}
 	if ($tags == 2) {
 		system('mv', "$tags_txt.bak", $tags_txt);
+	}
+	if ($repo) {
+		system(qw! rm -rf /usr/sbo/repo !);
+		system('mv', "$RealBin/repo.backup", "/usr/sbo/repo");
 	}
 }
 
