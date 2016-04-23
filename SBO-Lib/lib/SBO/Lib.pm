@@ -457,8 +457,8 @@ sub get_inst_names {
 	my %orig;
 
 sub get_sbo_location {
-	script_error('get_sbo_location requires an argument.') unless @_;
-	my @sbos = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+	my @sbos = defined $_[0] && ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+	script_error('get_sbo_location requires an argument.') unless @sbos;
 
 	# if we already have the location, return it now.
 	return $$store{$sbos[0]} if exists $$store{$sbos[0]};
@@ -467,9 +467,8 @@ sub get_sbo_location {
 }
 
 sub get_sbo_locations {
+	my @sbos = defined $_[0] && ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
 	script_error('get_sbo_locations requires an argument.') unless @_;
-	my @sbos = @_;
-	@sbos = @{ $sbos[0] } if ref $sbos[0] eq 'ARRAY';
 
 	my %locations;
 	my ($fh, $exit) = open_read($slackbuilds_txt);
