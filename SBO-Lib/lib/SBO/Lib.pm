@@ -471,15 +471,16 @@ sub get_sbo_locations {
 	script_error('get_sbo_locations requires an argument.') unless @_;
 
 	my %locations;
+
+	# if an sbo is already in the $store, set the %location for it and filter it out
+	@sbos = grep { exists $$store{$_} ? ($locations{$_} = $$store{$_}, 0) : 1 } @sbos;
+	return %locations unless @sbos;
+
 	my ($fh, $exit) = open_read($slackbuilds_txt);
 	if ($exit) {
 		warn $fh;
 		exit $exit;
 	}
-
-	# if an sbo is already in the $store, set the %location for it and filter it out
-	@sbos = grep { exists $$store{$_} ? ($locations{$_} = $$store{$_}, 0) : 1 } @sbos;
-	return %locations unless @sbos;
 
 	while (my $line = <$fh>) {
 		my ($loc, $sbo) = $line =~ m!LOCATION:\s+\.(/[^/]+/([^/\n]+))$!
