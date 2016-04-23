@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages /;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 28;
+plan tests => 30;
 
 # 1-2: test script_error();
 {
@@ -112,7 +112,18 @@ SKIP: {
 	is ($out, "/usr/sbo/repo exists and is not empty. Exiting.\n\n", 'check_repo() gave correct output');
 }
 
-# 21-27: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
+# 21-22: test rsync_sbo_tree();
+SKIP: {
+	skip 'Test invalid if /foo-bar exists.', 2 if -e '/foo-bar';
+
+	my $res;
+	my $out = capture_merged { $res = SBO::Lib::rsync_sbo_tree('/foo-bar'); };
+
+	ok (!$res, q"rsync_sbo_tree('/foo-bar') returned false");
+	like ($out, qr!rsync: change_dir "/foo-bar" failed!, q"rsync_sbo_tree('/foo-bar') gave correct output");
+}
+
+# 23-29: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
 {
 	system(qw! mv /usr/sbo/repo /usr/sbo/backup !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
@@ -162,7 +173,7 @@ SKIP: {
 	system(qw! mv /usr/sbo/backup /usr/sbo/repo !) if -d '/usr/sbo/backup';
 }
 
-# 28: test get_installed_packages();
+# 30: test get_installed_packages();
 {
 	system(qw!mv /var/log/packages /var/log/packages.backup!);
 	system(qw!mkdir -p /var/log/packages!);
