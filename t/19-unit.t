@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages /;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 26;
+plan tests => 28;
 
 # 1-2: test script_error();
 {
@@ -83,18 +83,25 @@ SKIP: {
 is(indent(0, 'foo'), 'foo', 'indent(0,...) returns correctly');
 is(indent(1, "foo\n\nbar"), " foo\n\n bar", 'indent(1,...) returns correctly');
 
-# 16: test migrate_repo();
+# 16-18: test check_repo() and migrate_repo();
 SKIP: {
-	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 1 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
+	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 3 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
+
+	system("mv /usr/sbo/repo/* /usr/sbo");
+
+	is (SBO::Lib::check_repo(), 1, 'check_repo() returned 1 when /usr/sbo/repo was empty');
+
+	SBO::Lib::migrate_repo();
+	ok (-e '/usr/sbo/repo/SLACKBUILDS.TXT', '/usr/sbo/repo/SLACKBUILDS.TXT moved back by migrate_repo()');
 
 	system("mv /usr/sbo/repo/* /usr/sbo");
 	system(qw! rmdir /usr/sbo/repo !);
-	SBO::Lib::migrate_repo();
 
+	SBO::Lib::migrate_repo();
 	ok (-d '/usr/sbo/repo', '/usr/sbo/repo correctly recreated by migrate_repo()');
 }
 
-# 17-18: test check_repo();
+# 19-20: test check_repo();
 SKIP: {
 	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 2 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
 
@@ -105,7 +112,7 @@ SKIP: {
 	is ($out, "/usr/sbo/repo exists and is not empty. Exiting.\n\n", 'check_repo() gave correct output');
 }
 
-# 19-25: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
+# 21-27: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
 {
 	system(qw! mv /usr/sbo/repo /usr/sbo/backup !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
@@ -155,7 +162,7 @@ SKIP: {
 	system(qw! mv /usr/sbo/backup /usr/sbo/repo !) if -d '/usr/sbo/backup';
 }
 
-# 26: test get_installed_packages();
+# 28: test get_installed_packages();
 {
 	system(qw!mv /var/log/packages /var/log/packages.backup!);
 	system(qw!mkdir -p /var/log/packages!);
