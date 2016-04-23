@@ -17,7 +17,7 @@ plan tests => 32;
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { script_error(); }; };
-	
+
 	is ($exit, 2, 'script_error() exited with 2');
 	is ($out, "A fatal script error has occurred. Exiting.\n", 'script_error() gave correct output');
 }
