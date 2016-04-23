@@ -8,10 +8,10 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_inst_names /;
+use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages /;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 32;
+plan tests => 26;
 
 # 1-2: test script_error();
 {
@@ -105,16 +105,7 @@ SKIP: {
 	is ($out, "/usr/sbo/repo exists and is not empty. Exiting.\n\n", 'check_repo() gave correct output');
 }
 
-# 19-20: test rsync_sbo_tree();
-{
-	my $exit;
-	my $out = capture_merged { $exit = exit_code { SBO::Lib::rsync_sbo_tree(); }; };
-
-	is ($exit, 2, 'rsync_sbo_tree() exited with 2');
-	is ($out, "A fatal script error has occurred:\nrsync_sbo_tree requires an argument.\nExiting.\n", 'rsync_sbo_tree() gave correct output');
-}
-
-# 21-27: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
+# 19-25: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
 {
 	system(qw! mv /usr/sbo/repo /usr/sbo/backup !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
@@ -164,27 +155,12 @@ SKIP: {
 	system(qw! mv /usr/sbo/backup /usr/sbo/repo !) if -d '/usr/sbo/backup';
 }
 
-# 28-30: test get_installed_packages();
+# 26: test get_installed_packages();
 {
-	my $exit;
-	my $out = capture_merged { $exit = exit_code { get_installed_packages(); }; };
-
-	is ($exit, 2, 'get_installed_packages() exited with 2');
-	is ($out, "A fatal script error has occurred:\nget_installed_packages requires an argument.\nExiting.\n", 'get_installed_packages() gave correct output');
-
 	system(qw!mv /var/log/packages /var/log/packages.backup!);
 	system(qw!mkdir -p /var/log/packages!);
 	system(qw!touch /var/log/packages/sbotoolstestingfile!);
 	is (@{ get_installed_packages('SBO') }, 0, 'get_installed_packages() returned an empty arrayref');
 	system(qw!rm -r /var/log/packages!);
 	system(qw!mv /var/log/packages.backup /var/log/packages!);
-}
-
-# 31-32: test get_inst_names();
-{
-	my $exit;
-	my $out = capture_merged { $exit = exit_code { get_inst_names(); }; };
-
-	is ($exit, 2, 'get_inst_names exited with 2');
-	is ($out, "A fatal script error has occurred:\nget_inst_names requires an argument.\nExiting.\n", 'get_inst_names() gave correct output');
 }
