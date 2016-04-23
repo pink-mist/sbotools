@@ -7,8 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use lib "$RealBin/../SBO-Lib/lib";
-use Test::Execute;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall /;
 
 $ENV{TEST_MULTILIB} //= 0;
 if ($ENV{TEST_INSTALL} and ($ENV{TEST_MULTILIB} == 2)) {
@@ -17,8 +16,6 @@ if ($ENV{TEST_INSTALL} and ($ENV{TEST_MULTILIB} == 2)) {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1 and TEST_MULTILIB=2';
 }
 $ENV{TEST_ONLINE} //= 0;
-
-$path = "$RealBin/../";
 
 sub cleanup {
 	capture_merged {
@@ -39,54 +36,28 @@ sub cleanup {
 	};
 }
 
-sub make_slackbuilds_txt {
-	state $made = 0;
-	my $fname = "/usr/sbo/repo/SLACKBUILDS.TXT";
-	if ($_[0]) {
-		if ($made) { return system(qw!rm -rf!, $fname); }
-	} else {
-		if (not -e $fname) { $made = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $fname); }
-	}
-}
-
-sub set_lo {
-	state $set = 0;
-	state $lo;
-	if ($_[0]) {
-		if ($set) { script (qw/ sboconfig -o /, $lo, { test => 0 }); }
-	} else {
-		($lo) = script (qw/ sboconfig -l /, { expected => qr/LOCAL_OVERRIDES=(.*)/, test => 0 });
-		$lo //= 'FALSE';
-		note "Saving original value of LOCAL_OVERRIDES: $lo";
-		$set = 1;
-		script (qw/ sboconfig -o /, "$RealBin/LO-multilib", { test => 0 });
-	}
-}
-
 cleanup();
 make_slackbuilds_txt();
-set_lo();
+set_lo("$RealBin/LO-multilib");
 
 # 1: Testing multilibsbo
-script (qw/ sboinstall -p multilibsbo /, { input => "y\ny\ny", expected => qr/Cleaning for multilibsbo-compat32-1[.]0[.][.][.]\n/ });
+sboinstall qw/ -p multilibsbo /, { input => "y\ny\ny", expected => qr/Cleaning for multilibsbo-compat32-1[.]0[.][.][.]\n/ };
 system(qw!/sbin/removepkg multilibsbo multilibsbo-compat32!);
 
 # 2: Testing multilibsbo with dependencies
-script (qw/ sboinstall -p multilibsbo2 /, { input => "y\ny\ny\ny\ny", expected => qr/Cleaning for multilibsbo2-compat32-1[.]0[.][.][.]\n/ });
+sboinstall qw/ -p multilibsbo2 /, { input => "y\ny\ny\ny\ny", expected => qr/Cleaning for multilibsbo2-compat32-1[.]0[.][.][.]\n/ };
 
 # 3: Testing 32-bit only multilibsbo3
-script (qw/ sboinstall multilibsbo3 /, { input => "y\ny", expected => qr/Cleaning for multilibsbo3-1[.]0[.][.][.]/ });
+sboinstall 'multilibsbo3', { input => "y\ny", expected => qr/Cleaning for multilibsbo3-1[.]0[.][.][.]/ };
 
 # 4-5: Testing which source is being used for multilibsbo4
 SKIP: {
 	skip "TEST_ONLINE is not true", 2 unless $ENV{TEST_ONLINE};
-	script (qw/ sboinstall multilibsbo4 /, { input => "y\ny", expected => qr!tar xvf .*/git-lfs-linux-amd64-1.1.0.tar.gz! });
-	script (qw/ sboinstall -p multilibsbo4 /, { input => "y\ny", expected => qr!tar xvf .*/git-lfs-linux-386-1.1.0.tar.gz! });
+	sboinstall 'multilibsbo4', { input => "y\ny", expected => qr!tar xvf .*/git-lfs-linux-amd64-1.1.0.tar.gz! };
+	sboinstall qw/ -p multilibsbo4 /, { input => "y\ny", expected => qr!tar xvf .*/git-lfs-linux-386-1.1.0.tar.gz! };
 }
 
 # Cleanup
 END {
-	set_lo('delete');
-	make_slackbuilds_txt('delete');
 	cleanup();
 }
