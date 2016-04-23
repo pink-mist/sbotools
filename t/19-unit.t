@@ -8,10 +8,10 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages /;
+use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations /;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 30;
+plan tests => 33;
 
 # 1-2: test script_error();
 {
@@ -181,4 +181,18 @@ SKIP: {
 	is (@{ get_installed_packages('SBO') }, 0, 'get_installed_packages() returned an empty arrayref');
 	system(qw!rm -r /var/log/packages!);
 	system(qw!mv /var/log/packages.backup /var/log/packages!);
+}
+
+# 31-33: test get_sbo_location() and get_sbo_locations();
+{
+	my $exit;
+	my $out = capture_merged { $exit = exit_code { get_sbo_location([]); }; };
+
+	is ($exit, 2, 'get_sbo_location([]) exited with 2');
+	is ($out, "A fatal script error has occurred:\nget_sbo_location requires an argument.\nExiting.\n", 'get_sbo_location([]) gave correct output');
+
+	local $config{LOCAL_OVERRIDES} = 'FALSE';
+	my %res = get_sbo_locations('nonexistentslackbuild');
+
+	is (%res+0, 0, q"get_sbo_locations('nonexistentslackbuild') returned an empty hash");
 }
