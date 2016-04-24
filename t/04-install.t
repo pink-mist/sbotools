@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 12;
+	plan tests => 14;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -78,6 +78,10 @@ sboinstall 'nonexistentslackbuild6', { input => "y\ny", expected => qr/aaa_base 
 # 11-12: sboinstall -i nonexistentslackbuild
 sboinstall qw/ -i nonexistentslackbuild /, { input => "y\ny", expected => qr/nonexistentslackbuild added to install queue/ };
 ok(!-e "/var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo", "nonexistentslackbuild wasn't installed with -i");
+
+# 13-14: sboinstall nonexistentslackbuild
+sboinstall 'nonexistentslackbuild', { input => "y\nn", expected => qr/nonexistentslackbuild added to install queue/ };
+ok(!-e "/var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo", "nonexistentslackbuild wasn't installed when saying no");
 
 # Cleanup
 END {
