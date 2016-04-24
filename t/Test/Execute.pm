@@ -59,6 +59,7 @@ sub run {
 		if (defined $expected and ref $expected eq 'Regexp') {
 			return $output =~ $expected;
 		} elsif (defined $expected and ref $expected eq 'CODE') {
+			local $_ = $output;
 			return $expected->($output);
 		}
 		return $return;
@@ -82,7 +83,8 @@ sub run {
 		} elsif (ref $expected eq 'Regexp') {
 			like ($output, $expected, "$name - output");
 		} elsif (ref $expected eq 'CODE') {
-			ok ($expected->($output), "$name - output");
+			local $_ = $output;
+			ok ($expected->($output), "$name - output") or note "Output: $output";
 		} else {
 			is ($output, $expected, "$name - output");
 		}
