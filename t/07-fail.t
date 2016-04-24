@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 18;
+	plan tests => 19;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -156,6 +156,9 @@ sboinstall 'failingslackbuild3', { input => "y\ny", expected => qr/Failures:\n  
 # 18: Slackbuild fails, but we still want to continue with the queue
 sboinstall 'nonexistentslackbuild2', { input => "y\ny\ny\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 0 };
 sboremove 'nonexistentslackbuild2', { input => "y\ny", test => 0 };
+
+# 19: Slackbuild fails during noninteractive run
+sboinstall qw/ -r failingslackbuild /, { expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 3 };
 
 # Cleanup
 END {
