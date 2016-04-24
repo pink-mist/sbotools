@@ -55,7 +55,7 @@ SKIP: {
 
 	sboinstall 'commandinreadme', { input => "y\ny\ny", expected => qr{It looks like this slackbuild requires the following command\(s\) to be run first:.*groupadd -g 200 test.*useradd -u 200 -g 200 -d /tmp test.*Shall I run them prior to building.*}s };
 	sboremove 'commandinreadme', { input => "y\ny", test => 0 };
-	capture_merged { system(qw/ userdel test /); };
+	capture_merged { system(qw/ userdel test /); system(qw/ groupdel test /); };
 }
 
 # Cleanup
