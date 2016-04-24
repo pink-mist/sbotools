@@ -9,7 +9,7 @@ use FindBin '$RealBin';
 use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt sbocheck sboclean sboconfig sbofind sboinstall sboremove sbosnap sboupgrade /;
 
-plan tests => 8;
+plan tests => 14;
 
 make_slackbuilds_txt();
 
@@ -46,7 +46,7 @@ Options:
 SBOCLEAN
 
 ## sboconfig
-sboconfig '-h', { expected => <<'SBOCONFIG' };
+my $sboconfig = <<'SBOCONFIG';
 Usage: sboconfig [options] [arguments]
 
 Options:
@@ -73,9 +73,11 @@ Config options (defaults shown):
       REPO: use a repository other than SBo.
 
 SBOCONFIG
+sboconfig '-h', { expected => $sboconfig };
+sboconfig { expected => $sboconfig };
 
 ## sbofind
-sbofind '-h', { expected => <<'SBOFIND' };
+my $sbofind = <<'SBOFIND';
 Usage: sbofind (search_term)
 
 Options:
@@ -94,9 +96,11 @@ Example:
   sbofind libsexy
 
 SBOFIND
+sbofind '-h', { expected => $sbofind };
+sbofind { expected => $sbofind, exit => 1 };
 
 ## sboinstall
-sboinstall '-h', { expected => <<'SBOINSTALL' };
+my $sboinstall = <<'SBOINSTALL';
 Usage: sboinstall [options] sbo
 
 Options (defaults shown first where applicable):
@@ -120,9 +124,11 @@ Options (defaults shown first where applicable):
     view the README but do not parse requirements, commands, or options.
 
 SBOINSTALL
+sboinstall '-h', { expected => $sboinstall };
+sboinstall { expected => $sboinstall, exit => 1 };
 
 ## sboremove
-sboremove '-h', { expected => <<'SBOREMOVE' };
+my $sboremove = <<'SBOREMOVE';
 Usage: sboremove [options] sbo
 
 Options (defaults shown first where applicable):
@@ -136,9 +142,11 @@ Options (defaults shown first where applicable):
 Note: optional dependencies need to be removed separately.
 
 SBOREMOVE
+sboremove '-h', { expected => $sboremove };
+sboremove { expected => $sboremove, exit => 1 };
 
 ## sbosnap
-sbosnap '-h', { expected => <<'SBOSNAP' };
+my $sbosnap = <<'SBOSNAP';
 Usage: sbosnap [options|command]
 
 Options:
@@ -153,9 +161,11 @@ Commands:
           (generally, you may prefer "sbocheck" over "sbosnap update")
 
 SBOSNAP
+sbosnap '-h', { expected => $sbosnap };
+sbosnap { expected => $sbosnap, exit => 1 };
 
 ## sboupgrade
-sboupgrade '-h', { expected => <<'SBOUPGRADE' };
+my $sboupgrade = <<'SBOUPGRADE';
 Usage: sboupgrade (options) [package]
 
 Options (defaults shown first where applicable):
@@ -181,4 +191,6 @@ Options (defaults shown first where applicable):
     this flag will upgrade everything reported by sbocheck(1).
 
 SBOUPGRADE
+sboupgrade '-h', { expected => $sboupgrade };
+sboupgrade { expected => $sboupgrade, exit => 1 };
 
