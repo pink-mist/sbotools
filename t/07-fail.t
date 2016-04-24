@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 17;
+	plan tests => 18;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -67,6 +67,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-malformed-readme!);
 		system(qw!rm -rf /tmp/package-malformed-slackbuild!);
 		system(qw!rm -rf /tmp/package-multilibfail!);
+		system(qw!/sbin/removepkg nonexistentslackbuild2!);
 	};
 }
 
@@ -151,6 +152,10 @@ SKIP: {
 
 # 17: Slackbuild exits 0 but doesn't create a package
 sboinstall 'failingslackbuild3', { input => "y\ny", expected => qr/Failures:\n  failingslackbuild3: failingslackbuild3.SlackBuild didn't create a package\n\z/, exit => 3 };
+
+# 18: Slackbuild fails, but we still want to continue with the queue
+sboinstall 'nonexistentslackbuild2', { input => "y\ny\ny\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 0 };
+sboremove 'nonexistentslackbuild2', { input => "y\ny", test => 0 };
 
 # Cleanup
 END {
