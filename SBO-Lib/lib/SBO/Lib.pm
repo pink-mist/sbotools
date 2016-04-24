@@ -324,8 +324,8 @@ sub git_sbo_tree {
 	if (-d "$repo_path/.git" and check_git_remote($repo_path, $url)) {
 		chdir $repo_path;
 		$res = eval {
-			die if system(qw! git fetch !) != 0; # if system() doesn't return 0, there was an error
-			die if system(qw! git reset --hard origin !) != 0;
+			die unless system(qw! git fetch !) == 0; # if system() doesn't return 0, there was an error
+			die unless system(qw! git reset --hard origin !) == 0;
 			unlink "$repo_path/SLACKBUILDS.TXT";
 			1;
 		};
