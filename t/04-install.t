@@ -77,7 +77,7 @@ sboinstall 'nonexistentslackbuild6', { input => "y\ny", expected => qr/aaa_base 
 
 # 11-12: sboinstall -i nonexistentslackbuild
 sboinstall qw/ -i nonexistentslackbuild /, { input => "y\ny", expected => qr/nonexistentslackbuild added to install queue/ };
-ok(!-e "/var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo", "nonexistentslackbuild wasn't installed");
+ok(!-e "/var/log/packages/nonexistentslackbuild-1.0-noarch-1_SBo", "nonexistentslackbuild wasn't installed with -i");
 
 # Cleanup
 END {
