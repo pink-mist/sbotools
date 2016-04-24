@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 6;
+	plan tests => 7;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -54,6 +54,9 @@ SKIP: {
 	skip "Only run useradd/groupadd commands under Travis CI", 1 unless (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true');
 
 	sboinstall 'commandinreadme', { input => "y\ny\ny", expected => qr{It looks like this slackbuild requires the following command\(s\) to be run first:.*groupadd -g 200 test.*useradd -u 200 -g 200 -d /tmp test.*Shall I run them prior to building.*}s };
+	sboremove 'commandinreadme', { input => "y\ny", test => 0 };
+
+	sboinstall 'commandinreadme', { input => "y\ny\ny", expected => qr/groupadd.*exited non-zero/ };
 	sboremove 'commandinreadme', { input => "y\ny", test => 0 };
 	capture_merged { system(qw/ userdel test /); system(qw/ groupdel test /); };
 }
