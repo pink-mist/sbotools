@@ -8,10 +8,10 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations /;
+use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions /;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 33;
+plan tests => 34;
 
 # 1-2: test script_error();
 {
@@ -201,4 +201,10 @@ SKIP: {
 	my %res = get_sbo_locations('nonexistentslackbuild');
 
 	is (%res+0, 0, q"get_sbo_locations('nonexistentslackbuild') returned an empty hash");
+}
+
+# 34: test get_local_outdated_versions();
+{
+	local $config{LOCAL_OVERRIDES} = 'FALSE';
+	is(scalar get_local_outdated_versions(), 0, 'get_local_outdated_versions() returned an empty list');
 }
