@@ -176,7 +176,7 @@ FIRST: for my $sbo (@$build_queue) {
 }
 @$build_queue = @temp_queue;
 
-exit 0 unless exists $$build_queue[0];
+exit 0 if @{ $build_queue } == 0;
 say "\nInstall queue: " . join(' ', @$build_queue);
 unless ($non_int) {
     print "\nAre you sure you wish to continue? [y]: ";
