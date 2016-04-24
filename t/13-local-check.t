@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sbosnap sbocheck sboinstall sbofind /;
 
 if ($ENV{TEST_INSTALL} and $ENV{TRAVIS}) {
-	plan tests => 2;
+	plan tests => 4;
 } else {
 	plan skip_all => "Only run these tests if TEST_INSTALL=1 and we're running under Travis CI";
 }
@@ -42,12 +42,14 @@ set_lo("$RealBin/LO");
 setup_gitrepo();
 set_repo("file://$RealBin/gitrepo/");
 
-sbosnap 'fetch', { test => 0 };
+# 1-2: sbofind without having a repo yet
+sbofind 'nonexistentslackbuild', { input => "n", expected => qr/It looks like you haven't run "sbosnap fetch" yet\.\nWould you like me to do this now\?.*Please run "sbosnap fetch"/ };
+sbofind 'nonexistentslackbuild', { input => "y", expected => qr/It looks like you haven't run "sbosnap fetch" yet\.\nWould you like me to do this now\?/ };
 
-# 1: sbocheck without having installed nonexistentslackbuild should not show it
+# 3: sbocheck without having installed nonexistentslackbuild should not show it
 sbocheck { expected => sub { $_[0] !~ /nonexistentslackbuild/}, note => 1 };
 
-# 2: sbocheck should list nonexistentslackbuild as being newer on SBo after we've installed it
+# 4: sbocheck should list nonexistentslackbuild as being newer on SBo after we've installed it
 sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
 sbocheck { expected => qr/nonexistentslackbuild/ };
 
