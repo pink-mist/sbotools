@@ -87,11 +87,11 @@ slackbuilds_or_fetch();
 my (%warnings, $build_queue, %locations);
 
 if ($no_reqs or $non_int) {
-    $build_queue = \@ARGV;
+	$build_queue = \@ARGV;
 } else {
 	for my $sbo (@ARGV) {
-        my $queue = get_build_queue([$sbo], \%warnings);
-        $build_queue = merge_queues($build_queue, $queue);
+		my $queue = get_build_queue([$sbo], \%warnings);
+		$build_queue = merge_queues($build_queue, $queue);
 	}
 }
 
@@ -119,7 +119,7 @@ for my $sbo (@$build_queue) {
 my (@temp_queue, %commands, %options);
 my $added = ' added to install queue.';
 FIRST: for my $sbo (@$build_queue) {
-    my $name = $compat32 ? "$sbo-compat32" : $sbo;
+	my $name = $compat32 ? "$sbo-compat32" : $sbo;
 
 	if ($inst_names{$name}) {
 		say "$name already installed.";
@@ -137,13 +137,13 @@ FIRST: for my $sbo (@$build_queue) {
 		}
 	}
 
-    $locations{$name} = get_sbo_location($sbo) if $compat32;
-    unless ($non_int) {
-        # if compat32 is TRUE, we need to see if the non-compat version exists.
-        if ($compat32) {
+	$locations{$name} = get_sbo_location($sbo) if $compat32;
+	unless ($non_int) {
+		# if compat32 is TRUE, we need to see if the non-compat version exists.
+		if ($compat32) {
 			unless ($inst_names{$sbo}) {
 				say "$name requires $sbo.";
-                my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
+				my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
 				if ($exit) {
 					warn "Unable to open README for $sbo.\n";
 					exit $exit;
@@ -151,13 +151,13 @@ FIRST: for my $sbo (@$build_queue) {
 				if ($cmds) {
 					next FIRST if $cmds eq 'N';
 				}
-               	push(@temp_queue, $sbo);
+				push(@temp_queue, $sbo);
 				$commands{$sbo} = $cmds;
 				$options{$sbo} = $cmds;
 				say "$sbo$added";
-            } 
-        }
-        my ($cmds, $opts, $exit) = user_prompt($name, $locations{$name});
+			}
+		}
+		my ($cmds, $opts, $exit) = user_prompt($name, $locations{$name});
 		if ($exit) {
 			warn "Unable to open README for $name.\n";
 			exit $exit;
@@ -165,7 +165,7 @@ FIRST: for my $sbo (@$build_queue) {
 		if ($cmds) {
 			next FIRST if $cmds eq 'N';
 		}
-        push(@temp_queue, $name);
+		push(@temp_queue, $name);
 		$commands{$sbo} = $cmds;
 		$options{$sbo} = $opts;
 		say "$name$added";
