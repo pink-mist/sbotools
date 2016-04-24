@@ -18,9 +18,12 @@ if ($ENV{TEST_INSTALL} and $ENV{TRAVIS}) {
 sub cleanup {
 	capture_merged {
 		system(qw!/sbin/removepkg nonexistentslackbuild!);
+		system(qw!/sbin/removepkg nonexistentslackbuild5!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
 		system(qw!rm -rf!, "$RealBin/gitrepo");
 	};
 }
@@ -30,8 +33,9 @@ sub setup_gitrepo {
 		cd "$RealBin"; rm -rf gitrepo; mkdir gitrepo; cd gitrepo;
 		git init;
 
-		mkdir -p "test/nonexistentslackbuild";
+		mkdir -p "test/nonexistentslackbuild" "test/nonexistentslackbuild5";
 		cp "$RealBin/LO2/nonexistentslackbuild/nonexistentslackbuild.info" "test/nonexistentslackbuild"
+		cp "$RealBin/LO/nonexistentslackbuild5/nonexistentslackbuild5.info" "test/nonexistentslackbuild5"
 		git add "test"; git commit -m 'initial';
 END
 }
@@ -51,7 +55,8 @@ sbocheck { expected => sub { $_[0] !~ /nonexistentslackbuild/}, note => 1 };
 
 # 4: sbocheck should list nonexistentslackbuild as being newer on SBo after we've installed it
 sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
-sbocheck { expected => qr/nonexistentslackbuild/ };
+sboinstall 'nonexistentslackbuild5', { input => "y\ny", test => 0 };
+sbocheck { expected => sub { /nonexistentslackbuild/ and not /nonexistentslackbuild5/ } };
 
 # Cleanup
 END {
