@@ -169,10 +169,10 @@ FIRST: for my $sbo (@$build_queue) {
 		$commands{$sbo} = $cmds;
 		$options{$sbo} = $opts;
 		say "$name$added";
-    } else {
-        push(@temp_queue, $sbo);
+	} else {
+		push(@temp_queue, $sbo);
 		say "\n$name$added";
-    }
+	}
 }
 @$build_queue = @temp_queue;
 
