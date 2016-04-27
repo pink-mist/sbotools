@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sboinstall sboclean sboremove restore_perf_dummy /;
 use SBO::Lib;
 
-plan tests => 10;
+plan tests => 11;
 
 my $sboname = "nonexistentslackbuild";
 my $perf    = "/usr/sbo/distfiles/perf.dummy";
@@ -69,3 +69,5 @@ ok (!-e $perf, "perf.dummy cleaned after install with -d.");
 restore_perf_dummy();
 cleanup();
 
+# 11: check that sboclean errors properly without arguments
+sboclean { exit => 1, expected => "You must specify at least one of -d or -w.\n" };
