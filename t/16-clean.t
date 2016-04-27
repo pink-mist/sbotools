@@ -7,7 +7,6 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use lib "$RealBin/../SBO-Lib/lib";
 use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sboinstall sboclean sboremove restore_perf_dummy /;
 use SBO::Lib;
 
