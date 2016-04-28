@@ -49,6 +49,10 @@ then
 	exit 1
 fi
 
+PKG=$TMP/package-$PKGNAM32
+rm -rf $PKG
+mkdir -p $PKG $TMP
+
 touch $OUTPUT/$OUTPKG
 echo "Slackware package $OUTPUT/$OUTPKG created."
 
