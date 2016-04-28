@@ -7,10 +7,11 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sboinstall sboclean sboremove restore_perf_dummy /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sboinstall sboclean sboremove restore_perf_dummy set_sbo_home /;
 use SBO::Lib;
+use File::Temp 'tempdir';
 
-plan tests => 11;
+plan tests => 12;
 
 my $sboname = "nonexistentslackbuild";
 my $perf    = "/usr/sbo/distfiles/perf.dummy";
@@ -71,3 +72,7 @@ cleanup();
 
 # 11: check that sboclean errors properly without arguments
 sboclean { exit => 1, expected => "You must specify at least one of -d or -w.\n" };
+
+# 12: sboclean -d with SBOHOME set
+set_sbo_home(tempdir(CLEANUP => 1));
+sboclean '-d', { exit => 0, expected => "Nothing to do.\n" };
