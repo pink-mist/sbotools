@@ -126,7 +126,7 @@ sub print_output {
 		my ($log_fh, $exit) = open_fh($logfile, '>');
 		# non-fatal
 		if ($exit) {
-			warn $log_fh if $exit;
+			warn $log_fh;
 		} else {
 			say {$log_fh} $_ for @listing;
 			close $log_fh;
