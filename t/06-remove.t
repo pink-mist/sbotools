@@ -7,8 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use lib "$RealBin/../SBO-Lib/lib";
-use Test::Execute;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
 	plan tests => 4;
@@ -16,8 +15,6 @@ if ($ENV{TEST_INSTALL}) {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
 $ENV{TEST_ONLINE} //= 0;
-
-$path = "$RealBin/../";
 
 sub cleanup {
 	capture_merged {
@@ -36,55 +33,29 @@ sub cleanup {
 	};
 }
 
-sub make_slackbuilds_txt {
-	state $made = 0;
-	my $fname = "/usr/sbo/repo/SLACKBUILDS.TXT";
-	if ($_[0]) {
-		if ($made) { return system(qw!rm -rf!, $fname); }
-	} else {
-		if (not -e $fname) { $made = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $fname); }
-	}
-}
-
-sub set_lo {
-	state $set = 0;
-	state $lo;
-	if ($_[0]) {
-		if ($set) { script (qw/ sboconfig -o /, $lo, { test => 0 }); }
-	} else {
-		($lo) = script (qw/ sboconfig -l /, { expected => qr/LOCAL_OVERRIDES=(.*)/, test => 0 });
-		$lo //= 'FALSE';
-		note "Saving original value of LOCAL_OVERRIDES: $lo";
-		$set = 1;
-		script (qw/ sboconfig -o /, "$RealBin/LO", { test => 0 });
-	}
-}
-
 cleanup();
 make_slackbuilds_txt();
-set_lo();
+set_lo("$RealBin/LO");
 
 
 # 1: sboremove nonexistentslackbuild
-script (qw/ sboinstall nonexistentslackbuild /, { input => "y\ny", test => 0 });
-script (qw/ sboremove nonexistentslackbuild /, { input => "y\ny", expected => qr/Remove nonexistentslackbuild\b.*Removing 1 package\(s\)/s });
+sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
+sboremove 'nonexistentslackbuild', { input => "y\ny", expected => qr/Remove nonexistentslackbuild\b.*Removing 1 package\(s\)/s };
 
 # 2: sboremove nonexistentslackbuild5
-script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny\ny", test => 0 });
-script (qw/ sboremove nonexistentslackbuild5 /, { input => "y\ny", expected => qr/Remove nonexistentslackbuild5\b.*Removing 1 package\(s\)/s });
+sboinstall 'nonexistentslackbuild4', { input => "y\ny\ny", test => 0 };
+sboremove 'nonexistentslackbuild5', { input => "y\ny", expected => qr/Remove nonexistentslackbuild5\b.*Removing 1 package\(s\)/s };
 
 # 3: sboremove nonexistentslackbuild4
-script (qw/ sboinstall nonexistentslackbuild5 /, { input => "y\ny", test => 0 });
-script (qw/ sboremove nonexistentslackbuild4 /, { input => "y\ny\ny", expected => qr/Remove nonexistentslackbuild4\b.*Remove nonexistentslackbuild5\b.*Removing 2 package\(s\)/s });
+sboinstall 'nonexistentslackbuild5', { input => "y\ny", test => 0 };
+sboremove 'nonexistentslackbuild4', { input => "y\ny\ny", expected => qr/Remove nonexistentslackbuild4\b.*Remove nonexistentslackbuild5\b.*Removing 2 package\(s\)/s };
 
 # 4: sboremove nonexistentslackbuild4 nonexistentslackbuild5
-script (qw/ sboinstall nonexistentslackbuild4 /, { input => "y\ny\ny", test => 0 });
-script (qw/ sboremove nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\ny",
-	expected => qr/Remove nonexistentslackbuild4\b.*Remove nonexistentslackbuild5\b.*Removing 2 package\(s\)/s });
+sboinstall 'nonexistentslackbuild4', { input => "y\ny\ny", test => 0 };
+sboremove qw/ nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\ny",
+	expected => qr/Remove nonexistentslackbuild4\b.*Remove nonexistentslackbuild5\b.*Removing 2 package\(s\)/s };
 
 # Cleanup
 END {
-	set_lo('delete');
-	make_slackbuilds_txt('delete');
 	cleanup();
 }
