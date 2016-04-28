@@ -59,7 +59,7 @@ $inst_names{$_} = 1 for @$inst_names;
 for my $sbo (@ARGV) {
 	if (get_sbo_location($sbo)) {
 		$inst_names{$sbo} ? push @sbos, $sbo
-						  : say "$sbo is not installed";
+		                  : say "$sbo is not installed";
 	} else {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
