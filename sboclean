@@ -71,7 +71,10 @@ sub rm_full {
 sub remove_stuff {
 	script_error 'remove_stuff requires an argument.' unless @_ == 1;
 	my $dir = shift;
-	-d $dir or say 'Nothing to do.' and return 0;
+	if (not -d $dir) {
+		say 'Nothing to do.';
+		return 0;
+	}
 	opendir(my $dh, $dir);
 	FIRST: while (my $ls = readdir $dh) {
 		next FIRST if in($ls => qw/ . .. /);
