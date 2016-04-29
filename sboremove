@@ -64,7 +64,7 @@ for my $sbo (@ARGV) {
 		say "Unable to locate $sbo in the SlackBuilds.org tree."
 	}
 }
-exit 1 unless exists $sbos[0];
+exit 1 unless @sbos;
 
 # Create full queue. 
 my ($remove_queue, %warnings);
