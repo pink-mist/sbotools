@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ get_inst_names get_installed_packages get_sbo_location get_build_queue merge_queues get_requires get_readme_contents get_sbo_location show_version /;
+use SBO::Lib qw/ get_inst_names get_installed_packages get_sbo_location get_build_queue merge_queues get_requires get_readme_contents get_sbo_location show_version in /;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
 
@@ -80,18 +80,11 @@ my (%required_by, @confirmed);
 # populates the required_by hash 
 sub get_reverse_reqs {
 	my $installed = shift;
-	FIRST: for my $inst (@$installed) {
+	INST: for my $inst (@$installed) {
 		my $require = get_requires($inst);
-		next FIRST unless $$require[0];
-		SECOND: for my $req (@$require) {
-			unless ( $req eq '%README%' ) {
-				THIRD: for my $inst_two (@$installed) {
-					if ($req eq $inst_two) {
-						push @{$required_by{$req}}, $inst;
-						last THIRD;
-					}
-				}
-			}		
+		REQ: for my $req (@$require) {
+			next REQ if $req eq '%README%';
+			push @{ $required_by{$req} }, $inst if in($req => @$installed);
 		}	
 	}
 	return 1;
