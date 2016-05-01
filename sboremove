@@ -110,11 +110,7 @@ sub get_required_by {
 
 sub confirm_remove {
 	my $sbo = shift;
-	my $found = 0;
-	for my $conf (@confirmed) {
-		$found++ if $sbo eq $conf;
-	}
-	push @confirmed, $sbo unless $found;
+	push @confirmed, $sbo unless in($sbo => @confirmed);
 	return 1;
 }
 
