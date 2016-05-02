@@ -1,0 +1,15 @@
+#!/bin/bash
+PRGNAM="noreadmebutreadmereq"
+VERSION=${VERSION:-1.0}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+TMP=${TMP:-/tmp/SBo}
+OUTPUT=${OUTPUT:-/tmp}
+
+mkdir -p $TMP/$PRGNAM-$VERSION
+echo "foo" > $TMP/$PRGNAM-$VERSION/README
+mkdir -p $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION
+echo "foo" > $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION/README
+cd $OUTPUT/package-$PRGNAM
+
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-noarch-$BUILD$TAG.tgz

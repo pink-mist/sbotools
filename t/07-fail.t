@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 19;
+	plan tests => 22;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -35,6 +35,7 @@ sub cleanup {
 		unlink "$RealBin/LO-fail/malformed-readme/perf.dummy";
 		unlink "$RealBin/LO-fail/malformed-slackbuild/perf.dummy";
 		unlink "$RealBin/LO-fail/multilibfail/perf.dummy";
+		unlink "$RealBin/LO-fail/noreadmebutreadmereq/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/failingslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingslackbuild2-1.0!);
 		system(qw!rm -rf /tmp/SBo/failingslackbuild3-1.0!);
@@ -51,6 +52,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/malformed-readme-1.0!);
 		system(qw!rm -rf /tmp/SBo/malformed-slackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/multilibfail-1.0!);
+		system(qw!rm -rf /tmp/SBo/noreadmebutreadmereq-1.0!);
 		system(qw!rm -rf /tmp/package-failingslackbuild!);
 		system(qw!rm -rf /tmp/package-failingslackbuild2!);
 		system(qw!rm -rf /tmp/package-failingslackbuild3!);
@@ -67,7 +69,8 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-malformed-readme!);
 		system(qw!rm -rf /tmp/package-malformed-slackbuild!);
 		system(qw!rm -rf /tmp/package-multilibfail!);
-		system(qw!/sbin/removepkg nonexistentslackbuild2!);
+		system(qw!rm -rf /tmp/package-noreadmebutreadmereq!);
+		system(qw!/sbin/removepkg nonexistentslackbuild2 noreadmebutreadmereq!);
 	};
 }
 
@@ -159,6 +162,11 @@ sboremove 'nonexistentslackbuild2', { input => "y\ny", test => 0 };
 
 # 19: Slackbuild fails during noninteractive run
 sboinstall qw/ -r failingslackbuild /, { expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 3 };
+
+# 20-22: Slackbuild with %README% req without a readme
+sboinstall qw/ -r noreadmebutreadmereq /;
+sboremove qw/ noreadmebutreadmereq /, { input => 'y', expected => qr/fatal script error.*open_fh/s, exit => 2 };
+sboremove qw/ noreadmebutreadmereq /, { input => "n\ny\ny", expected => qr/Display README.*Remove noreadme.*Added to remove queue.*Removing 1 pack.*noreadme.*All operations/s, exit => 0 };
 
 # Cleanup
 END {
