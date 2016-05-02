@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 5;
+	plan tests => 7;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -58,6 +58,12 @@ sboremove qw/ nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\
 # 5: sboremove namethatdoesntexist slackbuildthatisntinstalld
 sboremove qw/ nonexistentslackbuildwhosenamedoesntexist nonexistentslackbuild /,
 	{ exit => 1, expected => "Unable to locate nonexistentslackbuildwhosenamedoesntexist in the SlackBuilds.org tree.\nnonexistentslackbuild is not installed\n" };
+
+# 6-7: sboremove nonexistentslackbuild [x2] and say no
+sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
+sboremove qw/ nonexistentslackbuild nonexistentslackbuild /, { input => "y\nn", expected => qr/Remove nonexistentslackbuild\b.*want to continue.*Exiting/s };
+sboremove 'nonexistentslackbuild', { input => "n", expected => qr/Ignoring.*Nothing to remove/s };
+sboremove 'nonexistentslackbuild', { input => "y\ny", test => 0 };
 
 # Cleanup
 END {
