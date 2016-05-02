@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sbo
 use SBO::Lib;
 use File::Temp 'tempdir';
 
-plan tests => 14;
+plan tests => 15;
 
 my $sboname = "nonexistentslackbuild";
 my $perf    = "/usr/sbo/distfiles/perf.dummy";
@@ -77,9 +77,10 @@ sboclean { exit => 1, expected => "You must specify at least one of -d or -w.\n"
 set_sbo_home(tempdir(CLEANUP => 1));
 sboclean '-d', { exit => 0, expected => "Nothing to do.\n" };
 
-# 13-14: sboclean -w -i with TMP set
+# 13-15: sboclean -w [-i] with TMP set
 {
 	local $ENV{TMP} = tempdir(CLEANUP => 1);
 	sboclean qw/ -w -i /, { input => "n", expected => qr!\QRemove $ENV{TMP}/\E.*\Q? [n]\E! };
 	sboclean qw/ -w -i /, { input => "y\ny", expected => qr!\QRemove $ENV{TMP}/\E.*\Q? [n]\E! };
+	sboclean '-w', { input => "y", expected => qr/This will remove the entire contents of \Q$ENV{TMP}\E/ };
 }
