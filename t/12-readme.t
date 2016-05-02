@@ -47,7 +47,7 @@ sboinstall 'envsettingtest2', { input => "n\ny\ny\nFOO=quux\ny\ny\nn", exit => 3
 
 # 5: sboinstall envsettingtest2 - success
 sboinstall 'envsettingtest2', { input => "y\nFOO=bar\ny\ny\nFOO=quux\ny\ny", expected => qr{It looks like envsettingtest has options.*Please supply any options here.*It looks like envsettingtest2 has options.*Please supply any options here.*Install queue: envsettingtest envsettingtest2.*Cleaning for envsettingtest2-1[.]0}s };
-sboremove 'envsettingtest2', { input => "y\ny\ny", test => 0 };
+sboremove 'envsettingtest2', { input => "n\ny\ny\ny", test => 0 };
 
 # 6-7: sboinstall commandinreadme
 SKIP: {
