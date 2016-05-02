@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 7;
+	plan tests => 11;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -21,15 +21,19 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuild!);
 		system(qw!/sbin/removepkg nonexistentslackbuild4!);
 		system(qw!/sbin/removepkg nonexistentslackbuild5!);
+		system(qw!/sbin/removepkg nonexistentslackbuild7!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
+		unlink "$RealBin/LO/nonexistentslackbuild7/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild7-1.0!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild4!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild7!);
 	};
 }
 
@@ -64,6 +68,16 @@ sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
 sboremove qw/ nonexistentslackbuild nonexistentslackbuild /, { input => "y\nn", expected => qr/Remove nonexistentslackbuild\b.*want to continue.*Exiting/s };
 sboremove 'nonexistentslackbuild', { input => "n", expected => qr/Ignoring.*Nothing to remove/s };
 sboremove 'nonexistentslackbuild', { input => "y\ny", test => 0 };
+
+# 8-11: sboremove check that still needed sbos aren't removed
+sboinstall qw/ nonexistentslackbuild4 nonexistentslackbuild7 /, { input => "y\ny\ny\ny", test => 0 };
+sboremove 'nonexistentslackbuild4', { input => "y\nn", expected => sub { ! /nonexistentslackbuild5 / } };
+TODO: {
+	todo_skip 'sboremove: not able to see if a dep needed by more than one installed thing is still needed', 1;
+	sboremove qw/ nonexistentslackbuild4 nonexistentslackbuild7 /, { input => "\n\n\n\n\n", expected => qr/nonexistentslackbuild5/ };
+}
+sboremove qw/ -a nonexistentslackbuild4 /, { input => "y\nn\ny", expected => qr/nonexistentslackbuild5 : required by nonexistentslackbuild7/ };
+sboremove 'nonexistentslackbuild7', { input => "y\ny\ny", expected => qr/nonexistentslackbuild5/ };
 
 # Cleanup
 END {
