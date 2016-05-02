@@ -7,10 +7,11 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove sbosnap /;
+use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 22;
+	plan tests => 23;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -167,6 +168,25 @@ sboinstall qw/ -r failingslackbuild /, { expected => qr/Failures:\n  failingslac
 sboinstall qw/ -r noreadmebutreadmereq /;
 sboremove qw/ noreadmebutreadmereq /, { input => 'y', expected => qr/fatal script error.*open_fh/s, exit => 2 };
 sboremove qw/ noreadmebutreadmereq /, { input => "n\ny\ny", expected => qr/Display README.*Remove noreadme.*Added to remove queue.*Removing 1 pack.*noreadme.*All operations/s, exit => 0 };
+
+# 23: compat32 should fail for a perl sbo
+SKIP: {
+	skip "This test is designed to be run in the Travis CI environment", 1 unless $ENV{TRAVIS};
+
+	my $dir = tempdir(CLEANUP => 1);
+	set_repo("file://$dir");
+	capture_merged { system(<<"END"); };
+cd $dir;
+git init;
+mkdir perl
+cp -a "$RealBin/LO/perl-nonexistentcpan" perl
+git add .
+git commit -m 'added perl-nonexistentcpan'
+END
+	sbosnap 'fetch', { test => 0 };
+
+	sboinstall qw/ -p perl-nonexistentcpan /, { expected => "-p|--compat32 is not supported with Perl SBos.\n", exit => 1 };
+}
 
 # Cleanup
 END {
