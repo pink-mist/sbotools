@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 16;
+	plan tests => 18;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -89,6 +89,12 @@ sboinstall 'nonexistentslackbuild', { input => "n", expected => sub { not /nonex
 # 16: sboinstall nonexistentslackbuild4
 sboinstall qw/ -R nonexistentslackbuild4 /, { input => "y\ny", expected => sub { not /nonexistentslackbuild5 added to install queue/ } };
 sboremove 'nonexistentslackbuild4', { input => "y\ny\n", test => 0 };
+
+# 17: sboinstall perl-Capture-Tiny
+sboinstall 'perl-Capture-Tiny', { expected => "perl-Capture-Tiny installed via the cpan.\n" };
+
+# 18: sboinstall perl-nonexistentcpan
+sboinstall 'perl-nonexistentcpan', { input => "n", expected => qr/Proceed with perl-nonexistentcpan/ };
 
 # Cleanup
 END {
