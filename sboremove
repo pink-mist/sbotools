@@ -98,11 +98,7 @@ sub get_required_by {
 	my @dep_of;
 	if ( $required_by{$sbo} ) {
 		for my $req_by (@{$required_by{$sbo}}) {
-			my $found = 0;
-			for my $conf (@confirmed) {
-				$found++ if $req_by eq $conf;
-			}
-			push @dep_of, $req_by unless $found;
+			push @dep_of, $req_by unless in($req_by => @confirmed);
 		}
 	}
 	return exists $dep_of[0] ? \@dep_of : undef;
