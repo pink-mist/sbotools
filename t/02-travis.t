@@ -46,23 +46,29 @@ SKIP: {
 	if ($ENV{TEST_ONLINE} ne '1') { $skip = !(system(qw! mkdir -p /usr/sbo/repo !) == 0 and system(qw! touch /usr/sbo/repo/SLACKBUILDS.TXT !) == 0) }
 	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.TXT", 9 if $skip;
 
-	sbofind 'nonexistentslackbuild', { expected => <<"LOCAL" };
-Local:  nonexistentslackbuild6
-Path:   /home/travis/build/pink-mist/sbotools/t/LO/nonexistentslackbuild6
+	sbofind 'nonexistentslackbuild', { expected => sub {
+m!\QLocal:  nonexistentslackbuild6
+Path:   $RealBin/LO/nonexistentslackbuild6!
+	and
+m!\QLocal:  nonexistentslackbuild5
+Path:   $RealBin/LO/nonexistentslackbuild5!
+	and
+m!\QLocal:  nonexistentslackbuild4
+Path:   $RealBin/LO/nonexistentslackbuild4!
+	and
+m!\QLocal:  nonexistentslackbuild2
+Path:   $RealBin/LO/nonexistentslackbuild2!
+	and
+m!\QLocal:  nonexistentslackbuild7
+Path:   $RealBin/LO/nonexistentslackbuild7!
+	and
+m!\QLocal:  nonexistentslackbuild
+Path:   $RealBin/LO/nonexistentslackbuild!
+	and
+m!\QLocal:  nonexistentslackbuild8
+Path:   $RealBin/LO/nonexistentslackbuild8!
+	} };
 
-Local:  nonexistentslackbuild5
-Path:   /home/travis/build/pink-mist/sbotools/t/LO/nonexistentslackbuild5
-
-Local:  nonexistentslackbuild4
-Path:   /home/travis/build/pink-mist/sbotools/t/LO/nonexistentslackbuild4
-
-Local:  nonexistentslackbuild2
-Path:   $RealBin/LO/nonexistentslackbuild2
-
-Local:  nonexistentslackbuild
-Path:   $RealBin/LO/nonexistentslackbuild
-
-LOCAL
 	sboinstall qw/ -r nonexistentslackbuild /,
 		{ expected => qr/nonexistentslackbuild added to install queue[.].*perf[.]dummy' saved.*Cleaning for nonexistentslackbuild-1[.]0/s };
 	sboremove qw/ --nointeractive nonexistentslackbuild /, { expected => qr/Removing 1 package\(s\).*nonexistentslackbuild.*All operations have completed/s };
