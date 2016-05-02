@@ -12,7 +12,7 @@ use File::Temp 'tempdir';
 
 $ENV{TEST_MULTILIB} //= 0;
 if ($ENV{TEST_INSTALL} and ($ENV{TEST_MULTILIB} == 2)) {
-	plan tests => 8;
+	plan tests => 9;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1 and TEST_MULTILIB=2';
 }
@@ -69,6 +69,9 @@ SKIP: {
 	ok (! -e $pkg_dir, 'compat32 package dir properly deleted');
 	capture_merged { system(qw!/sbin/removepkg multilibsbo multilibsbo-compat32!); };
 }
+
+# 9: multilibsbo while answering no
+sboinstall qw/ -p multilibsbo /, { input => "n", expected => qr/Proceed with multilibsbo\?/ };
 
 # Cleanup
 END {
