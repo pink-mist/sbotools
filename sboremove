@@ -196,7 +196,7 @@ unless ($non_int) {
 	}
 }
 
-system("/sbin/removepkg $_") for @confirmed;
+system("/sbin/removepkg", $_) for @confirmed;
 
 say "All operations have completed successfully.";
 
