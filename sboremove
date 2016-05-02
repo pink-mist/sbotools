@@ -101,7 +101,7 @@ sub get_required_by {
 			push @dep_of, $req_by unless in($req_by => @confirmed);
 		}
 	}
-	return exists $dep_of[0] ? \@dep_of : undef;
+	return @dep_of ? \@dep_of : undef;
 }
 
 sub confirm_remove {
