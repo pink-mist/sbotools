@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 11;
+	plan tests => 12;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -22,18 +22,22 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuild4!);
 		system(qw!/sbin/removepkg nonexistentslackbuild5!);
 		system(qw!/sbin/removepkg nonexistentslackbuild7!);
+		system(qw!/sbin/removepkg nonexistentslackbuild8!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild7/perf.dummy";
+		unlink "$RealBin/LO/nonexistentslackbuild8/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild7-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild8-1.0!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild4!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild7!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild8!);
 	};
 }
 
@@ -78,6 +82,10 @@ TODO: {
 }
 sboremove qw/ -a nonexistentslackbuild4 /, { input => "y\nn\ny", expected => qr/nonexistentslackbuild5 : required by nonexistentslackbuild7/ };
 sboremove 'nonexistentslackbuild7', { input => "y\ny\ny", expected => qr/nonexistentslackbuild5/ };
+
+# 12: sboremove shows readme for %README% dep
+sboinstall 'nonexistentslackbuild8', { input => "y\ny", test => 0 };
+sboremove 'nonexistentslackbuild8', { input => "y\ny\ny", expected => qr/But has to be read/ };
 
 # Cleanup
 END {
