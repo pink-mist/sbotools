@@ -12,7 +12,7 @@ use File::Temp 'tempdir';
 
 $ENV{TEST_MULTILIB} //= 0;
 if ($ENV{TEST_INSTALL} and ($ENV{TEST_MULTILIB} == 2)) {
-	plan tests => 9;
+	plan tests => 10;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1 and TEST_MULTILIB=2';
 }
@@ -72,6 +72,9 @@ SKIP: {
 
 # 9: multilibsbo while answering no
 sboinstall qw/ -p multilibsbo /, { input => "n", expected => qr/Proceed with multilibsbo\?/ };
+
+# 10: multilibsbo with command in readme
+sboinstall qw/ -p multilibsbowithcommandinreadme /, { input => "y\ny\nn\nn\nn", expected => qr/It looks like.*Shall I run.*Proceed.*It looks like.*Shall I run.*Proceed.*Are you sure/s };
 
 # Cleanup
 END {
