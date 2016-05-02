@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 12;
+	plan tests => 13;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -73,17 +73,18 @@ sboremove qw/ nonexistentslackbuild nonexistentslackbuild /, { input => "y\nn", 
 sboremove 'nonexistentslackbuild', { input => "n", expected => qr/Ignoring.*Nothing to remove/s };
 sboremove 'nonexistentslackbuild', { input => "y\ny", test => 0 };
 
-# 8-11: sboremove check that still needed sbos aren't removed
+# 8-12: sboremove check that still needed sbos aren't removed
 sboinstall qw/ nonexistentslackbuild4 nonexistentslackbuild7 /, { input => "y\ny\ny\ny", test => 0 };
 sboremove 'nonexistentslackbuild4', { input => "y\nn", expected => sub { ! /nonexistentslackbuild5 / } };
 TODO: {
 	todo_skip 'sboremove: not able to see if a dep needed by more than one installed thing is still needed', 1;
 	sboremove qw/ nonexistentslackbuild4 nonexistentslackbuild7 /, { input => "\n\n\n\n\n", expected => qr/nonexistentslackbuild5/ };
 }
+sboremove qw/ nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\nn", expected => qr/nonexistentslackbuild4 nonexistentslackbuild5/ };
 sboremove qw/ -a nonexistentslackbuild4 /, { input => "y\nn\ny", expected => qr/nonexistentslackbuild5 : required by nonexistentslackbuild7/ };
 sboremove 'nonexistentslackbuild7', { input => "y\ny\ny", expected => qr/nonexistentslackbuild5/ };
 
-# 12: sboremove shows readme for %README% dep
+# 13: sboremove shows readme for %README% dep
 sboinstall 'nonexistentslackbuild8', { input => "y\ny", test => 0 };
 sboremove 'nonexistentslackbuild8', { input => "y\ny\ny", expected => qr/But has to be read/ };
 
