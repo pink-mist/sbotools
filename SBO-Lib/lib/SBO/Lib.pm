@@ -610,7 +610,7 @@ sub get_from_info {
 sub get_sbo_version {
 	script_error('get_sbo_version requires an argument.') unless @_ == 1;
 	my $version = get_from_info(LOCATION => shift, GET => 'VERSION');
-	return $$version[0] ? $$version[0] : undef;
+	return $version->[0];
 }
 
 # for each installed sbo, find out whether or not the version in the tree is
