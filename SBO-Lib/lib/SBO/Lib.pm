@@ -1327,6 +1327,7 @@ sub ask_opts {
 		while ($opts !~ $kv_regex) {
 			warn "Invalid input received.\n";
 			$opts = $ask->();
+			return() unless $opts;
 		}
 		return $opts;
 	}
