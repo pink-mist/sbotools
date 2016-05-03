@@ -7,9 +7,10 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ sbosnap /;
+use Test::Sbotools qw/ sbosnap set_repo /;
+use File::Temp 'tempdir';
 
-plan tests => 2;
+plan tests => 3;
 
 my $usage = <<'SBOSNAP';
 Usage: sbosnap [options|command]
@@ -32,4 +33,18 @@ sbosnap { exit => 1, expected => $usage };
 
 # 2: sbosnap invalid errors
 sbosnap 'invalid', { exit => 1, expected => $usage };
+
+# 3: sbosnap update when /usr/sbo/repo is empty
+my $tmp = tempdir(CLEANUP => 1);
+set_repo("file://$tmp");
+capture_merged { system <<"END"; };
+cd $tmp
+git init
+mkdir test
+cp -a $RealBin/LO/nonexistentslackbuild test
+git add test
+git commit -m 'test'
+END
+
+sbosnap 'update', { expected => qr/Pulling SlackBuilds tree[.][.][.]/ };;
 
