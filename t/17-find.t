@@ -25,7 +25,7 @@ replace_tags_txt("nonexistentslackbuild2: testingtag\n");
 sbofind 'testingtag', { expected => qr!Local:\s+nonexistentslackbuild2\nPath:\s+\Q$RealBin/LO/nonexistentslackbuild2! };
 
 # 4: show build queue
-sbofind '-q', 'nonexistentslackbuild2', { expected => qr/Queue:\s+nonexistentslackbuild2 nonexistentslackbuild3/ };
+sbofind '-q', 'nonexistentslackbuild2', { expected => qr/Queue:\s+nonexistentslackbuild3 nonexistentslackbuild2/ };
 
 # 5: show readme
 sbofind '-r', 'nonexistentslackbuild4', { expected => qr/README: \n      This doesn't exist!/ };

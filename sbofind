@@ -145,7 +145,7 @@ sub get_file_contents {
 sub show_build_queue {
 	script_error('show_build_queue requires an argument.') unless @_ == 1;
 	my $queue = get_build_queue([shift], {});
-	return join(" ", reverse @$queue);
+	return join(" ", @$queue);
 }
 
 my $findings = perform_search($search);
