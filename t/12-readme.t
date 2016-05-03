@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 7;
+	plan tests => 8;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -49,7 +49,10 @@ sboinstall 'envsettingtest2', { input => "n\ny\ny\nFOO=quux\ny\ny\nn", exit => 3
 sboinstall 'envsettingtest2', { input => "y\nFOO=bar\ny\ny\nFOO=quux\ny\ny", expected => qr{It looks like envsettingtest has options.*Please supply any options here.*It looks like envsettingtest2 has options.*Please supply any options here.*Install queue: envsettingtest envsettingtest2.*Cleaning for envsettingtest2-1[.]0}s };
 sboremove 'envsettingtest2', { input => "n\ny\ny\ny", test => 0 };
 
-# 6-7: sboinstall commandinreadme
+# 6: sboinstall envsettingtest - don't supply an option even if you say you intend to
+sboinstall 'envsettingtest', { input => "y\n\nn", expected => qr/Please supply any options here/ };
+
+# 7-8: sboinstall commandinreadme
 SKIP: {
 	skip "Only run useradd/groupadd commands under Travis CI", 2 unless (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true');
 	skip "Only run useradd/groupadd commands if there is no test user/group", 2, if (defined getgrnam('test') or defined getpwnam('test'));
