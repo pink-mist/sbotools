@@ -8,11 +8,11 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions /;
+use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions get_readme_contents /;
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 
-plan tests => 40;
+plan tests => 42;
 
 # 1-2: test script_error();
 {
@@ -244,4 +244,11 @@ SKIP: {
 
 	local $SBO::Lib::tmpd = "/foo-bar";
 	is (scalar @{ SBO::Lib::get_src_dir($fh) }, 0, "get_src_dir() returned an empty array ref");
+}
+
+# 41-42: test get_readme_contents();
+{
+	my @ret = get_readme_contents(undef);
+	is ($ret[0], undef, "get_readme_contents() returned undef");
+	is ($ret[1], 6, "get_readme_contents() returned 6");
 }
