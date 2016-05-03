@@ -176,7 +176,7 @@ SKIP: {
 	my $dir = tempdir(CLEANUP => 1);
 	set_repo("file://$dir");
 	capture_merged { system(<<"END"); };
-cd $dir;
+cd "$dir";
 git init;
 mkdir perl
 cp -a "$RealBin/LO/perl-nonexistentcpan" perl
