@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions /;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 34;
+plan tests => 37;
 
 # 1-2: test script_error();
 {
@@ -107,18 +107,33 @@ SKIP: {
 	system("mv", "$RealBin/repo.backup", "/usr/sbo/repo");
 }
 
-# 19-20: test check_repo();
+# 19-23: test check_repo();
 SKIP: {
-	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 2 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
+	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 5 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
 
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { SBO::Lib::check_repo(); }; };
 
 	is ($exit, 1, 'check_repo() exited with 1');
 	is ($out, "/usr/sbo/repo exists and is not empty. Exiting.\n\n", 'check_repo() gave correct output');
+
+	system(qq'rm -rf "$RealBin/repo.backup"');
+	system(qq'mv /usr/sbo/repo "$RealBin/repo.backup"');
+	system(qq'mkdir /usr/sbo/repo');
+
+	undef $exit;
+	my $res;
+	$out = capture_merged { $exit = exit_code { $res = SBO::Lib::check_repo(); }; };
+
+	is ($exit, undef, "check_repo() didn't exit");
+	is ($out, '', "check_repo() didn't print anything");
+	is ($res, 1, "check_repo() returned correctly");
+
+	system(qq'rmdir /usr/sbo/repo');
+	system(qq'mv "$RealBin/repo.backup" /usr/sbo/repo');
 }
 
-# 21-22: test rsync_sbo_tree();
+# 24-25: test rsync_sbo_tree();
 SKIP: {
 	skip 'Test invalid if /foo-bar exists.', 2 if -e '/foo-bar';
 
@@ -129,7 +144,7 @@ SKIP: {
 	like ($out, qr!rsync: change_dir "/foo-bar" failed!, q"rsync_sbo_tree('/foo-bar') gave correct output");
 }
 
-# 23-29: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
+# 26-32: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
 {
 	system(qw! mv /usr/sbo/repo /usr/sbo/backup !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
@@ -179,7 +194,7 @@ SKIP: {
 	system(qw! mv /usr/sbo/backup /usr/sbo/repo !) if -d '/usr/sbo/backup';
 }
 
-# 30: test get_installed_packages();
+# 33: test get_installed_packages();
 {
 	system(qw!mv /var/log/packages /var/log/packages.backup!);
 	system(qw!mkdir -p /var/log/packages!);
@@ -189,7 +204,7 @@ SKIP: {
 	system(qw!mv /var/log/packages.backup /var/log/packages!);
 }
 
-# 31-33: test get_sbo_location() and get_sbo_locations();
+# 34-36: test get_sbo_location() and get_sbo_locations();
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { get_sbo_location([]); }; };
@@ -203,7 +218,7 @@ SKIP: {
 	is (%res+0, 0, q"get_sbo_locations('nonexistentslackbuild') returned an empty hash");
 }
 
-# 34: test get_local_outdated_versions();
+# 37: test get_local_outdated_versions();
 {
 	local $config{LOCAL_OVERRIDES} = 'FALSE';
 	is(scalar get_local_outdated_versions(), 0, 'get_local_outdated_versions() returned an empty list');
