@@ -73,17 +73,17 @@ our %EXPORT_TAGS = (
 );
 
 use constant {
-	_ERR_USAGE			=> 1,   # usage errors
-	_ERR_SCRIPT			=> 2,   # errors with the scripts themselves
-	_ERR_BUILD			=> 3,   # errors during the slackbuild process
-	_ERR_MD5SUM			=> 4,   # md5sum verification
-	_ERR_DOWNLOAD		=> 5,   # errors with downloading things
-	_ERR_OPENFH			=> 6,   # opening file handles
-	_ERR_NOINFO			=> 7,   # missing information
-	_ERR_F_SETFD		=> 8,   # unsetting exec-on-close bit
-	_ERR_NOMULTILIB		=> 9,   # lacking multilib where required
-	_ERR_CONVERTPKG		=> 10,  # errors while running convertpkg-compat32
-	_ERR_NOCONVERTPKG	=> 11,  # lacking convertpkg-compat32 where required
+	_ERR_USAGE         => 1,   # usage errors
+	_ERR_SCRIPT        => 2,   # errors with the scripts themselves
+	_ERR_BUILD         => 3,   # errors during the slackbuild process
+	_ERR_MD5SUM        => 4,   # md5sum verification
+	_ERR_DOWNLOAD      => 5,   # errors with downloading things
+	_ERR_OPENFH        => 6,   # opening file handles
+	_ERR_NOINFO        => 7,   # missing information
+	_ERR_F_SETFD       => 8,   # unsetting exec-on-close bit
+	_ERR_NOMULTILIB    => 9,   # lacking multilib where required
+	_ERR_CONVERTPKG    => 10,  # errors while running convertpkg-compat32
+	_ERR_NOCONVERTPKG  => 11,  # lacking convertpkg-compat32 where required
 };
 
 unless ($< == 0) {
@@ -570,8 +570,8 @@ sub get_sbo_from_loc {
 # pull piece(s) of data, GET, from the $sbo.info file under LOCATION.
 sub get_from_info {
 	my %args = (
-		LOCATION	=> '',
-		GET			=> '',
+		LOCATION  => '',
+		GET       => '',
 		@_
 	);
 	unless ($args{LOCATION} && $args{GET}) {
@@ -638,8 +638,8 @@ sub get_available_updates {
 # checking for x86_64-specific info if we are told to
 sub get_download_info {
 	my %args = (
-		LOCATION 	=> 0,
-		X64 		=> 1,
+		LOCATION  => 0,
+		X64       => 1,
 		@_
 	);
 	$args{LOCATION} or script_error('get_download_info requires LOCATION.');
@@ -672,8 +672,8 @@ sub get_arch {
 # TODO: should probably combine this with get_download_info
 sub get_sbo_downloads {
 	my %args = (
-		LOCATION	=> '',
-		32			=> 0,
+		LOCATION  => '',
+		32        => 0,
 		@_
 	);
 	$args{LOCATION} or script_error('get_sbo_downloads requires LOCATION.');
@@ -822,10 +822,10 @@ sub get_dc_regex {
 # make a backup of the existent SlackBuild, and rewrite the original as needed
 sub rewrite_slackbuild {
 	my %args = (
-		SBO			=> '',
-		SLACKBUILD	=> '',
-		CHANGES		=> {}, 
-		C32			=> 0,
+		SBO         => '',
+		SLACKBUILD  => '',
+		CHANGES     => {},
+		C32         => 0,
 		@_
 	);
 	$args{SLACKBUILD} or script_error('rewrite_slackbuild requires SLACKBUILD.');
@@ -892,8 +892,8 @@ sub revert_slackbuild {
 # download's md5sum, then create required symlinks for them.
 sub check_distfiles {
 	my %args = (
-		LOCATION => '',
-		COMPAT32 => 0,
+		LOCATION  => '',
+		COMPAT32  => 0,
 		@_
 	);
 	$args{LOCATION} or script_error('check_distfiles requires LOCATION.');
@@ -986,12 +986,12 @@ sub get_tmp_extfn {
 # prep and run .SlackBuild
 sub perform_sbo {
 	my %args = (
-		OPTS		=> 0,
-		JOBS		=> 0,
-		LOCATION	=> '',
-		ARCH		=> '',
-		C32			=> 0,
-		X32			=> 0,
+		OPTS      => 0,
+		JOBS      => 0,
+		LOCATION  => '',
+		ARCH      => '',
+		C32       => 0,
+		X32       => 0,
 		@_
 	);
 	unless ($args{LOCATION} && $args{ARCH}) {
@@ -1094,10 +1094,10 @@ sub do_convertpkg {
 # "public interface", sort of thing.
 sub do_slackbuild {
 	my %args = (
-		OPTS		=> 0,
-		JOBS		=> 0,
-		LOCATION	=> '',
-		COMPAT32	=> 0,
+		OPTS      => 0,
+		JOBS      => 0,
+		LOCATION  => '',
+		COMPAT32  => 0,
 		@_
 	);
 	$args{LOCATION} or script_error('do_slackbuild requires LOCATION.');
@@ -1147,9 +1147,9 @@ sub do_slackbuild {
 # remove work directories (source and packaging dirs under /tmp/SBo or $TMP and /tmp or $OUTPUT)
 sub make_clean {
 	my %args = (
-		SBO		=> '',
-		SRC		=> '',
-		VERSION	=> '',
+		SBO      => '',
+		SRC      => '',
+		VERSION  => '',
 		@_
 	);
 	unless ($args{SBO} && $args{SRC} && $args{VERSION}) {
@@ -1179,9 +1179,9 @@ sub make_clean {
 # remove distfiles
 sub make_distclean {
 	my %args = (
-		SRC			=> '',
-		VERSION		=> '',
-		LOCATION	=> '',
+		SRC       => '',
+		VERSION   => '',
+		LOCATION  => '',
 		@_
 	);
 	unless ($args{SRC} && $args{VERSION} && $args{LOCATION}) {
@@ -1360,15 +1360,15 @@ sub user_prompt {
 # do the things with the provided sbos - whether upgrades or new installs.
 sub process_sbos {
 	my %args = (
-		TODO => '',
-		CMDS => '',
-		OPTS => '',
-		JOBS => 'FALSE',
-		LOCATIONS	=> '',
-		NOINSTALL	=> 0,
-		NOCLEAN		=> 'FALSE',
-		DISTCLEAN	=> 'FALSE',
-		NON_INT		=> 0,
+		TODO       => '',
+		CMDS       => '',
+		OPTS       => '',
+		JOBS       => 'FALSE',
+		LOCATIONS  => '',
+		NOINSTALL  => 0,
+		NOCLEAN    => 'FALSE',
+		DISTCLEAN  => 'FALSE',
+		NON_INT    => 0,
 		@_
 	);
 	my $todo = $args{TODO};
