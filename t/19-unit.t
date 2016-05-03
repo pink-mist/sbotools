@@ -12,7 +12,7 @@ use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_p
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 
-plan tests => 39;
+plan tests => 40;
 
 # 1-2: test script_error();
 {
@@ -234,4 +234,14 @@ SKIP: {
 {
 	my $tmp = tempdir(CLEANUP => 1);
 	is (SBO::Lib::revert_slackbuild("$tmp/foo"), 1, "revert_slackbuild() returned 1");
+}
+
+# 40: test get_src_dir();
+SKIP: {
+    skip 'Test invalid if /foo-bar exists.', 1 if -e '/foo-bar';
+	my $scalar = '';
+	open(my $fh, '<', \$scalar) or skip "Could not open needed filehandle", 1;
+
+	local $SBO::Lib::tmpd = "/foo-bar";
+	is (scalar @{ SBO::Lib::get_src_dir($fh) }, 0, "get_src_dir() returned an empty array ref");
 }
