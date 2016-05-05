@@ -8,11 +8,11 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions get_readme_contents /;
+use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions get_readme_contents user_prompt /;
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 
-plan tests => 42;
+plan tests => 44;
 
 # 1-2: test script_error();
 {
@@ -251,4 +251,13 @@ SKIP: {
 	my @ret = get_readme_contents(undef);
 	is ($ret[0], undef, "get_readme_contents() returned undef");
 	is ($ret[1], 6, "get_readme_contents() returned 6");
+}
+
+# 43-44: test user_prompt();
+{
+	my $exit;
+	my $out = capture_merged { $exit = exit_code { user_prompt('foo', undef); }; };
+
+	is ($exit, 1, 'user_prompt() exited with 1');
+	is ($out, "Unable to locate foo in the SlackBuilds.org tree.\n", 'user_prompt() gave correct output');
 }
