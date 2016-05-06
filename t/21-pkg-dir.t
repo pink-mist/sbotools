@@ -11,7 +11,7 @@ use Test::Sbotools qw/ set_pkg_dir make_slackbuilds_txt set_lo sboconfig sboinst
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 4;
+	plan tests => 7;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -42,17 +42,17 @@ set_lo("$RealBin/LO");
 my $pkgdir = tempdir(CLEANUP => 1);
 set_pkg_dir($pkgdir);
 
-# 1: install creates package in PKG_DIR
-sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
+# 1-2: install creates package in PKG_DIR
+sboinstall 'nonexistentslackbuild', { input => "y\ny", expected => qr!\Qnonexistentslackbuild-1.0-noarch-1_SBo.tgz stored in $pkgdir! };
 ok (-f "$pkgdir/nonexistentslackbuild-1.0-noarch-1_SBo.tgz", 'nonexistentslackbuild-1.0-noarch-1_SBo.tgz is in PKG_DIR');
 
-# 2: upgrading also creates package in PKG_DIR
+# 3-4: upgrading also creates package in PKG_DIR
 set_lo("$RealBin/LO2");
-sboupgrade 'nonexistentslackbuild', { input => "y\ny", test => 0 };
+sboupgrade 'nonexistentslackbuild', { input => "y\ny", expected => qr!\Qnonexistentslackbuild-1.1-noarch-1_SBo.tgz stored in $pkgdir! };
 ok (-f "$pkgdir/nonexistentslackbuild-1.1-noarch-1_SBo.tgz", 'nonexistentslackbuild-1.1-noarch-1_SBo.tgz is in PKG_DIR');
 
-# 3-4: installing with deps also creates packages in PKG_DIR
-sboinstall 'nonexistentslackbuild4', { input => "y\ny\ny", test => 0 };
+# 5-7: installing with deps also creates packages in PKG_DIR
+sboinstall 'nonexistentslackbuild4', { input => "y\ny\ny", expected => sub { /\Qnonexistentslackbuild4-1.1-noarch-1_SBo.tgz stored in $pkgdir/ and /\Qnonexistentslackbuild5-1.1-noarch-1_SBo.tgz stored in $pkgdir/ } };
 ok (-f "$pkgdir/nonexistentslackbuild4-1.1-noarch-1_SBo.tgz", 'nonexistentslackbuild4-1.1-noarch-1_SBo.tgz is in PKG_DIR');
 ok (-f "$pkgdir/nonexistentslackbuild5-1.1-noarch-1_SBo.tgz", 'nonexistentslackbuild5-1.1-noarch-1_SBo.tgz is in PKG_DIR');
 
