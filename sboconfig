@@ -170,7 +170,7 @@ sub config_write {
 		print {$conffh} $contents or return();
 	} else {
 		# no config file, easiest case of all.
-		my ($fh, $exit) = open_fh($conf_file, '>') or return();
+		my ($fh, $exit) = open_fh($conf_file, '>');
 		if ($exit) {
 			warn $fh;
 			exit $exit;
