@@ -32,7 +32,7 @@ sub run {
 	);
 
 	my @cmd = @{ $args{cmd} };
-	return unless @cmd; # no command to run
+	return undef unless @cmd; # no command to run
 
 	my ($exit, $input, $test, $expected, $name, $note) =
 		@args{qw/ exit input test expected name note /};
