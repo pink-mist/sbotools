@@ -117,7 +117,7 @@ if (exists $changes{PKG_DIR}) {
 	usage_error("$warn -p") unless $changes{PKG_DIR} =~ qr#^(/|FALSE$)#;
 }
 if (exists $changes{SBO_HOME}) {
-	usage_error("$warn -s") unless $changes{SBO_HOME} =~ qr#^/#;
+	usage_error("$warn -s") unless $changes{SBO_HOME} =~ qr#^(/|FALSE$)#;
 }
 if (exists $changes{LOCAL_OVERRIDES}) {
 	usage_error("$warn -o") unless $changes{LOCAL_OVERRIDES} =~ qr#^(/|FALSE$)#;
