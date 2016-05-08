@@ -1,0 +1,7 @@
+PRGNAM="malformed-info3"
+VERSION="1.0"
+DOWNLOAD="http://pink-mist.github.io/sbotools/testing/perf.dummy
+  http://pink-mist.github.io/sbotools/testing/perf.dummy"
+MAINTAINER="Andreas Guldstrand"
+EMAIL="doesnt@matter.org"
+FAIL

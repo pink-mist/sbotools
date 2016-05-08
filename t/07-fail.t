@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 24;
+	plan tests => 25;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -34,6 +34,7 @@ sub cleanup {
 		unlink "$RealBin/LO-fail/malformed-noinfo/perf.dummy";
 		unlink "$RealBin/LO-fail/malformed-info/perf.dummy";
 		unlink "$RealBin/LO-fail/malformed-info2/perf.dummy";
+		unlink "$RealBin/LO-fail/malformed-info3/perf.dummy";
 		unlink "$RealBin/LO-fail/malformed-readme/perf.dummy";
 		unlink "$RealBin/LO-fail/malformed-slackbuild/perf.dummy";
 		unlink "$RealBin/LO-fail/multilibfail/perf.dummy";
@@ -52,6 +53,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/malformed-noinfo-1.0!);
 		system(qw!rm -rf /tmp/SBo/malformed-info-1.0!);
 		system(qw!rm -rf /tmp/SBo/malformed-info2-1.0!);
+		system(qw!rm -rf /tmp/SBo/malformed-info3-1.0!);
 		system(qw!rm -rf /tmp/SBo/malformed-readme-1.0!);
 		system(qw!rm -rf /tmp/SBo/malformed-slackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/multilibfail-1.0!);
@@ -70,6 +72,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-malformed-noinfo!);
 		system(qw!rm -rf /tmp/package-malformed-info!);
 		system(qw!rm -rf /tmp/package-malformed-info2!);
+		system(qw!rm -rf /tmp/package-malformed-info3!);
 		system(qw!rm -rf /tmp/package-malformed-readme!);
 		system(qw!rm -rf /tmp/package-malformed-slackbuild!);
 		system(qw!rm -rf /tmp/package-multilibfail!);
@@ -119,18 +122,19 @@ SKIP: {
 # 10: Malformed slackbuild - no .info
 sboinstall 'malformed-noinfo', { expected => "A fatal script error has occurred:\nopen_fh, $RealBin/LO-fail/malformed-noinfo/malformed-noinfo.info is not a file\nExiting.\n", exit => 2 };
 
-# 11-12: Malformed slackbuild - malformed .info
+# 11-13: Malformed slackbuild - malformed .info
 sboinstall 'malformed-info', { input => "y\ny\nn", expected => qr!Failures:\n  malformed-info: Unable to get download info from $RealBin/LO-fail/malformed-info/malformed-info[.]info\n!, exit => 7 };
 sboinstall 'malformed-info2', { input => "y\ny\nn", expected => qr!Failures:\n  malformed-info2: Unable to get download info from $RealBin/LO-fail/malformed-info2/malformed-info2[.]info\n!, exit => 7 };
+sboinstall 'malformed-info3', { exit => 2, expected => "A fatal script error has occurred:\nerror when parsing malformed-info3.info file. Line: FAIL\nExiting.\n" };
 
-# 13: Malformed slackbuild - no readme
+# 14: Malformed slackbuild - no readme
 sboinstall 'malformed-readme', { expected => "A fatal script error has occurred:\nopen_fh, $RealBin/LO-fail/malformed-readme/README is not a file\nExiting.\n", exit => 2 };
 
-# 14: Malformed slackbuild - no .SlackBuild
+# 15: Malformed slackbuild - no .SlackBuild
 sboinstall 'malformed-slackbuild',
 	{ input => "y\ny", expected => qr!Failures:\n  malformed-slackbuild: Unable to backup \Q$RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild to $RealBin/LO-fail/malformed-slackbuild/malformed-slackbuild.SlackBuild.orig\E!, exit => 6 };
 
-# 15: Multilib fails - no multilib
+# 16: Multilib fails - no multilib
 SKIP: {
 	skip "No multilib test only valid when TEST_MULTILIB=0", 1 unless $ENV{TEST_MULTILIB} == 0;
 	skip "/etc/profile.d/32dev.sh exists", 1 if -e "/etc/profile.d/32dev.sh";
@@ -139,7 +143,7 @@ SKIP: {
 	sboremove 'nonexistentslackbuild', { input => "y\ny", test => 0 };
 }
 
-# 16: Multilib fails - no convertpkg
+# 17: Multilib fails - no convertpkg
 SKIP: {
 	skip "No convertpkg test only valid when TEST_MULTILIB=1", 1 unless $ENV{TEST_MULTILIB} == 1;
 	skip "/etc/profile.d/32dev.sh doesn't exist", 1 unless -e "/etc/profile.d/32dev.sh";
@@ -148,7 +152,7 @@ SKIP: {
 	sboinstall qw/ -p nonexistentslackbuild /, { input => "y\ny\ny", expected => qr!Failures:\n  nonexistentslackbuild-compat32: compat32 requires /usr/sbin/convertpkg-compat32[.]\n!, exit => 11 };
 }
 
-# 17: Multilib fails - convertpkg fail
+# 18: Multilib fails - convertpkg fail
 SKIP: {
 	skip "Multilib convertpkg fail test only valid if TEST_MULTILIB=2", 1 unless $ENV{TEST_MULTILIB} == 2;
 	skip "This test is designed to be run in the Travis CI environment", 1 unless $ENV{TRAVIS};
@@ -158,22 +162,22 @@ SKIP: {
 	sboinstall qw/ -p multilibfail /, { input => "y\ny\ny", expected => qr/Failures:\n  multilibfail-compat32: convertpkg-compt32 returned non-zero exit status\n/, exit => 10 };
 }
 
-# 18: Slackbuild exits 0 but doesn't create a package
+# 19: Slackbuild exits 0 but doesn't create a package
 sboinstall 'failingslackbuild3', { input => "y\ny", expected => qr/Failures:\n  failingslackbuild3: failingslackbuild3.SlackBuild didn't create a package\n\z/, exit => 3 };
 
-# 19: Slackbuild fails, but we still want to continue with the queue
+# 20: Slackbuild fails, but we still want to continue with the queue
 sboinstall 'nonexistentslackbuild2', { input => "y\ny\ny\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 0 };
 sboremove 'nonexistentslackbuild2', { input => "y\ny", test => 0 };
 
-# 20: Slackbuild fails during noninteractive run
+# 21: Slackbuild fails during noninteractive run
 sboinstall qw/ -r failingslackbuild /, { expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n/, exit => 3 };
 
-# 21-23: Slackbuild with %README% req without a readme
+# 22-24: Slackbuild with %README% req without a readme
 sboinstall qw/ -r noreadmebutreadmereq /;
 sboremove qw/ noreadmebutreadmereq /, { input => 'y', expected => qr/fatal script error.*open_fh/s, exit => 2 };
 sboremove qw/ noreadmebutreadmereq /, { input => "n\ny\ny", expected => qr/Display README.*Remove noreadme.*Added to remove queue.*Removing 1 pack.*noreadme.*All operations/s, exit => 0 };
 
-# 24: compat32 should fail for a perl sbo
+# 25: compat32 should fail for a perl sbo
 SKIP: {
 	skip "This test is designed to be run in the Travis CI environment", 1 unless $ENV{TRAVIS};
 
