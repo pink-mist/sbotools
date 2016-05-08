@@ -11,7 +11,7 @@ use Test::Sbotools qw/ set_pkg_dir make_slackbuilds_txt set_lo sboconfig sboinst
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 7;
+	plan tests => 10;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -55,6 +55,28 @@ ok (-f "$pkgdir/nonexistentslackbuild-1.1-noarch-1_SBo.tgz", 'nonexistentslackbu
 sboinstall 'nonexistentslackbuild4', { input => "y\ny\ny", expected => sub { /\Qnonexistentslackbuild4-1.1-noarch-1_SBo.tgz stored in $pkgdir/ and /\Qnonexistentslackbuild5-1.1-noarch-1_SBo.tgz stored in $pkgdir/ } };
 ok (-f "$pkgdir/nonexistentslackbuild4-1.1-noarch-1_SBo.tgz", 'nonexistentslackbuild4-1.1-noarch-1_SBo.tgz is in PKG_DIR');
 ok (-f "$pkgdir/nonexistentslackbuild5-1.1-noarch-1_SBo.tgz", 'nonexistentslackbuild5-1.1-noarch-1_SBo.tgz is in PKG_DIR');
+
+capture_merged {
+	system(qw/ rm -rf /, $pkgdir);
+	system(qw! /sbin/removepkg nonexistentslackbuild !);
+};
+
+# 8-9: make sure PKG_DIR gets recreated
+sboinstall 'nonexistentslackbuild', { input => "y\ny", expected => qr!\Qnonexistentslackbuild-1.1-noarch-1_SBo.tgz stored in $pkgdir! };
+ok (-f "$pkgdir/nonexistentslackbuild-1.1-noarch-1_SBo.tgz", 'nonexistentslackbuild-1.1-noarch-1_SBo.tgz is in PKG_DIR');
+
+capture_merged {
+	system(qw/ rm -rf /, $pkgdir );
+	system(qw! /sbin/removepkg nonexistentslackbuild !);
+	system('touch', $pkgdir);
+};
+
+# 10: creating PKG_DIR should fail properly
+sboinstall 'nonexistentslackbuild', { input => "y\ny", expected => sub { /\QUnable to create $pkgdir/ and /\Qnonexistentslackbuild-1.1-noarch-1_SBo.tgz left in / } };
+
+capture_merged {
+	system('rm', $pkgdir);
+};
 
 # Cleanup
 END {
