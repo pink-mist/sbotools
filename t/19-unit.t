@@ -12,7 +12,7 @@ use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_p
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 
-plan tests => 44;
+plan tests => 47;
 
 # 1-2: test script_error();
 {
@@ -230,13 +230,18 @@ SKIP: {
 	is (SBO::Lib::get_filename_from_link('/'), undef, "get_filename_from_link() returned undef");
 }
 
-# 39: test revert_slackbuild();
+# 39-42: test revert_slackbuild();
 {
 	my $tmp = tempdir(CLEANUP => 1);
 	is (SBO::Lib::revert_slackbuild("$tmp/foo"), 1, "revert_slackbuild() returned 1");
+
+	system('touch', "$tmp/foo.orig");
+	is (SBO::Lib::revert_slackbuild("$tmp/foo"), 1, "revert_slackbuild() returned 1");
+	ok (-f "$tmp/foo", 'foo.orig renamed to foo');
+	ok (!-f "$tmp/foo.orig", 'foo.orig is no more');
 }
 
-# 40: test get_src_dir();
+# 43: test get_src_dir();
 SKIP: {
     skip 'Test invalid if /foo-bar exists.', 1 if -e '/foo-bar';
 	my $scalar = '';
@@ -246,14 +251,14 @@ SKIP: {
 	is (scalar @{ SBO::Lib::get_src_dir($fh) }, 0, "get_src_dir() returned an empty array ref");
 }
 
-# 41-42: test get_readme_contents();
+# 44-45: test get_readme_contents();
 {
 	my @ret = get_readme_contents(undef);
 	is ($ret[0], undef, "get_readme_contents() returned undef");
 	is ($ret[1], 6, "get_readme_contents() returned 6");
 }
 
-# 43-44: test user_prompt();
+# 46-47: test user_prompt();
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { user_prompt('foo', undef); }; };
