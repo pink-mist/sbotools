@@ -115,6 +115,10 @@ our $tempdir = tempdir(CLEANUP => 1, DIR => $tmpd);
 # t/01-test.t
 our $pkg_db = '/var/log/packages';
 
+# _race::cond will allow both documenting and testing race conditions
+# by overriding its implementation for tests
+sub _race::cond { return }
+
 # subroutine for throwing internal script errors
 sub script_error {
 	if (@_) {
@@ -139,6 +143,7 @@ sub open_fh {
 	}
 	my ($file, $op) = @_;
 	my $fh;
+	_race::cond 'possibly $file has been deleted between -f test and now';
 	unless (open $fh, $op, $file) {
 		my $warn = "Unable to open $file.\n";
 		my $exit = _ERR_OPENFH;
