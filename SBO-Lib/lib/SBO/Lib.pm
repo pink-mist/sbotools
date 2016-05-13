@@ -174,6 +174,7 @@ our %config = (
 sub read_config {
 	my %conf_values;
 	if (-f $conf_file) {
+		_race::cond '$conf_file might not exist after -f';
 		my ($fh, $exit) = open_read $conf_file;
 		if ($exit) {
 			warn $fh;
