@@ -331,6 +331,7 @@ sub git_sbo_tree {
 		chdir $repo_path;
 		$res = eval {
 			die unless system(qw! git fetch !) == 0; # if system() doesn't return 0, there was an error
+			_race::cond 'git repo could be changed or deleted here';
 			die unless system(qw! git reset --hard origin !) == 0;
 			unlink "$repo_path/SLACKBUILDS.TXT";
 			1;
