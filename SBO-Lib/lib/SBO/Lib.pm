@@ -277,6 +277,7 @@ sub migrate_repo {
 # check for the validity of new $config{SBO_HOME}
 sub check_repo {
 	if (-d $repo_path) {
+		_race::cond '$repo_path could be deleted after -d check';
 		opendir(my $repo_handle, $repo_path);
 		FIRST: while (my $dir = readdir $repo_handle) {
 			next FIRST if in($dir => qw/ . .. /);
