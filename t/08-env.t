@@ -7,8 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use lib "$RealBin/../SBO-Lib/lib";
-use Test::Execute;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall /;
 
 if ($ENV{TEST_INSTALL}) {
 	plan tests => 5;
@@ -16,8 +15,6 @@ if ($ENV{TEST_INSTALL}) {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
 $ENV{TEST_ONLINE} //= 0;
-
-$path = "$RealBin/../";
 
 sub cleanup {
 	my $tmp = shift;
@@ -38,33 +35,9 @@ sub cleanup {
 	};
 }
 
-sub make_slackbuilds_txt {
-	state $made = 0;
-	my $fname = "/usr/sbo/repo/SLACKBUILDS.TXT";
-	if ($_[0]) {
-		if ($made) { return system(qw!rm -rf!, $fname); }
-	} else {
-		if (not -e $fname) { $made = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $fname); }
-	}
-}
-
-sub set_lo {
-	state $set = 0;
-	state $lo;
-	if ($_[0]) {
-		if ($set) { script (qw/ sboconfig -o /, $lo, { test => 0 }); }
-	} else {
-		($lo) = script (qw/ sboconfig -l /, { expected => qr/LOCAL_OVERRIDES=(.*)/, test => 0 });
-		$lo //= 'FALSE';
-		note "Saving original value of LOCAL_OVERRIDES: $lo";
-		$set = 1;
-		script (qw/ sboconfig -o /, "$RealBin/LO", { test => 0 });
-	}
-}
-
 cleanup('/tmp/SBo', '/tmp');
 make_slackbuilds_txt();
-set_lo();
+set_lo("$RealBin/LO");
 
 
 SKIP: {
@@ -167,11 +140,11 @@ sub env_tests {
 	ok (! -e "$output/package-nonexistentslackbuild", "package dir 1 doesn't exist ($outmsg)");
 	ok (! -e "$output/package-nonexistentslackbuild4", "package4 dir 1 doesn't exist ($outmsg)");
 	ok (! -e "$output/package-nonexistentslackbuild5", "package5 dir 1 doesn't exist ($outmsg)");
-	script (qw/ sboinstall -c FALSE nonexistentslackbuild /, { input => "y\ny", expected => qr!Cleaning for nonexistentslackbuild-1\.0!, note => 0 });
+	sboinstall qw/ -c FALSE nonexistentslackbuild /, { input => "y\ny", expected => qr!Cleaning for nonexistentslackbuild-1\.0!, note => 0 };
 	ok (! -e "$tmp/nonexistentslackbuild-1.0/README", "README file 1 doesn't exist after sboinstall ($tmpmsg)");
 	ok (! -e "$output/package-nonexistentslackbuild", "package dir 1 doesn't exist after sboinstall ($outmsg)");
-	script (qw/ sboinstall -c FALSE nonexistentslackbuild4 /,
-		{ input => "y\ny\ny", expected => qr!Cleaning for nonexistentslackbuild5-1\.0.*Cleaning for nonexistentslackbuild4-1\.0!s, note => 0 });
+	sboinstall qw/ -c FALSE nonexistentslackbuild4 /,
+		{ input => "y\ny\ny", expected => qr!Cleaning for nonexistentslackbuild5-1\.0.*Cleaning for nonexistentslackbuild4-1\.0!s, note => 0 };
 	ok (! -e "$tmp/nonexistentslackbuild4-1.0/README", "README file 4 doesn't exist after sboinstall ($tmpmsg)");
 	ok (! -e "$tmp/nonexistentslackbuild5-1.0/README", "README file 5 doesn't exist after sboinstall ($tmpmsg)");
 	ok (! -e "$output/package-nonexistentslackbuild4", "package dir 4 doesn't exist after sboinstall ($outmsg)");
@@ -179,10 +152,10 @@ sub env_tests {
 
 	cleanup($tmp, $output);
 
-	script (qw/ sboinstall -c TRUE nonexistentslackbuild /, { input => "y\ny", test => 0, note => 0 });
+	sboinstall qw/ -c TRUE nonexistentslackbuild /, { input => "y\ny", test => 0, note => 0 };
 	ok (-e "$tmp/nonexistentslackbuild-1.0/README", "README file 1 exists after sboinstall -c TRUE ($tmpmsg)");
 	ok (-e "$output/package-nonexistentslackbuild", "package dir 1 exists after sboinstall -c TRUE ($outmsg)");
-	script (qw/ sboinstall -c TRUE nonexistentslackbuild4 /, { input => "y\ny\ny", test => 0, note => 0 });
+	sboinstall qw/ -c TRUE nonexistentslackbuild4 /, { input => "y\ny\ny", test => 0, note => 0 };
 	ok (-e "$tmp/nonexistentslackbuild4-1.0/README", "README file 4 exists after sboinstall -c TRUE ($tmpmsg)");
 	ok (-e "$tmp/nonexistentslackbuild5-1.0/README", "README file 5 exists after sboinstall -c TRUE ($tmpmsg)");
 	ok (-e "$output/package-nonexistentslackbuild4", "package dir 4 exists after sboinstall -c TRUE ($outmsg)");
@@ -193,7 +166,5 @@ sub env_tests {
 
 # Cleanup
 END {
-	set_lo('delete');
-	make_slackbuilds_txt('delete');
 	cleanup('/tmp/SBo', '/tmp');
 }
