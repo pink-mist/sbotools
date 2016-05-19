@@ -143,7 +143,7 @@ sub open_fh {
 	}
 	my ($file, $op) = @_;
 	my $fh;
-	_race::cond 'possibly $file has been deleted between -f test and now';
+	_race::cond '$file could be deleted between -f test and open';
 	unless (open $fh, $op, $file) {
 		my $warn = "Unable to open $file.\n";
 		my $exit = _ERR_OPENFH;
