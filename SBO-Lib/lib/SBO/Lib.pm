@@ -266,6 +266,7 @@ sub indent {
 # Move everything in /usr/sbo except distfiles and repo dirs into repo dir
 sub migrate_repo {
 	make_path($repo_path) unless -d $repo_path;
+	_race::cond '$repo_path can be deleted between being made and being used';
 	opendir(my $dh, $config{SBO_HOME});
 	foreach my $entry (readdir($dh)) {
 		next if in($entry => qw/ . .. repo distfiles /);
