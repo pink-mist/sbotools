@@ -330,6 +330,7 @@ sub git_sbo_tree {
 	my $cwd = getcwd();
 	my $res;
 	if (-d "$repo_path/.git" and check_git_remote($repo_path, $url)) {
+		_race::cond '$repo_path can be deleted after -d check';
 		chdir $repo_path;
 		$res = eval {
 			die unless system(qw! git fetch !) == 0; # if system() doesn't return 0, there was an error
