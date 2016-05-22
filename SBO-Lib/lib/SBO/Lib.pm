@@ -344,6 +344,7 @@ sub git_sbo_tree {
 		remove_tree($repo_path) if -d $repo_path;
 		$res = system(qw/ git clone /, $url, $repo_path) == 0;
 	}
+	_race::cond '$cwd could be deleted here';
 	return 1 if chdir $cwd and $res;
 	return 0;
 }
