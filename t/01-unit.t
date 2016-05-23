@@ -1,7 +1,5 @@
 #!/usr/bin/env perl
 
-# This should probably replace 01-test.t once it's thorough enough
-
 use strict;
 use warnings;
 use Test::More;
