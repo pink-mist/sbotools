@@ -213,10 +213,13 @@ SKIP: {
 	is ($exit, 2, 'get_sbo_location([]) exited with 2');
 	is ($out, "A fatal script error has occurred:\nget_sbo_location requires an argument.\nExiting.\n", 'get_sbo_location([]) gave correct output');
 
-	local $config{LOCAL_OVERRIDES} = 'FALSE';
-	my %res = get_sbo_locations('nonexistentslackbuild');
+	SKIP: {
+		skip 'Test invalid if no SLACKBUILDS.TXT exists.', 5 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
+		local $config{LOCAL_OVERRIDES} = 'FALSE';
+		my %res = get_sbo_locations('nonexistentslackbuild');
 
-	is (%res+0, 0, q"get_sbo_locations('nonexistentslackbuild') returned an empty hash");
+		is (%res+0, 0, q"get_sbo_locations('nonexistentslackbuild') returned an empty hash");
+	}
 }
 
 # 37: test get_local_outdated_versions();
