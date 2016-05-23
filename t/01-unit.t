@@ -136,6 +136,8 @@ SKIP: {
 SKIP: {
 	skip 'Test invalid if /foo-bar exists.', 2 if -e '/foo-bar';
 
+	local $config{SLACKWARE_VERSION} = '14.1';
+
 	my $res;
 	my $out = capture_merged { $res = SBO::Lib::rsync_sbo_tree('/foo-bar'); };
 
