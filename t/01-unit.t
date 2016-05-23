@@ -214,7 +214,7 @@ SKIP: {
 	is ($out, "A fatal script error has occurred:\nget_sbo_location requires an argument.\nExiting.\n", 'get_sbo_location([]) gave correct output');
 
 	SKIP: {
-		skip 'Test invalid if no SLACKBUILDS.TXT exists.', 5 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
+		skip 'Test invalid if no SLACKBUILDS.TXT exists.', 1 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
 		local $config{LOCAL_OVERRIDES} = 'FALSE';
 		my %res = get_sbo_locations('nonexistentslackbuild');
 
