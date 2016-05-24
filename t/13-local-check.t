@@ -51,7 +51,7 @@ sbofind 'nonexistentslackbuild', { input => "n", expected => qr/It looks like yo
 sbofind 'nonexistentslackbuild', { input => "y", expected => qr/It looks like you haven't run "sbosnap fetch" yet\.\nWould you like me to do this now\?/ };
 
 # 3: sbocheck without having installed nonexistentslackbuild should not show it
-sbocheck { expected => sub { $_[0] !~ /nonexistentslackbuild/}, note => 1 };
+sbocheck { expected => sub { $_[0] !~ /nonexistentslackbuild/} };
 
 # 4: sbocheck should list nonexistentslackbuild as being newer on SBo after we've installed it
 sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
