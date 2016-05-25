@@ -10,7 +10,7 @@ use SBO::Lib qw/ open_fh /;
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 
-plan tests => 1;
+plan tests => 2;
 
 sub emulate_race {
 	my ($file, $caller) = @_;
@@ -30,4 +30,19 @@ sub emulate_race {
 
 	my ($fh, $exit) = open_fh $file, '<';
 	is ($exit, 6, 'open_fh returned exit value 6');
+}
+
+# 2: emulate race in open_fh called by read_config
+{
+	my $conf_file = "/etc/sbotools/sbotools.conf";
+	system('mkdir', '-p', '/etc/sbotools');
+	system('mv', $conf_file, "$conf_file.bak");
+	system('touch', $conf_file);
+
+	emulate_race($conf_file, 'open_fh');
+	my $out = capture_merged { SBO::Lib::read_config(); };
+
+	is ($out, "Unable to open $conf_file.\n", 'read_config output correct');
+
+	system('mv', "$conf_file.bak", $conf_file) if -e "$conf_file.bak";
 }
