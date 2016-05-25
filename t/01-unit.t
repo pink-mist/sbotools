@@ -10,7 +10,7 @@ use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_p
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 
-plan tests => 47;
+plan tests => 49;
 
 # 1-2: test script_error();
 {
@@ -82,7 +82,7 @@ SKIP: {
 is(indent(0, 'foo'), 'foo', 'indent(0,...) returns correctly');
 is(indent(1, "foo\n\nbar"), " foo\n\n bar", 'indent(1,...) returns correctly');
 
-# 16-18: test check_repo() and migrate_repo();
+# 16-20: test check_repo() and migrate_repo();
 SKIP: {
 	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 3 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
 
@@ -103,10 +103,19 @@ SKIP: {
 
 	system(qw"rm /usr/sbo/repo/SLACKBUILDS.TXT");
 	system(qw! rmdir /usr/sbo/repo !);
+
+	system('touch', '/usr/sbo/repo');
+	my $exit;
+	my $out = capture_merged { $exit = exit_code { SBO::Lib::check_repo(); }; };
+
+	is ($out, "Unable to create /usr/sbo/repo.\n\n", 'check_repo() output is good');
+	is ($exit, 1, 'check-repo() exit code is good');
+
+	system('rm', '/usr/sbo/repo');
 	system("mv", "$RealBin/repo.backup", "/usr/sbo/repo");
 }
 
-# 19-23: test check_repo();
+# 21-25: test check_repo();
 SKIP: {
 	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 5 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
 
@@ -132,7 +141,7 @@ SKIP: {
 	system(qq'mv "$RealBin/repo.backup" /usr/sbo/repo');
 }
 
-# 24-25: test rsync_sbo_tree();
+# 26-27: test rsync_sbo_tree();
 SKIP: {
 	skip 'Test invalid if /foo-bar exists.', 2 if -e '/foo-bar';
 
@@ -145,7 +154,7 @@ SKIP: {
 	like ($out, qr!rsync: change_dir "/foo-bar" failed!, q"rsync_sbo_tree('/foo-bar') gave correct output");
 }
 
-# 26-32: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
+# 28-34: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
 {
 	system(qw! mv /usr/sbo/repo /usr/sbo/backup !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
@@ -195,7 +204,7 @@ SKIP: {
 	system(qw! mv /usr/sbo/backup /usr/sbo/repo !) if -d '/usr/sbo/backup';
 }
 
-# 33: test get_installed_packages();
+# 35: test get_installed_packages();
 {
 	system(qw!mv /var/log/packages /var/log/packages.backup!);
 	system(qw!mkdir -p /var/log/packages!);
@@ -205,7 +214,7 @@ SKIP: {
 	system(qw!mv /var/log/packages.backup /var/log/packages!);
 }
 
-# 34-36: test get_sbo_location() and get_sbo_locations();
+# 36-38: test get_sbo_location() and get_sbo_locations();
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { get_sbo_location([]); }; };
@@ -222,18 +231,18 @@ SKIP: {
 	}
 }
 
-# 37: test get_local_outdated_versions();
+# 39: test get_local_outdated_versions();
 {
 	local $config{LOCAL_OVERRIDES} = 'FALSE';
 	is(scalar get_local_outdated_versions(), 0, 'get_local_outdated_versions() returned an empty list');
 }
 
-# 38: test get_filename_from_link();
+# 40: test get_filename_from_link();
 {
 	is (SBO::Lib::get_filename_from_link('/'), undef, "get_filename_from_link() returned undef");
 }
 
-# 39-42: test revert_slackbuild();
+# 41-44: test revert_slackbuild();
 {
 	my $tmp = tempdir(CLEANUP => 1);
 	is (SBO::Lib::revert_slackbuild("$tmp/foo"), 1, "revert_slackbuild() returned 1");
@@ -244,7 +253,7 @@ SKIP: {
 	ok (!-f "$tmp/foo.orig", 'foo.orig is no more');
 }
 
-# 43: test get_src_dir();
+# 45: test get_src_dir();
 SKIP: {
     skip 'Test invalid if /foo-bar exists.', 1 if -e '/foo-bar';
 	my $scalar = '';
@@ -254,14 +263,14 @@ SKIP: {
 	is (scalar @{ SBO::Lib::get_src_dir($fh) }, 0, "get_src_dir() returned an empty array ref");
 }
 
-# 44-45: test get_readme_contents();
+# 46-47: test get_readme_contents();
 {
 	my @ret = get_readme_contents(undef);
 	is ($ret[0], undef, "get_readme_contents() returned undef");
 	is ($ret[1], 6, "get_readme_contents() returned 6");
 }
 
-# 46-47: test user_prompt();
+# 48-49: test user_prompt();
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { user_prompt('foo', undef); }; };
