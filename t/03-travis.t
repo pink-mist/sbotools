@@ -17,6 +17,9 @@ if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
 }
 $ENV{TEST_ONLINE} //= 0;
 
+# Since this is only run under Travis CI, we can blow away the repo without consequence
+system(qw! rm -rf /usr/sbo !);
+
 # 1-3: Test SLACKWARE_VERSION
 sboconfig qw/ -V 14.1 /, { expected => "Setting SLACKWARE_VERSION to 14.1...\n" };
 SKIP: {
