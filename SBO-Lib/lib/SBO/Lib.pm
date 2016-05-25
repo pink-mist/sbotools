@@ -285,7 +285,7 @@ sub check_repo {
 			usage_error("$repo_path exists and is not empty. Exiting.\n");
 		}
 	} else {
-		make_path($repo_path) or usage_error("Unable to create $repo_path.\n");
+		eval { make_path($repo_path) } or usage_error("Unable to create $repo_path.\n");
 	}
 	return 1;
 }
