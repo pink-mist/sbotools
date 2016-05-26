@@ -9,8 +9,9 @@ use lib "$RealBin/../SBO-Lib/lib";
 use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions get_readme_contents user_prompt /;
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
+use Cwd;
 
-plan tests => 52;
+plan tests => 55;
 
 # 1-2: test script_error();
 {
@@ -154,7 +155,7 @@ SKIP: {
 	like ($out, qr!rsync: change_dir "/foo-bar" failed!, q"rsync_sbo_tree('/foo-bar') gave correct output");
 }
 
-# 28-34: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
+# 28-37: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
 {
 	system(qw! mv /usr/sbo/repo /usr/sbo/backup !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
@@ -202,9 +203,22 @@ SKIP: {
 
 	system(qw! rm -r /usr/sbo/repo !) if -d '/usr/sbo/repo';
 	system(qw! mv /usr/sbo/backup /usr/sbo/repo !) if -d '/usr/sbo/backup';
+
+	my $sbohome = '/usr/sbo';
+	system('mv', $sbohome, "$sbohome.bak");
+
+	my $cwd = getcwd();
+	undef $res;
+	my $out = capture_merged { $res = SBO::Lib::git_sbo_tree(''); };
+
+	is ($out, '', 'git_sbo_tree() no output');
+	is ($res, 0, 'git_sbo_tree() returned 0');
+	is (getcwd(), $cwd, 'git_sbo_tree() left us where we started');
+
+	system('mv', "$sbohome.bak", $sbohome);
 }
 
-# 35: test get_installed_packages();
+# 38: test get_installed_packages();
 {
 	system(qw!mv /var/log/packages /var/log/packages.backup!);
 	system(qw!mkdir -p /var/log/packages!);
@@ -214,7 +228,7 @@ SKIP: {
 	system(qw!mv /var/log/packages.backup /var/log/packages!);
 }
 
-# 36-38: test get_sbo_location() and get_sbo_locations();
+# 39-41: test get_sbo_location() and get_sbo_locations();
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { get_sbo_location([]); }; };
@@ -231,18 +245,18 @@ SKIP: {
 	}
 }
 
-# 39: test get_local_outdated_versions();
+# 42: test get_local_outdated_versions();
 {
 	local $config{LOCAL_OVERRIDES} = 'FALSE';
 	is(scalar get_local_outdated_versions(), 0, 'get_local_outdated_versions() returned an empty list');
 }
 
-# 40: test get_filename_from_link();
+# 43: test get_filename_from_link();
 {
 	is (SBO::Lib::get_filename_from_link('/'), undef, "get_filename_from_link() returned undef");
 }
 
-# 41-44: test revert_slackbuild();
+# 44-47: test revert_slackbuild();
 {
 	my $tmp = tempdir(CLEANUP => 1);
 	is (SBO::Lib::revert_slackbuild("$tmp/foo"), 1, "revert_slackbuild() returned 1");
@@ -253,7 +267,7 @@ SKIP: {
 	ok (!-f "$tmp/foo.orig", 'foo.orig is no more');
 }
 
-# 45: test get_src_dir();
+# 48: test get_src_dir();
 SKIP: {
     skip 'Test invalid if /foo-bar exists.', 1 if -e '/foo-bar';
 	my $scalar = '';
@@ -263,14 +277,14 @@ SKIP: {
 	is (scalar @{ SBO::Lib::get_src_dir($fh) }, 0, "get_src_dir() returned an empty array ref");
 }
 
-# 46-47: test get_readme_contents();
+# 49-50: test get_readme_contents();
 {
 	my @ret = get_readme_contents(undef);
 	is ($ret[0], undef, "get_readme_contents() returned undef");
 	is ($ret[1], 6, "get_readme_contents() returned 6");
 }
 
-# 48-49: test user_prompt();
+# 51-52: test user_prompt();
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { user_prompt('foo', undef); }; };
@@ -279,7 +293,7 @@ SKIP: {
 	is ($out, "Unable to locate foo in the SlackBuilds.org tree.\n", 'user_prompt() gave correct output');
 }
 
-# 50-52: test perform_sbo();
+# 53-55: test perform_sbo();
 SKIP: {
 	skip 'Tests invalid if /foo exists.', 3 if -e "/foo";
 
