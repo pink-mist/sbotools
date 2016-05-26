@@ -10,7 +10,7 @@ use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_p
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 
-plan tests => 49;
+plan tests => 52;
 
 # 1-2: test script_error();
 {
@@ -277,4 +277,13 @@ SKIP: {
 
 	is ($exit, 1, 'user_prompt() exited with 1');
 	is ($out, "Unable to locate foo in the SlackBuilds.org tree.\n", 'user_prompt() gave correct output');
+}
+
+# 50-52: test perform_sbo();
+{
+	my @res = SBO::Lib::perform_sbo(JOBS => 'FALSE', LOCATION => '/foo', ARCH => 1);
+
+	is ($res[0], "Unable to backup /foo/foo.SlackBuild to /foo/foo.SlackBuild.orig\n", 'perform_sbo returned correct pkg');
+	is ($res[1], undef, 'perform_sbo returned correct src');
+	is ($res[2], 6, 'perform_sbo returned correct exit');
 }
