@@ -280,7 +280,9 @@ SKIP: {
 }
 
 # 50-52: test perform_sbo();
-{
+SKIP: {
+	skip 'Tests invalid if /foo exists.', 3 if -e "/foo";
+
 	my @res = SBO::Lib::perform_sbo(JOBS => 'FALSE', LOCATION => '/foo', ARCH => 1);
 
 	is ($res[0], "Unable to backup /foo/foo.SlackBuild to /foo/foo.SlackBuild.orig\n", 'perform_sbo returned correct pkg');
