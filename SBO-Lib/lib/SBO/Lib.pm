@@ -331,7 +331,7 @@ sub git_sbo_tree {
 	my $res;
 	if (-d "$repo_path/.git" and check_git_remote($repo_path, $url)) {
 		_race::cond '$repo_path can be deleted after -d check';
-		chdir $repo_path;
+		chdir $repo_path or return 0;
 		$res = eval {
 			die unless system(qw! git fetch !) == 0; # if system() doesn't return 0, there was an error
 			_race::cond 'git repo could be changed or deleted here';
@@ -340,7 +340,7 @@ sub git_sbo_tree {
 			1;
 		};
 	} else {
-		chdir $config{SBO_HOME};
+		chdir $config{SBO_HOME} or return 0;
 		remove_tree($repo_path) if -d $repo_path;
 		$res = system(qw/ git clone /, $url, $repo_path) == 0;
 	}
