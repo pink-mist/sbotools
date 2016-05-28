@@ -53,12 +53,17 @@ sub set_sbo_home { _set_config('SBO_HOME', @_); }
 sub set_lo { _set_config('LOCAL_OVERRIDES', @_); }
 sub set_version { _set_config('SLACKWARE_VERSION', @_); }
 
+my $sbt = 0;
 my $repo = 0;
 sub set_repo {
 	_set_config('REPO', @_);
 	if (-e "/usr/sbo/repo" and not $repo) {
 		$repo = 1;
 		system(qw! mv /usr/sbo/repo !, "$RealBin/repo.backup");
+
+		# if $sbt is true, the SLACKBUILDS.TXT has been created by
+		# make_slackbuilds_txt and should not be backed up
+		if ($sbt) { system('rm', "$RealBin/repo.backup/SLACKBUILDS.TXT"); }
 	}
 }
 
@@ -94,10 +99,9 @@ sub _set_config {
 	}
 }
 
-my $made = undef;
-my $fname = "/usr/sbo/repo/SLACKBUILDS.TXT";
+my $sbtn = "/usr/sbo/repo/SLACKBUILDS.TXT";
 sub make_slackbuilds_txt {
-	if (not -e $fname) { $made = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $fname); }
+	if (not -e $sbtn) { $sbt = 1; system('mkdir', '-p', '/usr/sbo/repo'); system('touch', $sbtn); }
 }
 
 sub restore_perf_dummy {
@@ -130,8 +134,8 @@ END {
 	if (%config) {
 		_set_config($_) for keys %settings;
 	}
-	if ($made) {
-		system(qw!rm -rf!, $fname);
+	if ($sbt) {
+		system(qw!rm -rf!, $sbtn);
 	}
 	if ($tags) {
 		system(qw!rm -rf !, $tags_txt);
