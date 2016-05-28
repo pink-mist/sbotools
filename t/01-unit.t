@@ -85,7 +85,7 @@ is(indent(1, "foo\n\nbar"), " foo\n\n bar", 'indent(1,...) returns correctly');
 
 # 16-20: test check_repo() and migrate_repo();
 SKIP: {
-	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 3 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
+	skip 'Test invalid if no SLACKBUILDS.TXT exists.', 5 if ! -e '/usr/sbo/repo/SLACKBUILDS.TXT';
 
 	system(qw"cp /usr/sbo/repo/SLACKBUILDS.TXT /usr/sbo");
 	system(qw"rm -rf", "$RealBin/repo.backup");
