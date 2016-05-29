@@ -7,7 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL}) {
 	plan tests => 18;
@@ -41,6 +41,7 @@ cleanup();
 make_slackbuilds_txt();
 set_lo("$RealBin/LO");
 system("mv /usr/sbo/repo/* /usr/sbo");
+restore_perf_dummy();
 
 # 1-3: sboinstall nonexistentslackbuild
 sboinstall 'nonexistentslackbuild', { input => "y\ny", expected => qr/nonexistentslackbuild added to install queue.*Install queue: nonexistentslackbuild/s };

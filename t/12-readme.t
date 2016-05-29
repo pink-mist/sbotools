@@ -7,7 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL}) {
 	plan tests => 10;
@@ -31,6 +31,7 @@ sub cleanup {
 cleanup();
 make_slackbuilds_txt();
 set_lo("$RealBin/LO-readme");
+restore_perf_dummy();
 
 # 1: sboinstall envsettingtest - fail
 sboinstall 'envsettingtest', { input => "n\ny\ny", exit => 3, expected => qr{It looks like envsettingtest has options; would you like to set any when the slackbuild is run.*FOO isn't bar!.*envsettingtest: envsettingtest.SlackBuild return non-zero}s };

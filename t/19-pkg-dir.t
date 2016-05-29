@@ -7,7 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ set_pkg_dir make_slackbuilds_txt set_lo sboconfig sboinstall sboupgrade /;
+use Test::Sbotools qw/ set_pkg_dir make_slackbuilds_txt set_lo sboconfig sboinstall sboupgrade restore_perf_dummy /;
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
@@ -41,6 +41,7 @@ make_slackbuilds_txt();
 set_lo("$RealBin/LO");
 my $pkgdir = tempdir(CLEANUP => 1);
 set_pkg_dir($pkgdir);
+restore_perf_dummy();
 
 # 1-2: install creates package in PKG_DIR
 sboinstall 'nonexistentslackbuild', { input => "y\ny", expected => qr!\Qnonexistentslackbuild-1.0-noarch-1_SBo.tgz stored in $pkgdir! };

@@ -7,7 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove sbosnap /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove sbosnap restore_perf_dummy /;
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
@@ -84,6 +84,7 @@ sub cleanup {
 cleanup();
 make_slackbuilds_txt();
 set_lo("$RealBin/LO-fail");
+restore_perf_dummy();
 
 # 1: Failing slackbuild script
 sboinstall 'failingslackbuild', { input => "y\ny", expected => qr/Failures:\n  failingslackbuild: failingslackbuild.SlackBuild return non-zero\n\z/, exit => 3 };

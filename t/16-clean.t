@@ -27,6 +27,7 @@ set_lo("$RealBin/LO");
 delete $ENV{TMP};
 delete $ENV{OUTPUT};
 cleanup();
+restore_perf_dummy();
 
 # 1: check that build dir doesn't get cleaned
 set_noclean("TRUE");

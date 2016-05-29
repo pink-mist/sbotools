@@ -7,7 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ set_lo set_jobs sboinstall sboremove sboconfig /;
+use Test::Sbotools qw/ set_lo set_jobs sboinstall sboremove sboconfig restore_perf_dummy make_slackbuilds_txt /;
 
 if ($ENV{TEST_INSTALL}) {
 	plan tests => 6;
@@ -25,8 +25,10 @@ sub cleanup {
 }
 
 cleanup();
+make_slackbuilds_txt();
 set_lo("$RealBin/LO-jobs");
 set_jobs("FALSE");
+restore_perf_dummy();
 
 # 1: sboinstall with jobs set to FALSE
 {

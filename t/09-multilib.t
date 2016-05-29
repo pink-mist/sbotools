@@ -7,7 +7,7 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboclean /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboclean restore_perf_dummy /;
 use File::Temp 'tempdir';
 
 $ENV{TEST_MULTILIB} //= 0;
@@ -40,6 +40,7 @@ sub cleanup {
 cleanup();
 make_slackbuilds_txt();
 set_lo("$RealBin/LO-multilib");
+restore_perf_dummy();
 
 # 1: Testing multilibsbo
 sboinstall qw/ -p multilibsbo /, { input => "y\ny\ny", expected => qr/Cleaning for multilibsbo-compat32-1[.]0[.][.][.]\n/ };
