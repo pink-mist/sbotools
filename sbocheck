@@ -91,7 +91,7 @@ sub get_update_list {
 		$info->{upd_str} = $available;
 
 		my $str = sprintf "%s  <  %s", $current, $available;
-		if (length($str) < 80) {
+		if (length($str) <= 80) {
 			$max = length($current) if length($current) > $max;
 		}
 	}
@@ -101,7 +101,7 @@ sub get_update_list {
 		my $info = $updates{$sbo};
 
 		my $str = sprintf "%s  <  %s", $info->{name_str}, $info->{upd_str};
-		if (length($str) < 80) {
+		if (length($str) <= 80) {
 			$str = sprintf "%-*s  <  %s", $max, $info->{name_str}, $info->{upd_str};
 			my $adjust = 1;
 			while (length($str) > 80) {
