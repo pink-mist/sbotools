@@ -629,19 +629,17 @@ sub get_sbo_version {
 sub get_available_updates {
 	my @updates;
 	my $pkg_list = get_installed_packages('SBO');
-	FIRST: for my $key (keys @$pkg_list) {
-		my $location = get_sbo_location($$pkg_list[$key]{name});
-		# if we can't find a location, assume invalid and skip
-		next FIRST unless $location;
+
+	for my $pkg (@$pkg_list) {
+		my $location = get_sbo_location($pkg->{name});
+		next unless $location;
+
 		my $version = get_sbo_version($location);
-		if (versioncmp($version, $$pkg_list[$key]{version}) != 0) {
-			push @updates, {
-				name		=> $$pkg_list[$key]{name},
-				installed	=> $$pkg_list[$key]{version},
-				update		=> $version
-			};
+		if (versioncmp($version, $pkg->{version}) != 0) {
+			push @updates, { name => $pkg->{name}, installed => $pkg->{version}, update => $version };
 		}
 	}
+
 	return \@updates;
 }
 
