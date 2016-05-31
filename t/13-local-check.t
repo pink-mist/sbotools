@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sbosnap sbocheck sboinstall sbofind restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL} and $ENV{TRAVIS}) {
-	plan tests => 9;
+	plan tests => 12;
 } else {
 	plan skip_all => "Only run these tests if TEST_INSTALL=1 and we're running under Travis CI";
 }
@@ -24,6 +24,7 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuildwithareallyverylo!);
 		system(qw!/sbin/removepkg nonexistentslackbuildwithareallyverylon!);
 		system(qw!/sbin/removepkg nonexistentslackbuildwithareallyverylong!);
+		system(qw!/sbin/removepkg s2!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
@@ -32,6 +33,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylo-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylon-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylon-1.0g!);
+		system(qw!rm -rf /tmp/SBo/s2-1.0!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylongnameasyoucansee!);
@@ -39,6 +41,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylo!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylon!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylong!);
+		system(qw!rm -rf /tmp/package-s2!);
 		system(qw!rm -rf!, "$RealBin/gitrepo");
 	};
 }
@@ -123,6 +126,25 @@ GIT
 sboinstall 'nonexistentslackbuildwithareallyverylong', { input => "y\ny", test => 0 };
 sbocheck { expected => qr/\Qs 1.0                                        <  override outdated (1.1 from SBo)/ };
 
+# 10: check different version in repo and LO and installed
+set_lo("$RealBin/LO3");
+sbocheck { expected => qr/\Qs 1.0                       <  needs updating (0.9 from overrides, 1.1 from SBo)/ };
+
+# 11: check different version on SBo than what's installed
+set_lo('FALSE');
+sbocheck { expected => qr/\Qs 1.0                                         <  needs updating (1.1 from SBo)/ };
+
+# 12: check s2 being the same version in SBo but newer in LO
+capture_merged { system <<"GIT"; };
+	cd "$RealBin/gitrepo"
+
+	cp -a "$RealBin"/LO/s2 test/
+	git add "test/s2"; git commit -m '5th update'
+GIT
+sbosnap 'update', { test => 0 };
+sboinstall 's2', { input => "y\ny", test => 0 };
+set_lo("$RealBin/LO2");
+sbocheck { expected => qr/\Qs2 1.0                      <  needs updating (1.1 from overrides)/ };
 
 # Cleanup
 END {
