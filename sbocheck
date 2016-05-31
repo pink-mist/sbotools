@@ -61,7 +61,7 @@ sub get_update_list {
 	}
 	for my $update (@outdated) {
 		my $name = $update->{name};
-		$updates{$name}{installed} //= $update->{version};
+		$updates{$name}{installed} = $update->{version};
 		$updates{$name}{sbo} = $update->{orig};
 		$updates{$name}{local} = 1;
 	}
