@@ -312,13 +312,13 @@ SKIP: {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { main::rm_full(); }; };
 
-	is ($out, "A fatal script error has occurred:\nrm_full requires an argument.\nExiting.\n", 'rm_full() gave correct output');
-	is ($exit, 2, 'rm_full() gave correct exit status');
+	is ($out, "A fatal script error has occurred:\nrm_full requires an argument.\nExiting.\n", "sboclean's rm_full() gave correct output");
+	is ($exit, 2, "sboclean's rm_full() gave correct exit status");
 
 	undef $exit;
 	undef $out;
 	$out = capture_merged { $exit = exit_code { main::remove_stuff(); }; };
 
-	is ($out, "A fatal script error has occurred:\nremove_stuff requires an argument.\nExiting.\n", 'remove_stuff() gave correct output');
-	is ($exit, 2, 'remove_stuff() gave correct exit status');
+	is ($out, "A fatal script error has occurred:\nremove_stuff requires an argument.\nExiting.\n", "sboclean's remove_stuff() gave correct output");
+	is ($exit, 2, "sboclean's remove_stuff() gave correct exit status");
 }
