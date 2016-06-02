@@ -11,7 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 55;
+plan tests => 59;
 
 # 1-2: test script_error();
 {
@@ -302,4 +302,23 @@ SKIP: {
 	is ($res[0], "Unable to backup /foo/foo.SlackBuild to /foo/foo.SlackBuild.orig\n", 'perform_sbo returned correct pkg');
 	is ($res[1], undef, 'perform_sbo returned correct src');
 	is ($res[2], 6, 'perform_sbo returned correct exit');
+}
+
+# 56-59: sboclean unit tests...
+{
+	local @ARGV = '-h';
+	capture_merged { exit_code { do "$RealBin/../sboclean"; }; };
+
+	my $exit;
+	my $out = capture_merged { $exit = exit_code { main::rm_full(); }; };
+
+	is ($out, "A fatal script error has occurred:\nrm_full requires an argument.\nExiting.\n", 'rm_full() gave correct output');
+	is ($exit, 2, 'rm_full() gave correct exit status');
+
+	undef $exit;
+	undef $out;
+	$out = capture_merged { $exit = exit_code { main::remove_stuff(); }; };
+
+	is ($out, "A fatal script error has occurred:\nremove_stuff requires an argument.\nExiting.\n", 'remove_stuff() gave correct output');
+	is ($exit, 2, 'remove_stuff() gave correct exit status');
 }
