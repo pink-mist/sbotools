@@ -13,6 +13,24 @@ use Cwd;
 
 plan tests => 59;
 
+sub load {
+	my ($script, %opts) = @_;
+
+	local @ARGV = exists $opts{argv} ? @{ $opts{argv} } : '-h';
+	my ($ret, $exit, $out, $do_err);
+	my $eval = eval {
+		$out = capture_merged { $exit = exit_code {
+			$ret = do "$RealBin/../$script";
+			$do_err = $@;
+		}; };
+		1;
+	};
+	my $err = $@;
+
+	note explain { ret => $ret, exit => $exit, out => $out, eval => $eval, err => $err, do_err => $do_err } if $opts{explain};
+}
+
+
 # 1-2: test script_error();
 {
 	my $exit;
@@ -306,8 +324,8 @@ SKIP: {
 
 # 56-59: sboclean unit tests...
 {
-	local @ARGV = '-h';
-	capture_merged { exit_code { do "$RealBin/../sboclean"; }; };
+	local (*main::show_usage, *main::rm_full, *main::remove_stuff, *main::clean_c32);
+	load('sboclean');
 
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { main::rm_full(); }; };
