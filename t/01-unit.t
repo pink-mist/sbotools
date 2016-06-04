@@ -11,7 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 59;
+plan tests => 61;
 
 sub load {
 	my ($script, %opts) = @_;
@@ -339,4 +339,16 @@ SKIP: {
 
 	is ($out, "A fatal script error has occurred:\nremove_stuff requires an argument.\nExiting.\n", "sboclean's remove_stuff() gave correct output");
 	is ($exit, 2, "sboclean's remove_stuff() gave correct exit status");
+}
+
+# 60-61: sboconfig unit tests...
+{
+	local (*main::show_usage, *main::config_write);
+	load('sboconfig');
+
+	my $exit;
+	my $out = capture_merged { $exit = exit_code { main::config_write(); }; };
+
+	is ($out, "A fatal script error has occurred:\nconfig_write requires two arguments.\nExiting.\n", "sboconfig's config_write() gave correct output");
+	is ($exit, 2, "sboconfig's config_write() gave correct exit status");
 }
