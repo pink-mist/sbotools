@@ -11,25 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 61;
-
-sub load {
-	my ($script, %opts) = @_;
-
-	local @ARGV = exists $opts{argv} ? @{ $opts{argv} } : '-h';
-	my ($ret, $exit, $out, $do_err);
-	my $eval = eval {
-		$out = capture_merged { $exit = exit_code {
-			$ret = do "$RealBin/../$script";
-			$do_err = $@;
-		}; };
-		1;
-	};
-	my $err = $@;
-
-	note explain { ret => $ret, exit => $exit, out => $out, eval => $eval, err => $err, do_err => $do_err } if $opts{explain};
-}
-
+plan tests => 55;
 
 # 1-2: test script_error();
 {
@@ -320,35 +302,4 @@ SKIP: {
 	is ($res[0], "Unable to backup /foo/foo.SlackBuild to /foo/foo.SlackBuild.orig\n", 'perform_sbo returned correct pkg');
 	is ($res[1], undef, 'perform_sbo returned correct src');
 	is ($res[2], 6, 'perform_sbo returned correct exit');
-}
-
-# 56-59: sboclean unit tests...
-{
-	local (*main::show_usage, *main::rm_full, *main::remove_stuff, *main::clean_c32);
-	load('sboclean');
-
-	my $exit;
-	my $out = capture_merged { $exit = exit_code { main::rm_full(); }; };
-
-	is ($out, "A fatal script error has occurred:\nrm_full requires an argument.\nExiting.\n", "sboclean's rm_full() gave correct output");
-	is ($exit, 2, "sboclean's rm_full() gave correct exit status");
-
-	undef $exit;
-	undef $out;
-	$out = capture_merged { $exit = exit_code { main::remove_stuff(); }; };
-
-	is ($out, "A fatal script error has occurred:\nremove_stuff requires an argument.\nExiting.\n", "sboclean's remove_stuff() gave correct output");
-	is ($exit, 2, "sboclean's remove_stuff() gave correct exit status");
-}
-
-# 60-61: sboconfig unit tests...
-{
-	local (*main::show_usage, *main::config_write);
-	load('sboconfig');
-
-	my $exit;
-	my $out = capture_merged { $exit = exit_code { main::config_write(); }; };
-
-	is ($out, "A fatal script error has occurred:\nconfig_write requires two arguments.\nExiting.\n", "sboconfig's config_write() gave correct output");
-	is ($exit, 2, "sboconfig's config_write() gave correct exit status");
 }
