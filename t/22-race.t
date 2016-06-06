@@ -51,9 +51,11 @@ sub emulate_race {
 # 3-4: emulate race in open_fh by get_slack_version
 {
 	my $sv_file = '/etc/slackware-version';
-	system('mkdir', '-p', '/etc');
-	system('mv', $sv_file, "$sv_file.bak");
-	system('touch', $sv_file);
+	capture_merged {
+		system('mkdir', '-p', '/etc');
+		system('mv', $sv_file, "$sv_file.bak");
+		system('touch', $sv_file);
+	};
 
 	my $exit;
 	emulate_race($sv_file, 'open_fh');
