@@ -31,7 +31,6 @@ sub load {
 
 # 1-4: sboclean unit tests...
 {
-	local (*main::show_usage, *main::rm_full, *main::remove_stuff, *main::clean_c32);
 	load('sboclean');
 
 	my $exit;

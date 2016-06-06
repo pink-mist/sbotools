@@ -31,7 +31,6 @@ sub load {
 
 # 1-2: sboconfig unit tests...
 {
-	local (*main::show_usage, *main::config_write);
 	load('sboconfig');
 
 	my $exit;
