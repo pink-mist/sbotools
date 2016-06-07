@@ -129,7 +129,7 @@ sub perform_search {
 
 # pull the contents of a file into a variable and format it for output
 sub get_file_contents {
-	script_error 'get_file_contents requires an argument' unless @_ == 1;
+	script_error 'get_file_contents requires an argument.' unless @_ == 1;
 	my $file = shift;
 	-f $file or return "$file doesn't exist.\n";
 	my ($fh, $exit) = open_read($file);
