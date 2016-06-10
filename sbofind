@@ -70,6 +70,7 @@ sub perform_search {
 	my $tags_file = "$config{SBO_HOME}/repo/TAGS.txt";
 	my @names;
 	if (-f $tags_file) {
+		_race::cond('$tags_file may be deleted after -f check');
 		my ($t_fh, $t_exit) = open_read "$config{SBO_HOME}/repo/TAGS.txt";
 		unless ($t_exit) {
 			while (my $line = <$t_fh>) {
