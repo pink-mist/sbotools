@@ -29,7 +29,7 @@ sub load {
 	note explain { ret => $ret, exit => $exit, out => $out, eval => $eval, err => $err, do_err => $do_err } if $opts{explain};
 }
 
-# 1-2: sboconfig unit tests...
+# 1-2: sbocheck race test...
 {
 	load('sbocheck');
 
