@@ -69,7 +69,7 @@ sub perform_search {
 	# first get a bunch of names from the TAGS.txt if it's available
 	my $tags_file = "$config{SBO_HOME}/repo/TAGS.txt";
 	my @names;
-	if (-r $tags_file) {
+	if (-f $tags_file) {
 		my ($t_fh, $t_exit) = open_read "$config{SBO_HOME}/repo/TAGS.txt";
 		unless ($t_exit) {
 			while (my $line = <$t_fh>) {
