@@ -54,8 +54,6 @@ my $noclean = $config{NOCLEAN};
 my $distclean = $config{DISTCLEAN};
 my $jobs = $config{JOBS};
 my ($help, $vers, $force, $no_install, $non_int, $force_reqs, $all);
-# backwards compatibility options
-my ($install_new, $no_reqs, $compat32);
 
 GetOptions(
 	'help|h'            => \$help,
