@@ -124,7 +124,7 @@ my %inst_names;
 $inst_names{$_} = 1 for @$inst_names;
 my %updates;
 if (not $non_int or not $force) {
-	$updates //= get_available_updates();
+	$updates = get_available_updates() if not defined $updates;
 	$updates{$$_{name}} = 1 for @$updates;
 }
 
