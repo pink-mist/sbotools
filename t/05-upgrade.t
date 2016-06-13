@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboconfig sboinstall sboupgra
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 15;
+	plan tests => 16;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -23,10 +23,12 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuild4!);
 		system(qw!/sbin/removepkg nonexistentslackbuild5!);
 		system(qw!/sbin/removepkg nonexistentslackbuild6!);
+		system(qw!/sbin/removepkg weird-versionsbo!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild6/perf.dummy";
+		unlink "$RealBin/LO/weird-versionsbo/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild5/perf.dummy";
@@ -42,6 +44,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild6-1.0!);
+		system(qw!rm -rf /tmp/SBo/weird-versionsbo-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.1!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.1!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.1!);
@@ -50,6 +53,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild4!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild6!);
+		system(qw!rm -rf /tmp/package-weird-versionsbo!);
 	};
 }
 
@@ -115,6 +119,12 @@ install( 'LO2', 'nonexistentslackbuild', 'nonexistentslackbuild5', 'nonexistents
 sboupgrade '--all', { input => ("n\n" x (@sbos+3)), expected => qr/Proceed with nonexistentslackbuild\b.*Proceed with nonexistentslackbuild5\b.*Proceed with nonexistentslackbuild4\b/s };
 set_lo("$RealBin/LO");
 sboupgrade '--all', { expected => "Checking for updated SlackBuilds...\nNothing to update.\n" };
+
+cleanup();
+
+# 16: sboupgrade --all shouldn't pick up weird-versionsbo
+install('LO', 'weird-versionsbo');
+sboupgrade '--all', { input => ("n\n" x (@sbos+1)), expected => sub { not /weird-versionsbo/ } };
 
 # Cleanup
 END {

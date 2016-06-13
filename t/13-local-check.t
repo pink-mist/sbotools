@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sbosnap sbocheck sboinstall sbofind restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL} and $ENV{TRAVIS}) {
-	plan tests => 12;
+	plan tests => 13;
 } else {
 	plan skip_all => "Only run these tests if TEST_INSTALL=1 and we're running under Travis CI";
 }
@@ -25,7 +25,9 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuildwithareallyverylon!);
 		system(qw!/sbin/removepkg nonexistentslackbuildwithareallyverylong!);
 		system(qw!/sbin/removepkg s2!);
+		system(qw!/sbin/removepkg weird-versionsbo!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
+		unlink "$RealBin/LO/weird-versionsbo/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylongnameasyoucansee-1.0!);
@@ -34,6 +36,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylon-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylon-1.0g!);
 		system(qw!rm -rf /tmp/SBo/s2-1.0!);
+		system(qw!rm -rf /tmp/SBo/weird-versionsbo-1.0!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylongnameasyoucansee!);
@@ -42,6 +45,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylon!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylong!);
 		system(qw!rm -rf /tmp/package-s2!);
+		system(qw!rm -rf /tmp/package-weird-versionsbo!);
 		system(qw!rm -rf!, "$RealBin/gitrepo");
 	};
 }
@@ -145,6 +149,11 @@ sbosnap 'update', { test => 0 };
 sboinstall 's2', { input => "y\ny", test => 0 };
 set_lo("$RealBin/LO2");
 sbocheck { expected => qr/\Qs2 1.0                      <  needs updating (1.1 from overrides)/ };
+
+# 13: check weird-versionsbo isn't picked up erroneously
+set_lo("$RealBin/LO");
+sboinstall 'weird-versionsbo', { input => "y\ny", test => 0 };
+sbocheck { expected => sub { not /weird-versionsbo/ } };
 
 # Cleanup
 END {
