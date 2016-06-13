@@ -562,7 +562,7 @@ sub get_local_outdated_versions {
 		foreach my $sbo (@local) {
 			my $orig = get_orig_version($sbo->{name});
 			next if not defined $orig;
-			next if not versioncmp($orig, $sbo->{version});
+			next if not version_cmp($orig, $sbo->{version});
 
 			push @outdated, { %$sbo, orig => $orig };
 		}
@@ -570,6 +570,19 @@ sub get_local_outdated_versions {
 
 	return @outdated;
 }
+}
+
+# wrapper around versioncmp for checking if versions have kernel version
+# appended to them
+sub version_cmp {
+	my ($v1, $v2) = @_;
+	my $kv = `uname -r`;
+	chomp $kv;
+
+	if ($v1 =~ /(.+)_\Q$kv\E$/) { $v1 = $1 }
+	if ($v2 =~ /(.+)_\Q$kv\E$/) { $v2 = $1 }
+
+	versioncmp($v1, $v2);
 }
 
 # pull the sbo name from a $location: $repo_path/system/wine, etc.
@@ -635,7 +648,7 @@ sub get_available_updates {
 		next unless $location;
 
 		my $version = get_sbo_version($location);
-		if (versioncmp($version, $pkg->{version}) != 0) {
+		if (version_cmp($version, $pkg->{version}) != 0) {
 			push @updates, { name => $pkg->{name}, installed => $pkg->{version}, update => $version };
 		}
 	}
