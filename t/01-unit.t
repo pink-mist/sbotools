@@ -11,7 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 55;
+plan tests => 60;
 
 # 1-2: test script_error();
 {
@@ -302,4 +302,23 @@ SKIP: {
 	is ($res[0], "Unable to backup /foo/foo.SlackBuild to /foo/foo.SlackBuild.orig\n", 'perform_sbo returned correct pkg');
 	is ($res[1], undef, 'perform_sbo returned correct src');
 	is ($res[2], 6, 'perform_sbo returned correct exit');
+}
+
+# 56-60: test version_cmp();
+{
+	chomp(my $kv = `uname -r`);
+	$kv =~ s/-/_/g;
+
+	my @res = map { SBO::Lib::version_cmp(@$_); } [ '1.0', '1.0' ], [ "1.0_$kv", '1.0' ], [ '1.0', "1.0_$kv" ], [ "1.0_$kv", "1.0_$kv" ];
+
+	note "k = $kv";
+	is ($res[0], 0, "version_cmp(1.0, 1.0) returned 0");
+	is ($res[1], 0, "version_cmp(1.0_k, 1.0) returned 0");
+	is ($res[2], 0, "version_cmp(1.0, 1.0_k) returned 0");
+	is ($res[3], 0, "version_cmp(1.0_k, 1.0_k) returned 0");
+
+	no warnings 'redefine';
+	local *SBO::Lib::get_kernel_version = sub { "foo_bar" };
+
+	is (SBO::Lib::version_cmp('1.0', '1.0_foo_bar'), 0, "version_cmp(1.0, 1.0_foo_bar) returned 0");
 }
