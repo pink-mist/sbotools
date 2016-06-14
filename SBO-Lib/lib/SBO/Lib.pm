@@ -578,6 +578,7 @@ sub version_cmp {
 	my ($v1, $v2) = @_;
 	my $kv = `uname -r`;
 	chomp $kv;
+	$kv =~ s/-/_/g;
 
 	if ($v1 =~ /(.+)_\Q$kv\E$/) { $v1 = $1 }
 	if ($v2 =~ /(.+)_\Q$kv\E$/) { $v2 = $1 }
