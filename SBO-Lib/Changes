@@ -44,6 +44,8 @@
        - https://github.com/pink-mist/sbotools/issues/32
        - https://github.com/pink-mist/sbotools/issues/33
        - https://github.com/pink-mist/sbotools/issues/35
+       - https://github.com/pink-mist/sbotools/issues/41
+       - https://github.com/pink-mist/sbotools/issues/43
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools
     * sbocheck output changed
@@ -58,9 +60,11 @@
        - https://github.com/pink-mist/sbotools/issues/12
        - https://github.com/pink-mist/sbotools/issues/28
     * Update bundled Sort::Versions to 1.62
-    * sboinstall/upgrade: small bugfixes
+    * sboinstall/upgrade/check: small bugfixes
        - https://github.com/pink-mist/sbotools/issues/21
        - https://github.com/pink-mist/sbotools/issues/35
+       - https://github.com/pink-mist/sbotools/issues/41
+       - https://github.com/pink-mist/sbotools/issues/43
     * sbosnap: display download progress, update git trees better
        - https://github.com/pink-mist/sbotools/issues/26
        - https://github.com/pink-mist/sbotools/issues/27
