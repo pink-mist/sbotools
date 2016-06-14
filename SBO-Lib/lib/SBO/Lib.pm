@@ -576,14 +576,21 @@ sub get_local_outdated_versions {
 # appended to them
 sub version_cmp {
 	my ($v1, $v2) = @_;
-	my $kv = `uname -r`;
-	chomp $kv;
-	$kv =~ s/-/_/g;
+	my $kv = get_kernel_version();
 
 	if ($v1 =~ /(.+)_\Q$kv\E$/) { $v1 = $1 }
 	if ($v2 =~ /(.+)_\Q$kv\E$/) { $v2 = $1 }
 
 	versioncmp($v1, $v2);
+}
+
+sub get_kernel_version {
+	state $kv;
+	return $kv if defined $kv;
+
+	chomp($kv = `uname -r`);
+	$kv =~ s/-/_/g;
+	return $kv;
 }
 
 # pull the sbo name from a $location: $repo_path/system/wine, etc.
