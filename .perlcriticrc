@@ -1,2 +1,2 @@
-theme = pbp
-[-Subroutines::ProhibitExplicitReturnUndef]
+theme = freenode
+severity = 1
