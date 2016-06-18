@@ -130,11 +130,10 @@ FIRST: for my $remove (@$remove_queue) {
 	# Determine whether $remove is still needed on system.
 	my $required_by = get_required_by $remove;
 	my $needed = 0;
-	my (%confirmed, %sbos);
-	$confirmed{$_} = 1 for @confirmed;
+	my %sbos;
 	$sbos{$_} = 1 for @sbos;
 	for my $rq (@$required_by) {
-		$needed = 1 unless $confirmed{$rq} or $sbos{$remove};
+		$needed = 1 unless $sbos{$remove};
 		# still needed, unless required_by is already confirmed for removal or
 		# the sbo in question was cli-specified.
 	}	
