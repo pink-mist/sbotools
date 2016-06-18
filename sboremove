@@ -112,12 +112,10 @@ sub confirm_remove {
 
 # Check if packages in queue are actually installed on system 
 my @temp;
-if (%inst_names) {
-	for my $sbo (@$remove_queue) {
-		push @temp, $sbo if $inst_names{$sbo};
-	}
-	$remove_queue = \@temp;
+for my $sbo (@$remove_queue) {
+	push @temp, $sbo if $inst_names{$sbo};
 }
+$remove_queue = \@temp;
 
 # Confirm all and skip prompts if noninteractive
 if ($non_int) {
