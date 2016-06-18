@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 13;
+	plan tests => 14;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -87,6 +87,10 @@ sboremove 'nonexistentslackbuild7', { input => "y\ny\ny", expected => qr/nonexis
 # 13: sboremove shows readme for %README% dep
 sboinstall 'nonexistentslackbuild8', { input => "y\ny", test => 0 };
 sboremove 'nonexistentslackbuild8', { input => "y\ny\ny", expected => qr/But has to be read/ };
+
+# 14: sboremove nointeractive
+sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
+sboremove qw'--nointeractive nonexistentslackbuild nonexistentslackbuild', { input => "y\ny", expected => qr/Removing 1 package\(s\)\nnonexistentslackbuild\n\n.*All operations/s };
 
 # Cleanup
 END {
