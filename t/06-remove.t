@@ -90,7 +90,7 @@ sboremove 'nonexistentslackbuild8', { input => "y\ny\ny", expected => qr/But has
 
 # 14: sboremove nointeractive
 sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
-sboremove qw'--nointeractive nonexistentslackbuild nonexistentslackbuild', { input => "y\ny", expected => qr/Removing 1 package\(s\)\nnonexistentslackbuild\n\n.*All operations/s };
+sboremove qw'--nointeractive nonexistentslackbuild nonexistentslackbuild', { input => "y\ny", expected => qr/Removing 1 package\(s\)\nnonexistentslackbuild\n.*All operations/s };
 
 # Cleanup
 END {
