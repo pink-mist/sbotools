@@ -59,7 +59,7 @@ sub set_repo {
 	_set_config('REPO', @_);
 	if (-e "/usr/sbo/repo" and not $repo) {
 		$repo = 1;
-		system(qw! mv /usr/sbo/repo !, "$RealBin/repo.backup");
+		rename '/usr/sbo/repo', "$RealBin/repo.backup";
 
 		# if $sbt is true, the SLACKBUILDS.TXT has been created by
 		# make_slackbuilds_txt and should not be backed up
@@ -117,7 +117,7 @@ sub replace_tags_txt {
 	if (-e $tags_txt) {
 		if (! $tags) {
 			$tags = 2;
-			system('mv', $tags_txt, "$tags_txt.bak");
+			rename $tags_txt, "$tags_txt.bak";
 		}
 	} else {
 		$tags = 1 if $tags == 0;
@@ -141,11 +141,11 @@ END {
 		system(qw!rm -rf !, $tags_txt);
 	}
 	if ($tags == 2) {
-		system('mv', "$tags_txt.bak", $tags_txt);
+		rename "$tags_txt.bak", $tags_txt;
 	}
 	if ($repo) {
 		system(qw! rm -rf /usr/sbo/repo !);
-		system('mv', "$RealBin/repo.backup", "/usr/sbo/repo");
+		rename "$RealBin/repo.backup", "/usr/sbo/repo";
 	}
 }
 
