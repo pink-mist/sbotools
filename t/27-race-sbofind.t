@@ -43,7 +43,7 @@ my $tags_file = '/usr/sbo/repo/TAGS.txt';
 		if ($_[0] eq '$tags_file may be deleted after -f check') {
 			local *_race::cond = sub {
 				if ($_[0] eq '$file could be deleted between -f test and open') {
-					unlink $tags_file; mkdir $tags_file;
+					unlink $tags_file;
 				}
 			};
 		}
