@@ -7,9 +7,10 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo sbofind replace_tags_txt /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sbofind replace_tags_txt set_repo sbosnap /;
+use File::Temp 'tempdir';
 
-plan tests => 6;
+plan tests => 7;
 
 make_slackbuilds_txt();
 set_lo("$RealBin/LO");
@@ -32,3 +33,22 @@ sbofind '-r', 'nonexistentslackbuild4', { expected => qr/README: \n      This do
 
 # 6: show info
 sbofind '-i', 'nonexistentslackbuild4', { expected => qr/info:   \n      PRGNAM="nonexistentslackbuild4"/ };
+
+# 7: find even if SLACKBUILDS.TXT doesn't have LOCATION as second entry
+my $tempdir = tempdir(CLEANUP => 1);
+capture_merged { system <<"GIT"; };
+cd $tempdir
+git init
+mkdir -p test
+cp -a "$RealBin/LO/nonexistentslackbuild" test/
+echo "SLACKBUILD NAME: nonexistentslackbuild" > SLACKBUILDS.TXT
+echo "SLACKBUILD FOO: bar" >> SLACKBUILDS.TXT
+echo "SLACKBUILD LOCATION: ./test/nonexistentslackbuild" >> SLACKBUILDS.TXT
+git add test SLACKBUILDS.TXT
+git commit -m 'initial'
+GIT
+set_repo("file://$tempdir");
+set_lo('FALSE');
+sbosnap 'fetch', { test => 0 };
+
+sbofind 'nonexistentslackbuild', { expected => qr!\Q/usr/sbo/repo/test/nonexistentslackbuild! };
