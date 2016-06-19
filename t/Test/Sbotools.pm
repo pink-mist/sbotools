@@ -137,15 +137,15 @@ END {
 	if ($sbt) {
 		system(qw!rm -rf!, $sbtn);
 	}
+	if ($repo) {
+		system(qw! rm -rf /usr/sbo/repo !);
+		rename "$RealBin/repo.backup", "/usr/sbo/repo";
+	}
 	if ($tags) {
 		system(qw!rm -rf !, $tags_txt);
 	}
 	if ($tags == 2) {
 		rename "$tags_txt.bak", $tags_txt;
-	}
-	if ($repo) {
-		system(qw! rm -rf /usr/sbo/repo !);
-		rename "$RealBin/repo.backup", "/usr/sbo/repo";
 	}
 }
 
