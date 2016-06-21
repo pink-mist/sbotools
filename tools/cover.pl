@@ -56,5 +56,3 @@ if ($num == 0) {
 foreach my $build_dir (glob("cover_db/$build.*/")) {
 	system '/bin/bash', '-c', "cd $build_dir; tar xvf cover_db.tar";
 }
-
-system 'cover', '-write', "cover_db/$build", glob("cover_db/$build.{1,2,3,4,5,6,7,8}/cover_db/");
