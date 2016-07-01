@@ -52,7 +52,3 @@ while (my @files = $f_iter->next_page) {
 if ($num == 0) {
 	die "No files found for build number $build.\n";
 }
-
-foreach my $build_dir (glob("cover_db/$build.*/")) {
-	system '/bin/bash', '-c', "cd $build_dir; tar xvf cover_db.tar";
-}
