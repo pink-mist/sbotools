@@ -26,6 +26,7 @@
 
       Every push will now cause the test-suite to be run. #18
     * Hundreds of new unit-tests. #18 #19 #23 #24 #25 #27 #28 #31 #32 #33 #35 #41 #43
+    * sbofind will now also use tags if they're available #37
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools.
     * sbocheck output changed. #10 #13 #20

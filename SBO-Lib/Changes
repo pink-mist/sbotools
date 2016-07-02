@@ -46,6 +46,8 @@
        - https://github.com/pink-mist/sbotools/issues/35
        - https://github.com/pink-mist/sbotools/issues/41
        - https://github.com/pink-mist/sbotools/issues/43
+    * sbofind will now also use tags if they're available
+       - https://github.com/pink-mist/sbotools/issues/37
   * Minor/bugfixes/documentation fixes
     * Use system perl when running and installing sbotools
     * sbocheck output changed
