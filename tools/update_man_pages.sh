@@ -76,7 +76,7 @@ update_date() {
 	old_date=$(head -1 man1/sbocheck.1 | cut -d' ' -f4- | rev \
 		| cut -d' ' -f4- | rev | sed 's/"//g')
 
-	new_date=$(ddate +"%{%A, %B %d%}, %Y YOLD")
+	new_date=$(ddate +"%{%A, %B %d%}, %Y YOLD%N - %H")
 
 	for i in man1/*; do
 		sed_file $i "s/$old_date/$new_date/g"
