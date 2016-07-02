@@ -21,16 +21,16 @@
       <div class="breadcrumbs"><a href="/sbotools/">sbotools</a> &#x00bb; <a href="/sbotools/documentation/">documentation</a></div>
 
 <H1>sboupgrade</H1>
-Section: dawnrazor.net (1)<BR>Updated: Setting Orange, The Aftermath 38, 3181 YOLD<BR><A HREF="#index">Index</A>
+Section: dawnrazor.net (1)<BR>Updated: Pungenday, Confusion 37, 3182 YOLD<BR><A HREF="#index">Index</A>
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 sboupgrade - install or upgrade slackbuilds
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNAPSES</H2>
-sboupgrade [-h|-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-fNrRiz] sbo_name (sbo_name)
+sboupgrade [-h|-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-fNrRiz] --all|sbo_name (sbo_name)
 <A NAME="lbAD">&nbsp;</A>
 <H2>DESCRIPTION</H2>
-sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboupgrade will refuse to handle circular requirements. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options.
+sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboupgrade will refuse to handle circular requirements. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options. If --all is supplied it will try to upgrade everything that <A HREF="/sbotools/documentation/sbocheck.1.html">sbocheck</A>(1) reports.
 <A NAME="lbAE">&nbsp;</A>
 <H2>OPTIONS</H2>
 -h|--help
@@ -63,15 +63,19 @@ If numeric (2,5,10, etc), then that number will be fed to the &quot;-j&quot; arg
 </DL>
 -r|--nointeractive
 <DL COMPACT><DT><DD>
-Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade is run, the first thing the command will attempt to do is show you the README for a given slackbuild and ask whether or not you wish to proceed; this option skips the README and bypasses the question. If multiple slackbuilds are specified, this option bypasses them all.
+Skip viewing of the README and the yes or no question which accompanies it. Anytime sboupgrade is run, the first thing the command will attempt to do is show you the README for a given slackbuild and ask whether or not you wish to proceed; this option skips the README and bypasses the question. This also disables dependency resolution, since you have no way of confirming which dependencies you actually want to install. If multiple slackbuilds are specified, this option bypasses them all.
 </DL>
 -z|--force-reqs
 <DL COMPACT><DT><DD>
 When used in combination with the -f option, to force an update even if it would not constitute an update, this will cause sboupgrade to also rebuild all of that slackbuild's requirements. Normally with -f, only the slackbuild(s) specified, and any requirements not already installed, will be rebuilt. This allows for recursive upgrades, among other things.
 </DL>
+--all
+<DL COMPACT><DT><DD>
+You can specify --all instead of an sbo_name to upgrade all the packages <A HREF="/sbotools/documentation/sbocheck.1.html">sbocheck</A>(1) reports.
+</DL>
 <A NAME="lbAF">&nbsp;</A>
 <H2>EXIT CODES</H2>
-sboinstall can exit with the following exit codes:
+sboupgrade can exit with the following exit codes:
 <DL COMPACT><DT><DD>
 <P>
 0: all operations were succesful.
@@ -134,7 +138,7 @@ Andreas Guldstrand &lt;andreas_[dot]_guldstrand_[at]_gmail_[dot]_com&gt;
 This document was created by
 man2html,
 using the manual pages.<BR>
-Time: 13:42:03 GMT, November 27, 2015
+Time: 07:29:16 GMT, July 02, 2016
 
 
 

@@ -21,7 +21,7 @@
       <div class="breadcrumbs"><a href="/sbotools/">sbotools</a> &#x00bb; <a href="/sbotools/documentation/">documentation</a></div>
 
 <H1>sbotools.conf</H1>
-Section: dawnrazor.net (5)<BR>Updated: Setting Orange, The Aftermath 38, 3181 YOLD<BR><A HREF="#index">Index</A>
+Section: dawnrazor.net (5)<BR>Updated: Pungenday, Confusion 37, 3182 YOLD<BR><A HREF="#index">Index</A>
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 sbotools.conf - configuration file for sbotools commands.
@@ -49,6 +49,18 @@ SBO_HOME=(/usr/sbo|/path)
 <DL COMPACT><DT><DD>
 If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
 </DL>
+LOCAL_OVERRIDES=(FALSE|/path)
+<DL COMPACT><DT><DD>
+If set to a path, any directory name under that path that matches a slackbuild name will be used instead of anything found in the main repo. (By default SBo, but this can be changed using the REPO setting. See below.) This will even work if it isn't on SBo at all. It still requires all the usual files present in an SBo directory such as README, name.info, and name.SlackBuild.
+</DL>
+SLACKWARE_VERSION=(FALSE|#.#)
+<DL COMPACT><DT><DD>
+If set to a version specification, use the SBo repository for that version instead of the one you can find in /etc/slackware-version.
+</DL>
+REPO=(FALSE|url)
+<DL COMPACT><DT><DD>
+If set to a url, use that repository instead of the SlackBuilds.org repository for your SLACKWARE_VERSION. Setting this will make the SLACKWARE_VERSION setting redundant. URLs need to either lead to a git repository or an rsync repository. The repository needs to be laid out like the SlackBuilds.org one with a couple of broad categories at the root and under those are subdirectories for each package.
+</DL>
 <A NAME="lbAD">&nbsp;</A>
 <H2>SEE ALSO</H2>
 <A HREF="/sbotools/documentation/sbocheck.1.html">sbocheck</A>(1), <A HREF="/sbotools/documentation/sboclean.1.html">sboclean</A>(1), <A HREF="/sbotools/documentation/sboconfig.1.html">sboconfig</A>(1), <A HREF="/sbotools/documentation/sbofind.1.html">sbofind</A>(1), <A HREF="/sbotools/documentation/sboinstall.1.html">sboinstall</A>(1), <A HREF="/sbotools/documentation/sboremove.1.html">sboremove</A>(1), <A HREF="/sbotools/documentation/sbosnap.1.html">sbosnap</A>(1), <A HREF="/sbotools/documentation/sboupgrade.1.html">sboupgrade</A>(1)
@@ -70,7 +82,7 @@ Andreas Guldstrand &lt;andreas_[dot]_guldstrand_[at]_gmail_[dot]_com&gt;
 This document was created by
 man2html,
 using the manual pages.<BR>
-Time: 13:42:03 GMT, November 27, 2015
+Time: 07:29:17 GMT, July 02, 2016
 
 
 

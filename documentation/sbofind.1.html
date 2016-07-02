@@ -21,7 +21,7 @@
       <div class="breadcrumbs"><a href="/sbotools/">sbotools</a> &#x00bb; <a href="/sbotools/documentation/">documentation</a></div>
 
 <H1>sbofind</H1>
-Section: dawnrazor.net (1)<BR>Updated: Setting Orange, The Aftermath 38, 3181 YOLD<BR><A HREF="#index">Index</A>
+Section: dawnrazor.net (1)<BR>Updated: Pungenday, Confusion 37, 3182 YOLD<BR><A HREF="#index">Index</A>
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 sbofind - search slackbuilds.org tree for a given name
@@ -30,7 +30,7 @@ sbofind - search slackbuilds.org tree for a given name
 sbofind [-h|-v] [-ir] search_term
 <A NAME="lbAD">&nbsp;</A>
 <H2>DESCRIPTION</H2>
-sbofind searches the names of all slackbuilds for a given term. It reports back any slackbuilds found along with the path for each. This is equivalent to running &quot;cd /usr/ports; make search name=$search_term display=name,path&quot; on a FreeBSD system. For a more general search, the slackbuilds.org site should be consulted, where tags also exist and are included in the searched fields.
+sbofind searches the names of all slackbuilds for a given term. It reports back any slackbuilds found along with the path for each. This is equivalent to running &quot;cd /usr/ports; make search name=$search_term display=name,path&quot; on a FreeBSD system. If the repository includes a TAGS.txt file, that will be used to find more results as well.
 <A NAME="lbAE">&nbsp;</A>
 <H2>OPTIONS</H2>
 -h|--help
@@ -48,6 +48,10 @@ Show the contents of the .info file for each slackbuild found.
 -r|--readme
 <DL COMPACT><DT><DD>
 Show the contents of the README file for each slackbuild found.
+</DL>
+-q|--queue
+<DL COMPACT><DT><DD>
+Show the build queue for each slackbuild found.
 </DL>
 <A NAME="lbAF">&nbsp;</A>
 <H2>EXIT CODES</H2>
@@ -90,7 +94,7 @@ Andreas Guldstrand &lt;andreas_[dot]_guldstrand_[at]_gmail_[dot]_com&gt;
 This document was created by
 man2html,
 using the manual pages.<BR>
-Time: 13:42:03 GMT, November 27, 2015
+Time: 07:29:16 GMT, July 02, 2016
 
 
 

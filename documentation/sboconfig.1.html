@@ -21,7 +21,7 @@
       <div class="breadcrumbs"><a href="/sbotools/">sbotools</a> &#x00bb; <a href="/sbotools/documentation/">documentation</a></div>
 
 <H1>sboconfig</H1>
-Section: dawnrazor.net (1)<BR>Updated: Setting Orange, The Aftermath 38, 3181 YOLD<BR><A HREF="#index">Index</A>
+Section: dawnrazor.net (1)<BR>Updated: Pungenday, Confusion 37, 3182 YOLD<BR><A HREF="#index">Index</A>
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME</H2>
 sboconfig - set sbotools configuration options.
@@ -65,6 +65,18 @@ PKG_DIR: If set to a path, packages will be stored at the given location after b
 <DL COMPACT><DT><DD>
 SBO_HOME: If set to a path, this is where the slackbuilds.org tree will live; by default, /usr/sbo will be used. If the tree should live elsewhere, this option can be set to the path where the tree should live. Note that if you set this option after fetching the tree to a different location (such as the default), you will need to fetch the tree again.
 </DL>
+-o|--local-overrides (FALSE|/path)
+<DL COMPACT><DT><DD>
+LOCAL_OVERRIDES: If set to a path, any directory name under that path that matches a slackbuild name will be used instead of anything found on SBo. This will even work if it isn't on SBo at all. It still requires all the usual files present in an SBo directory such as README, name.info, and name.SlackBuild.
+</DL>
+-V|--slackware-version (FALSE|#.#)
+<DL COMPACT><DT><DD>
+SLACKWARE_VERSION: If set to a version specification, use the SBo repository for that version instead of the one you can find in /etc/slackware-version.
+</DL>
+-r|--repo (FALSE|url)
+<DL COMPACT><DT><DD>
+REPO: If set to a url, use that repository instead of the SlackBuilds.org repository for your SLACKWARE_VERSION. Setting this will make the SLACKWARE_VERSION setting redundant. URLs need to either lead to a git repository or an rsync repository. The repository needs to be laid out like the SlackBuilds.org one with a couple of broad categories at the root and under those are subdirectories for each package.
+</DL>
 <A NAME="lbAF">&nbsp;</A>
 <H2>EXIT CODES</H2>
 sboconfig can exit with the following codes:
@@ -106,7 +118,7 @@ Andreas Guldstrand &lt;andreas_[dot]_guldstrand_[at]_gmail_[dot]_com&gt;
 This document was created by
 man2html,
 using the manual pages.<BR>
-Time: 13:42:03 GMT, November 27, 2015
+Time: 07:29:16 GMT, July 02, 2016
 
 
 
