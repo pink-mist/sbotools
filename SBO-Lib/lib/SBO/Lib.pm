@@ -214,6 +214,7 @@ sub get_slack_version {
 	my %supported = (
 		'14.0' => '14.0',
 		'14.1' => '14.1',
+		'14.2' => '14.2',
 	);
 	my ($fh, $exit) = open_read('/etc/slackware-version');
 	if ($exit) {
