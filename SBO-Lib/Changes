@@ -1,4 +1,4 @@
-2.0 - Unreleased
+2.0 - 2016-07-02
   * Major new features
     * LOCAL_OVERRIDES setting
       Allows to keep a directory with local slackbuild dirs that will override

@@ -3,7 +3,7 @@
 **[sbotools](https://pink-mist.github.io/sbotools/)** provides a ports-like interface to [slackbuilds.org](http://www.slackbuilds.org/).
 
 ## Changes
-* 2.0 - Unreleased
+* 2.0 - 2016-07-02
   * Major new features
     * LOCAL_OVERRIDES setting
 
