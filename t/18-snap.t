@@ -7,10 +7,10 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ sbosnap set_repo /;
+use Test::Sbotools qw/ sbosnap set_repo set_sbo_home /;
 use File::Temp 'tempdir';
 
-plan tests => 3;
+plan tests => 4;
 
 my $usage = <<'SBOSNAP';
 Usage: sbosnap [options|command]
@@ -46,5 +46,11 @@ git add test
 git commit -m 'test'
 END
 
-sbosnap 'update', { expected => qr/Pulling SlackBuilds tree[.][.][.]/ };;
+sbosnap 'update', { expected => qr/Pulling SlackBuilds tree[.][.][.]/ };
 
+# 4-5: sbosnap when SBO_HOME is set
+my $tmphome = tempdir(CLEANUP => 1);
+set_sbo_home($tmphome);
+
+sbosnap 'fetch', { note => 1, test => 0 };
+ok (-e "$tmphome/test/nonexistentslackbuild/nonexistentslackbuild.info", 'SBo tree pulled to correct location');
