@@ -53,4 +53,4 @@ my $tmphome = tempdir(CLEANUP => 1);
 set_sbo_home($tmphome);
 
 sbosnap 'fetch', { note => 1, test => 0 };
-ok (-e "$tmphome/test/nonexistentslackbuild/nonexistentslackbuild.info", 'SBo tree pulled to correct location');
+ok (-e "$tmphome/repo/test/nonexistentslackbuild/nonexistentslackbuild.info", 'SBo tree pulled to correct location');
