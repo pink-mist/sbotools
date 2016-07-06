@@ -198,7 +198,13 @@ END
 }
 
 # 26: compat32 for malformed-readme fail
-sboinstall qw/ -p malformed-readme /, { exit => 2, expected => qr!A fatal script error has occurred:\nopen_fh, .*t/LO-fail/malformed-readme/README is not a file! };
+SKIP: {
+	skip "Multilib convertpkg fail test only valid if TEST_MULTILIB=2", 1 unless $ENV{TEST_MULTILIB} == 2;
+	skip "No /etc/profile.d/32dev.sh", 1 unless -e "/etc/profile.d/32dev.sh";
+	skip "No /usr/sbin/convertpkg-compat32", 1 unless -e "/usr/sbin/convertpkg-compat32";
+
+	sboinstall qw/ -p malformed-readme /, { exit => 2, expected => qr!A fatal script error has occurred:\nopen_fh, .*t/LO-fail/malformed-readme/README is not a file! };
+}
 
 # Cleanup
 END {
