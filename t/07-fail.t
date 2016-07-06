@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 25;
+	plan tests => 26;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -196,6 +196,9 @@ END
 
 	sboinstall qw/ -p perl-nonexistentcpan /, { expected => "-p|--compat32 is not supported with Perl SBos.\n", exit => 1 };
 }
+
+# 26: compat32 for malformed-readme fail
+sboinstall qw/ -p malformed-readme /, { exit => 2, expected => qr!A fatal script error has occurred:\nopen_fh, .*t/LO-fail/malformed-readme/README is not a file! };
 
 # Cleanup
 END {
