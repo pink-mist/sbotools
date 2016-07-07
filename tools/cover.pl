@@ -33,7 +33,7 @@ my $bucket = $s3->bucket($ENV{S3_BUCKET});
 my $f_iter = $bucket->files(
 	page_size => 100,
 	page_number => 1,
-	pattern => qr!$base!,
+	pattern => qr!$base\Q$build.11\E/!,
 );
 
 my $num = 0;
