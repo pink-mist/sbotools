@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sbo
 use SBO::Lib;
 use File::Temp 'tempdir';
 
-plan tests => 16;
+plan tests => 17;
 
 my $sboname = "nonexistentslackbuild";
 my $perf    = "/usr/sbo/distfiles/perf.dummy";
@@ -92,4 +92,13 @@ sboinstall qw/ -r nonexistentslackbuild /, { test => 0 };
 set_lo "$RealBin/LO2";
 sboupgrade qw/ -c TRUE nonexistentslackbuild /, { input => "y\ny", test => 0 };
 ok (-e "/tmp/SBo/$sboname-1.1", "$sboname-1.1 exists when NOCLEAN set to true in sboupgrade.");
+cleanup();
+
+# 17: sboupgrade -d TRUE
+set_lo "$RealBin/LO";
+sboinstall qw/ -r nonexistentslackbuild /, { test => 0 };
+set_lo "$RealBin/LO2";
+sboupgrade qw/ -d TRUE nonexistentslackbuild /, { input => "y\ny", test => 0 };
+ok (!-e $perf, "perf.dummy cleaned after upgrade with -d.");
+restore_perf_dummy();
 cleanup();
