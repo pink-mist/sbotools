@@ -7,18 +7,18 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sboinstall sboclean sboremove restore_perf_dummy set_sbo_home /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_distclean set_noclean set_lo sboinstall sboclean sboremove restore_perf_dummy set_sbo_home sboupgrade /;
 use SBO::Lib;
 use File::Temp 'tempdir';
 
-plan tests => 15;
+plan tests => 16;
 
 my $sboname = "nonexistentslackbuild";
 my $perf    = "/usr/sbo/distfiles/perf.dummy";
 sub cleanup {
 	capture_merged {
 		system('removepkg', $sboname);
-		system(qw! rm -rf !, "/tmp/SBo/$sboname-1.0");
+		system(qw! rm -rf !, "/tmp/SBo/$sboname-1.0", "/tmp/SBo/$sboname-1.1");
 	}
 }
 
@@ -85,3 +85,11 @@ sboclean '-d', { exit => 0, expected => "Nothing to do.\n" };
 	sboclean qw/ -w -i /, { input => "y\ny", expected => qr!\QRemove $ENV{TMP}/\E.*\Q? [n]\E! };
 	sboclean '-w', { input => "y", expected => qr/This will remove the entire contents of \Q$ENV{TMP}\E/ };
 }
+
+# 16: sboupgrade -c TRUE
+set_sbo_home("/usr/sbo");
+sboinstall qw/ -r nonexistentslackbuild /, { test => 0 };
+set_lo "$RealBin/LO2";
+sboupgrade qw/ -c TRUE nonexistentslackbuild /, { input => "y\ny", test => 0 };
+ok (-e "/tmp/SBo/$sboname-1.1", "$sboname-1.1 exists when NOCLEAN set to true in sboupgrade.");
+cleanup();
