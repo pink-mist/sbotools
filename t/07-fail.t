@@ -7,11 +7,11 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove sbosnap restore_perf_dummy /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove sbosnap restore_perf_dummy sboupgrade /;
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 26;
+	plan tests => 27;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -205,6 +205,12 @@ SKIP: {
 
 	sboinstall qw/ -p malformed-readme /, { exit => 2, expected => qr!A fatal script error has occurred:\nopen_fh, .*t/LO-fail/malformed-readme/README is not a file! };
 }
+
+# 27: sboupgrade with -r and -z
+set_lo "$RealBin/LO";
+sboinstall qw/ -r nonexistentslackbuild /, { test => 0 };
+set_lo "$RealBin/LO2";
+sboupgrade qw/ -z -r nonexistentslackbuild /, { exit => 1, expected => "-r|--nointeractive and -z|--force-reqs can not be used together.\n" };
 
 # Cleanup
 END {
