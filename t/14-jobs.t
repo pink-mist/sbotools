@@ -7,10 +7,10 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ set_lo set_jobs sboinstall sboremove sboconfig restore_perf_dummy make_slackbuilds_txt /;
+use Test::Sbotools qw/ set_lo set_jobs sboinstall sboremove sboconfig restore_perf_dummy make_slackbuilds_txt sboupgrade /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 6;
+	plan tests => 7;
 } else {
 	plan skip_all => "Only run these tests if TEST_INSTALL=1";
 }
@@ -70,6 +70,11 @@ sboremove('nonexistentslackbuild', { input => "y\ny", test => 0 });
 
 #6: sboinstall -j invalid
 sboinstall(qw/ -j invalid nonexistentslackbuild /, { exit => 1, expected => "You have provided an invalid value for -j|--jobs\n" });
+
+#7: sboupgrade -j invalid
+sboinstall qw/ -r nonexistentslackbuild /, { test => 0 };
+set_lo "$RealBin/LO2";
+sboupgrade qw/ -j invalid nonexistentslackbuild /, { exit => 1, expected => "You have provided an invalid value for -j|--jobs\n" };
 
 
 # Cleanup
