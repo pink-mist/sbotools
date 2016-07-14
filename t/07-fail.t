@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sboinstall sboremove
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 27;
+	plan tests => 28;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -211,6 +211,9 @@ set_lo "$RealBin/LO";
 sboinstall qw/ -r nonexistentslackbuild /, { test => 0 };
 set_lo "$RealBin/LO2";
 sboupgrade qw/ -z -r nonexistentslackbuild /, { exit => 1, expected => "-r|--nointeractive and -z|--force-reqs can not be used together.\n" };
+
+# 28: sboupgrade nonexistentslackbuildname
+sboupgrade 'nonexistentslackbuildname', { exit => 1, expected => "Unable to locate nonexistentslackbuildname in the SlackBuilds.org tree.\n" };
 
 # Cleanup
 END {
