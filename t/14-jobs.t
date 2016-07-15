@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ set_lo set_jobs sboinstall sboremove sboconfig restore_perf_dummy make_slackbuilds_txt sboupgrade /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 8;
+	plan tests => 9;
 } else {
 	plan skip_all => "Only run these tests if TEST_INSTALL=1";
 }
@@ -80,6 +80,13 @@ sboupgrade qw/ -j invalid nonexistentslackbuild /, { exit => 1, expected => "You
 {
 	my ($time) = sboupgrade qw/ -j 2 nonexistentslackbuild /, { input => "y\ny", expected => qr/^real\s+\d+m([\d.]+)s$/m, test => 0 };
 	ok ($time < 5, "sboupgrade -j 2 took less time than otherwise");
+}
+
+#9: sboupgrade -j 0
+{
+	set_lo "$RealBin/LO-jobs";
+	my ($time) = sboupgrade qw/ -j 0 nonexistentslackbuild /, { input => "y\ny", expected => qr/^real\s+\d+m([\d.]+)s$/m, test => 0 };
+	ok ($time > 5, "sboupgrade -j 0 took the expected amount of time");
 }
 
 
