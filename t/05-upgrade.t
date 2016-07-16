@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboconfig sboinstall sboupgra
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 18;
+	plan tests => 19;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -130,6 +130,9 @@ sboupgrade '--all', { input => ("n\n" x (@sbos+1)), expected => sub { not /weird
 install('LO', 'nonexistentslackbuild');
 sboupgrade qw/ -r -f nonexistentslackbuild /, { expected => qr/^Upgrade queue: nonexistentslackbuild$/m };
 sboupgrade qw/ -r -f nonexistentslackbuild2 /, { expected => "" };
+
+# 19: sboupgrade -r on something already up to date
+sboupgrade qw/ -r nonexistentslackbuild /, { expected => "" };
 
 # Cleanup
 END {
