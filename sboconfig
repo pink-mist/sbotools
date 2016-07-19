@@ -126,59 +126,55 @@ if (exists $changes{SLACKWARE_VERSION}) {
 	usage_error("$warn -V") unless $changes{SLACKWARE_VERSION} =~ m/^(\d+\.\d+|FALSE)$/;
 }
 
-# safely modify our conf file; write its contents to a temp file, modify the
-# temp file, write the contents of the temp file back to the conf file
-# TODO: if multiple options are provided to this script, this sub should write
-# them all at once, instead of only a single one and having to call it once for
-# each option specified to the script.
 sub config_write {
-	my ($key, $val) = @_;
-	script_error('config_write requires two arguments.') unless @_ == 2;
-	if (! -d $conf_dir) {
-		mkdir $conf_dir or usage_error("Unable to create $conf_dir. Exiting.");
+	script_error('config_write requires at least two arguments.') unless @_ >= 2;
+
+	my $conf = slurp($conf_file);
+	_fixup_conf($conf);
+
+	while (@_ >= 2) {
+		my $key = shift;
+		my $val = shift;
+
+		if ($conf =~ /^\Q$key\E=/m) {
+			$conf =~ s/^\Q$key\E=.*$/$key=$val/m;
+		} else {
+			$conf .= "$key=$val\n";
+		}
 	}
-	if (-f $conf_file) {
-		my $tempfh = tempfile(DIR => $tempdir);
-		my ($conffh, $exit) = open_read($conf_file);
-		if ($exit) {
-			warn $conffh;
-			exit $exit;
-		}
-		my $conftents = do {local $/; <$conffh>};
-		print {$tempfh} $conftents;
-		# tie the temp file so that if $key is already there, we just change 
-		# that line and untie it
-		tie my @temp, 'Tie::File', $tempfh;
-		my $has;
-		my $regex = qr/\A\Q$key\E=/;
-		# TODO: fix this monstrosity
-		FIRST: for my $tmpline (@temp) {
-			$has++, $tmpline = "$key=$val", last FIRST if $tmpline =~ $regex;
-		}
-		untie @temp;
-		# otherwise, append our new $key=$value pair
-		print {$tempfh} "$key=$val\n" unless $has;
-		# then overwrite the conf file with the contents of the temp file
-		seek $tempfh, 0, 0;
-		my $contents = do {local $/; <$tempfh>};
-		close $conffh;
-		($conffh, $exit) = open_fh($conf_file, '>');
-		if ($exit) {
-			warn $conffh;
-			exit $exit;
-		}
-		print {$conffh} $contents;
-	} else {
-		# no config file, easiest case of all.
-		my ($fh, $exit) = open_fh($conf_file, '>');
-		if ($exit) {
-			warn $fh;
-			exit $exit;
-		}
-		print {$fh} "$key=$val\n";
-		close $fh;
+
+	_fixup_conf($conf);
+
+	my ($conffh, $exit) = open_fh($conf_file, '>');
+	if ($exit) {
+		warn $conffh;
+		exit $exit;
 	}
-	return 1;
+	print {$conffh} $conf;
+}
+
+sub slurp {
+	my $fn = shift;
+	return undef unless -f $fn;
+	my ($fh, $exit) = open_read($fn);
+	return undef if $exit;
+	local $/;
+	return scalar readline($fh);
+}
+
+# make sure there are no duplicate keys in the config
+sub _fixup_conf {
+	my @lines = split /\n/, $_[0];
+	my @fixed;
+	my %keys;
+	foreach my $line (@lines) {
+		my ($key, $val) = split /=/, $line;
+		next if exists $keys{$key};
+		$keys{$key}++;
+		push @fixed, $line;
+	}
+
+	$_[0] = join "\n", @fixed, ''; # make sure we end with a newline if there are any lines
 }
 
 for my $key (keys %changes) {
