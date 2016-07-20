@@ -135,6 +135,7 @@ sub config_write {
 	while (@_ >= 2) {
 		my $key = shift;
 		my $val = shift;
+		say "Setting $key to $val...";
 
 		if ($conf =~ /^\Q$key\E=/m) {
 			$conf =~ s/^\Q$key\E=.*$/$key=$val/m;
@@ -177,10 +178,6 @@ sub _fixup_conf {
 	$_[0] = join "\n", @fixed, ''; # make sure we end with a newline if there are any lines
 }
 
-for my $key (keys %changes) {
-	my $value = $changes{$key};
-	say "Setting $key to $value...";
-	config_write($key, $value);
-}
+config_write(%changes) if %changes;
 
 exit 0;
