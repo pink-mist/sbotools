@@ -129,7 +129,7 @@ if (exists $changes{SLACKWARE_VERSION}) {
 sub config_write {
 	script_error('config_write requires at least two arguments.') unless @_ >= 2;
 
-	my $conf = slurp($conf_file);
+	my $conf = slurp($conf_file) || '';
 	_fixup_conf($conf);
 
 	while (@_ >= 2) {
