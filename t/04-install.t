@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 18;
+	plan tests => 19;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -96,6 +96,15 @@ sboinstall 'perl-Capture-Tiny', { expected => "perl-Capture-Tiny installed via t
 
 # 18: sboinstall perl-nonexistentcpan
 sboinstall 'perl-nonexistentcpan', { input => "n", expected => qr/Proceed with perl-nonexistentcpan/ };
+
+# 19: check node status of slackbuild script
+TODO: {
+	local $TODO = "preserving inodes not implemented yet";
+	my $sbo = "$RealBin/LO/nonexistentslackbuild/nonexistentslackbuild.SlackBuild";
+	my $inode = (stat($sbo))[1];
+	sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
+	is((stat($sbo))[1], $inode, "inode didn't change");
+}
 
 # Cleanup
 END {
