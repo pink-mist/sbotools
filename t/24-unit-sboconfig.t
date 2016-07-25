@@ -36,6 +36,6 @@ sub load {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { main::config_write(); }; };
 
-	is ($out, "A fatal script error has occurred:\nconfig_write requires two arguments.\nExiting.\n", "sboconfig's config_write() gave correct output");
+	is ($out, "A fatal script error has occurred:\nconfig_write requires at least two arguments.\nExiting.\n", "sboconfig's config_write() gave correct output");
 	is ($exit, 2, "sboconfig's config_write() gave correct exit status");
 }
