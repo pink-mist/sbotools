@@ -98,8 +98,7 @@ sboinstall 'perl-Capture-Tiny', { expected => "perl-Capture-Tiny installed via t
 sboinstall 'perl-nonexistentcpan', { input => "n", expected => qr/Proceed with perl-nonexistentcpan/ };
 
 # 19: check node status of slackbuild script
-TODO: {
-	local $TODO = "preserving inodes not implemented yet";
+{
 	my $sbo = "$RealBin/LO/nonexistentslackbuild/nonexistentslackbuild.SlackBuild";
 	my $inode = (stat($sbo))[1];
 	sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
