@@ -862,10 +862,19 @@ sub rewrite_slackbuild {
 	$args{SLACKBUILD} or script_error('rewrite_slackbuild requires SLACKBUILD.');
 	my $slackbuild = $args{SLACKBUILD};
 	my $changes = $args{CHANGES};
-	unless (copy($slackbuild, "$slackbuild.orig")) {
+
+	# $status will be undefined if either the rename or the copy fails, otherwise it will be 1
+	my $status = eval {
+		rename($slackbuild, "$slackbuild.orig") or die "not ok";
+		copy("$slackbuild.orig", $slackbuild) or die "not ok";
+		1;
+	};
+	if (not $status) {
+		rename "$slackbuild.orig", $slackbuild if not -f $slackbuild;
 		return "Unable to backup $slackbuild to $slackbuild.orig\n",
 			_ERR_OPENFH;
 	}
+
 	my $libdir_regex = qr/^\s*LIBDIRSUFFIX="64"\s*$/;
 	my $arch_regex = qr/\$VERSION-\$ARCH-\$BUILD/;
 	my $dc_regex = qr/(?<![a-z])(tar|p7zip|unzip|ar|rpm2cpio|sh)\s+/;
