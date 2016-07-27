@@ -129,6 +129,10 @@ if (exists $changes{SLACKWARE_VERSION}) {
 sub config_write {
 	script_error('config_write requires at least two arguments.') unless @_ >= 2;
 
+	if (! -d $conf_dir) {
+		mkdir $conf_dir or usage_error("Unable to create $conf_dir. Exiting.");
+	}
+
 	my $conf = slurp($conf_file) || '';
 	_fixup_conf($conf);
 
