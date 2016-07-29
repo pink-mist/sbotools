@@ -311,7 +311,6 @@ SKIP: {
 
 	my @res = map { SBO::Lib::version_cmp(@$_); } [ '1.0', '1.0' ], [ "1.0_$kv", '1.0' ], [ '1.0', "1.0_$kv" ], [ "1.0_$kv", "1.0_$kv" ];
 
-	note "k = $kv";
 	is ($res[0], 0, "version_cmp(1.0, 1.0) returned 0");
 	is ($res[1], 0, "version_cmp(1.0_k, 1.0) returned 0");
 	is ($res[2], 0, "version_cmp(1.0, 1.0_k) returned 0");
