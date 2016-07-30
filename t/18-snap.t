@@ -52,5 +52,5 @@ sbosnap 'update', { expected => qr/Pulling SlackBuilds tree[.][.][.]/ };
 my $tmphome = tempdir(CLEANUP => 1);
 set_sbo_home($tmphome);
 
-sbosnap 'fetch', { note => 1, test => 0 };
+sbosnap 'fetch', { test => 0 };
 ok (-e "$tmphome/repo/test/nonexistentslackbuild/nonexistentslackbuild.info", 'SBo tree pulled to correct location');
