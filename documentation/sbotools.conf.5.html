@@ -29,6 +29,7 @@ sbotools.conf - configuration file for sbotools commands.
 <H2>DESCRIPTION</H2>
 This file, location at /etc/sbotools/sbotools.conf, contains KEY=VALUE configuration parameters, and is read by all of the sbotools commands. 
 The current configuration keys are as follows:
+<p>
 DISTCLEAN=(FALSE|TRUE)
 <DL COMPACT><DT><DD>
 If TRUE, then DO remove the source code after building the slackbuild. By default, the source code is not removed, and lives under $SBO_HOME/distfiles, which, by default, is /usr/sbo/distfiles. Setting this option to TRUE causes the source code to be removed by default. This can be overridden when running <A HREF="/sbotools/documentation/sboupgrade.1.html">sboupgrade</A>(1)/<A HREF="/sbotools/documentation/sboinstall.1.html">sboinstall</A>(1).
