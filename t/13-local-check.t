@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo set_repo sbosnap sbocheck sboinstall sbofind restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL} and $ENV{TRAVIS}) {
-	plan tests => 13;
+	plan tests => 14;
 } else {
 	plan skip_all => "Only run these tests if TEST_INSTALL=1 and we're running under Travis CI";
 }
@@ -19,6 +19,7 @@ sub cleanup {
 	capture_merged {
 		system(qw!/sbin/removepkg nonexistentslackbuild!);
 		system(qw!/sbin/removepkg nonexistentslackbuild5!);
+		system(qw!/sbin/removepkg nonexistentslackbuild8!);
 		system(qw!/sbin/removepkg nonexistentslackbuildwithareallyverylongnameasyoucansee!);
 		system(qw!/sbin/removepkg s!);
 		system(qw!/sbin/removepkg nonexistentslackbuildwithareallyverylo!);
@@ -30,6 +31,7 @@ sub cleanup {
 		unlink "$RealBin/LO/weird-versionsbo/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
+		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild8-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylongnameasyoucansee-1.0!);
 		system(qw!rm -rf /tmp/SBo/s-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuildwithareallyverylo-1.0!);
@@ -39,6 +41,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/weird-versionsbo-1.0!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
+		system(qw!rm -rf /tmp/package-nonexistentslackbuild8!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylongnameasyoucansee!);
 		system(qw!rm -rf /tmp/package-s!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuildwithareallyverylo!);
@@ -154,6 +157,14 @@ sbocheck { expected => qr/\Qs2 1.0                      <  needs updating (1.1 f
 set_lo("$RealBin/LO");
 sboinstall 'weird-versionsbo', { input => "y\ny", test => 0 };
 sbocheck { expected => sub { not /weird-versionsbo/ } };
+
+# 14: check sbo no longer available
+cleanup();
+setup_gitrepo();
+sbosnap 'update', { test => 0 };
+sboinstall 'nonexistentslackbuild8', { input => "y\ny", test => 0 };
+set_lo("$RealBin/LO2");
+sbocheck { expected => qr/No updates available[.]/ };
 
 # Cleanup
 END {
