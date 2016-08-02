@@ -7,6 +7,8 @@ use Exporter 'import';
 use Test::More;
 use Test::Execute;
 use FindBin '$RealBin';
+use Capture::Tiny 'capture_merged';
+use Test::Exit;
 use lib "$RealBin/../SBO-Lib/lib";
 
 # From Test::Execute
