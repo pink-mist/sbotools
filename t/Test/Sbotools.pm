@@ -159,6 +159,7 @@ sub load {
 	my ($ret, $exit, $out, $do_err);
 	my $eval = eval {
 		$out = capture_merged { $exit = exit_code {
+			package main;
 			$ret = do "$RealBin/../$script";
 			$do_err = $@;
 		}; };
