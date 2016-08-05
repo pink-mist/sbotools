@@ -5,7 +5,6 @@ use warnings;
 use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
-use lib "$RealBin/../SBO-Lib/lib";
 use lib $RealBin;
 use Test::Sbotools 'load';
 use Capture::Tiny qw/ capture_merged /;
