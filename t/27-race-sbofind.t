@@ -6,29 +6,14 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
+use lib $RealBin;
+use Test::Sbotools 'load';
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 use feature 'state';
 
 plan tests => 9;
-
-sub load {
-	my ($script, %opts) = @_;
-
-	local @ARGV = exists $opts{argv} ? @{ $opts{argv} } : '-h';
-	my ($ret, $exit, $out, $do_err);
-	my $eval = eval {
-		$out = capture_merged { $exit = exit_code {
-			$ret = do "$RealBin/../$script";
-			$do_err = $@;
-		}; };
-		1;
-	};
-	my $err = $@;
-
-	note explain { ret => $ret, exit => $exit, out => $out, eval => $eval, err => $err, do_err => $do_err } if $opts{explain};
-}
 
 load('sbofind');
 my $tags_file = '/usr/sbo/repo/TAGS.txt';
