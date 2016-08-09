@@ -167,7 +167,9 @@ sub load {
 	};
 	my $err = $@;
 
-	note explain { ret => $ret, exit => $exit, out => $out, eval => $eval, err => $err, do_err => $do_err } if $opts{explain};
+	my $explain = { ret => $ret, exit => $exit, out => $out, eval => $eval, err => $err, do_err => $do_err };
+	note explain $explain if $opts{explain};
+	return $explain;
 }
 
 
