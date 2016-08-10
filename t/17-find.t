@@ -36,7 +36,7 @@ sbofind '-i', 'nonexistentslackbuild4', { expected => qr/info:   \n      PRGNAM=
 
 # 7: find even if SLACKBUILDS.TXT doesn't have LOCATION as second entry
 my $tempdir = tempdir(CLEANUP => 1);
-capture_merged { system <<"GIT"; };
+note capture_merged { system <<"GIT"; };
 cd $tempdir
 git init
 mkdir -p test
@@ -49,6 +49,6 @@ git commit -m 'initial'
 GIT
 set_repo("file://$tempdir");
 set_lo('FALSE');
-sbosnap 'fetch', { test => 0 };
+sbosnap 'fetch', { test => 0, note => 1 };
 
 sbofind 'nonexistentslackbuild', { expected => qr!\Q/usr/sbo/repo/test/nonexistentslackbuild! };
