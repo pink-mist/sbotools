@@ -22,17 +22,17 @@ SKIP: {
 	skip "Only run this test under Travis CI", 2 unless $ENV{TRAVIS};
 
 	my $dir = '/etc/sbotools';
-	system 'mv', $dir, "$dir.moved";
+	rename $dir, "$dir.moved";
 	system 'touch', $dir;
 
 	sboconfig '-V', '14.1', { exit => 1, expected => qr"\QUnable to create $dir. Exiting." };
 
-	system 'rm', $dir;
+	unlink $dir;
 
 	sboconfig '-V', '14.1', { test => 0 };
 	ok(-d $dir, "$dir created correctly.");
 
-	system 'rm', "$dir/sbotools.conf";
-	system 'rmdir', $dir;
-	system 'mv', "$dir.moved", $dir;
+	unlink "$dir/sbotools.conf";
+	rmdir $dir;
+	rename "$dir.moved", $dir;
 }
