@@ -10,6 +10,7 @@ use Test::Sbotools qw/ sboconfig /;
 
 plan tests => 9;
 
+# 1-7: test invalid arguments
 sboconfig '-c', 'invalid', { exit => 1, expected => "You have provided an invalid parameter for -c\n" };
 sboconfig '-d', 'invalid', { exit => 1, expected => "You have provided an invalid parameter for -d\n" };
 sboconfig '-j', 'invalid', { exit => 1, expected => "You have provided an invalid parameter for -j\n" };
@@ -18,6 +19,7 @@ sboconfig '-s', 'invalid', { exit => 1, expected => "You have provided an invali
 sboconfig '-o', 'invalid', { exit => 1, expected => "You have provided an invalid parameter for -o\n" };
 sboconfig '-V', 'invalid', { exit => 1, expected => "You have provided an invalid parameter for -V\n" };
 
+# 8-9: move original dir away and run tests on the config file
 SKIP: {
 	skip "Only run this test under Travis CI", 2 unless $ENV{TRAVIS};
 
