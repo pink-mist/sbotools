@@ -424,7 +424,7 @@ sub slackbuilds_or_fetch {
 	return 1;
 }
 
-# pull an array of hashes, each hash containing the name and version of a 
+# pull an array of hashes, each hash containing the name and version of a
 # package currently installed. Gets filtered using STD, SBO or ALL.
 sub get_installed_packages {
 	script_error('get_installed_packages requires an argument.') unless @_ == 1;
@@ -665,7 +665,7 @@ sub get_available_updates {
 	return \@updates;
 }
 
-# get downloads and md5sums from an sbo's .info file, first 
+# get downloads and md5sums from an sbo's .info file, first
 # checking for x86_64-specific info if we are told to
 sub get_download_info {
 	my %args = (

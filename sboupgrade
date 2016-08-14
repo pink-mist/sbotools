@@ -189,7 +189,7 @@ FIRST: for my $sbo (@$upgrade_queue) {
 		push(@temp_queue, $sbo);
 		$commands{$sbo} = $cmds;
 		$options{$sbo} = $opts;
-        say "$sbo added to upgrade queue.";  
+        say "$sbo added to upgrade queue.";
     } else {
         push(@temp_queue, $sbo);
         say "\n$sbo added to upgrade queue.";

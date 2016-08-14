@@ -53,7 +53,7 @@ GetOptions(
 if ($help) { show_usage(); exit 0 }
 if ($vers) { show_version(); exit 0 }
 
-usage_error("You must specify at least one of -d or -w.") unless 
+usage_error("You must specify at least one of -d or -w.") unless
 	($clean_dist || $clean_work);
 
 sub rm_full {

@@ -66,7 +66,7 @@ for my $sbo (@ARGV) {
 }
 exit 1 unless @sbos;
 
-# Create full queue. 
+# Create full queue.
 my ($remove_queue, %warnings);
 for my $sbo (@sbos) {
     my $queue = get_build_queue([$sbo], \%warnings);
@@ -77,7 +77,7 @@ for my $sbo (@sbos) {
 # Determine required by for all installed sbo's
 my (%required_by, @confirmed);
 
-# populates the required_by hash 
+# populates the required_by hash
 sub get_reverse_reqs {
 	my $installed = shift;
 	INST: for my $inst (@$installed) {
@@ -85,7 +85,7 @@ sub get_reverse_reqs {
 		REQ: for my $req (@$require) {
 			next REQ if $req eq '%README%';
 			push @{ $required_by{$req} }, $inst if in($req => @$installed);
-		}	
+		}
 	}
 	return 1;
 }
@@ -110,7 +110,7 @@ sub confirm_remove {
 	return 1;
 }
 
-# Check if packages in queue are actually installed on system 
+# Check if packages in queue are actually installed on system
 my @temp;
 for my $sbo (@$remove_queue) {
 	push @temp, $sbo if $inst_names{$sbo};
@@ -134,7 +134,7 @@ FIRST: for my $remove (@$remove_queue) {
 		$needed = 1 unless $sbos{$remove};
 		# still needed, unless required_by is already confirmed for removal or
 		# the sbo in question was cli-specified.
-	}	
+	}
 	if ( $needed ) {
 		next FIRST unless $alwaysask; #ignore sbo and skip prompt
 		print "$remove : required by " . join(' ', @$required_by) . "\n";
@@ -143,7 +143,7 @@ FIRST: for my $remove (@$remove_queue) {
 	}
 
 	# Check for %README% value and inform user.
-	if ( $warnings{$remove} ) { 
+	if ( $warnings{$remove} ) {
 		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
 		if (<STDIN> =~ /^[Yy\n]/) {
@@ -160,8 +160,8 @@ FIRST: for my $remove (@$remove_queue) {
 	my $default = 'y';
 	my $regex = "[Yy\n]";
 	if ($needed) {
-		$default = 'n'; 
-		$regex = "[Yy]"; 
+		$default = 'n';
+		$regex = "[Yy]";
 	}
 	# Ask user to confirm removal
 	print "Remove $remove? [$default]: ";
@@ -171,7 +171,7 @@ FIRST: for my $remove (@$remove_queue) {
 	} else {
 		say " * Ignoring\n";
 	}
-}	
+}
 
 CONFIRMED:
 # Show remove queue

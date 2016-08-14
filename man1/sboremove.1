@@ -7,7 +7,7 @@ sboremove - remove packages installed from slackbuilds
 sboremove [-h|-v] [-a] sbo_name
 .SH DESCRIPTION
 .P
-sboremove is used to remove packages installed from slackbuilds. It pulls the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboremove will look to see whether or not those requirements are installed. Those that are will then be checked to see whether they are requirements of other packages also installed. If a package is no longer required, or the -a flag is specified sboremove will ask whether or not it should also remove it from the system.  
+sboremove is used to remove packages installed from slackbuilds. It pulls the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboremove will look to see whether or not those requirements are installed. Those that are will then be checked to see whether they are requirements of other packages also installed. If a package is no longer required, or the -a flag is specified sboremove will ask whether or not it should also remove it from the system.
 .SH OPTIONS
 .P
 -h|--help

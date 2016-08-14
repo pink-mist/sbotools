@@ -142,7 +142,7 @@ sub get_file_contents {
 	return "\n" . indent 6, $contents;
 }
 
-# get build queue and return it as a single line. 
+# get build queue and return it as a single line.
 sub show_build_queue {
 	script_error('show_build_queue requires an argument.') unless @_ == 1;
 	my $queue = get_build_queue([shift], {});
