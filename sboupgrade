@@ -205,15 +205,15 @@ unless ($non_int) {
 }
 
 my ($failures, $exit) = process_sbos(
-	TODO		=> $upgrade_queue,
-	CMDS		=> \%commands,
-	OPTS		=> \%options,
-	JOBS		=> $jobs,
-	LOCATIONS	=> \%locations,
-	NOINSTALL	=> $no_install,
-	NOCLEAN		=> $noclean,
-	DISTCLEAN	=> $distclean,
-	NON_INT		=> $non_int,
+	TODO      => $upgrade_queue,
+	CMDS      => \%commands,
+	OPTS      => \%options,
+	JOBS      => $jobs,
+	LOCATIONS => \%locations,
+	NOINSTALL => $no_install,
+	NOCLEAN   => $noclean,
+	DISTCLEAN => $distclean,
+	NON_INT   => $non_int,
 );
 print_failures($failures);
 

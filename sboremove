@@ -40,10 +40,10 @@ EOF
 my ($help, $vers, $non_int, $alwaysask, @excluded);
 
 GetOptions(
-	'help|h'			=> \$help,
-	'version|v'			=> \$vers,
-	'nointeractive'		=> \$non_int,
-	'alwaysask|a'		=> \$alwaysask,
+	'help|h'        => \$help,
+	'version|v'     => \$vers,
+	'nointeractive' => \$non_int,
+	'alwaysask|a'   => \$alwaysask,
 );
 
 if ($help) { show_usage(); exit 0 }

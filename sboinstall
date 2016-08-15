@@ -53,15 +53,15 @@ my $jobs = $config{JOBS};
 my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32);
 
 GetOptions(
-	'help|h'			=> \$help,
-	'version|v'			=> \$vers,
-	'noclean|c=s'		=> \$noclean,
-	'distclean|d=s'		=> \$distclean,
-	'noinstall|i'		=> \$no_install,
-	'jobs|j=s'			=> \$jobs,
-	'compat32|p'		=> \$compat32,
-	'nointeractive|r'	=> \$non_int,
-	'norequirements|R'	=> \$no_reqs,
+	'help|h'           => \$help,
+	'version|v'        => \$vers,
+	'noclean|c=s'      => \$noclean,
+	'distclean|d=s'    => \$distclean,
+	'noinstall|i'      => \$no_install,
+	'jobs|j=s'         => \$jobs,
+	'compat32|p'       => \$compat32,
+	'nointeractive|r'  => \$non_int,
+	'norequirements|R' => \$no_reqs,
 );
 
 if ($help) { show_usage(); exit 0 }
@@ -184,15 +184,15 @@ unless ($non_int) {
 }
 
 my ($failures, $exit) = process_sbos(
-	TODO		=> $build_queue,
-	CMDS		=> \%commands,
-	OPTS		=> \%options,
-	JOBS		=> $jobs,
-	LOCATIONS	=> \%locations,
-	NOINSTALL	=> $no_install,
-	NOCLEAN		=> $noclean,
-	DISTCLEAN	=> $distclean,
-	NON_INT		=> $non_int,
+	TODO      => $build_queue,
+	CMDS      => \%commands,
+	OPTS      => \%options,
+	JOBS      => $jobs,
+	LOCATIONS => \%locations,
+	NOINSTALL => $no_install,
+	NOCLEAN   => $noclean,
+	DISTCLEAN => $distclean,
+	NON_INT   => $non_int,
 );
 print_failures($failures);
 

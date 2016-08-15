@@ -43,11 +43,11 @@ EOF
 my ($help, $vers, $clean_dist, $clean_work, $interactive);
 
 GetOptions(
-	'help|h'		=> \$help,
-	'version|v'		=> \$vers,
-	'clean-dist|d'	=> \$clean_dist,
-	'clean-work|w'	=> \$clean_work,
-	'interactive|i'	=> \$interactive,
+	'help|h'        => \$help,
+	'version|v'     => \$vers,
+	'clean-dist|d'  => \$clean_dist,
+	'clean-work|w'  => \$clean_work,
+	'interactive|i' => \$interactive,
 );
 
 if ($help) { show_usage(); exit 0 }
