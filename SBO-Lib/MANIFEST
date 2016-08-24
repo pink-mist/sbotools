@@ -5,4 +5,12 @@ README
 t/SBO-Lib.t
 t/versions.t
 lib/SBO/Lib.pm
+lib/SBO/Lib/Build.pm
+lib/SBO/Lib/Download.pm
+lib/SBO/Lib/Info.pm
+lib/SBO/Lib/Pkgs.pm
+lib/SBO/Lib/Readme.pm
+lib/SBO/Lib/Repo.pm
+lib/SBO/Lib/Tree.pm
+lib/SBO/Lib/Util.pm
 lib/Sort/Versions.pm
