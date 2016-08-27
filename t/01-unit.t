@@ -273,7 +273,7 @@ SKIP: {
 	my $scalar = '';
 	open(my $fh, '<', \$scalar) or skip "Could not open needed filehandle", 1;
 
-	local $SBO::Lib::tmpd = "/foo-bar";
+	local $SBO::Lib::Build::tmpd = "/foo-bar";
 	is (scalar @{ SBO::Lib::get_src_dir($fh) }, 0, "get_src_dir() returned an empty array ref");
 }
 
@@ -317,7 +317,7 @@ SKIP: {
 	is ($res[3], 0, "version_cmp(1.0_k, 1.0_k) returned 0");
 
 	no warnings 'redefine';
-	local *SBO::Lib::get_kernel_version = sub { "foo_bar" };
+	local *SBO::Lib::Util::get_kernel_version = sub { "foo_bar" };
 
 	is (SBO::Lib::version_cmp('1.0', '1.0_foo_bar'), 0, "version_cmp(1.0, 1.0_foo_bar) returned 0");
 }
