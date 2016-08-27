@@ -27,7 +27,7 @@ sub emulate_race {
 	my $file = "$tempdir/foo";
 	system('touch', $file);
 
-	emulate_race($file, 'open_fh');
+	emulate_race($file, 'Util::open_fh');
 
 	my ($fh, $exit) = open_fh $file, '<';
 	is ($exit, 6, 'open_fh returned exit value 6');
@@ -40,7 +40,7 @@ sub emulate_race {
 	system('mv', $conf_file, "$conf_file.bak");
 	system('touch', $conf_file);
 
-	emulate_race($conf_file, 'open_fh');
+	emulate_race($conf_file, 'Util::open_fh');
 	my $out = capture_merged { SBO::Lib::read_config(); };
 
 	is ($out, "Unable to open $conf_file.\n", 'read_config output correct');
@@ -58,7 +58,7 @@ sub emulate_race {
 	};
 
 	my $exit;
-	emulate_race($sv_file, 'open_fh');
+	emulate_race($sv_file, 'Util::open_fh');
 	local $config{SLACKWARE_VERSION} = 'FALSE';
 	my $out = capture_merged { $exit = exit_code { SBO::Lib::get_slack_version(); }; };
 
