@@ -27,7 +27,7 @@ use constant $consts = {
 my @EXPORT_CONSTS = keys %$consts;
 my @EXPORT_CONFIG = qw{
   read_config
-  
+
   $conf_dir
   $conf_file
   %config
@@ -223,7 +223,7 @@ sub get_slack_version {
 C<idx()> looks for C<$needle> in C<@haystack>, and returns the index of where
 it was found, or C<undef> if it wasn't found.
 
-=cut 
+=cut
 
 sub idx {
   for my $idx (1 .. $#_) {
@@ -283,7 +283,7 @@ It returns a list of two values. The second value is the exit status, and if it
 is true, the first value will be an error message. Otherwise it will be the
 opened filehandle.
 
-=cut 
+=cut
 
 # sub for opening files, second arg is like '<','>', etc
 sub open_fh {
@@ -390,7 +390,7 @@ If there was a $msg supplied, it will instead say
 
 There is no useful return value.
 
-=cut 
+=cut
 
 # subroutine for throwing internal script errors
 sub script_error {
