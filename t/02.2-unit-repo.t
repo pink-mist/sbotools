@@ -20,10 +20,19 @@ if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
 my $repo = "/usr/sbo/repo";
 my $moved = rename $repo, "$repo.orig";
 my $url = "$RealBin/02.2-unit-repo/";
+my $rsync_res;
 
-capture_merged {
-	rsync_sbo_tree($url);
+note "Unit repo: $url";
+note "rsync $url:\n" . capture_merged {
+	$rsync_res = exit_code { rsync_sbo_tree($url); };
 };
+
+if (defined $rsync_res) {
+	note "rsync exit status: $rsync_res";
+	rename "$repo.orig", $repo if $moved;
+
+	BAIL_OUT("rsync_sbo_tree exited");
+}
 
 # 1-3: test do_slackbuild() without /etc/profile.d/32dev.sh
 {
