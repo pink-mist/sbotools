@@ -7,8 +7,8 @@ use warnings;
 our $VERSION = '2.0';
 
 use SBO::Lib::Util qw/ %config script_error open_read version_cmp /;
-use SBO::Lib::Tree qw/ get_orig_version get_sbo_location get_sbo_locations is_local /;
-use SBO::Lib::Info qw/ get_sbo_version /;
+use SBO::Lib::Tree qw/ get_sbo_location get_sbo_locations is_local /;
+use SBO::Lib::Info qw/ get_orig_version get_sbo_version /;
 
 use Exporter 'import';
 

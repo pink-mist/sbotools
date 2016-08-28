@@ -13,7 +13,6 @@ use Exporter 'import';
 
 our @EXPORT_OK = qw{
   get_orig_location
-  get_orig_version
   get_sbo_location
   get_sbo_locations
   is_local
@@ -58,27 +57,6 @@ sub get_orig_location {
   get_sbo_location($sbo);
   return $orig{$sbo};
 }
-
-=head2 get_orig_version
-
-  my $ver = get_orig_version($sbo);
-
-C<get_orig_version()> returns the version in the SlackBuilds.org tree for the
-given C<$sbo>.
-
-=cut
-
-sub get_orig_version {
-  script_error('get_orig_version requires an argument.') unless @_ == 1;
-  my $sbo = shift;
-
-  my $location = get_orig_location($sbo);
-
-  return $location if not defined $location;
-
-  return get_sbo_version($location);
-}
-
 
 =head2 get_sbo_location
 

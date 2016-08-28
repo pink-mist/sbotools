@@ -7,7 +7,7 @@ use warnings;
 our $VERSION = '2.0';
 
 use SBO::Lib::Util qw/ get_arch get_sbo_from_loc open_read script_error /;
-use SBO::Lib::Tree qw/ get_sbo_location is_local /;
+use SBO::Lib::Tree qw/ get_orig_location get_sbo_location is_local /;
 
 use Exporter 'import';
 
@@ -15,6 +15,7 @@ our @EXPORT_OK = qw{
   check_x32
   get_download_info
   get_from_info
+  get_orig_version
   get_requires
   get_sbo_version
 };
@@ -145,6 +146,26 @@ sub get_from_info {
     }
   }
   return $store->{$args{GET}};
+}
+
+=head2 get_orig_version
+
+  my $ver = get_orig_version($sbo);
+
+C<get_orig_version()> returns the version in the SlackBuilds.org tree for the
+given C<$sbo>.
+
+=cut
+
+sub get_orig_version {
+  script_error('get_orig_version requires an argument.') unless @_ == 1;
+  my $sbo = shift;
+
+  my $location = get_orig_location($sbo);
+
+  return $location if not defined $location;
+
+  return get_sbo_version($location);
 }
 
 =head2 get_requires
