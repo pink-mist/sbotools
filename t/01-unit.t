@@ -155,7 +155,7 @@ SKIP: {
 	like ($out, qr!rsync: change_dir "/foo-bar" failed!, q"rsync_sbo_tree('/foo-bar') gave correct output");
 }
 
-# 28-37: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();;
+# 28-37: test git_sbo_tree(), check_git_remote(), generate_slackbuilds_txt(), and pull_sbo_tree();
 {
 	system(qw! mv /usr/sbo/repo /usr/sbo/backup !) if -d '/usr/sbo/repo';
 	system(qw! mkdir -p /usr/sbo/repo/.git !);
