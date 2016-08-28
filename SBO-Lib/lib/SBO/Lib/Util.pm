@@ -48,6 +48,7 @@ our @EXPORT_OK = (
     print_failures
     script_error
     show_version
+    slurp
     uniq
     usage_error
     version_cmp
@@ -417,6 +418,24 @@ sub show_version {
   say "sbotools version $SBO::Lib::VERSION";
   say 'licensed under the WTFPL';
   say '<http://sam.zoy.org/wtfpl/COPYING>';
+}
+
+=head2 slurp
+
+  my $data = slurp($fn);
+
+C<slurp()> takes a filename in C<$fn>, opens it, and reads in the entire file,
+the contents of which is then returned. On error, it returns C<undef>.
+
+=cut
+
+sub slurp {
+  my $fn = shift;
+  return undef unless -f $fn;
+  my ($fh, $exit) = open_read($fn);
+  return undef if $exit;
+  local $/;
+  return scalar readline($fh);
 }
 
 =head2 uniq

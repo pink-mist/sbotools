@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ usage_error script_error $tempdir open_read open_fh %config $conf_dir $conf_file show_version /;
+use SBO::Lib qw/ slurp usage_error script_error $tempdir open_fh %config $conf_dir $conf_file show_version /;
 use File::Basename;
 use Getopt::Long qw(:config no_ignore_case_always);
 use File::Copy;
@@ -156,15 +156,6 @@ sub config_write {
 		exit $exit;
 	}
 	print {$conffh} $conf;
-}
-
-sub slurp {
-	my $fn = shift;
-	return undef unless -f $fn;
-	my ($fh, $exit) = open_read($fn);
-	return undef if $exit;
-	local $/;
-	return scalar readline($fh);
 }
 
 # make sure there are no duplicate keys in the config
