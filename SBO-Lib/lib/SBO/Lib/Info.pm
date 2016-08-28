@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.0';
 
-use SBO::Lib::Util qw/ get_arch get_sbo_from_loc open_read script_error /;
+use SBO::Lib::Util qw/ get_arch get_sbo_from_loc open_read script_error slurp usage_error /;
 use SBO::Lib::Tree qw/ get_orig_location get_sbo_location is_local /;
 
 use Exporter 'import';
@@ -122,11 +122,12 @@ sub get_from_info {
   state $store = {LOCATION => ['']};
   my $sbo = get_sbo_from_loc($args{LOCATION});
   return $store->{$args{GET}} if $store->{LOCATION}[0] eq $args{LOCATION};
+
   # if we're here, we haven't read in the .info file yet.
-  my ($fh, $exit) = open_read("$args{LOCATION}/$sbo.info");
-  return() if $exit;
-  # suck it all in, clean it all up, stuff it all in $store.
-  my $contents = do {local $/; <$fh>};
+  my $contents = slurp("$args{LOCATION}/$sbo.info");
+  usage_error("get_from_info: could not read $args{LOCATION}/$sbo.info.") unless
+    defined $contents;
+
   $contents =~ s/("|\\\n)//g;
   my $last_key = '';
   $store = {};

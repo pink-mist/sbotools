@@ -121,7 +121,7 @@ SKIP: {
 }
 
 # 10: Malformed slackbuild - no .info
-sboinstall 'malformed-noinfo', { expected => "A fatal script error has occurred:\nopen_fh, $RealBin/LO-fail/malformed-noinfo/malformed-noinfo.info is not a file\nExiting.\n", exit => 2 };
+sboinstall 'malformed-noinfo', { expected => "get_from_info: could not read $RealBin/LO-fail/malformed-noinfo/malformed-noinfo.info.\n", exit => 1 };
 
 # 11-13: Malformed slackbuild - malformed .info
 sboinstall 'malformed-info', { input => "y\ny\nn", expected => qr!Failures:\n  malformed-info: Unable to get download info from $RealBin/LO-fail/malformed-info/malformed-info[.]info\n!, exit => 7 };
