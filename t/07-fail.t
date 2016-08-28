@@ -77,7 +77,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-malformed-slackbuild!);
 		system(qw!rm -rf /tmp/package-multilibfail!);
 		system(qw!rm -rf /tmp/package-noreadmebutreadmereq!);
-		system(qw!/sbin/removepkg nonexistentslackbuild2 noreadmebutreadmereq multilibfail!);
+		system(qw!/sbin/removepkg nonexistentslackbuild nonexistentslackbuild2 noreadmebutreadmereq multilibfail!);
 	};
 }
 
