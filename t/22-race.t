@@ -11,7 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 8;
+plan tests => 7;
 
 sub emulate_race {
 	my ($file, $caller) = @_;
@@ -33,22 +33,7 @@ sub emulate_race {
 	is ($exit, 6, 'open_fh returned exit value 6');
 }
 
-# 2: emulate race in open_fh called by read_config
-{
-	my $conf_file = "/etc/sbotools/sbotools.conf";
-	system('mkdir', '-p', '/etc/sbotools');
-	system('mv', $conf_file, "$conf_file.bak");
-	system('touch', $conf_file);
-
-	emulate_race($conf_file, 'Util::open_fh');
-	my $out = capture_merged { SBO::Lib::read_config(); };
-
-	is ($out, "Unable to open $conf_file.\n", 'read_config output correct');
-
-	system('mv', "$conf_file.bak", $conf_file) if -e "$conf_file.bak";
-}
-
-# 3-4: emulate race in open_fh by get_slack_version
+# 2-3: emulate race in open_fh by get_slack_version
 {
 	my $sv_file = '/etc/slackware-version';
 	capture_merged {
@@ -68,7 +53,7 @@ sub emulate_race {
 	system('mv', "$sv_file.bak", $sv_file) if -e "$sv_file.bak";
 }
 
-# 5-8: emulate races in git_sbo_tree
+# 4-7: emulate races in git_sbo_tree
 SKIP: {
 	my $tempdir = tempdir(CLEANUP => 1);
 
