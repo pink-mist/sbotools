@@ -147,8 +147,8 @@ FIRST: for my $remove (@$remove_queue) {
 		say "It is recommended that you view the README before continuing.";
 		print "Display README now? [y]: ";
 		if (<STDIN> =~ /^[Yy\n]/) {
-			my ($readme, $exit) = get_readme_contents(get_sbo_location($remove));
-			if ($exit) {
+			my $readme = get_readme_contents(get_sbo_location($remove));
+			if (not defined $readme) {
 				warn "Unable to open README for $remove.\n";
 			} else {
 				print "\n" . $readme;

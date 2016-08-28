@@ -11,7 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 61;
+plan tests => 60;
 
 # 1-2: test script_error();
 {
@@ -277,14 +277,13 @@ SKIP: {
 	is (scalar @{ SBO::Lib::get_src_dir($fh) }, 0, "get_src_dir() returned an empty array ref");
 }
 
-# 49-50: test get_readme_contents();
+# 49: test get_readme_contents();
 {
 	my @ret = get_readme_contents(undef);
 	is ($ret[0], undef, "get_readme_contents() returned undef");
-	is ($ret[1], 6, "get_readme_contents() returned 6");
 }
 
-# 51-52: test user_prompt();
+# 50-51: test user_prompt();
 {
 	my $exit;
 	my $out = capture_merged { $exit = exit_code { user_prompt('foo', undef); }; };
@@ -293,7 +292,7 @@ SKIP: {
 	is ($out, "Unable to locate foo in the SlackBuilds.org tree.\n", 'user_prompt() gave correct output');
 }
 
-# 53-55: test perform_sbo();
+# 52-54: test perform_sbo();
 SKIP: {
 	skip 'Tests invalid if /foo exists.', 3 if -e "/foo";
 
@@ -304,7 +303,7 @@ SKIP: {
 	is ($res[2], 6, 'perform_sbo returned correct exit');
 }
 
-# 56-60: test version_cmp();
+# 55-59: test version_cmp();
 {
 	chomp(my $kv = `uname -r`);
 	$kv =~ s/-/_/g;
@@ -322,7 +321,7 @@ SKIP: {
 	is (SBO::Lib::version_cmp('1.0', '1.0_foo_bar'), 0, "version_cmp(1.0, 1.0_foo_bar) returned 0");
 }
 
-# 61: test check_multilib();
+# 60: test check_multilib();
 {
 	my $file = "/etc/profile.d/32dev.sh";
 

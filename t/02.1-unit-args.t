@@ -11,7 +11,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use SBO::Lib;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 60;
+plan tests => 59;
 
 sub test_args {
 	my $sub = shift;
@@ -34,8 +34,8 @@ test_args $_ for qw/
 	get_filename_from_link verify_distfile get_distfile get_symlink_from_filename
 	check_x32 rewrite_slackbuild revert_slackbuild check_distfiles create_symlinks
 	get_src_dir get_tmp_extfn perform_sbo do_convertpkg do_slackbuild make_clean
-	make_distclean do_upgradepkg get_build_queue merge_queues get_readme_contents
-	get_user_group ask_user_group get_opts ask_opts user_prompt
+	make_distclean do_upgradepkg get_build_queue merge_queues get_user_group
+	ask_user_group get_opts ask_opts user_prompt
 /;
 
 test_args 'get_from_info', LOCATION => 1;

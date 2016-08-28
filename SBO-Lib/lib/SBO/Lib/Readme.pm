@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.0';
 
-use SBO::Lib::Util qw/ script_error open_read _ERR_OPENFH usage_error /;
+use SBO::Lib::Util qw/ script_error slurp open_read _ERR_OPENFH usage_error /;
 use SBO::Lib::Tree qw/ is_local /;
 
 use Exporter 'import';
@@ -118,23 +118,17 @@ sub get_opts {
 
 =head2 get_readme_contents
 
-  my ($ret, $exit) = get_readme_contents($location);
+  my $contents = get_readme_contents($location);
 
-C<get_readme_contents()> will open the README file in C<$location>.
-
-It returns a list of two values. The second value is the exit status, and if it
-is true, the first value will be the undefined value. Otherwise the frist value
-will be the contents of the README.
+C<get_readme_contents()> will open the README file in C<$location> and return
+its contents. On error, it will return C<undef>.
 
 =cut
 
 sub get_readme_contents {
   script_error('get_readme_contents requires an argument.') unless @_ == 1;
-  return undef, _ERR_OPENFH if not defined $_[0];
-  my ($fh, $exit) = open_read(shift .'/README');
-  return undef, $exit if $exit;
-  my $readme = do {local $/; <$fh>};
-  close $fh;
+  return undef unless defined $_[0];
+  my $readme = slurp(shift . '/README');
   return $readme;
 }
 
@@ -179,9 +173,9 @@ sub user_prompt {
   script_error('user_prompt requires two arguments.') unless @_ == 2;
   my ($sbo, $location) = @_;
   if (not defined $location) { usage_error("Unable to locate $sbo in the SlackBuilds.org tree."); }
-  my ($readme, $exit) = get_readme_contents($location);
-  if (is_local($sbo)) { print "\nFound $sbo in local overrides.\n"; $exit = 0; }
-  return $readme, undef, $exit if $exit;
+  my $readme = get_readme_contents($location);
+  usage_error("Could not open README for $sbo.") unless defined $readme;
+  if (is_local($sbo)) { print "\nFound $sbo in local overrides.\n"; }
   # check for user/group add commands, offer to run any found
   my $user_group = get_user_group($readme);
   my $cmds;

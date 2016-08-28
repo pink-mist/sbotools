@@ -129,7 +129,7 @@ sboinstall 'malformed-info2', { input => "y\ny\nn", expected => qr!Failures:\n  
 sboinstall 'malformed-info3', { exit => 2, expected => "A fatal script error has occurred:\nerror when parsing malformed-info3.info file. Line: FAIL\nExiting.\n" };
 
 # 14: Malformed slackbuild - no readme
-sboinstall 'malformed-readme', { expected => "A fatal script error has occurred:\nopen_fh, $RealBin/LO-fail/malformed-readme/README is not a file\nExiting.\n", exit => 2 };
+sboinstall 'malformed-readme', { expected => "Could not open README for malformed-readme.\n", exit => 1 };
 
 # 15: Malformed slackbuild - no .SlackBuild
 sboinstall 'malformed-slackbuild',
@@ -175,7 +175,7 @@ sboinstall qw/ -r failingslackbuild /, { expected => qr/Failures:\n  failingslac
 
 # 22-24: Slackbuild with %README% req without a readme
 sboinstall qw/ -r noreadmebutreadmereq /;
-sboremove qw/ noreadmebutreadmereq /, { input => 'y', expected => qr/fatal script error.*open_fh/s, exit => 2 };
+sboremove qw/ noreadmebutreadmereq /, { input => "y\nn", expected => qr/Unable to open README for noreadmebutreadmereq[.]/s, exit => 0 };
 sboremove qw/ noreadmebutreadmereq /, { input => "n\ny\ny", expected => qr/Display README.*Remove noreadme.*Added to remove queue.*Removing 1 pack.*noreadme.*All operations/s, exit => 0 };
 
 # 25: compat32 should fail for a perl sbo
@@ -203,7 +203,7 @@ SKIP: {
 	skip "No /etc/profile.d/32dev.sh", 1 unless -e "/etc/profile.d/32dev.sh";
 	skip "No /usr/sbin/convertpkg-compat32", 1 unless -e "/usr/sbin/convertpkg-compat32";
 
-	sboinstall qw/ -p malformed-readme /, { exit => 2, expected => qr!A fatal script error has occurred:\nopen_fh, .*t/LO-fail/malformed-readme/README is not a file! };
+	sboinstall qw/ -p malformed-readme /, { exit => 1, expected => qr!Could not open README for malformed-readme[.]! };
 }
 
 # 27: sboupgrade with -r and -z
