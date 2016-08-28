@@ -24,6 +24,9 @@ my $rsync_res;
 
 note "Unit repo: $url";
 note "rsync $url:\n" . capture_merged {
+	no warnings 'redefine';
+	local *SBO::Lib::Repo::get_slack_version = sub { '14.1' };
+
 	$rsync_res = exit_code { rsync_sbo_tree($url); };
 };
 
