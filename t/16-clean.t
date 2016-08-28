@@ -11,7 +11,11 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_pkg_dir set_distclean set_noclea
 use SBO::Lib;
 use File::Temp 'tempdir';
 
-plan tests => 17;
+if ($ENV{TEST_INSTALL}) {
+	plan tests => 17;
+} else {
+	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
+}
 
 my $sboname = "nonexistentslackbuild";
 my $perf    = "/usr/sbo/distfiles/perf.dummy";
