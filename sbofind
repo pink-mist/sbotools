@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ slackbuilds_or_fetch script_error open_read get_build_queue %config $slackbuilds_txt $repo_path show_version in indent /;
+use SBO::Lib qw/ slackbuilds_or_fetch slurp script_error open_read get_build_queue %config $slackbuilds_txt $repo_path show_version in indent /;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 
@@ -132,13 +132,8 @@ sub perform_search {
 sub get_file_contents {
 	script_error 'get_file_contents requires an argument.' unless @_ == 1;
 	my $file = shift;
-	-f $file or return "$file doesn't exist.\n";
-	my ($fh, $exit) = open_read($file);
-	if ($exit) {
-		warn $fh;
-		return();
-	}
-	my $contents = do {local $/; <$fh>};
+	my $contents = slurp($file);
+	return "Unable to open $file.\n" unless defined $contents;
 	return "\n" . indent 6, $contents;
 }
 

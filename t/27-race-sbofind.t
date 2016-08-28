@@ -71,7 +71,7 @@ my $tags_file = '/usr/sbo/repo/TAGS.txt';
 	my $out = capture_merged { $exit = exit_code { $ret = get_file_contents($file); }; };
 
 	is ($out, '', 'get_file_contents gave no output');
-	is ($ret, "$file doesn't exist.\n", 'get_file_contents returned correctly');
+	is ($ret, "Unable to open $file.\n", 'get_file_contents returned correctly');
 	is ($exit, undef, 'get_file_contents didn\'t exit');
 
 	system 'touch', $file;
@@ -87,7 +87,7 @@ my $tags_file = '/usr/sbo/repo/TAGS.txt';
 	undef $ret;
 	$out = capture_merged { $exit = exit_code { $ret = get_file_contents($file); }; };
 
-	is ($out, "Unable to open $file.\n", 'get_file_contents correct output');
-	is ($ret, undef, 'get_file_contents returned undef');
+	is ($out, '', 'get_file_contents gave no output');
+	is ($ret, "Unable to open $file.\n", 'get_file_contents returned correctly');
 	is ($exit, undef, 'get_file_contents still didn\'t exit');
 }
