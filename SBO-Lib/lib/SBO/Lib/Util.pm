@@ -354,23 +354,16 @@ There is no useful return value.
 
 # subroutine to suck in config in order to facilitate unit testing
 sub read_config {
-  my %conf_values;
-  if (-f $conf_file) {
-    _race::cond('$conf_file might not exist after -f');
-    my ($fh, $exit) = open_read($conf_file);
-    if ($exit) {
-      warn $fh;
-      $config{SBO_HOME} = '/usr/sbo';
-      return;
+  my $text = slurp($conf_file);
+  if (defined $text) {
+    my %conf_values = $text =~ /^(\w+)=(.*)$/mg;
+    for my $key (keys %config) {
+      $config{$key} = $conf_values{$key} if exists $conf_values{$key};
     }
-    my $text = do {local $/; <$fh>};
-    %conf_values = $text =~ /^(\w+)=(.*)$/mg;
-    close $fh;
+    $config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
+  } else {
+    warn "Unable to open $conf_file.\n";
   }
-  for my $key (keys %config) {
-    $config{$key} = $conf_values{$key} if exists $conf_values{$key};
-  }
-  $config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
   $config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
 }
 
