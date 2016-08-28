@@ -6,12 +6,12 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions get_readme_contents user_prompt /;
+use SBO::Lib qw/ check_multilib script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions get_readme_contents user_prompt /;
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 60;
+plan tests => 61;
 
 # 1-2: test script_error();
 {
@@ -320,4 +320,15 @@ SKIP: {
 	local *SBO::Lib::Util::get_kernel_version = sub { "foo_bar" };
 
 	is (SBO::Lib::version_cmp('1.0', '1.0_foo_bar'), 0, "version_cmp(1.0, 1.0_foo_bar) returned 0");
+}
+
+# 61: test check_multilib();
+{
+	my $file = "/etc/profile.d/32dev.sh";
+
+	my $moved = rename $file, "$file.orig";
+
+	is (check_multilib(), undef, "check_multilib() returned undef when $file was missing");
+
+	rename "$file.orig", $file if $moved;
 }
