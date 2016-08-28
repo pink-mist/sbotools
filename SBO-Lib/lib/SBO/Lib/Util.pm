@@ -362,7 +362,7 @@ sub read_config {
     }
     $config{JOBS} = 'FALSE' unless $config{JOBS} =~ /^\d+$/;
   } else {
-    warn "Unable to open $conf_file.\n";
+    warn "Unable to open $conf_file.\n" if -f $conf_file;
   }
   $config{SBO_HOME} = '/usr/sbo' if $config{SBO_HOME} eq 'FALSE';
 }
