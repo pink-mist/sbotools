@@ -27,5 +27,5 @@ plan tests => 2;
 	like ($out, qr/\QUnable to open $logfile./, "sbocheck's print_output() gave correct output");
 	is ($exit, undef, "sbocheck's print_output() didn't exit");
 
-	unlink $logfile;
+	rmdir $logfile;
 }
