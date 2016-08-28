@@ -1,0 +1,2 @@
+SLACKBUILD NAME: test
+SLACKBUILD LOCATION: ./test/test
