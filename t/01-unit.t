@@ -6,7 +6,7 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ check_multilib script_error usage_error open_fh %config indent get_installed_packages get_sbo_location get_sbo_locations get_local_outdated_versions get_readme_contents user_prompt /;
+use SBO::Lib qw/ %config check_multilib get_installed_packages get_local_outdated_versions get_readme_contents get_sbo_location get_sbo_locations indent open_fh script_error usage_error user_prompt /;
 use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
