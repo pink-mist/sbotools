@@ -11,7 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 7;
+plan tests => 8;
 
 sub emulate_race {
 	my ($file, $caller) = @_;
@@ -99,4 +99,24 @@ GIT
 	chdir $cwd;
 	system('rm', '-rf', $repo);
 	system('mv', "$repo.bak", $repo);
+}
+
+# 8: emulate race in read_config
+{
+  my $conf_file = "/etc/sbotools/sbotools.conf";
+
+  mkdir "/etc/sbotools";
+  rename $conf_file, "$conf_file.bak";
+  system touch => $conf_file;
+
+  no warnings 'redefine';
+
+  local *SBO::Lib::Util::open_read = sub { return undef, 1 };
+
+  my $out = capture_merged { SBO::Lib::Util::read_config(); };
+
+  is ($out, "Unable to open $conf_file.\n", "read_config() output correct");
+
+  unlink $conf_file;
+  rename "$conf_file.bak", $conf_file;
 }
