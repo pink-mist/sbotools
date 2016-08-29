@@ -34,6 +34,7 @@ our @EXPORT_OK = qw{
   process_sbos
   revert_slackbuild
   rewrite_slackbuild
+  run_tee
 
   $tempdir
   $tmpd
@@ -100,28 +101,16 @@ error message. Otherwise it will contain the name of the converted package.
 sub do_convertpkg {
   script_error('do_convertpkg requires an argument.') unless @_ == 1;
   my $pkg = shift;
-  my $tempfh = tempfile(DIR => $tempdir);
-  my $fn = get_tmp_extfn($tempfh);
-
-  # get a tempfile to store the exit status of the slackbuild
-  my $exit_temp = tempfile(DIR => $tempdir);
-  my ($exit_fn, $exit) = get_tmp_extfn($exit_temp);
-  return $exit_fn, undef, $exit if $exit;
-
   my $c32tmpd = $env_tmp // '/tmp';
-  my $cmd = "( /bin/bash -c '/usr/sbin/convertpkg-compat32 -i $pkg -d $c32tmpd'; echo \$? > $exit_fn ) | tee $fn";
-  my $ret = system('/bin/bash', '-c', $cmd);
 
-  # If the system call worked, check the saved exit status
-  seek $exit_temp, 0, 0;
-  $ret = do {local $/; <$exit_temp>} if $ret == 0;
+  my ($out, $ret) = run_tee("/bin/bash -c '/usr/sbin/convertpkg-compat32 -i $pkg -d $c32tmpd'");
 
   if ($ret != 0) {
     return "convertpkg-compt32 returned non-zero exit status\n",
       _ERR_CONVERTPKG;
   }
   unlink $pkg;
-  return get_pkg_name($tempfh);
+  return get_pkg_name($out);
 }
 
 =head2 do_slackbuild
@@ -259,22 +248,19 @@ sub get_dc_regex {
 
 =head2 get_pkg_name
 
-  my $name = get_pkg_name($fh);
+  my $name = get_pkg_name($str);
 
-C<get_pkg_name()> reads the $fh filehandle for text matching the output of
-C<makepkg> where it outputs the filename of the package it made, and returns it.
+C<get_pkg_name()> searches C<$str> for text matching the output of C<makepkg>
+where it outputs the filename of the package it made, and returns it.
 
 =cut
 
 # pull the created package name from the temp file we tee'd to
 sub get_pkg_name {
-  my $fh = shift;
-  seek $fh, 0, 0;
-  my $regex = qr/^Slackware\s+package\s+([^\s]+)\s+created\.$/;
-  my $out;
-  FIRST: while (my $line = <$fh>) {
-    last FIRST if $out = ($line =~ $regex)[0];
-  }
+  my $str = shift;
+
+  my ($out) = $str =~ m/^Slackware\s+package\s+([^\s]+)\s+created\.$/m;
+
   return $out;
 }
 
@@ -321,8 +307,7 @@ C<get_tmp_extfn()> gets the filename in the form of C</dev/fd/X> for the C<$fh>
 passed in, setting flags on it that make it usable from other processes without
 messing things up.
 
-It returns a list of two values. If the second value is true, the first will
-contain an error message. Otherwise, the first value will hold the filename.
+It returns the filename if successful, otherwise it returns C<undef>.
 
 =cut
 
@@ -330,9 +315,7 @@ contain an error message. Otherwise, the first value will hold the filename.
 sub get_tmp_extfn {
   script_error('get_tmp_extfn requires an argument.') unless @_ == 1;
   my $fh = shift;
-  unless (fcntl($fh, F_SETFD, 0)) {
-    return "Can't unset exec-on-close bit.\n", _ERR_F_SETFD;
-  }
+  unless (fcntl($fh, F_SETFD, 0)) { return undef; }
   return '/dev/fd/'. fileno $fh;
 }
 
@@ -463,7 +446,7 @@ sub perform_sbo {
   my ($cmd, %changes);
   # set any changes we need to make to the .SlackBuild, setup the command
 
-  $cmd = '( ';
+  $cmd = '';
 
   if ($args{ARCH} eq 'x86_64' and ($args{C32} || $args{X32})) {
     if ($args{C32}) {
@@ -487,37 +470,29 @@ sub perform_sbo {
       say {$src_ls_fh} $dir;
     }
   }
-  # get a tempfile to store the exit status of the slackbuild
-  my $exit_temp = tempfile(DIR => $tempdir);
-  my ($exit_fn, $exit) = get_tmp_extfn($exit_temp);
-  return $exit_fn, undef, $exit if $exit;
+
   # set TMP/OUTPUT if set in the environment
   $cmd .= " TMP=$env_tmp" if $env_tmp;
   $cmd .= " OUTPUT=$ENV{OUTPUT}" if defined $ENV{OUTPUT};
-  $cmd .= " /bin/bash $location/$sbo.SlackBuild; echo \$? > $exit_fn )";
-  my $tempfh = tempfile(DIR => $tempdir);
-  my $fn;
-  ($fn, $exit) = get_tmp_extfn($tempfh);
-  return $fn, undef, $exit if $exit;
-  $cmd .= " | tee -a $fn";
+  $cmd .= " /bin/bash $location/$sbo.SlackBuild";
+
   # attempt to rewrite the slackbuild, or exit if we can't
-  my $fail;
-  ($fail, $exit) = rewrite_slackbuild(
+  my ($fail, $exit) = rewrite_slackbuild(
     SBO => $sbo,
     SLACKBUILD => "$location/$sbo.SlackBuild",
     CHANGES => \%changes,
     C32 => $args{C32},
   );
   return $fail, undef, $exit if $exit;
+
   # run the slackbuild, grab its exit status, revert our changes
-  chdir $location, system $cmd;
-  seek $exit_temp, 0, 0;
-  my $out = do {local $/; <$exit_temp>};
-  close $exit_temp;
+  chdir $location;
+  my ($out, $ret) = run_tee($cmd);
+
   revert_slackbuild("$location/$sbo.SlackBuild");
   # return error now if the slackbuild didn't exit 0
-  return "$sbo.SlackBuild return non-zero\n", undef, _ERR_BUILD if $out != 0;
-  my $pkg = get_pkg_name($tempfh);
+  return "$sbo.SlackBuild return non-zero\n", undef, _ERR_BUILD if $ret != 0;
+  my $pkg = get_pkg_name($out);
   return "$sbo.SlackBuild didn't create a package\n", undef, _ERR_BUILD if not defined $pkg;
   my $src = get_src_dir($src_ls_fh);
   return $pkg, $src;
@@ -744,6 +719,43 @@ sub rewrite_slackbuild {
   }
   untie @sb_file;
   return 1;
+}
+
+=head2 run_tee
+
+  my ($output, $exit) = run_tee($cmd);
+
+C<run_tee()> runs the C<$cmd >under C<tee(1)> to allow both displaying its
+output and returning it as a string. It returns a list of the output and the
+exit status (C<$?> in bash). If it can't even run the bash interpreter, the
+output will be C<undef> and the exit status will hold a true value.
+
+=cut
+
+sub run_tee {
+  my $cmd = shift;
+
+  my $out_fh = tempfile(DIR => $tempdir);
+  my $out_fn = get_tmp_extfn($out_fh);
+  return undef, _ERR_F_SETFD if not defined $out_fn;
+
+  my $exit_fh = tempfile(DIR => $tempdir);
+  my $exit_fn = get_tmp_extfn($exit_fh);
+  return undef, _ERR_F_SETFD if not defined $exit_fn;
+
+  $cmd = sprintf '( %s; echo $? > %s ) | tee %s', $cmd, $exit_fn, $out_fn;
+
+  my $ret = system('/bin/bash', '-c', $cmd);
+
+  return undef, $ret if $ret;
+
+  seek $exit_fh, 0, 0;
+  chomp($ret = readline $exit_fh);
+
+  seek $out_fh, 0, 0;
+  my $out = do { local $/; readline $out_fh; };
+
+  return $out, $ret;
 }
 
 =head1 AUTHORS
