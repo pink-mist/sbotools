@@ -267,36 +267,26 @@ sub get_pkg_name {
 
 =head2 get_src_dir
 
-  my @dirs = @{ get_src_dir($fh) };
+  my @dirs = @{ get_src_dir(@orig_dirs) };
 
 C<get_src_dir()> returns a list of the directories under C</tmp/SBo> or C<$TMP>
-that aren't mentioned in C<$fh>.
+that aren't in @orig_dirs.
 
 =cut
 
 sub get_src_dir {
-  script_error('get_src_dir requires an argument') unless @_ == 1;
-  my $fh = shift;
+  my @ls = @_;
   my @src_dirs;
   # scripts use either $TMP or /tmp/SBo
   if (opendir(my $tsbo_dh, $tmpd)) {
     FIRST: while (my $ls = readdir $tsbo_dh) {
-      next FIRST if in($ls => qw/ . .. /, qr/^package-/);
+      next FIRST if in($ls => qw/ . .. /, qr/^package-/, @ls);
       next FIRST unless -d "$tmpd/$ls";
-      my $found = 0;
-      seek $fh, 0, 0;
-      SECOND: while (my $line = <$fh>) {
-        chomp ($line);
-        if ($line eq $ls) {
-          $found++;
-          last SECOND;
-        }
-      }
-      push @src_dirs, $ls unless $found;
+
+      push @src_dirs, $ls;
     }
     close $tsbo_dh;
   }
-  close $fh;
   return \@src_dirs;
 }
 
@@ -444,6 +434,14 @@ sub perform_sbo {
 
   my $location = $args{LOCATION};
   my $sbo = get_sbo_from_loc($location);
+
+  # we need to get a listing of /tmp/SBo, or $TMP, if we can, before we run
+  # the SlackBuild so that we can compare to a listing taken afterward.
+  my @src_ls;
+  if (opendir(my $tsbo_dh, $tmpd)) {
+    @src_ls = grep { ! in( $_ => qw/ . .. /) } readdir $tsbo_dh;
+  }
+
   my ($cmd, %changes);
   # set any changes we need to make to the .SlackBuild, setup the command
 
@@ -462,15 +460,6 @@ sub perform_sbo {
   }
   $cmd .= " $args{OPTS}" if $args{OPTS};
   $cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
-  # we need to get a listing of /tmp/SBo, or $TMP, if we can, before we run
-  # the SlackBuild so that we can compare to a listing taken afterward.
-  my $src_ls_fh = tempfile(DIR => $tempdir);
-  if (opendir(my $tsbo_dh, $tmpd)) {
-    FIRST: while (my $dir = readdir $tsbo_dh) {
-      next FIRST if in($dir => qw/ . .. /);
-      say {$src_ls_fh} $dir;
-    }
-  }
 
   # set TMP/OUTPUT if set in the environment
   $cmd .= " TMP=$env_tmp" if $env_tmp;
@@ -497,7 +486,7 @@ sub perform_sbo {
   return "$sbo.SlackBuild return non-zero\n", undef, _ERR_BUILD if $ret != 0;
   my $pkg = get_pkg_name($out);
   return "$sbo.SlackBuild didn't create a package\n", undef, _ERR_BUILD if not defined $pkg;
-  my $src = get_src_dir($src_ls_fh);
+  my $src = get_src_dir(@src_ls);
   return $pkg, $src;
 }
 
