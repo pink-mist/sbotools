@@ -17,6 +17,7 @@ use File::Copy; # copy() and move()
 use File::Path qw/ make_path remove_tree /;
 use File::Temp qw/ tempdir tempfile /;
 use Tie::File;
+use Cwd;
 
 our @EXPORT_OK = qw{
   do_convertpkg
@@ -486,8 +487,10 @@ sub perform_sbo {
   return $fail, undef, $exit if $exit;
 
   # run the slackbuild, grab its exit status, revert our changes
+  my $cwd = getcwd();
   chdir $location;
   my ($out, $ret) = run_tee($cmd);
+  chdir $cwd;
 
   revert_slackbuild("$location/$sbo.SlackBuild");
   # return error now if the slackbuild didn't exit 0
