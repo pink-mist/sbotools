@@ -65,7 +65,7 @@ sboremove qw/ nonexistentslackbuild4 nonexistentslackbuild5 /, { input => "y\ny\
 
 # 5: sboremove namethatdoesntexist slackbuildthatisntinstalld
 sboremove qw/ nonexistentslackbuildwhosenamedoesntexist nonexistentslackbuild /,
-	{ exit => 1, expected => "Unable to locate nonexistentslackbuildwhosenamedoesntexist in the SlackBuilds.org tree.\nnonexistentslackbuild is not installed\n" };
+	{ exit => 1, expected => "Unable to locate nonexistentslackbuildwhosenamedoesntexist in the SlackBuilds.org tree.\nnonexistentslackbuild is not installed from SlackBuilds.org.\n" };
 
 # 6-7: sboremove nonexistentslackbuild [x2] and say no
 sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
