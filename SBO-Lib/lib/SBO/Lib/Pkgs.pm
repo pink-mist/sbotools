@@ -138,14 +138,15 @@ sub get_installed_packages {
   # Valid types: STD, SBO
   my (@pkgs, %types);
   foreach my $pkg (glob("$pkg_db/*")) {
-    my ($name, $version, $build) = $pkg =~ m#/([^/]+)-([^-]+)-[^-]+-([^-]+)$#
+    $pkg =~ s!^\Q$pkg_db/\E!!;
+    my ($name, $version, $build) = $pkg =~ m#^([^/]+)-([^-]+)-[^-]+-([^-]+)$#
       or next;
-    push @pkgs, { name => $name, version => $version, build => $build };
+    push @pkgs, { name => $name, version => $version, build => $build, pkg => $pkg };
     $types{$name} = 'STD';
   }
 
   # If we want all packages, let's just return them all
-  return [ map { +{ name => $_->{name}, version => $_->{version} } } @pkgs ]
+  return [ map { +{ name => $_->{name}, version => $_->{version}, pkg => $_->{pkg} } } @pkgs ]
     if $filter eq 'ALL';
 
   # Otherwise, mark the SBO ones and filter
@@ -156,7 +157,7 @@ sub get_installed_packages {
     foreach my $sbo (@sbos) { $types{$sbo} = 'SBO'
       if $locations{ $sbo =~ s/-compat32//gr }; }
   }
-  return [ map { +{ name => $_->{name}, version => $_->{version} } }
+  return [ map { +{ name => $_->{name}, version => $_->{version}, pkg => $_->{pkg} } }
     grep { $types{$_->{name}} eq $filter } @pkgs ];
 }
 

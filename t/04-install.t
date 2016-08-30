@@ -74,7 +74,7 @@ sboinstall 'nonexistentslackbuild4', { input => "y\ny", expected => qr/nonexiste
 sboremove 'nonexistentslackbuild4', 'nonexistentslackbuild5', { input => "y\ny\ny", test => 0 };
 
 # 10: sboinstall nonexistentslackbuild6
-sboinstall 'nonexistentslackbuild6', { input => "y\ny", expected => qr/aaa_base already installed.*nonexistentslackbuild6 added to install queue.*Install queue: nonexistentslackbuild6/s };
+sboinstall 'nonexistentslackbuild6', { input => "y\ny", expected => qr/aaa_base \(aaa_base-[^)]+\) is already installed.*nonexistentslackbuild6 added to install queue.*Install queue: nonexistentslackbuild6/s };
 
 # 11-12: sboinstall -i nonexistentslackbuild
 sboinstall qw/ -i nonexistentslackbuild /, { input => "y\ny", expected => qr/nonexistentslackbuild added to install queue/ };

@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ usage_error slackbuilds_or_fetch get_build_queue merge_queues get_sbo_locations get_installed_packages get_inst_names get_installed_cpans get_sbo_location user_prompt process_sbos print_failures %config get_arch show_version /;
+use SBO::Lib qw/ usage_error slackbuilds_or_fetch get_build_queue merge_queues get_sbo_locations get_installed_packages get_installed_cpans get_sbo_location user_prompt process_sbos print_failures %config get_arch show_version /;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
 
@@ -96,11 +96,11 @@ if ($no_reqs or $non_int) {
 }
 
 # get lists of installed packages and perl modules from CPAN
-my $inst_names = get_inst_names(get_installed_packages 'ALL');
+my $inst_pkgs = get_installed_packages('ALL');
 my $pms = get_installed_cpans();
 s/::/-/g for @$pms;
 my %inst_names;
-$inst_names{$_} = 1 for @$inst_names;
+$inst_names{$_->{name}} = $_ for @$inst_pkgs;
 
 # populate %locations and sanity check
 %locations = get_sbo_locations($build_queue);
@@ -122,7 +122,7 @@ FIRST: for my $sbo (@$build_queue) {
 	my $name = $compat32 ? "$sbo-compat32" : $sbo;
 
 	if ($inst_names{$name}) {
-		say "$name already installed.";
+		say sprintf "%s (%s) is already installed.", $name, $inst_names{$name}{pkg};
 		next FIRST;
 	} else {
 		if ($sbo =~ /^perl-/) {
