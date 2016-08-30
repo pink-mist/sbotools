@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ usage_error slackbuilds_or_fetch get_build_queue merge_queues get_sbo_locations get_installed_packages get_installed_cpans get_sbo_location user_prompt process_sbos print_failures %config get_arch show_version /;
+use SBO::Lib qw/ %config get_arch get_build_queue get_installed_cpans get_installed_packages get_sbo_location get_sbo_locations merge_queues print_failures process_sbos show_version slackbuilds_or_fetch usage_error user_prompt /;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
 
