@@ -6,12 +6,12 @@ use Test::More;
 use Test::Exit;
 use FindBin '$RealBin';
 use lib "$RealBin/../SBO-Lib/lib";
-use SBO::Lib qw/ do_slackbuild rsync_sbo_tree /;
+use SBO::Lib qw/ do_slackbuild rsync_sbo_tree get_sbo_downloads /;
 use Capture::Tiny qw/ capture_merged /;
 use File::Path qw/ remove_tree /;
 
 if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
-	plan tests => 12;
+	plan tests => 13;
 } else {
 	plan skip_all => 'Only run these tests under Travis CI (TRAVIS=true)';
 }
@@ -97,6 +97,17 @@ SKIP: {
 	is ($exit, undef, "do_slackbuild() didn't exit when it's on 32bit.");
 	is ($out, "", "do_slackbuild() didn't output anything when it's on 32bit.");
 	is_deeply (\@ret, ["sentinel", undef, undef, -1], "do_slackbuild() returned the correct things when it's on 32bit.");
+}
+
+# 13: test get_sbo_downloads() which thinks it's on 32bit
+{
+  no warnings 'redefine';
+  local *SBO::Lib::Download::get_arch = sub { return 'i586' };
+
+  my $ret = get_sbo_downloads(LOCATION => "/usr/sbo/repo/test/test2");
+
+  ok (exists $ret->{'http://pink-mist.github.io/sbotools/testing/32/perf.dummy'}, "get_sbo_downloads() returned the correct link for 32bit.")
+    or diag explain $ret;
 }
 
 remove_tree($repo);
