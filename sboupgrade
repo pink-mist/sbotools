@@ -177,7 +177,7 @@ my (@temp_queue, %commands, %options);
 FIRST: for my $sbo (@$upgrade_queue) {
 	next FIRST if $std_names{$sbo};
 
-    unless ($non_int) {
+	unless ($non_int) {
 		my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
 		if ($exit) {
 			warn "Unable to open README for $sbo.\n";
@@ -189,11 +189,11 @@ FIRST: for my $sbo (@$upgrade_queue) {
 		push(@temp_queue, $sbo);
 		$commands{$sbo} = $cmds;
 		$options{$sbo} = $opts;
-        say "$sbo added to upgrade queue.";
-    } else {
-        push(@temp_queue, $sbo);
-        say "\n$sbo added to upgrade queue.";
-    }
+		say "$sbo added to upgrade queue.";
+	} else {
+		push(@temp_queue, $sbo);
+		say "\n$sbo added to upgrade queue.";
+	}
 }
 @$upgrade_queue = @temp_queue;
 
