@@ -102,9 +102,11 @@ if (length $utemp) {
 	$non_int = 1;
 
 	my $data = slurp($utemp);
-	do { warn "Could not read template from $utemp.\n"; exit _ERR_OPENFH } if not length $data;
+	if (length $data) {
+		eval { $template = $json->decode($data); };
+	}
+	do { warn "Could not read template from $utemp.\n"; exit _ERR_OPENFH } if not defined $template;
 
-	$template = $json->decode($data);
 	$build_queue = $template->{build_queue};
 } else {
 	if ($no_reqs or $non_int) {
