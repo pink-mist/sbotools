@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_
 use File::Temp qw/ tempdir /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 18;
+	plan tests => 26;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -157,6 +157,21 @@ TEMP6
 
 	capture_merged { system(qw/ userdel test /); system(qw/ groupdel test /); };
 }
+
+# 19-22: sboinstall envsettingtest - unreadable template
+mkdir "$tempdir/7.temp";
+sboinstall '--create-template', "$tempdir/7.temp", 'envsettingtest', { input => "n\ny\ny", expected => qr!Unable to open \Q$tempdir/7.temp.\E\n!, exit => 6 };
+sboinstall '--use-template', "$tempdir/7.temp", { expected => qr!Could not read template from \Q$tempdir/7.temp.\E\n!, exit => 6 };
+system touch => "$tempdir/8.temp";
+sboinstall '--use-template', "$tempdir/8.temp", { expected => qr!Could not read template from \Q$tempdir/8.temp.\E\n!, exit => 6 };
+system "echo foo > $tempdir/9.temp";
+sboinstall '--use-template', "$tempdir/9.temp", { expected => qr!Could not read template from \Q$tempdir/9.temp.\E\n!, exit => 6 };
+
+# 23-26: sboinstall with erroneous arguments for --use-template and --create-template
+sboinstall '--use-template', { expected => qr/Usage/, exit => 1 };
+sboinstall '--use-template', '', { expected => qr/Usage/, exit => 1 };
+sboinstall '--use-template', '', '', { expected => qr/Usage/, exit => 1 };
+sboinstall '--create-template', '', '', { expected => qr/Usage/, exit => 1 };
 
 # Cleanup
 END {
