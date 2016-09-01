@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 19;
+	plan tests => 20;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -103,6 +103,13 @@ sboinstall 'perl-nonexistentcpan', { input => "n", expected => qr/Proceed with p
 	my $inode = (stat($sbo))[1];
 	sboinstall 'nonexistentslackbuild', { input => "y\ny", test => 0 };
 	is((stat($sbo))[1], $inode, "inode didn't change");
+}
+
+# 20: check correct exit for compat32 on fake 32bit
+{
+	local $ENV{PATH} = "$RealBin/bin:$ENV{PATH}";
+
+	sboinstall '-p', 'foo', { expected => "compat32 only works on x86_64.\n", exit => 1 };
 }
 
 # Cleanup
