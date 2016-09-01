@@ -102,6 +102,7 @@ sbofind { expected => $sbofind, exit => 1 };
 ## sboinstall
 my $sboinstall = <<'SBOINSTALL';
 Usage: sboinstall [options] sbo
+       sboinstall --use-template file
 
 Options (defaults shown first where applicable):
   -h|--help:
@@ -122,6 +123,11 @@ Options (defaults shown first where applicable):
     non-interactive; skips README and all prompts.
   -R|--norequirements:
     view the README but do not parse requirements, commands, or options.
+  --create-template (FILE):
+    create a template with specified requirements, commands, and options.
+  --use-template (FILE):
+    use a template created by --create-template to install requirements with
+    specified commands and options. This also enables the --nointeractive flag.
 
 SBOINSTALL
 sboinstall '-h', { expected => $sboinstall };

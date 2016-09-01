@@ -13,15 +13,17 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ %config get_arch get_build_queue get_installed_cpans get_installed_packages get_sbo_location get_sbo_locations merge_queues print_failures process_sbos show_version slackbuilds_or_fetch usage_error user_prompt /;
+use SBO::Lib qw/ %config _ERR_OPENFH get_arch get_build_queue get_installed_cpans get_installed_packages get_sbo_location get_sbo_locations merge_queues open_fh print_failures process_sbos show_version slackbuilds_or_fetch slurp usage_error user_prompt /;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
+use JSON::PP;
 
 my $self = basename($0);
 
 sub show_usage {
 	print <<"EOF";
 Usage: $self [options] sbo
+       $self --use-template file
 
 Options (defaults shown first where applicable):
   -h|--help:
@@ -42,6 +44,11 @@ Options (defaults shown first where applicable):
     non-interactive; skips README and all prompts.
   -R|--norequirements:
     view the README but do not parse requirements, commands, or options.
+  --create-template (FILE):
+    create a template with specified requirements, commands, and options.
+  --use-template (FILE):
+    use a template created by --create-template to install requirements with
+    specified commands and options. This also enables the --nointeractive flag.
 
 EOF
 	return 1;
@@ -50,24 +57,28 @@ EOF
 my $noclean = $config{NOCLEAN};
 my $distclean = $config{DISTCLEAN};
 my $jobs = $config{JOBS};
-my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32);
+my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32, $ctemp, $utemp);
 
 GetOptions(
-	'help|h'           => \$help,
-	'version|v'        => \$vers,
-	'noclean|c=s'      => \$noclean,
-	'distclean|d=s'    => \$distclean,
-	'noinstall|i'      => \$no_install,
-	'jobs|j=s'         => \$jobs,
-	'compat32|p'       => \$compat32,
-	'nointeractive|r'  => \$non_int,
-	'norequirements|R' => \$no_reqs,
+	'help|h'            => \$help,
+	'version|v'         => \$vers,
+	'noclean|c=s'       => \$noclean,
+	'distclean|d=s'     => \$distclean,
+	'noinstall|i'       => \$no_install,
+	'jobs|j=s'          => \$jobs,
+	'compat32|p'        => \$compat32,
+	'nointeractive|r'   => \$non_int,
+	'norequirements|R'  => \$no_reqs,
+	'create-template=s' => \$ctemp,
+	'use-template=s'    => \$utemp,
 );
 
 if ($help) { show_usage(); exit 0 }
 if ($vers) { show_version(); exit 0 }
 
-if (!@ARGV) { show_usage(); exit 1 }
+if (!@ARGV and not length $utemp) { show_usage(); exit 1 }
+if (defined $utemp and not length $utemp) { show_usage(); exit 1 }
+if (defined $ctemp and not length $ctemp) { show_usage(); exit 1 }
 
 $noclean = $noclean eq 'TRUE' ? 1 : 0;
 $distclean = $distclean eq 'TRUE' ? 1 : 0;
@@ -84,14 +95,25 @@ if ($compat32) {
 # if we can't find SLACKBUILDS.TXT in $config{HOME}, prompt to fetch the tree
 slackbuilds_or_fetch();
 
-my (%warnings, $build_queue, %locations);
+my (%warnings, $build_queue, %locations, $template);
 
-if ($no_reqs or $non_int) {
-	$build_queue = \@ARGV;
+if (length $utemp) {
+	my $json = JSON::PP->new->latin1;
+	$non_int = 1;
+
+	my $data = slurp($utemp);
+	do { warn "Could not read template from $utemp.\n"; exit _ERR_OPENFH } if not length $data;
+
+	$template = $json->decode($data);
+	$build_queue = $template->{build_queue};
 } else {
-	for my $sbo (@ARGV) {
-		my $queue = get_build_queue([$sbo], \%warnings);
-		$build_queue = merge_queues($build_queue, $queue);
+	if ($no_reqs or $non_int) {
+		$build_queue = \@ARGV;
+	} else {
+		for my $sbo (@ARGV) {
+			my $queue = get_build_queue([$sbo], \%warnings);
+			$build_queue = merge_queues($build_queue, $queue);
+		}
 	}
 }
 
@@ -117,6 +139,10 @@ for my $sbo (@$build_queue) {
 
 # check for already-installeds and prompt for the rest
 my (@temp_queue, %commands, %options);
+if (defined $template) {
+	%commands = %{ $template->{commands} };
+	%options = %{ $template->{options} };
+}
 my $added = ' added to install queue.';
 FIRST: for my $sbo (@$build_queue) {
 	my $name = $compat32 ? "$sbo-compat32" : $sbo;
@@ -181,6 +207,21 @@ say "\nInstall queue: " . join(' ', @$build_queue);
 unless ($non_int) {
     print "\nAre you sure you wish to continue? [y]: ";
     exit 0 unless <STDIN> =~ /^[Yy\n]/;
+}
+
+if (defined $ctemp) {
+	my ($temp_fh, $exit) = open_fh($ctemp, '>');
+	do { warn $temp_fh; exit $exit } if $exit;
+
+	my $json = JSON::PP->new->latin1->pretty->canonical;
+	my $build_settings = {
+		build_queue => $build_queue,
+		commands    => \%commands,
+		options     => \%options,
+	};
+	print {$temp_fh} $json->encode( $build_settings );
+	close $temp_fh;
+	print "\nTemplate $ctemp saved.\n";
 }
 
 my ($failures, $exit) = process_sbos(
