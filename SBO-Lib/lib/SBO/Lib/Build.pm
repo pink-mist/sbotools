@@ -459,7 +459,7 @@ sub perform_sbo {
     $changes{jobs} = 1;
   }
   $cmd .= " $args{OPTS}" if $args{OPTS};
-  $cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $args{JOBS};
+  $cmd .= " MAKEOPTS=\"-j$args{JOBS}\"" if $changes{jobs};
 
   # set TMP/OUTPUT if set in the environment
   $cmd .= " TMP=$env_tmp" if $env_tmp;
