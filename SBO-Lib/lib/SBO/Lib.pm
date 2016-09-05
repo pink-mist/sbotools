@@ -17,6 +17,43 @@ use warnings FATAL => 'all';
 package SBO::Lib;
 our $VERSION = '2.0';
 
+=head1 NAME
+
+SBO::Lib - Library for working with SlackBuilds.org.
+
+=head1 SYNOPSIS
+
+  use SBO::Lib qw/ :all /;
+
+=head1 DESCRIPTION
+
+SBO::Lib is the entry point for all the related modules, and is simply re-
+exporting all of their exports.
+
+=head1 SEE ALSO
+
+=over
+
+=item L<SBO::Lib::Util>
+
+=item L<SBO::Lib::Info>
+
+=item L<SBO::Lib::Repo>
+
+=item L<SBO::Lib::Tree>
+
+=item L<SBO::Lib::Pkgs>
+
+=item L<SBO::Lib::Build>
+
+=item L<SBO::Lib::Readme>
+
+=item L<SBO::Lib::Download>
+
+=back
+
+=cut
+
 use SBO::Lib::Util qw/ :all /;
 use SBO::Lib::Info qw/ :all /;
 use SBO::Lib::Repo qw/ :all /;
@@ -57,6 +94,20 @@ unless ($< == 0) {
 	warn "This script requires root privileges.\n";
 	exit _ERR_USAGE;
 }
+
+=head1 AUTHORS
+
+SBO::Lib was originally written by Jacob Pipkin <j@dawnrazor.net> with
+contributions from Luke Williams <xocel@iquidus.org> and Andreas
+Guldstrand <andreas.guldstrand@gmail.com>.
+
+=head1 LICENSE
+
+The sbotools are licensed under the WTFPL <http://sam.zoy.org/wtfpl/COPYING>.
+
+Copyright (C) 2012-2016, Jacob Pipkin, Luke Williams, Andreas Guldstrand.
+
+=cut
 
 'ok';
 
