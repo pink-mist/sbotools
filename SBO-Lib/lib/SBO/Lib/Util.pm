@@ -46,6 +46,7 @@ our @EXPORT_OK = (
     open_fh
     open_read
     print_failures
+    prompt
     script_error
     show_version
     slurp
@@ -339,6 +340,37 @@ sub print_failures {
       warn "  $_: $$failure{$_}" for keys %$failure;
     }
   }
+}
+
+=head2 prompt
+
+  exit unless prompt "Should we continue?", default => "yes";
+
+C<prompt()> prompts the user for an answer, optinally specifying a default of
+C<yes> or C<no>. If the default has been specified it returns a true value in
+case 'yes' was selected, and a false value if 'no' was selected. Otherwise it
+returns whatever the user answered.
+
+=cut
+
+sub prompt {
+  my ($q, %opts) = @_;
+  my $def = $opts{default};
+  $q = sprintf '%s [%s] ', $q, $def eq 'yes' ? 'y' : 'n' if defined $def;
+
+  print $q;
+
+  my $res = readline STDIN;
+
+  if (defined $def) {
+    return 1 if $res =~ /^y/i;
+    return 0 if $res =~ /^n/i;
+    return $def eq 'yes' if $res =~ /^\n/;
+
+    # if none of the above matched, we ask again
+    goto &prompt;
+  }
+  return $res;
 }
 
 =head2 read_config
