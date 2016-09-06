@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.0';
 
-use SBO::Lib::Util qw/ :const script_error get_sbo_from_loc get_arch check_multilib uniq %config in /;
+use SBO::Lib::Util qw/ :const prompt script_error get_sbo_from_loc get_arch check_multilib uniq %config in /;
 use SBO::Lib::Tree qw/ get_sbo_location /;
 use SBO::Lib::Info qw/ get_sbo_version check_x32 get_requires /;
 use SBO::Lib::Download qw/ get_sbo_downloads get_dl_fns get_filename_from_link check_distfiles /;
@@ -535,8 +535,7 @@ sub process_sbos {
       return \@failures, $exit if $args{NON_INT};
       say "Unable to download/verify source file(s) for $sbo:";
       say "  $fail";
-      print 'Do you want to proceed? [n] ';
-      if (<STDIN> =~ /^[yY]/) {
+      if (prompt('Do you want to proceed?' , default => 'no')) {
         next FIRST;
       } else {
         unlink for @symlinks;
@@ -572,8 +571,7 @@ sub process_sbos {
       return \@failures, $exit if $count == @$todo;
       say "Failure encountered while building $sbo:";
       say "  $fail";
-      print 'Do you want to proceed [n] ';
-      if (<STDIN> =~ /^[yY]/) {
+      if (prompt('Do you want to proceed?', default => 'no')) {
         next FIRST;
       } else {
         unlink for @symlinks;

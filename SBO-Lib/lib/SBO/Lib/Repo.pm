@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.0';
 
-use SBO::Lib::Util qw/ %config usage_error get_slack_version script_error open_fh open_read in /;
+use SBO::Lib::Util qw/ %config prompt usage_error get_slack_version script_error open_fh open_read in /;
 
 use Cwd;
 use File::Copy;
@@ -338,8 +338,7 @@ C<$repo_path>, and if not, offer to run C<sbosnap fetch> for you.
 sub slackbuilds_or_fetch {
   unless (chk_slackbuilds_txt()) {
     say 'It looks like you haven\'t run "sbosnap fetch" yet.';
-    print 'Would you like me to do this now? [y] ';
-    if (<STDIN> =~ /^[Yy\n]/) {
+    if (prompt("Would you like me to do this now?", default => 'yes')) {
       fetch_tree();
     } else {
       say 'Please run "sbosnap fetch"';

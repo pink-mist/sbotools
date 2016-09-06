@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ usage_error script_error in show_version %config /;
+use SBO::Lib qw/ prompt usage_error script_error in show_version %config /;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 use File::Path qw(remove_tree);
@@ -60,8 +60,7 @@ sub rm_full {
 	script_error('rm_full requires an argument.') unless @_ == 1;
 	my $full = shift;
 	if ($interactive) {
-		print "Remove $full? [n] ";
-		return() unless <STDIN> =~ /^[Yy]/;
+		return() unless prompt("Remove $full?", default => 'no');
 	}
 	unlink $full if -f $full;
 	remove_tree($full) if -d $full;
@@ -100,8 +99,7 @@ if ($clean_work) {
 	my $tsbo = $SBO::Lib::tmpd;
 	if ($env_tmp && !$interactive) {
 		warn "This will remove the entire contents of $env_tmp\n";
-		print "Proceed? [y] ";
-		remove_stuff($tsbo) if <STDIN> =~ /^[yY\n]/;
+		remove_stuff($tsbo) if prompt("Proceed?", default => 'yes');
 	} else {
 		remove_stuff($tsbo);
 	}

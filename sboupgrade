@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ get_available_updates usage_error slackbuilds_or_fetch uniq get_sbo_location get_inst_names get_installed_packages get_build_queue get_sbo_locations merge_queues user_prompt process_sbos print_failures %config show_version /;
+use SBO::Lib qw/ get_available_updates prompt usage_error slackbuilds_or_fetch uniq get_sbo_location get_inst_names get_installed_packages get_build_queue get_sbo_locations merge_queues user_prompt process_sbos print_failures %config show_version /;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
 use File::Copy;
@@ -200,8 +200,7 @@ FIRST: for my $sbo (@$upgrade_queue) {
 exit 0 unless exists $$upgrade_queue[0];
 say "\nUpgrade queue: ". join(' ', @$upgrade_queue);
 unless ($non_int) {
-    print "\nAre you sure you wish to continue? [y]: ";
-    exit 0 unless <STDIN> =~ /^[Yy\n]/;
+    exit 0 unless prompt("\nAre you sure you wish to continue?", default => 'yes');
 }
 
 my ($failures, $exit) = process_sbos(

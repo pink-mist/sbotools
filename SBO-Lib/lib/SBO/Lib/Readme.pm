@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.0';
 
-use SBO::Lib::Util qw/ script_error slurp open_read _ERR_OPENFH usage_error /;
+use SBO::Lib::Util qw/ prompt script_error slurp open_read _ERR_OPENFH usage_error /;
 use SBO::Lib::Tree qw/ is_local /;
 
 use Exporter 'import';
@@ -55,13 +55,9 @@ sub ask_opts {
   script_error('ask_opts requires an argument') unless @_;
   my ($sbo, $readme) = @_;
   say "\n". $readme;
-  print "\nIt looks like $sbo has options; would you like to set any";
-  print ' when the slackbuild is run? [n] ';
-  if (<STDIN> =~ /^[Yy]/) {
+  if (prompt("\nIt looks like $sbo has options; would you like to set any when the slackbuild is run?", default => 'no')) {
     my $ask = sub {
-      print "\nPlease supply any options here, or enter to skip: ";
-      chomp(my $opts = <STDIN>);
-      return() if $opts =~ /^\n/;
+      chomp(my $opts = prompt("\nPlease supply any options here, or enter to skip: "));
       return $opts;
     };
     my $kv_regex = qr/[A-Z0-9]+=[^\s]+(|\s([A-Z]+=[^\s]+){0,})/;
@@ -96,8 +92,7 @@ sub ask_user_group {
   print "\nIt looks like this slackbuild requires the following";
   say ' command(s) to be run first:';
   say "    # $_" for @$cmds;
-  print 'Shall I run them prior to building? [y] ';
-  return <STDIN> =~ /^[Yy\n]/ ? $cmds : undef;
+  return prompt('Shall I run them prior to building?', default => 'yes') ? $cmds : undef;
 }
 
 =head2 get_opts
@@ -184,11 +179,10 @@ sub user_prompt {
   my $opts = 0;
   $opts = ask_opts($sbo, $readme) if get_opts($readme);
   print "\n". $readme unless $opts;
-  print "\nProceed with $sbo? [y]: ";
   # we have to return something substantial if the user says no so that we
   # can check the value of $cmds on the calling side. we should be able to
   # assume that 'N' will  never be a valid command to run.
-  return 'N' unless <STDIN> =~ /^[Yy\n]/;
+  return 'N' unless prompt("\nProceed with $sbo?", default => 'yes');
   return $cmds, $opts;
 }
 

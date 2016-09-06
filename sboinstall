@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ %config _ERR_OPENFH get_arch get_build_queue get_installed_cpans get_installed_packages get_sbo_location get_sbo_locations merge_queues open_fh print_failures process_sbos show_version slackbuilds_or_fetch slurp usage_error user_prompt /;
+use SBO::Lib qw/ %config _ERR_OPENFH get_arch get_build_queue get_installed_cpans get_installed_packages get_sbo_location get_sbo_locations merge_queues open_fh print_failures process_sbos prompt show_version slackbuilds_or_fetch slurp usage_error user_prompt /;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
 use JSON::PP;
@@ -207,8 +207,7 @@ FIRST: for my $sbo (@$build_queue) {
 exit 0 if @{ $build_queue } == 0;
 say "\nInstall queue: " . join(' ', @$build_queue);
 unless ($non_int) {
-    print "\nAre you sure you wish to continue? [y]: ";
-    exit 0 unless <STDIN> =~ /^[Yy\n]/;
+    exit 0 unless prompt("\nAre you sure you wish to continue?", default => 'yes');
 }
 
 if (defined $ctemp) {
