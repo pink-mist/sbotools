@@ -1,7 +1,5 @@
 #!/usr/bin/env perl
 
-# This should probably replace 01-test.t once it's thorough enough
-
 use strict;
 use warnings;
 use Test::More;
@@ -11,7 +9,7 @@ use lib "$RealBin/../SBO-Lib/lib";
 use SBO::Lib;
 use Capture::Tiny qw/ capture_merged /;
 
-plan tests => 58;
+plan tests => 59;
 
 sub test_args {
 	my $sub = shift;
@@ -35,7 +33,7 @@ test_args $_ for qw/
 	check_x32 rewrite_slackbuild revert_slackbuild check_distfiles create_symlinks
 	get_tmp_extfn perform_sbo do_convertpkg do_slackbuild make_clean make_distclean
 	do_upgradepkg get_build_queue merge_queues get_user_group ask_user_group get_opts
-	ask_opts user_prompt
+	ask_opts user_prompt get_readme_contents
 /;
 
 test_args 'get_from_info', LOCATION => 1;
