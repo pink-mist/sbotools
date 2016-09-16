@@ -30,14 +30,14 @@ version="$1"
 
 update="
 	SBO-Lib/lib/SBO/Lib.pm
-  SBO-Lib/lib/SBO/Lib/Util.pm
-  SBO-Lib/lib/SBO/Lib/Tree.pm
-  SBO-Lib/lib/SBO/Lib/Repo.pm
-  SBO-Lib/lib/SBO/Lib/Readme.pm
-  SBO-Lib/lib/SBO/Lib/Pkgs.pm
-  SBO-Lib/lib/SBO/Lib/Info.pm
-  SBO-Lib/lib/SBO/Lib/Download.pm
-  SBO-Lib/lib/SBO/Lib/Build.pm
+	SBO-Lib/lib/SBO/Lib/Util.pm
+	SBO-Lib/lib/SBO/Lib/Tree.pm
+	SBO-Lib/lib/SBO/Lib/Repo.pm
+	SBO-Lib/lib/SBO/Lib/Readme.pm
+	SBO-Lib/lib/SBO/Lib/Pkgs.pm
+	SBO-Lib/lib/SBO/Lib/Info.pm
+	SBO-Lib/lib/SBO/Lib/Download.pm
+	SBO-Lib/lib/SBO/Lib/Build.pm
 	slackbuild/sbotools/sbotools.SlackBuild
 	slackbuild/sbotools/sbotools.info
 "
