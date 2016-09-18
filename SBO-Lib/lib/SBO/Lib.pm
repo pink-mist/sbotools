@@ -15,7 +15,7 @@ use strict;
 use warnings FATAL => 'all';
 
 package SBO::Lib;
-our $VERSION = '2.0';
+our $VERSION = '2.1';
 
 =head1 NAME
 
