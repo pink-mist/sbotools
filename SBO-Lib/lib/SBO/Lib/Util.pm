@@ -64,6 +64,10 @@ our %EXPORT_TAGS = (
   config => \@EXPORT_CONFIG,
 );
 
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 SBO::Lib::Util - Utility functions for SBO::Lib and the sbotools

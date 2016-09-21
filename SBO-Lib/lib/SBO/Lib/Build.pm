@@ -46,6 +46,10 @@ our %EXPORT_TAGS = (
   all => \@EXPORT_OK,
 );
 
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 SBO::Lib::Build - Routines for building slackware packages from SlackBuilds.org.

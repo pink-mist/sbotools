@@ -24,6 +24,10 @@ our %EXPORT_TAGS = (
   all => \@EXPORT_OK,
 );
 
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 SBO::Lib::Info - Utilities to get data from SBo .info files.

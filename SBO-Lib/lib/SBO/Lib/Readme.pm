@@ -24,6 +24,10 @@ our %EXPORT_TAGS = (
   all => \@EXPORT_OK,
 );
 
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 SBO::Lib::Readme - Routines for interacting with a typical SBo README file.

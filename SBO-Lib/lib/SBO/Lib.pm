@@ -17,6 +17,10 @@ use warnings FATAL => 'all';
 package SBO::Lib;
 our $VERSION = '2.1';
 
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 SBO::Lib - Library for working with SlackBuilds.org.

@@ -22,6 +22,10 @@ our %EXPORT_TAGS = (
   all => \@EXPORT_OK,
 );
 
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 SBO::Lib::Tree - Routines for interacting with a SlackBuilds.org tree.

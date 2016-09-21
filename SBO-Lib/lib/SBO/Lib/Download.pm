@@ -29,6 +29,10 @@ our %EXPORT_TAGS = (
   all => \@EXPORT_OK,
 );
 
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 SBO::Lib::Download - Routines for downloading slackbuild sources.
