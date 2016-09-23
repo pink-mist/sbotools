@@ -39,7 +39,8 @@ update_perl="
 	SBO-Lib/lib/SBO/Lib/Download.pm
 	SBO-Lib/lib/SBO/Lib/Build.pm
 "
-update_slackbuild="
+update_other="
+  SBO-Lib/README
 	slackbuild/sbotools/sbotools.SlackBuild
 	slackbuild/sbotools/sbotools.info
 "
@@ -48,7 +49,7 @@ old_version=$(grep '^our $VERSION' SBO-Lib/lib/SBO/Lib.pm | grep -Eo '[0-9]+(\.[
 
 tmpfile=$(mktemp /tmp/XXXXXXXXXX)
 
-for i in $update_slackbuild; do
+for i in $update_other; do
 	cat $i | sed "s/$old_version/$version/g" > $tmpfile
 	if [[ "$?" == "0" ]]; then
 		mv $tmpfile $i
