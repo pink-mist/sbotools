@@ -4,7 +4,6 @@
 
 ## Changes
 * 2.1 - Unreleased
-2.1 - Unreleased
   * Internals:
     - Adding internal documentation
     - Extract code to submodules for easier separation of concerns
