@@ -4,12 +4,7 @@ use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
 
-use Test2::API qw/ context release run_subtest no_context /;
-use Test2::Compare qw/ compare /;
-use Test2::Compare::Number;
-use Test2::Compare::Pattern;
-use Test2::Compare::String;
-
+use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use Exporter 'import';
 use Carp 'croak';
@@ -36,9 +31,8 @@ sub run {
 		@_
 	);
 
-	my $ctx = $args{ctx} // context();
 	my @cmd = @{ $args{cmd} };
-	return release($ctx, undef) unless @cmd; # no command to run
+	return undef unless @cmd; # no command to run
 
 	my ($exit, $input, $test, $expected, $name, $note) =
 		@args{qw/ exit input test expected name note /};
@@ -57,69 +51,44 @@ sub run {
 	};
 
 	if ($note) {
-		$ctx->note(sprintf "Exit value: %s", $return // '<undef>');
-		$ctx->note("Output: $output");
+		note sprintf "Exit value: %s", $return // '<undef>';
+		note "Output: $output";
 	}
 
 	if (not $test) {
 		if (defined $expected and ref $expected eq 'Regexp') {
-			$ctx->release();
 			return $output =~ $expected;
 		} elsif (defined $expected and ref $expected eq 'CODE') {
-			$ctx->release();
 			local $_ = $output;
 			return $expected->($output);
 		}
-		return release($ctx, $return);
+		return $return;
 	}
 
 	$name //= "Testing run of @cmd";
-	run_subtest($name => sub { no_context {
-		my $sub = context();
-		$sub->plan(2);
+	local $Test::Builder::Level = $Test::Builder::Level + 2;
+	subtest $name => sub {
+		plan tests => 2;
 
 		# 1: Test exit value
 		if (not defined $exit) {
-			$sub->skip("$name - exit value", "Expected exit value undefined");
+			SKIP: { skip "Expected exit value undefined", 1 }
 		} else {
-			my $delta = compare($return, $exit, sub { Test2::Compare::Number->new(input => shift()); });
-			if ($delta) {
-				$sub->ok(0, "$name - exit value", [$delta->table]);
-			} else {
-				$sub->ok(1, "$name - exit value");
-			}
+			is ($return, $exit, "$name - exit value");
 		}
 
 		# 2: Test output
 		if (not defined $expected) {
-			$sub->skip("$name - output", "Expected output undefined");
+			SKIP: { skip "Expected output undefined", 1 }
 		} elsif (ref $expected eq 'Regexp') {
-			my $delta = compare($output, $expected, sub { Test2::Compare::Pattern->new(pattern => shift(), stringify_got => 1); });
-			if ($delta) {
-				$sub->ok(0, "$name - output", [$delta->table]);
-			} else {
-				$sub->ok(1, "$name - output");
-			}
+			like ($output, $expected, "$name - output");
 		} elsif (ref $expected eq 'CODE') {
 			local $_ = $output;
-			my $delta = ! $expected->($output);
-			if ($delta) {
-				$sub->ok(0, "$name - output", [ "Output: $output" ]);
-			} else {
-				$sub->ok(1, "$name - output");
-			}
+			ok ($expected->($output), "$name - output") or note "Output: $output";
 		} else {
-			my $delta = compare($output, $expected, sub { Test2::Compare::String->new(input => shift()); });
-			if ($delta) {
-				$sub->ok(0, "$name - output", [$delta->table]);
-			} else {
-				$sub->ok(1, "$name - output");
-			}
+			is ($output, $expected, "$name - output");
 		}
-
-		$sub->release();
-	}}, 1);
-	$ctx->release();
+	};
 
 }
 
@@ -143,8 +112,7 @@ sub script {
 	@cmd = ($^X, @lib, "$path$cmd", @cmd);
 
 	$args{cmd} = \@cmd;
-	my $ctx = context();
-	return run(%args, ctx => $ctx);
+	return run(%args);
 }
 
 1;
