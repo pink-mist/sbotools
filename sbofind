@@ -28,6 +28,10 @@ Options:
     this screen.
   -v|--verison:
     version information.
+  -e|--exact:
+    only exact matching.
+  -t|--no-tags:
+    exclude tags from search.
   -i|--info:
     show the .info for each found item.
   -r|--readme:
@@ -42,11 +46,13 @@ EOF
 	return 1;
 }
 
-my ($help, $vers, $show_info, $show_readme, $show_queue);
+my ($help, $vers, $search_exact, $exclude_tags, $show_info, $show_readme, $show_queue);
 
 GetOptions(
 	'help|h'    => \$help,
 	'version|v' => \$vers,
+	'exact|e'   => \$search_exact,
+	'no-tags|t' => \$exclude_tags,
 	'info|i'    => \$show_info,
 	'readme|r'  => \$show_readme,
 	'queue|q'   => \$show_queue,
@@ -65,16 +71,18 @@ slackbuilds_or_fetch();
 sub perform_search {
 	script_error 'perform_search requires an argument.' unless @_ == 1;
 	my $search_arg = shift;
+	my $search_tag_re  = $search_exact ? qr/^(\S+):\s.*\b\Q$search_arg\E\b/i : qr/^(\S+):\s.*\Q$search_arg\E/i;
+	my $search_name_re = $search_exact ? "\Q$search_arg\E" : ".*\Q$search_arg\E.*";
 
 	# first get a bunch of names from the TAGS.txt if it's available
 	my $tags_file = "$config{SBO_HOME}/repo/TAGS.txt";
 	my @names;
-	if (-f $tags_file) {
+	if (!$exclude_tags && -f $tags_file) {
 		_race::cond('$tags_file may be deleted after -f check');
 		my ($t_fh, $t_exit) = open_read "$config{SBO_HOME}/repo/TAGS.txt";
 		unless ($t_exit) {
 			while (my $line = <$t_fh>) {
-				if ($line =~ /^(\S+):\s.*\Q$search_arg\E/i) {
+				if ($line =~ $search_tag_re) {
 					push @names, $1;
 				}
 			}
@@ -92,7 +100,7 @@ sub perform_search {
 		next FIRST unless $line =~ /NAME:/;
 
 		# Try to match either the search string or any of the names from the TAGS.txt
-		foreach my $search (".*" . quotemeta($search_arg) . ".*", map { quotemeta } @names) {
+		foreach my $search ($search_name_re, map { quotemeta } @names) {
 			if (my ($name) = $line =~ /NAME:\s+($search)$/i) {
 
 				# If the name matches a local override, use its location
