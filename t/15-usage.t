@@ -85,6 +85,10 @@ Options:
     this screen.
   -v|--verison:
     version information.
+  -e|--exact:
+    only exact matching.
+  -t|--no-tags:
+    exclude tags from search.
   -i|--info:
     show the .info for each found item.
   -r|--readme:
