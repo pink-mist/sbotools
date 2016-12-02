@@ -1,0 +1,16 @@
+#!/bin/bash
+PRGNAM="locale-versionsbo"
+VERSION=${VERSION:-1.0}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+TMP=${TMP:-/tmp/SBo}
+OUTPUT=${OUTPUT:-/tmp}
+KERNEL=$(uname -r)
+
+mkdir -p $TMP/$PRGNAM-$VERSION
+cp README $TMP/$PRGNAM-$VERSION
+mkdir -p $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION
+cp README $OUTPUT/package-$PRGNAM/usr/doc/$PRGNAM-$VERSION
+cd $OUTPUT/package-$PRGNAM
+
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION\_en_US-noarch-$BUILD$TAG.tgz

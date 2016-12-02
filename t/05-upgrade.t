@@ -25,12 +25,14 @@ sub cleanup {
 		system(qw!/sbin/removepkg nonexistentslackbuild5!);
 		system(qw!/sbin/removepkg nonexistentslackbuild6!);
 		system(qw!/sbin/removepkg weird-versionsbo!);
+		system(qw!/sbin/removepkg locale-versionsbo!);
 		unlink "$RealBin/LO/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild2/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild4/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild5/perf.dummy";
 		unlink "$RealBin/LO/nonexistentslackbuild6/perf.dummy";
 		unlink "$RealBin/LO/weird-versionsbo/perf.dummy";
+		unlink "$RealBin/LO/locale-versionsbo/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild2/perf.dummy";
 		unlink "$RealBin/LO2/nonexistentslackbuild4/perf.dummy";
@@ -50,6 +52,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild5-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild6-1.0!);
 		system(qw!rm -rf /tmp/SBo/weird-versionsbo-1.0!);
+		system(qw!rm -rf /tmp/SBo/locale-versionsbo-1.0!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild-1.1!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild2-1.1!);
 		system(qw!rm -rf /tmp/SBo/nonexistentslackbuild4-1.1!);
@@ -61,6 +64,7 @@ sub cleanup {
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild5!);
 		system(qw!rm -rf /tmp/package-nonexistentslackbuild6!);
 		system(qw!rm -rf /tmp/package-weird-versionsbo!);
+		system(qw!rm -rf /tmp/package-locale-versionsbo!);
 	};
 }
 
@@ -129,9 +133,9 @@ sboupgrade '--all', { expected => "Checking for updated SlackBuilds...\nNothing 
 
 cleanup();
 
-# 16: sboupgrade --all shouldn't pick up weird-versionsbo
-install('LO', 'weird-versionsbo');
-sboupgrade '--all', { input => ("n\n" x (@sbos+1)), expected => sub { not /weird-versionsbo/ } };
+# 16: sboupgrade --all shouldn't pick up weird-versionsbo or locale-versionsbo
+install('LO', 'weird-versionsbo', 'locale-versionsbo');
+sboupgrade '--all', { input => ("n\n" x (@sbos+1)), expected => sub { not /weird-versionsbo/ and not /locale-versionsbo/ } };
 
 # 17-18: sboupgrade -r -f both something installed and something not installed
 install('LO', 'nonexistentslackbuild');
