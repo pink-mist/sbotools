@@ -11,7 +11,7 @@ use Capture::Tiny qw/ capture_merged /;
 use File::Temp 'tempdir';
 use Cwd;
 
-plan tests => 61;
+plan tests => 62;
 
 # 1-2: test script_error();
 {
@@ -321,6 +321,7 @@ SKIP: {
 	is (SBO::Lib::version_cmp('1.0', '1.0_foo_bar'), 0, "version_cmp(1.0, 1.0_foo_bar) returned 0");
 
   is (SBO::Lib::version_cmp('1.0_en_US', '1.0'), 0, "version_cmp(1.0_en_US, 1.0) returned 0");
+  is (SBO::Lib::version_cmp('1.0', '1.0_en_US'), 0, "version_cmp(1.0, 1.0_en_US) returned 0");
 }
 
 # 60: test check_multilib();
