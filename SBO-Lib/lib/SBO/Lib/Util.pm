@@ -520,6 +520,17 @@ sub version_cmp {
   if ($v1 =~ /(.+)_\Q$kv\E$/) { $v1 = $1 }
   if ($v2 =~ /(.+)_\Q$kv\E$/) { $v2 = $1 }
 
+  # if $v2 doesn't end in the same thing, strip off locale info from $v1
+  if ($v1 =~ /(.*)_([a-z]{2})_([A-Z]{2})$/) {
+      my $v = $1;
+      if ($v2 !~ /_$2_$3$/) { $v1 = $v; }
+  }
+  # and vice versa...
+  if ($v2 =~ /(.*)_([a-z]{2})_([A-Z]{2})$/) {
+      my $v = $1;
+      if ($v1 !~ /_$2_$3$/) { $v2 = $v; }
+  }
+
   versioncmp($v1, $v2);
 }
 
