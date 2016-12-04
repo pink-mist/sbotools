@@ -506,17 +506,18 @@ sub usage_error {
 C<version_cmp()> will compare C<$ver1> with C<$ver2> to try to determine which
 is bigger than the other, and returns 1 if C<$ver1> is bigger, -1 if C<$ver2>
 is bigger, and 0 if they are just as big. Before making the comparison, it will
-strip off the version of your running kernel if it happens to be appended to
-the version string being compared.
+strip off the version of your running kernel as well as any locale information
+if it happens to be appended to the version string being compared.
 
 =cut
 
 # wrapper around versioncmp for checking if versions have kernel version
-# appended to them
+# or locale info appended to them
 sub version_cmp {
   my ($v1, $v2) = @_;
   my $kv = get_kernel_version();
 
+  # strip off kernel version
   if ($v1 =~ /(.+)_\Q$kv\E$/) { $v1 = $1 }
   if ($v2 =~ /(.+)_\Q$kv\E$/) { $v2 = $1 }
 
