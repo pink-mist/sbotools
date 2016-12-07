@@ -18,6 +18,7 @@ our @EXPORT_OK = qw{
   get_orig_version
   get_requires
   get_sbo_version
+  parse_info
 };
 
 our %EXPORT_TAGS = (
@@ -132,18 +133,13 @@ sub get_from_info {
   usage_error("get_from_info: could not read $args{LOCATION}/$sbo.info.") unless
     defined $contents;
 
-  $contents =~ s/("|\\\n)//g;
-  my $last_key = '';
+  my %parse = parse_info($contents);
+  script_error("error when parsing $sbo.info file.") unless %parse;
+
   $store = {};
   $store->{LOCATION} = [$args{LOCATION}];
-  foreach my $line (split /\n/, $contents) {
-    my ($key, $val) = $last_key;
-    if ($line =~ /^([^=\s]+)=(.*)$/)  { $key = $1; $val = $2; }
-    elsif ($line =~ /^\s+([^\s].+)$/) {            $val = $1; }
-    else { script_error("error when parsing $sbo.info file. Line: $line") }
-    push @{ $store->{$key} }, ($val ? split(' ', $val) : $val);
-    $last_key = $key;
-  }
+  foreach my $k (keys %parse) { $store->{$k} = $parse{$k}; }
+
   # allow local overrides to get away with not having quite all the fields
   if (is_local($sbo)) {
     for my $key (qw/DOWNLOAD_x86_64 MD5SUM_x86_64 REQUIRES/) {
@@ -203,6 +199,25 @@ sub get_sbo_version {
   script_error('get_sbo_version requires an argument.') unless @_ == 1;
   my $version = get_from_info(LOCATION => shift, GET => 'VERSION');
   return $version->[0];
+}
+
+sub parse_info {
+    script_error('parse_info requires an argument.') unless @_ == 1;
+    my $info_str = shift;
+    my $pos = 0;
+    my %ret;
+
+    while ($info_str =~ /\G([A-Z_]+)="([^"]+)"\n/g) {
+        my $key = $1;
+        my @val = split " ", $2;
+        $ret{$key} = \@val;
+        $pos = pos($info_str);
+    }
+
+    return if $pos != length($info_str);
+
+    return %ret;
+
 }
 
 =head1 AUTHORS
