@@ -201,6 +201,15 @@ sub get_sbo_version {
   return $version->[0];
 }
 
+=head2 parse_info
+
+  my %parse = parse_info($str);
+
+C<parse_info()> parses the contents of an .info file from C<$str> and returns
+a key-value list of it.
+
+=cut
+
 sub parse_info {
     script_error('parse_info requires an argument.') unless @_ == 1;
     my $info_str = shift;
