@@ -10,14 +10,18 @@ use lib $RealBin;
 use Test::Sbotools qw/ set_repo sbosnap /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 3;
+	plan tests => 5;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
 
 sub cleanup {
 	capture_merged {
-		system(qw!rm -rf !, "$RealBin/gitrepo");
+    system(qw!rm -rf !, "$RealBin/gitrepo");
+    if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
+      system(qw!userdel test!);
+      system(qw!groupdel test!);
+    }
 	};
 }
 
@@ -40,20 +44,39 @@ git checkout -b b1; echo 'echo "Hello World."' > test; git commit -am 'branch co
 git checkout master; echo 'echo "Hello World"' > test; git commit -am 'master commit';
 END
 
-set_repo("file://$RealBin/gitrepo/");
+if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
+capture_merged { system(<<"END"); };
+groupadd -g 200 test
+useradd -u 200 -g 200 -d /tmp test
+chown -R 200:200 $RealBin/gitrepo
+END
+}
+
+set_repo("$RealBin/gitrepo/");
 
 # 1: sbosnap get initial repo
 sbosnap 'fetch', { expected => qr!Pulling SlackBuilds tree.*Cloning into '/usr/sbo/repo'!s };
+
+# 2-3: check ownership of repodir if under TRAVIS
+SKIP: {
+  skip "Only run under Travis CI", 2 unless defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true';
+
+  my @fnames = glob "$RealBin/gitrepo/.git/objects/*/*";
+
+  my @stat = stat shift @fnames;
+  is ($stat[4], 200, "Correct owner uid for $RealBin/gitrepo");
+  is ($stat[5], 200, "Correct owner gid for $RealBin/gitrepo");
+}
 
 # make a conflict
 capture_merged { system(<<"END"); };
 cd "$RealBin"; cd gitrepo; git reset --hard b1
 END
 
-# 2: sbosnap update through merge conflict
+# 4: sbosnap update through merge conflict
 sbosnap 'update', { expected => qr!Updating SlackBuilds tree.*master.*->.*origin/master.*forced update.*HEAD is now at!s };
 
-# 3: make sure test repo is merged correctly
+# 5: make sure test repo is merged correctly
 is (slurp('/usr/sbo/repo/test'), <<"END", 'repo test file updated correctly');
 echo "Hello World."
 END
