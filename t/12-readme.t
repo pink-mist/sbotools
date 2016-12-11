@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 10;
+	plan tests => 11;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -19,12 +19,16 @@ sub cleanup {
 	capture_merged {
 		system(qw!/sbin/removepkg envsettingtest!);
 		system(qw!/sbin/removepkg envsettingtest2!);
+		system(qw!/sbin/removepkg otherreadmes!);
 		unlink "$RealBin/LO-readme/envsettingtest/perf.dummy";
 		unlink "$RealBin/LO-readme/envsettingtest2/perf.dummy";
+		unlink "$RealBin/LO-readme/otherreadmes/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/envsettingtest-1.0!);
 		system(qw!rm -rf /tmp/SBo/envsettingtest2-1.0!);
+		system(qw!rm -rf /tmp/SBo/otherreadmes-1.0!);
 		system(qw!rm -rf /tmp/package-envsettingtest!);
 		system(qw!rm -rf /tmp/package-envsettingtest2!);
+		system(qw!rm -rf /tmp/package-otherreadmes!);
 	};
 }
 
@@ -69,6 +73,9 @@ SKIP: {
 	sboremove 'commandinreadme', { input => "y\ny", test => 0 };
 	capture_merged { system(qw/ userdel test /); system(qw/ groupdel test /); };
 }
+
+# 11: sboinstall otherreadmes
+sboinstall 'otherreadmes', { input => "y\ny\ny", expected => qr/Display.*README.*SlackBuilds[.]org.*SLACKWARE/s };
 
 # Cleanup
 END {
