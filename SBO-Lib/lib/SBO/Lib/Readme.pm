@@ -77,6 +77,21 @@ sub ask_opts {
   return();
 }
 
+sub ask_other_readmes {
+  my ($sbo, $location) = @_;
+  my @readmes = sort grep { ! m!/README$! } glob "$location/README*";
+
+  return unless @readmes;
+
+  return unless prompt("\nIt looks like $sbo has additional README files. Would you like to see those too?", default => 'yes');
+
+  for my $fn (@readmes) {
+    my ($display_fn) = $fn =~ m!/(README.*)$!;
+    say "\n$display_fn:";
+    say slurp $fn;
+  }
+}
+
 =head2 ask_user_group
 
   my $bool = ask_user_group($cmds, $readme);
@@ -183,6 +198,7 @@ sub user_prompt {
   my $opts = 0;
   $opts = ask_opts($sbo, $readme) if get_opts($readme);
   print "\n". $readme unless $opts;
+  ask_other_readmes($sbo, $location);
   # we have to return something substantial if the user says no so that we
   # can check the value of $cmds on the calling side. we should be able to
   # assume that 'N' will  never be a valid command to run.
