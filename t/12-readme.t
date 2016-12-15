@@ -75,7 +75,7 @@ SKIP: {
 }
 
 # 11: sboinstall otherreadmes
-sboinstall 'otherreadmes', { input => "y\ny\ny", expected => qr/Display.*README.*SlackBuilds[.]org.*SLACKWARE/s };
+sboinstall 'otherreadmes', { input => "y\ny\ny", expected => qr/It looks like.*Would you like to see.*README.*SlackBuilds[.]org.*SLACKWARE/s };
 
 # Cleanup
 END {
