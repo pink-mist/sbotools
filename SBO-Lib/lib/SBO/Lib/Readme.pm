@@ -77,6 +77,16 @@ sub ask_opts {
   return();
 }
 
+=head2 ask_other_readmes
+
+  ask_other_readmes($sbo, $location);
+
+C<ask_other_readmes()> checks if there are other readmes for the C<$sbo> in
+C<$location>, and if so, asks the user if they should be displayed, and then
+displays them if the user didn't decline.
+
+=cut
+
 sub ask_other_readmes {
   my ($sbo, $location) = @_;
   my @readmes = sort grep { ! m!/README$! } glob "$location/README*";
