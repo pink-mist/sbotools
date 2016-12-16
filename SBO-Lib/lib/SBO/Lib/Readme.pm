@@ -13,6 +13,7 @@ use Exporter 'import';
 
 our @EXPORT_OK = qw{
   ask_opts
+  ask_other_readmes
   ask_user_group
   get_opts
   get_readme_contents
