@@ -11,6 +11,7 @@
     - Support for templates for installing things with specified options #38
   * Bugfixes
     - sboinstall/sboremove disagreeing about a package being installed #44
+    - sbocheck and sboupgrade misinterpreting version strings #45
 
 * 2.0 - 2016-07-02
   * Major new features
