@@ -12,6 +12,7 @@
   * Bugfixes
     - sboinstall/sboremove disagreeing about a package being installed #44
     - sbocheck and sboupgrade misinterpreting version strings #45
+    - parsing .info files without leading space on second line #46
 
 * 2.0 - 2016-07-02
   * Major new features

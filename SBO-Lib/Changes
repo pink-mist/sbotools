@@ -10,6 +10,8 @@
       (https://github.com/pink-mist/sbotools/issues/44)
     - sbocheck and sboupgrade misinterpreting version strings
       (https://github.com/pink-mist/sbotools/issues/45)
+    - parsing .info files without leading space on second line
+      (https://github.com/pink-mist/sbotools/issues/46)
 
 2.0 - 2016-07-02
   * Major new features
