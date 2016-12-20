@@ -12,6 +12,8 @@
       (https://github.com/pink-mist/sbotools/issues/45)
     - parsing .info files without leading space on second line
       (https://github.com/pink-mist/sbotools/issues/46)
+    - local git repo gets partially chowned to root
+      (https://github.com/pink-mist/sbotools/issues/47)
 
 2.0 - 2016-07-02
   * Major new features
