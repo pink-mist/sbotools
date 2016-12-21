@@ -9,6 +9,7 @@
     - Extract code to submodules for easier separation of concerns
   * New features:
     - Support for templates for installing things with specified options #38
+    - Display other README files if the slackbuild comes with them #49
   * Bugfixes
     - sboinstall/sboremove disagreeing about a package being installed #44
     - sbocheck and sboupgrade misinterpreting version strings #45

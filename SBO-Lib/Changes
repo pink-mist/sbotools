@@ -5,6 +5,8 @@
   * New features:
     - Support for templates for installing things with specified options
       (https://github.com/pink-mist/sbotools/issues/38)
+    - Display other README files if the slackbuild comes with them
+      (https://github.com/pink-mist/sbotools/issues/49)
   * Bugfixes
     - sboinstall/sboremove disagreeing about a package being installed
       (https://github.com/pink-mist/sbotools/issues/44)
