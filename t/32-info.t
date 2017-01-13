@@ -5,6 +5,8 @@ use warnings;
 
 use Test::More;
 
+use FindBin '$RealBin';
+use lib "$RealBin/../SBO-Lib/lib";
 use SBO::Lib 'parse_info';
 
 plan tests => 13;
