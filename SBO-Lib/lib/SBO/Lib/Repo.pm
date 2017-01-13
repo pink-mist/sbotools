@@ -324,7 +324,7 @@ sub rsync_sbo_tree {
   my @info;
   # only slackware versions above 14.1 have an rsync that supports --info=progress2
   if (versioncmp(get_slack_version(), '14.1') == 1) { @info = ('--info=progress2'); }
-  my @args = ('rsync', @info, '-a', '--exclude=*.tar.gz', '--exclude=*.tar.gz.asc', '--delete', $url);
+  my @args = ('rsync', @info, '-a', '--delete', $url);
   return system(@args, $repo_path) == 0;
 }
 
