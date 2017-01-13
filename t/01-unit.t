@@ -303,7 +303,7 @@ SKIP: {
 	is ($res[2], 6, 'perform_sbo returned correct exit');
 }
 
-# 55-59: test version_cmp();
+# 55-61: test version_cmp();
 {
 	chomp(my $kv = `uname -r`);
 	$kv =~ s/-/_/g;
@@ -324,7 +324,7 @@ SKIP: {
   is (SBO::Lib::version_cmp('1.0', '1.0_en_US'), 0, "version_cmp(1.0, 1.0_en_US) returned 0");
 }
 
-# 60: test check_multilib();
+# 62: test check_multilib();
 {
 	my $file = "/etc/profile.d/32dev.sh";
 
