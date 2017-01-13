@@ -15,6 +15,7 @@
     - sbocheck and sboupgrade misinterpreting version strings #45
     - parsing .info files without leading space on second line #46
     - local git repo gets partially chowned to root #47
+    - stop excluding .tar.gz files when rsyncing #53
 
 * 2.0 - 2016-07-02
   * Major new features
