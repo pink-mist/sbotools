@@ -126,7 +126,7 @@ sboinstall 'malformed-noinfo', { expected => "get_from_info: could not read $Rea
 # 11-13: Malformed slackbuild - malformed .info
 sboinstall 'malformed-info', { input => "y\ny\nn", expected => qr!Failures:\n  malformed-info: Unable to get download info from $RealBin/LO-fail/malformed-info/malformed-info[.]info\n!, exit => 7 };
 sboinstall 'malformed-info2', { input => "y\ny\nn", expected => qr!Failures:\n  malformed-info2: Unable to get download info from $RealBin/LO-fail/malformed-info2/malformed-info2[.]info\n!, exit => 7 };
-sboinstall 'malformed-info3', { exit => 2, expected => "A fatal script error has occurred:\nerror when parsing malformed-info3.info file. Line: FAIL\nExiting.\n" };
+sboinstall 'malformed-info3', { exit => 2, expected => "A fatal script error has occurred:\nerror when parsing malformed-info3.info file.\nExiting.\n" };
 
 # 14-15: Malformed slackbuild - no readme
 sboinstall 'malformed-readme', { expected => "Unable to open README for malformed-readme.\n", exit => 6 };
