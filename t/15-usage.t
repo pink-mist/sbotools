@@ -50,9 +50,12 @@ my $sboconfig = <<'SBOCONFIG';
 Usage: sboconfig [options] [arguments]
 
 Options:
-  -h: this screen.
-  -v: version information.
-  -l: show current options.
+  -h|--help:
+    this screen.
+  -v|--version:
+    version information.
+  -l|--list:
+    show current options.
 
 Config options (defaults shown):
   -c|--clean FALSE:
