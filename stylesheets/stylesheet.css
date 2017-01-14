@@ -278,5 +278,6 @@ a {
 .page-header .menu li:hover {
   background-color: white; }
 
+.page-header .menu .current a,
 .page-header .menu li:hover a {
   color: black; }
