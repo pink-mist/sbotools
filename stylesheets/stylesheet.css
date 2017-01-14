@@ -250,11 +250,12 @@ a {
 	font-size: 0.8rem; }
 
 .page-header .menu {
-  padding: 1em 0 0 0;
-  margin: 0 0 -2em 0; }
+  padding: 0 0 0 0;
+  margin: 2em 0 -2em 0; }
 
 .page-header .menu ul {
   padding: 0 0 0 0;
+  margin-top: 0;
   margin-bottom: 0; }
 
 .page-header .menu li {
@@ -269,5 +270,13 @@ a {
 .page-header .menu li a {
   color: white; }
 
+.page-header .menu .sub {
+  border-top: 1px solid white;
+  border-left: 1px solid white;
+  border-right: 1px solid white; }
 
+.page-header .menu li:hover {
+  background-color: white; }
 
+.page-header .menu li:hover a {
+  color: black; }
