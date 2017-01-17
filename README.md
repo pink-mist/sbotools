@@ -4,6 +4,7 @@
 
 ## Changes
 * 2.2 - Unreleased
+  * Bugfix for parsing .info files with trailing whitespace after a value #54
 
 * 2.1 - 2017-01-14
   * Internals:
