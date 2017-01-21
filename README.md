@@ -3,6 +3,8 @@
 **[sbotools](https://pink-mist.github.io/sbotools/)** provides a ports-like interface to [slackbuilds.org](http://www.slackbuilds.org/).
 
 ## Changes
+* 2.3 - Unreleased
+
 * 2.2 - 2017-01-17
   * Bugfix for parsing .info files with trailing whitespace after a value #54
 

@@ -4,7 +4,7 @@ use 5.016;
 use strict;
 use warnings;
 
-our $VERSION = '2.2';
+our $VERSION = '2.3';
 
 use Exporter 'import';
 use Sort::Versions;

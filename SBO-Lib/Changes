@@ -1,3 +1,5 @@
+2.3 - Unreleased
+
 2.2 - 2017-01-17
   *  Bugfix for parsing .info files with trailing whitespace after a value
      (https://github.com/pink-mist/sbotools/issues/54)
