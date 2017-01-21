@@ -216,9 +216,10 @@ sub parse_info {
     my $pos = 0;
     my %ret;
 
-    while ($info_str =~ /\G([A-Za-z0-9_]+)="([^"]*)"\s*\n/g) {
-        my $key = $1;
-        my @val = split " ", $2;
+    while ($info_str =~ /\G([A-Za-z0-9_]+)="([^"]*)"\s*(?:\n|\z)/g) {
+        my ($key, $val) = ($1, $2);
+        $val =~ s/\\[ \t]*$/ /mg;
+        my @val = split " ", $val;
         @val = '' unless @val;
         $ret{$key} = \@val;
         $pos = pos($info_str);
