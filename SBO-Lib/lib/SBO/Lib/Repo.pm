@@ -378,7 +378,7 @@ Guldstrand <andreas.guldstrand@gmail.com>.
 
 The sbotools are licensed under the WTFPL <http://sam.zoy.org/wtfpl/COPYING>.
 
-Copyright (C) 2012-2016, Jacob Pipkin, Luke Williams, Andreas Guldstrand.
+Copyright (C) 2012-2017, Jacob Pipkin, Luke Williams, Andreas Guldstrand.
 
 =cut
 
