@@ -117,16 +117,16 @@ sub get_full_queue {
   my $remove_queue = [];
   my %warnings;
   for my $sbo (@sbos) {
-    my $queue = get_build_queue($sbo, \%warnings);
+    my $queue = get_build_queue([$sbo], \%warnings);
     @$queue = reverse @$queue;
     $remove_queue = merge_queues($remove_queue, $queue);
   }
 
-  return map {;
+  return map {; +{
       name => $_,
       pkg => $installed->{$_},
       defined $warnings{$_} ? (warning => $warnings{$_}) : ()
-    }
+    } }
     grep { exists $installed->{$_} }
     @$remove_queue;
 }
@@ -148,8 +148,8 @@ sub get_required_by {
   my ($sbo, $confirmed, $required_by) = @_;
   my @dep_of;
 
-  if ( $required_by{$sbo} ) {
-    for my $req_by (keys %{$required_by{$sbo}}) {
+  if ( $required_by->{$sbo} ) {
+    for my $req_by (keys %{$required_by->{$sbo}}) {
       push @dep_of, $req_by unless in($req_by => @$confirmed);
     }
   }
