@@ -128,8 +128,8 @@ C<get_installed_packages()> returns an array reference to a list of packages in
 C</var/log/packages> that match the specified C<$type>. The available types are
 C<STD> for non-SBo packages, C<SBO> for SBo packages, and C<ALL> for both.
 
-The returned array reference will hold a list of hashes representing both names
-and versions of the returned packages.
+The returned array reference will hold a list of hash references representing
+both names, versions, and full installed package name of the returned packages.
 
 =cut
 
