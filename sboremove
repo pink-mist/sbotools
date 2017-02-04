@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# vim: ts=4:noet
+# vim: ts=2:et
 #
 # sboremove
 # script to remove an installed SlackBuild
@@ -37,7 +37,7 @@ EOF
 	return 1;
 }
 
-my ($help, $vers, $non_int, $alwaysask, @excluded);
+my ($help, $vers, $non_int, $alwaysask);
 
 GetOptions(
 	'help|h'        => \$help,
@@ -51,141 +51,153 @@ if ($vers) { show_version(); exit 0 }
 
 if (!@ARGV) { show_usage(); exit 1 }
 
-# ensure that all provided arguments are valid sbos
-my @sbos;
-my $inst_names = get_inst_names(get_installed_packages 'SBO');
-my %inst_names;
-$inst_names{$_} = 1 for @$inst_names;
-for my $sbo (@ARGV) {
-	if (get_sbo_location($sbo)) {
-		$inst_names{$sbo} ? push @sbos, $sbo
-		                  : say "$sbo is not installed from SlackBuilds.org.";
-	} else {
-		say "Unable to locate $sbo in the SlackBuilds.org tree."
-	}
-}
-exit 1 unless @sbos;
+# current workflow:
+# * get names of all installed SBo packages
+# * compare commandline args to SBo packages as well as installed SBo packages
+# * add reverse deps to list if they're not a dep of something else (which is not also already on the list)
+# * confirm removal of each package on the list
+#   - while taking into account the options passed in such as $non_int, and $alwaysask
+#   - also offering to display README if %README% is passed
+# * remove the confirmed packages
 
-# Create full queue.
-my ($remove_queue, %warnings);
-for my $sbo (@sbos) {
-    my $queue = get_build_queue([$sbo], \%warnings);
-    @$queue = reverse(@$queue);
+sub main {
+  my ($non_int, $alwaysask, @args) = @_;
+
+  my @installed = @{ get_installed_packages('SBO') };
+  my $installed = +{ map {; $_->{name}, $_->{pkg} } @installed };
+
+  @args = grep { check_sbo($_, $installed) } @args;
+  exit 1 unless @args;
+  my %sbos = map { $_ => 1 } @args;
+
+  my @remove = get_full_queue($installed, @args);
+
+  my @confirmed;
+
+  if ($non_int) {
+    @confirmed = @remove;
+  } else {
+    my $required_by = get_reverse_reqs($installed);
+    for my $remove (@remove) {
+      # if $remove was on the commandline, mark it as not needed,
+      # otherwise check if it is needed by something else.
+      my @required_by = get_required_by($remove->{name}, [map { $_->{name} } @confirmed], $required_by);
+      my $needed = $sbos{$remove->{name}} ? 0 : @required_by;
+
+      next if $needed and not $alwaysask;
+
+      push @confirmed, $remove if confirm($remove, $needed ? @required_by : ());
+    }
+  }
+
+  return say "Nothing to remove." unless @confirmed;
+
+  remove($non_int, @confirmed);
+}
+
+sub check_sbo {
+  my ($sbo, $installed) = @_;
+
+  if (not get_sbo_location($sbo)) {
+    say "Unable to locate $sbo in the SlackBuilds.org tree.";
+    return 0;
+  }
+
+  if (not exists $installed->{$sbo}) {
+    say "$sbo is not installed from SlackBuilds.org.";
+    return 0;
+  }
+
+  return 1;
+}
+
+sub get_full_queue {
+  my ($installed, @sbos) = @_;
+
+  my $remove_queue = [];
+  my %warnings;
+  for my $sbo (@sbos) {
+    my $queue = get_build_queue($sbo, \%warnings);
+    @$queue = reverse @$queue;
     $remove_queue = merge_queues($remove_queue, $queue);
+  }
+
+  return map {;
+      name => $_,
+      pkg => $installed->{$_},
+      defined $warnings{$_} ? (warning => $warnings{$_}) : ()
+    }
+    grep { exists $installed->{$_} }
+    @$remove_queue;
 }
 
-# Determine required by for all installed sbo's
-my (%required_by, @confirmed);
-
-# populates the required_by hash
 sub get_reverse_reqs {
-	my $installed = shift;
-	INST: for my $inst (@$installed) {
-		my $require = get_requires($inst);
-		REQ: for my $req (@$require) {
-			next REQ if $req eq '%README%';
-			push @{ $required_by{$req} }, $inst if in($req => @$installed);
-		}
-	}
-	return 1;
-}
-get_reverse_reqs($inst_names);
+  my $installed = shift;
+  my %required_by;
 
-# returns a list of installed sbo's that list the given sbo as a requirement,
-# excluding any installed sbo's that have already been confirmed for removal
+  for my $inst (keys %$installed) {
+    for my $req (@{ get_requires($inst) }) {
+      $required_by{$req}{$inst} = 1 if exists $installed->{$req};
+    }
+  }
+
+  return \%required_by;
+}
+
 sub get_required_by {
-	my $sbo = shift;
-	my @dep_of;
-	if ( $required_by{$sbo} ) {
-		for my $req_by (@{$required_by{$sbo}}) {
-			push @dep_of, $req_by unless in($req_by => @confirmed);
-		}
-	}
-	return @dep_of ? \@dep_of : undef;
+  my ($sbo, $confirmed, $required_by) = @_;
+  my @dep_of;
+
+  if ( $required_by{$sbo} ) {
+    for my $req_by (keys %{$required_by{$sbo}}) {
+      push @dep_of, $req_by unless in($req_by => @$confirmed);
+    }
+  }
+  return @dep_of;
 }
 
-sub confirm_remove {
-	my $sbo = shift;
-	push @confirmed, $sbo unless in($sbo => @confirmed);
-	return 1;
+sub confirm {
+  my ($remove, @required_by) = @_;
+
+  if (@required_by) {
+    say sprintf "%s : required by %s", $remove->{name}, join ' ', @required_by;
+  } else {
+    say $remove->{name};
+  }
+
+  if ($remove->{warning}) {
+    say "It is recommended that you view the README before continuing.";
+    if (prompt("Display README now?", default => 'yes')) {
+      my $readme = get_readme_contents(get_sbo_location($remove));
+      if (not defined $readme) {
+        warn "Unable to open README for $remove.\n";
+      } else {
+        print "\n" . $readme;
+      }
+    }
+  }
+
+  if (prompt("Remove $remove->{name}?", default => @required_by ? 'no' : 'yes')) {
+    say " * Added to remove queue\n";
+    return 1;
+  }
+  say " * Ignoring\n";
+  return 0;
 }
 
-# Check if packages in queue are actually installed on system
-my @temp;
-for my $sbo (@$remove_queue) {
-	push @temp, $sbo if $inst_names{$sbo};
-}
-$remove_queue = \@temp;
+sub remove {
+  my ($non_int, @confirmed) = @_;
 
-# Confirm all and skip prompts if noninteractive
-if ($non_int) {
-	confirm_remove($_) for @$remove_queue;
-	goto CONFIRMED;
-}
+  say sprintf "Removing %d package(s)", scalar @confirmed;
+  say join " ", map { $_->{name} } @confirmed;
 
-# Begin prompts
-FIRST: for my $remove (@$remove_queue) {
-	# Determine whether $remove is still needed on system.
-	my $required_by = get_required_by $remove;
-	my $needed = 0;
-	my %sbos;
-	$sbos{$_} = 1 for @sbos;
-	for my $rq (@$required_by) {
-		$needed = 1 unless $sbos{$remove};
-		# still needed, unless required_by is already confirmed for removal or
-		# the sbo in question was cli-specified.
-	}
-	if ( $needed ) {
-		next FIRST unless $alwaysask; #ignore sbo and skip prompt
-		print "$remove : required by " . join(' ', @$required_by) . "\n";
-	} else {
-		say "$remove";
-	}
+  if (!$non_int and prompt("\nAre you sure you want to continue?", default => 'no')) {
+    return say 'Exiting.';
+  }
 
-	# Check for %README% value and inform user.
-	if ( $warnings{$remove} ) {
-		say "It is recommended that you view the README before continuing.";
-		if (prompt("Display README now?", default => 'yes')) {
-			my $readme = get_readme_contents(get_sbo_location($remove));
-			if (not defined $readme) {
-				warn "Unable to open README for $remove.\n";
-			} else {
-				print "\n" . $readme;
-			}
-		}
-	}
+  system("/sbin/removepkg", $_->{pkg}) for @confirmed;
 
-	# Determine default behavior for prompt using $needed
-	# Ask user to confirm removal
-	if (prompt("Remove $remove?", default => $needed ? 'no' : 'yes')) {
-		confirm_remove($remove);
-		say " * Added to remove queue\n";
-	} else {
-		say " * Ignoring\n";
-	}
+  say "All operations have completed successfully.";
 }
 
-CONFIRMED:
-# Show remove queue
-my $remove_count = @confirmed;
-if ($remove_count) {
-	say "Removing $remove_count package(s)";
-	print join(' ', @confirmed) . "\n";
-} else {
-	say 'Nothing to remove.';
-	exit 0;
-}
-
-# Final confirmation
-unless ($non_int) {
-	unless (prompt("\nAre you sure you want to continue?", default => 'no')) {
-		say 'Exiting.';
-		exit 0;
-	}
-}
-
-system("/sbin/removepkg", $_) for @confirmed;
-
-say "All operations have completed successfully.";
-
-exit 0;
+main($non_int, $alwaysask, @ARGV);
