@@ -3,6 +3,8 @@
 **[sbotools](https://pink-mist.github.io/sbotools/)** provides a ports-like interface to [slackbuilds.org](http://www.slackbuilds.org/).
 
 ## Changes
+* 2.4 - Unreleased
+
 * 2.3 - 2017-01-21
   * Bugfix for parsing .info files with \ among the separators #55
 

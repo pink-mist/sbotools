@@ -4,7 +4,7 @@ use 5.016;
 use strict;
 use warnings;
 
-our $VERSION = '2.3';
+our $VERSION = '2.4';
 
 use SBO::Lib::Util qw/ %config prompt usage_error get_slack_version script_error open_fh open_read in /;
 
