@@ -168,9 +168,9 @@ sub confirm {
   if ($remove->{warning}) {
     say "It is recommended that you view the README before continuing.";
     if (prompt("Display README now?", default => 'yes')) {
-      my $readme = get_readme_contents(get_sbo_location($remove));
+      my $readme = get_readme_contents(get_sbo_location($remove->{name}));
       if (not defined $readme) {
-        warn "Unable to open README for $remove.\n";
+        warn "Unable to open README for $remove->{name}.\n";
       } else {
         print "\n" . $readme;
       }
@@ -191,7 +191,7 @@ sub remove {
   say sprintf "Removing %d package(s)", scalar @confirmed;
   say join " ", map { $_->{name} } @confirmed;
 
-  if (!$non_int and prompt("\nAre you sure you want to continue?", default => 'no')) {
+  if (!$non_int and !prompt("\nAre you sure you want to continue?", default => 'no')) {
     return say 'Exiting.';
   }
 
