@@ -4,6 +4,7 @@
 
 ## Changes
 * 2.4 - Unreleased
+  * Rewrite sboremove from the ground up so it relies less on global state
 
 * 2.3 - 2017-01-21
   * Bugfix for parsing .info files with \ among the separators #55
