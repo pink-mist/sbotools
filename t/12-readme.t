@@ -66,7 +66,7 @@ SKIP: {
 	skip "Only run useradd/groupadd commands under Travis CI", 2 unless (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true');
 	skip "Only run useradd/groupadd commands if there is no test user/group", 2, if (defined getgrnam('test') or defined getpwnam('test'));
 
-	sboinstall 'commandinreadme', { input => "y\ny\ny", expected => qr{It looks like this slackbuild requires the following command\(s\) to be run first:.*groupadd -g 200 test.*useradd -u 200 -g 200 -d /tmp test.*Shall I run them prior to building.*}s };
+	sboinstall 'commandinreadme', { input => "y\ny\ny", expected => qr{It looks like this slackbuild requires the following command\(s\) to be run first:.*groupadd -g 199 test.*useradd -u 199 -g 199 -d /tmp test.*Shall I run them prior to building.*}s };
 	sboremove 'commandinreadme', { input => "y\ny", test => 0 };
 
 	sboinstall 'commandinreadme', { input => "y\ny\ny", expected => qr/groupadd.*exited non-zero/ };

@@ -143,8 +143,8 @@ SKIP: {
    ],
    "commands" : {
       "commandinreadme" : [
-         "groupadd -g 200 test",
-         "useradd -u 200 -g 200 -d /tmp test"
+         "groupadd -g 199 test",
+         "useradd -u 199 -g 199 -d /tmp test"
       ]
    },
    "options" : {

@@ -46,9 +46,9 @@ END
 
 if (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true') {
 capture_merged { system(<<"END"); };
-groupadd -g 200 test
-useradd -u 200 -g 200 -d /tmp test
-chown -R 200:200 $RealBin/gitrepo
+groupadd -g 199 test
+useradd -u 199 -g 199 -d /tmp test
+chown -R 199:199 $RealBin/gitrepo
 END
 }
 
@@ -64,8 +64,8 @@ SKIP: {
   my @fnames = glob "$RealBin/gitrepo/.git/objects/*/*";
 
   my @stat = stat shift @fnames;
-  is ($stat[4], 200, "Correct owner uid for $RealBin/gitrepo");
-  is ($stat[5], 200, "Correct owner gid for $RealBin/gitrepo");
+  is ($stat[4], 199, "Correct owner uid for $RealBin/gitrepo");
+  is ($stat[5], 199, "Correct owner gid for $RealBin/gitrepo");
 }
 
 # make a conflict
