@@ -170,7 +170,7 @@ C<groupadd> commands, and returns them in an array reference.
 sub get_user_group {
   script_error('get_user_group requires an argument') unless @_ == 1;
   my $readme = shift;
-  my @cmds = $readme =~ /^\s*#*\s*(useradd.*|groupadd.*)/mg;
+  my @cmds = $readme =~ /^\s*#*\s*(useradd.*?|groupadd.*?)(?<!\\)\n/msg;
   return \@cmds;
 }
 
