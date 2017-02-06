@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_
 use File::Temp qw/ tempdir /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 26;
+	plan tests => 29;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -20,12 +20,20 @@ sub cleanup {
 	capture_merged {
 		system(qw!/sbin/removepkg envsettingtest!);
 		system(qw!/sbin/removepkg envsettingtest2!);
+		system(qw!/sbin/removepkg commandinreadme!);
+		system(qw!/sbin/removepkg commandinreadmespanslines!);
 		unlink "$RealBin/LO-readme/envsettingtest/perf.dummy";
 		unlink "$RealBin/LO-readme/envsettingtest2/perf.dummy";
+		unlink "$RealBin/LO-readme/commandinreadme/perf.dummy";
+		unlink "$RealBin/LO-readme/commandinreadmespanslines/perf.dummy";
 		system(qw!rm -rf /tmp/SBo/envsettingtest-1.0!);
 		system(qw!rm -rf /tmp/SBo/envsettingtest2-1.0!);
+		system(qw!rm -rf /tmp/SBo/commandinreadme-1.0!);
+		system(qw!rm -rf /tmp/SBo/commandinreadmespanslines-1.0!);
 		system(qw!rm -rf /tmp/package-envsettingtest!);
 		system(qw!rm -rf /tmp/package-envsettingtest2!);
+		system(qw!rm -rf /tmp/package-commandinreadme!);
+		system(qw!rm -rf /tmp/package-commandinreadmespanslines!);
 	};
 }
 
@@ -172,6 +180,35 @@ sboinstall '--use-template', { expected => qr/Usage/, exit => 1 };
 sboinstall '--use-template', '', { expected => qr/Usage/, exit => 1 };
 sboinstall '--use-template', '', '', { expected => qr/Usage/, exit => 1 };
 sboinstall '--create-template', '', '', { expected => qr/Usage/, exit => 1 };
+
+# 27-29: sboinstall commandinreadmespanslines
+SKIP: {
+  skip "Only run useradd/groupadd commands under Travis CI", 2 unless (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true');
+  skip "Only run useradd/groupadd commands if there is no test user/group", 2 if (defined getgrnam('test') or defined getpwnam('test'));
+
+  sboinstall '-i', '--create-template', "$tempdir/10.temp", 'commandinreadmespanslines', { input => "y\ny\ny", expected => qr!Template \Q$tempdir/10.temp saved.\E\n! };
+  capture_merged { system(qw/ userdel test /); system(qw/ groupdel test /); };
+  is (scalar capture_merged { system cat => "$tempdir/10.temp" }, <<'TEMP10', "10.temp is correct");
+{
+   "build_queue" : [
+      "commandinreadmespanslines"
+   ],
+   "commands" : {
+      "commandinreadmespanslines" : [
+         "groupadd -g 199 test",
+         "useradd -u 199 -g 199 -d /tmp \\\n    -s /bin/sh test"
+      ]
+   },
+   "options" : {
+      "commandinreadmespanslines" : 0
+   }
+}
+TEMP10
+  sboinstall '--use-template', "$tempdir/10.temp", { expected => sub { ! m/exited non-zero/ } };
+	sboremove 'commandinreadmespanslines', { input => "y\ny", test => 0 };
+
+	capture_merged { system(qw/ userdel test /); system(qw/ groupdel test /); };
+}
 
 # Cleanup
 END {
