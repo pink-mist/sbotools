@@ -350,7 +350,7 @@ sub print_failures {
 
   exit unless prompt "Should we continue?", default => "yes";
 
-C<prompt()> prompts the user for an answer, optinally specifying a default of
+C<prompt()> prompts the user for an answer, optionally specifying a default of
 C<yes> or C<no>. If the default has been specified it returns a true value in
 case 'yes' was selected, and a false value if 'no' was selected. Otherwise it
 returns whatever the user answered.
