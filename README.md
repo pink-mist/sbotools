@@ -6,6 +6,7 @@
 * 2.4 - Unreleased
   * Rewrite sboremove from the ground up so it relies less on global state
   * Fix for parsing README with useradd/groupadd commands which span lines #57
+  * Add --reinstall option to sboinstall #58
 
 * 2.3 - 2017-01-21
   * Bugfix for parsing .info files with \ among the separators #55
