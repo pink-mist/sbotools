@@ -10,7 +10,7 @@ use lib $RealBin;
 use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboremove restore_perf_dummy /;
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 20;
+	plan tests => 22;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -111,6 +111,10 @@ sboinstall 'perl-nonexistentcpan', { input => "n", expected => qr/Proceed with p
 
 	sboinstall '-p', 'foo', { expected => "compat32 only works on x86_64.\n", exit => 1 };
 }
+
+# 21-22: check --reinstall option
+sboinstall '--reinstall', 'nonexistentslackbuild', { input => "n", expected => qr/\Qnonexistentslackbuild (nonexistentslackbuild-1.0-noarch-1_SBo) is already installed. Do you want to reinstall from SBo? [n]\E/ };
+sboinstall '--reinstall', 'nonexistentslackbuild', { input => "y\ny\ny", expected => qr/nonexistentslackbuild .* is already installed[.] Do you want to reinstall.*Install queue: nonexistentslackbuild/s };
 
 # Cleanup
 END {
