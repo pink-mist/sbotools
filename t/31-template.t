@@ -183,8 +183,8 @@ sboinstall '--create-template', '', '', { expected => qr/Usage/, exit => 1 };
 
 # 27-29: sboinstall commandinreadmespanslines
 SKIP: {
-  skip "Only run useradd/groupadd commands under Travis CI", 2 unless (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true');
-  skip "Only run useradd/groupadd commands if there is no test user/group", 2 if (defined getgrnam('test') or defined getpwnam('test'));
+  skip "Only run useradd/groupadd commands under Travis CI", 3 unless (defined $ENV{TRAVIS} and $ENV{TRAVIS} eq 'true');
+  skip "Only run useradd/groupadd commands if there is no test user/group", 3 if (defined getgrnam('test') or defined getpwnam('test'));
 
   sboinstall '-i', '--create-template', "$tempdir/10.temp", 'commandinreadmespanslines', { input => "y\ny\ny", expected => qr!Template \Q$tempdir/10.temp saved.\E\n! };
   capture_merged { system(qw/ userdel test /); system(qw/ groupdel test /); };
