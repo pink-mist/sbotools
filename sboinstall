@@ -44,6 +44,8 @@ Options (defaults shown first where applicable):
     non-interactive; skips README and all prompts.
   -R|--norequirements:
     view the README but do not parse requirements, commands, or options.
+  --reinstall:
+    Ask to reinstall any already-installed packages in the requirement list.
   --create-template (FILE):
     create a template with specified requirements, commands, and options.
   --use-template (FILE):
@@ -57,7 +59,7 @@ EOF
 my $noclean = $config{NOCLEAN};
 my $distclean = $config{DISTCLEAN};
 my $jobs = $config{JOBS};
-my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32, $ctemp, $utemp);
+my ($help, $vers, $no_install, $non_int, $no_reqs, $compat32, $ctemp, $utemp, $reinstall);
 
 GetOptions(
 	'help|h'            => \$help,
@@ -69,6 +71,7 @@ GetOptions(
 	'compat32|p'        => \$compat32,
 	'nointeractive|r'   => \$non_int,
 	'norequirements|R'  => \$no_reqs,
+	'reinstall'         => \$reinstall,
 	'create-template=s' => \$ctemp,
 	'use-template=s'    => \$utemp,
 );
@@ -150,8 +153,13 @@ FIRST: for my $sbo (@$build_queue) {
 	my $name = $compat32 ? "$sbo-compat32" : $sbo;
 
 	if ($inst_names{$name}) {
-		say sprintf "%s (%s) is already installed.", $name, $inst_names{$name}{pkg};
-		next FIRST;
+		my $inst_msg = sprintf "%s (%s) is already installed.", $name, $inst_names{$name}{pkg};
+		if ($reinstall and not $non_int) {
+			next FIRST unless prompt("$inst_msg Do you want to reinstall from SBo?", default => 'no');
+		} else {
+			say $inst_msg;
+			next FIRST;
+		}
 	} else {
 		if ($sbo =~ /^perl-/) {
 			my $pm_name = $sbo;
