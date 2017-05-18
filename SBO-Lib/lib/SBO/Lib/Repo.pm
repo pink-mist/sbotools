@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.4';
 
-use SBO::Lib::Util qw/ %config prompt usage_error get_slack_version script_error open_fh open_read in /;
+use SBO::Lib::Util qw/ %config prompt usage_error get_slack_version script_error open_fh open_read in _ERR_DOWNLOAD /;
 
 use Cwd;
 use File::Copy;
@@ -299,6 +299,8 @@ sub pull_sbo_tree {
   } else {
     $res = git_sbo_tree($url);
   }
+
+  if ($res == 0) { warn "Could not sync from $url.\n"; exit _ERR_DOWNLOAD; }
 
   my $wanted = sub { chown 0, 0, $File::Find::name; };
   find($wanted, $repo_path) if -d $repo_path;
