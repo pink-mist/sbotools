@@ -50,6 +50,6 @@ is ($parse{FLINGLE}[2], 'and', 'and value gotten from FLINGLE key');
 is ($parse{FLINGLE}[3], 'a', 'a value gotten from FLINGLE key');
 is ($parse{FLINGLE}[4], 'gloob', 'gloob value gotten from FLINGLE key');
 is ($parse{FLINGLE}[5], 'blorx', 'blorx value gotten from FLINGLE key');
-is ($parse{FLINGLE}[6], undef, 'FLINGLE key has corect length');
+is ($parse{FLINGLE}[6], undef, 'FLINGLE key has correct length');
 delete @parse{qw/ FOO BAR BAZ QUUX FLAR_f FLINGLE /};
 is (scalar %parse, 0, 'no additional keys were parsed');
