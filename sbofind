@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ slackbuilds_or_fetch slurp script_error open_read get_build_queue %config $slackbuilds_txt $repo_path show_version in indent /;
+use SBO::Lib qw/ slackbuilds_or_fetch slurp script_error open_read get_build_queue %config $slackbuilds_txt $repo_path show_version in indent get_from_info /;
 use File::Basename;
 use Getopt::Long qw(:config bundling);
 
@@ -159,8 +159,9 @@ if (exists $$findings[0]) {
 	for my $hash (@$findings) {
 		my $name = $hash->{name};
 		my $location = $hash->{location};
+		my $version = get_from_info(LOCATION => $location, GET => 'VERSION')->[0];
 		my $sbo = "SBo:   "; $sbo = "Local: " if $hash->{local};
-		say "$sbo $name";
+		say "$sbo $name $version";
 		say "Path:   $location";
 		say "info:   ". get_file_contents("$location/$name.info") if $show_info;
 		say "README: ". get_file_contents("$location/README") if $show_readme;

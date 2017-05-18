@@ -16,14 +16,14 @@ make_slackbuilds_txt();
 set_lo("$RealBin/LO");
 
 # 1: basic sbofind testing
-sbofind 'nonexistentslackbuild4', { expected => qr!Local:\s+nonexistentslackbuild4\nPath:\s+\Q$RealBin/LO/nonexistentslackbuild4! };
+sbofind 'nonexistentslackbuild4', { expected => qr!Local:\s+nonexistentslackbuild4 .*\nPath:\s+\Q$RealBin/LO/nonexistentslackbuild4! };
 
 # 2: basic sbofind testing - nothing found
 sbofind 'nonexistentslackbuild3', { expected => "Nothing found for search term: nonexistentslackbuild3\n" };
 
 # 3: find something using a tag
 replace_tags_txt("nonexistentslackbuild2: testingtag\n");
-sbofind 'testingtag', { expected => qr!Local:\s+nonexistentslackbuild2\nPath:\s+\Q$RealBin/LO/nonexistentslackbuild2! };
+sbofind 'testingtag', { expected => qr!Local:\s+nonexistentslackbuild2 .*\nPath:\s+\Q$RealBin/LO/nonexistentslackbuild2! };
 
 # 4: show build queue
 sbofind '-q', 'nonexistentslackbuild2', { expected => qr/Queue:\s+nonexistentslackbuild3 nonexistentslackbuild2/ };
