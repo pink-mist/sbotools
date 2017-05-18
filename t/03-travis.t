@@ -26,7 +26,7 @@ SKIP: {
 	skip 'Not doing online tests without TEST_ONLINE=1', 2 if $ENV{TEST_ONLINE} ne '1';
 
 	sbosnap 'fetch', { expected => qr/\APulling SlackBuilds tree\.\.\.\n/ };
-	sbofind 'sbotools', { expected => "SBo:    sbotools\nPath:   /usr/sbo/repo/system/sbotools\n\n" };
+	sbofind 'sbotools', { expected => "SBo:    sbotools 1.9\nPath:   /usr/sbo/repo/system/sbotools\n\n" };
 }
 
 # 4-10: Test alternative REPO
@@ -39,7 +39,7 @@ SKIP: {
 	sbosnap 'fetch', { expected => qr!Pulling SlackBuilds tree.*Cloning into '/usr/sbo/repo'!s };
 	ok (-e "/usr/sbo/repo/SLACKBUILDS.TXT", "SLACKBUILDS.TXT exists (REPO)");
 	ok (! -e "/usr/sbo/repo/SLACKBUILDS.TXT.gz", "SLACKBUILDS.TXT.gz doesn't exist (REPO)");
-	sbofind 'sbotools', { expected => "SBo:    sbotools\nPath:   /usr/sbo/repo/system/sbotools\n\n" };
+	sbofind 'sbotools', { expected => qr"SBo:    sbotools .*\nPath:   /usr/sbo/repo/system/sbotools\n\n" };
 }
 
 # 11-17: Test local overrides
@@ -50,25 +50,25 @@ SKIP: {
 	skip "Online testing disabled (TEST_ONLINE!=1) and could not create dummy SLACKBUILDS.TXT", 9 if $skip;
 
 	sbofind 'nonexistentslackbuild', { expected => sub {
-m!\QLocal:  nonexistentslackbuild6
+m!\QLocal:  nonexistentslackbuild6 1.0
 Path:   $RealBin/LO/nonexistentslackbuild6!
 	and
-m!\QLocal:  nonexistentslackbuild5
+m!\QLocal:  nonexistentslackbuild5 1.0
 Path:   $RealBin/LO/nonexistentslackbuild5!
 	and
-m!\QLocal:  nonexistentslackbuild4
+m!\QLocal:  nonexistentslackbuild4 1.0
 Path:   $RealBin/LO/nonexistentslackbuild4!
 	and
-m!\QLocal:  nonexistentslackbuild2
+m!\QLocal:  nonexistentslackbuild2 1.0
 Path:   $RealBin/LO/nonexistentslackbuild2!
 	and
-m!\QLocal:  nonexistentslackbuild7
+m!\QLocal:  nonexistentslackbuild7 1.0
 Path:   $RealBin/LO/nonexistentslackbuild7!
 	and
-m!\QLocal:  nonexistentslackbuild
+m!\QLocal:  nonexistentslackbuild 1.0
 Path:   $RealBin/LO/nonexistentslackbuild!
 	and
-m!\QLocal:  nonexistentslackbuild8
+m!\QLocal:  nonexistentslackbuild8 1.0
 Path:   $RealBin/LO/nonexistentslackbuild8!
 	} };
 
