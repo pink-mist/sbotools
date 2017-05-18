@@ -3,7 +3,7 @@
 **[sbotools](https://pink-mist.github.io/sbotools/)** provides a ports-like interface to [slackbuilds.org](http://www.slackbuilds.org/).
 
 ## Changes
-* 2.4 - Unreleased
+* 2.4 - 2017-05-18
   * Rewrite sboremove from the ground up so it relies less on global state
   * Fix for parsing README with useradd/groupadd commands which span lines #57
   * Add --reinstall option to sboinstall #58

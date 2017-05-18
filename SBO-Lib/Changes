@@ -1,4 +1,4 @@
-2.4 - Unreleased
+2.4 - 2017-05-18
   * Rewrite sboremove from the ground up so it relies less on global state
   * Fix for parsing README with useradd/groupadd commands which span lines
     (https://github.com/pink-mist/sbotools/issues/57)
