@@ -97,28 +97,37 @@ sub perform_search {
 	}
 	my (%local, @findings);
 	FIRST: while (my $line = <$fh>) {
-		next FIRST unless $line =~ /NAME:/;
+		if ($line =~ /NAME:\s+(.*)$/) {
+			my $name = $1;
 
-		# Try to match either the search string or any of the names from the TAGS.txt
-		foreach my $search ($search_name_re, map { quotemeta } @names) {
-			if (my ($name) = $line =~ /NAME:\s+($search)$/i) {
+			# Try to match either one of the names from TAGS.txt or the search string
 
-				# If the name matches a local override, use its location
-				if ($config{LOCAL_OVERRIDES} ne 'FALSE' and -d "$config{LOCAL_OVERRIDES}/$name") {
-					push @findings, {name => $name, location => "$config{LOCAL_OVERRIDES}/$name", local => 1 };
-					$local{$name} = 1;
+			my $names = @names;
+			# Whenever we find an element equal to $name, throw it away (and
+			# replace with last element rather than shifting stuff around)
+			for (reverse @names) { $_ = pop @names if $_ eq $name; }
+
+			# next if $name didn't match either one of @names or $search_name_re
+			if ($names == @names and $name !~ /$search_name_re/i) { next FIRST; }
+
+			# We only reach this point if $name matched one of @names, or if
+			# $search_name_re matched
+
+			# If the name matches a local override, use its location
+			if ($config{LOCAL_OVERRIDES} ne 'FALSE' and -d "$config{LOCAL_OVERRIDES}/$name") {
+				push @findings, {name => $name, location => "$config{LOCAL_OVERRIDES}/$name", local => 1 };
+				$local{$name} = 1;
+				next FIRST;
+			}
+
+			# Otherwise the location should be in the next line
+			LOCATION: {
+				my $loc_line = <$fh>;
+				if (my ($location) = $loc_line =~ $loc_regex) {
+					push @findings, {name => $name, location => $repo_path . $location};
 					next FIRST;
-				}
-
-				# Otherwise the location should be in the next line
-				LOCATION: {
-					my $loc_line = <$fh>;
-					if (my ($location) = $loc_line =~ $loc_regex) {
-						push @findings, {name => $name, location => $repo_path . $location};
-						next FIRST;
-					} else {
-						redo LOCATION; # But if it isn't, we try again...
-					}
+				} else {
+					redo LOCATION; # But if it isn't, we try again...
 				}
 			}
 		}
