@@ -4,7 +4,7 @@ use 5.016;
 use strict;
 use warnings;
 
-our $VERSION = '2.4';
+our $VERSION = '2.5';
 
 use SBO::Lib::Util qw/ prompt script_error slurp open_read _ERR_OPENFH usage_error /;
 use SBO::Lib::Tree qw/ is_local /;
