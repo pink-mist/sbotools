@@ -16,6 +16,7 @@ use Getopt::Long qw(GetOptionsFromArray :config bundling);
 use parent 'SBO::App';
 
 sub _parse_opts {
+  my $class = shift;
   my @ARGS = @_;
 
   my ($help, $vers, $non_int, $alwaysask);

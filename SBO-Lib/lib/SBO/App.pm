@@ -1,4 +1,4 @@
-package SBO::App::Remove;
+package SBO::App;
 
 # vim: ts=2:et
 #
@@ -15,7 +15,7 @@ use File::Basename;
 sub new {
   my $class = shift;
 
-  my $self = _parse_opts(@_);
+  my $self = $class->_parse_opts(@_);
   $self->{fname} = basename( (caller(0))[1] );
 
   return bless $self, $class;

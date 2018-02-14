@@ -1,5 +1,5 @@
-#!/usr/bin/perl
-#
+package SBO::App::Snap;
+
 # vim: ts=2:et
 #
 # sbosnap
@@ -19,6 +19,7 @@ use Getopt::Long qw/ GetOptionsFromArray /;
 use parent 'SBO::App';
 
 sub _parse_opts {
+  my $class = shift;
   my @ARGS = @_;
 
   my ($help, $vers);

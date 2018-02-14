@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboconfig sboinstall sboupgra
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 20;
+	plan tests => 21;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -116,13 +116,13 @@ sboupgrade 'nonexistentslackbuild4', { input => "y\ny", expected => qr/Proceed w
 install( 'LO3', 'nonexistentslackbuild5', 'nonexistentslackbuild4' );
 sboupgrade qw/ -f nonexistentslackbuild4 /, { input => "y\ny\ny", expected => qr/Proceed with nonexistentslackbuild5\b.*Proceed with nonexistentslackbuild4\b.*Upgrade queue: nonexistentslackbuild5 nonexistentslackbuild4\n/s };
 
-# 13-15: sboupgrade --all
+# 13-16: sbosnap + sboupgrade --all
 my $temp = tempdir(CLEANUP => 1);
 set_repo("file://$temp");
 capture_merged { system <<"END"; };
 cd $temp; git init;
 END
-sbosnap 'fetch', { test => 0 };
+sbosnap 'fetch', { expected => qr/Pulling SlackBuilds tree[.][.][.]/ };
 install( 'LO2', 'nonexistentslackbuild' );
 my @sbos = glob("/var/log/packages/*_SBo");
 sboupgrade '--all', { input => ("n\n" x (@sbos+1)), expected => qr/Proceed with nonexistentslackbuild\b/ };
@@ -133,19 +133,19 @@ sboupgrade '--all', { expected => "Checking for updated SlackBuilds...\nNothing 
 
 cleanup();
 
-# 16: sboupgrade --all shouldn't pick up weird-versionsbo or locale-versionsbo
+# 17: sboupgrade --all shouldn't pick up weird-versionsbo or locale-versionsbo
 install('LO', 'weird-versionsbo', 'locale-versionsbo');
 sboupgrade '--all', { input => ("n\n" x (@sbos+1)), expected => sub { not /weird-versionsbo/ and not /locale-versionsbo/ } };
 
-# 17-18: sboupgrade -r -f both something installed and something not installed
+# 18-19: sboupgrade -r -f both something installed and something not installed
 install('LO', 'nonexistentslackbuild');
 sboupgrade qw/ -r -f nonexistentslackbuild /, { expected => qr/^Upgrade queue: nonexistentslackbuild$/m };
 sboupgrade qw/ -r -f nonexistentslackbuild2 /, { expected => "" };
 
-# 19: sboupgrade -r on something already up to date
+# 20: sboupgrade -r on something already up to date
 sboupgrade qw/ -r nonexistentslackbuild /, { expected => "" };
 
-# 20: sboupgrade and answer weirdly and use a default and then answer no twice
+# 21: sboupgrade and answer weirdly and use a default and then answer no twice
 install('LO2', 'nonexistentslackbuild', 'nonexistentslackbuild5');
 sboupgrade qw/nonexistentslackbuild nonexistentslackbuild5/, { input => "foo\n\nn\nn\n", expected => qr/Proceed with nonexistentslackbuild\?.*Proceed with nonexistentslackbuild\?.*Proceed with nonexistentslackbuild5\?.*Upgrade queue: nonexistentslackbuild$/sm };
 
