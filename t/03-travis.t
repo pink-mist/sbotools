@@ -73,7 +73,7 @@ Path:   $RealBin/LO/nonexistentslackbuild8!
 	} };
 
 	sboinstall qw/ -r nonexistentslackbuild /,
-		{ expected => qr/nonexistentslackbuild added to install queue[.].*perf[.]dummy. saved.*Cleaning for nonexistentslackbuild-1[.]0/s };
+		{ expected => qr/nonexistentslackbuild added to install queue[.].*perf[.]dummy.* saved.*Cleaning for nonexistentslackbuild-1[.]0/s };
 	sboremove qw/ --nointeractive nonexistentslackbuild /, { expected => qr/Removing 1 package\(s\).*nonexistentslackbuild.*All operations have completed/s };
 	is (system(qw!/sbin/installpkg nonexistentslackbuild-0.9-noarch-1_SBo.tgz!), 0, 'Old version fake installed');
 	sbocheck { expected => qr/Updating SlackBuilds tree.*Checking for updated SlackBuilds.*nonexistentslackbuild 0[.]9.*needs updating/s };
