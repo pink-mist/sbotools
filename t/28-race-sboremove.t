@@ -52,4 +52,4 @@ tie *STDIN, 'STDINTIE';
 my $res = load('sboremove', argv => ['nonexistentslackbuild8']);
 
 like ($res->{out}, qr/Unable to open README for nonexistentslackbuild8\./, 'sboremove output with race condition correct');
-is ($res->{exit}, undef, 'sboremove did not exit in error');
+is ($res->{exit}, 0, 'sboremove did not exit in error');
