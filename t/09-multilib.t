@@ -7,12 +7,12 @@ use Test::More;
 use Capture::Tiny qw/ capture_merged /;
 use FindBin '$RealBin';
 use lib $RealBin;
-use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboclean restore_perf_dummy /;
+use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboinstall sboclean sboremove restore_perf_dummy /;
 use File::Temp 'tempdir';
 
 $ENV{TEST_MULTILIB} //= 0;
 if ($ENV{TEST_INSTALL} and ($ENV{TEST_MULTILIB} == 2)) {
-	plan tests => 10;
+	plan tests => 11;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1 and TEST_MULTILIB=2';
 }
@@ -76,6 +76,10 @@ sboinstall qw/ -p multilibsbo /, { input => "n", expected => qr/Proceed with mul
 
 # 10: multilibsbo with command in readme
 sboinstall qw/ -p multilibsbowithcommandinreadme /, { input => "y\ny\nn\nn\nn", expected => qr/It looks like.*Shall I run.*Proceed.*It looks like.*Shall I run.*Proceed.*Are you sure/s };
+
+# 11: sboremove multilibsbo
+sboinstall qw/ -p multilibsbo /, { input => "y\ny\ny", test => 0 };
+sboremove qw/ multilibsbo /, { input => "y\ny\ny", expected => qr/Remove multilibsbo\b.*Removing 1 package\(s\)/s, note => 1 };
 
 # Cleanup
 END {
