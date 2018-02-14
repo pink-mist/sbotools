@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "$1" == "" ]]; then
+if [ "$1" == "" -o "$1" == "-h" ]; then
 	echo "usage: $(basename $0) destdir"
 	exit 1
 fi
