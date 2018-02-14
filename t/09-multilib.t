@@ -79,7 +79,7 @@ sboinstall qw/ -p multilibsbowithcommandinreadme /, { input => "y\ny\nn\nn\nn", 
 
 # 11: sboremove multilibsbo
 sboinstall qw/ -p multilibsbo /, { input => "y\ny\ny", test => 0 };
-sboremove qw/ multilibsbo /, { input => "y\ny\ny", expected => qr/Remove multilibsbo\b.*Removing 1 package\(s\)/s, note => 1 };
+sboremove qw/ multilibsbo /, { input => "y\ny\ny", expected => qr/Remove multilibsbo\b.*Removing 1 package\(s\)/s };
 
 # Cleanup
 END {
