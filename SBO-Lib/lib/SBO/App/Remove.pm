@@ -12,16 +12,8 @@ use strict;
 use warnings FATAL => 'all';
 use SBO::Lib qw/ get_inst_names get_installed_packages get_sbo_location get_build_queue merge_queues get_requires get_readme_contents prompt show_version in /;
 use Getopt::Long qw(GetOptionsFromArray :config bundling);
-use File::Basename;
 
-sub new {
-  my $class = shift;
-
-  my $self = _parse_opts(@_);
-  $self->{fname} = basename( (caller(0))[1] );
-
-  return bless $self, $class;
-}
+use parent 'SBO::App';
 
 sub _parse_opts {
   my @ARGS = @_;
