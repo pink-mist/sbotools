@@ -8,6 +8,8 @@ sboupgrade [-h|-v] [-c TRUE|FALSE] [-d TRUE|FALSE] [-j #|FALSE] [-fNrRiz] --all|
 .SH DESCRIPTION
 .P
 sboupgrade is used to upgrade packages installed from slackbuilds. If the -r flag is NOT specified, sboupgrade will pull the list of requirements from the .info file for any specified slackbuild. If such a list exists, sboupgrade will look to see whether or not those requirements are already installed, and if not, it will ask whether or not it should attempt to install them first. This is recursive, so that ordering happens correctly. sboupgrade will refuse to handle circular requirements. sboupgrade will also note groupadd and useradd commands in README files and offer to run those first. If the README documents options of the KEY=value form, sboupgrade will offer the opportunity to set options. If --all is supplied it will try to upgrade everything that sbocheck(1) reports.
+.P
+sboupgrade will attempt to download the sources from the DOWNLOAD or DOWNLOAD_x86_64 variables in the .info file. If such a download fails or the file can't be verified, it'll attempt to download the file from ftp://slackware.uk/sbosrcarch/ instead.
 .SH OPTIONS
 .P
 -h|--help
