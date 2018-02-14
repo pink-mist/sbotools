@@ -13,49 +13,8 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ fetch_tree update_tree %config show_version /;
-use File::Basename;
-use Getopt::Long;
+use SBO::App::Snap;
 
-my $sbo_home = $config{SBO_HOME};
-my $self = basename($0);
+my $app = SBO::App::Snap->new(@ARGV);
 
-sub show_usage {
-	print <<"EOF";
-Usage: $self [options|command]
-
-Options:
-  -h|--help:
-    this screen.
-  -v|--version:
-    version information.
-
-Commands:
-  fetch: initialize a local copy of the slackbuilds.org tree.
-  update: update an existing local copy of the slackbuilds.org tree.
-          (generally, you may prefer "sbocheck" over "$self update")
-
-EOF
-	return 1;
-}
-
-my ($help, $vers);
-
-GetOptions('help|h' => \$help, 'version|v' => \$vers);
-
-if ($help) { show_usage(); exit 0 }
-if ($vers) { show_version(); exit 0 }
-
-# check for a command and, if found, execute it
-$ARGV[0] //= '';
-
-if ($ARGV[0] eq 'fetch') {
-	fetch_tree()
-} elsif ($ARGV[0] eq 'update') {
-	update_tree()
-} else {
-	show_usage();
-	exit 1;
-}
-
-exit 0;
+exit $app->run();

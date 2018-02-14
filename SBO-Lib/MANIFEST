@@ -6,6 +6,7 @@ t/SBO-Lib.t
 t/versions.t
 lib/SBO/App.pm
 lib/SBO/App/Remove.pm
+lib/SBO/App/Snap.pm
 lib/SBO/Lib.pm
 lib/SBO/Lib/Build.pm
 lib/SBO/Lib/Download.pm
