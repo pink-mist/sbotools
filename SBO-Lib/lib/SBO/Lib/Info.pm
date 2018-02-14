@@ -180,7 +180,7 @@ C<get_requires()> returns the requirements for a given C<$sbo>.
 # wrapper to pull the list of requirements for a given sbo
 sub get_requires {
   my $location = get_sbo_location(shift);
-  return() unless $location;
+  return [] unless $location;
   my $info = get_from_info(LOCATION => $location, GET => 'REQUIRES');
   return $info;
 }

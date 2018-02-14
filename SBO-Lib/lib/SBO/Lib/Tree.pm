@@ -76,7 +76,7 @@ filesystem once when searching, and populating the internal cache.
 =cut
 
 sub get_sbo_location {
-  my @sbos = defined $_[0] && ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+  my @sbos = map { s/-compat32$//r } defined $_[0] && ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
   script_error('get_sbo_location requires an argument.') unless @sbos;
 
   # if we already have the location, return it now.
@@ -95,7 +95,7 @@ package name to its location.
 =cut
 
 sub get_sbo_locations {
-  my @sbos = defined $_[0] && ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
+  my @sbos = map { s/-compat32$//r } defined $_[0] && ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
   script_error('get_sbo_locations requires an argument.') unless @_;
 
   my %locations;
