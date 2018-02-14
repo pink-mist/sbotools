@@ -12,6 +12,8 @@ use strict;
 use warnings FATAL => 'all';
 use File::Basename;
 
+our $VERSION = '2.4';
+
 sub new {
   my $class = shift;
 
