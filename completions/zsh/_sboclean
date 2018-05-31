@@ -1,0 +1,19 @@
+#compdef sboclean
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+_arguments -s \
+	   - info \
+	   '(-)'{-h,--help}'[Show help.]:' \
+	   '(-)'{-v,--version}'[Show version.]:' \
+	   - commands \
+    	   '(-d --clean-dist)'{-d,--clean-dist}'[Clean distfiles (default /usr/sbo/distfiles).]' \
+    	   '(-w --clean-work)'{-w,--clean-work}'[Clean working directories (default /tmp/SBo; /tmp for compat32).]' \
+    	   '(-i --interactive)'{-i,--interactive}'[Ask for confirmation for each item to be removed.]' \
+    && return 0
+
+return 1
+
+# Local Variables:
+# mode: sh
+# End:

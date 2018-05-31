@@ -1,0 +1,25 @@
+#compdef sboconfig
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+_arguments \
+    - info \
+    '(-)'{-h,--help}'[Show help.]:' \
+    '(-)'{-v,--version}'[Show version.]:' \
+    '(-)'{-l,--list}'[List current configuration options (including unmodified defaults).]:' \
+    - commands \
+    '(-c --noclean)'{-c,--noclean}'[If TRUE, then do not clean working directories after build.]:clean work dirs?:((TRUE\:"Clean works directories" FALSE\:"Keep work directories"))' \
+    '(-d --distclean)'{-d,--distclean}'[If TRUE, then remove source code after building.]:clean source?:((TRUE\:"Remove source" FALSE\:"Keep source"))' \
+    '(-j --jobs)'{-j,--jobs}'[Number fed to -j# for make.]:number of jobs (make):()' \
+    '(-p --pkg-dir)'{-p,--pkg-dir}'[Directory to store built packages in.]:package directory:_files -/' \
+    '(-s --sbo-home)'{-s,--sbo-home}'[Directory for SBo tree (default /usr/sbo).]:SBo home dir:_files -/' \
+    '(-o --local-overrides)'{-o,--local-overrides}'[Directory for local SlackBuild overrides.]:overrides directory:_files -/' \
+    '(-V --slackware-version)'{-V,--slackware-version}'[Use SBo repo for this version (instead of /etc/slackware-version).]:Slackware version:()' \
+    '(-r --repo)'{-r,--repo}'[Use git/rsync repo at URL instead of the SBo repo for your SLACKWARE_VERSION.]:repo URL:()' \
+    && return 0
+
+return 1
+
+# Local Variables:
+# mode: sh
+# End:

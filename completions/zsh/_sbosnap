@@ -1,0 +1,19 @@
+#compdef sbosnap
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+local -a subcmds
+subcmds=('fetch:Download a local copy of the slackbuilds.org tree (to SBO_HOME).'
+	 'update:Update a previously fetched copy of the SBo tree.')
+_describe 'command' subcmds
+
+_arguments \
+    '(-)'{-h,--help}'[Show help.]:' \
+    '(-)'{-v,--version}'[Show version.]:' \
+    && return 0
+
+return 1
+
+# Local Variables:
+# mode: sh
+# End:

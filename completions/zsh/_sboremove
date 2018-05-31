@@ -1,0 +1,18 @@
+#compdef sboremove
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+# get all installed SBo packages
+packages=( ${(uf)"$(ls /var/log/packages/*_SBo | cut -d'/' -f5 | rev | cut -d- -f4- | rev)"} )
+
+_arguments \
+    - info \
+    '(-)'{-h,--help}'[Show help]:' \
+    '(-)'{-v,--version}'[Show version]:' \
+    - commands \
+    '(-a --alwaysask)'{-a,--alwaysask}'[Always ask to remove requirements (even if required by installed packages).]' \
+    '(-)*:SlackBuild:(${packages:|words})'
+
+# Local Variables:
+# mode: sh
+# End:
