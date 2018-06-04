@@ -12,7 +12,7 @@ else
 fi
 
 # grab a listing of all slackbuilds
-slackbuilds=( ${(uf)"$(grep 'SLACKBUILD NAME: ' /usr/sbo/repo/SLACKBUILDS.TXT | cut -b 18-)"} )
+slackbuilds=( ${(uf)"$(grep 'SLACKBUILD NAME: ' $repo/SLACKBUILDS.TXT | cut -b 18-)"} )
 
 _arguments -s \
 	   - info \
