@@ -216,7 +216,7 @@ sub get_slack_version {
   }
   chomp(my $line = <$fh>);
   close $fh;
-  my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
+  my $version = ($line =~ /\s+(\d+[0-9.]+)\+?$/)[0];
   usage_error("Unsupported Slackware version: $version\n")
     unless $supported{$version};
   return $supported{$version};
