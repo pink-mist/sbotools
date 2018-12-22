@@ -161,7 +161,7 @@ sub get_distfile {
 
   #  if wget $link && verify, return
   #  else wget sbosrcarch && verify
-  if (system('wget', '--no-check-certificate', $link) != 0) {
+  if (system('wget', '--no-check-certificate', '--tries=5', $link) != 0) {
     $fail->{msg} = "Unable to wget $link.\n";
     $fail->{err} = _ERR_DOWNLOAD;
   }
