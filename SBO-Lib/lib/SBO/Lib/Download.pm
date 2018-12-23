@@ -179,7 +179,7 @@ sub get_distfile {
     substr($info_md5, 0, 1), substr($info_md5, 1, 1), $info_md5, _get_fname($link));
 
   return 1 if
-    system('wget', '--no-check-certificate', $sbosrcarch) == 0 and
+    system('wget', '--no-check-certificate', '--tries=5', $sbosrcarch) == 0 and
     verify_distfile(@_);
 
   return $fail->{msg}, $fail->{err};
