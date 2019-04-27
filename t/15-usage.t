@@ -36,9 +36,9 @@ Options:
     this screen.
   -v|--version:
     version information.
-  -d|--clean-dist:
+  -d|--dist:
     clean distfiles.
-  -w|--clean-work:
+  -w|--work:
     clean working directories.
   -i|--interactive:
     be interactive.

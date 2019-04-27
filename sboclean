@@ -29,9 +29,9 @@ Options:
     this screen.
   -v|--version:
     version information.
-  -d|--clean-dist:
+  -d|--dist:
     clean distfiles.
-  -w|--clean-work:
+  -w|--work:
     clean working directories.
   -i|--interactive:
     be interactive.
@@ -40,13 +40,13 @@ EOF
 	return 1;
 }
 
-my ($help, $vers, $clean_dist, $clean_work, $interactive);
+my ($help, $vers, $dist, $work, $interactive);
 
 GetOptions(
 	'help|h'        => \$help,
 	'version|v'     => \$vers,
-	'clean-dist|d'  => \$clean_dist,
-	'clean-work|w'  => \$clean_work,
+	'dist|d'        => \$dist,
+	'work|w'        => \$work,
 	'interactive|i' => \$interactive,
 );
 
@@ -54,7 +54,7 @@ if ($help) { show_usage(); exit 0 }
 if ($vers) { show_version(); exit 0 }
 
 usage_error("You must specify at least one of -d or -w.") unless
-	($clean_dist || $clean_work);
+	($dist || $work);
 
 sub rm_full {
 	script_error('rm_full requires an argument.') unless @_ == 1;
@@ -92,9 +92,9 @@ sub clean_c32 {
 	return 1;
 }
 
-remove_stuff($config{SBO_HOME} .'/distfiles') if $clean_dist;
+remove_stuff($config{SBO_HOME} .'/distfiles') if $dist;
 
-if ($clean_work) {
+if ($work) {
 	my $env_tmp = $SBO::Lib::env_tmp;
 	my $tsbo = $SBO::Lib::tmpd;
 	if ($env_tmp && !$interactive) {
