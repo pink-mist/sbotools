@@ -241,7 +241,7 @@ sub get_dc_regex {
   # convert any instances of command substitution to [^-]+
   $line =~ s/\$\([^)]+\)/[^-]+/g;
   # convert any bash variables to [^-]+
-  $line =~ s/\$({|)[A-Za-z0-9_]+(}|)/[^-]+/g;
+  $line =~ s/\$(\{|)[A-Za-z0-9_]+(}|)/[^-]+/g;
   # get rid of anything excess at the end
   $line =~ s/\s+.*$//;
   # fix .?z* at the end
