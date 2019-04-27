@@ -156,6 +156,8 @@ FIRST: for my $sbo (@$build_queue) {
 		my $inst_msg = sprintf "%s (%s) is already installed.", $name, $inst_names{$name}{pkg};
 		if ($reinstall and not $non_int) {
 			next FIRST unless prompt("$inst_msg Do you want to reinstall from SBo?", default => 'no');
+		} elsif ($reinstall) {
+			say "$inst_msg Reinstalling.";
 		} else {
 			say $inst_msg;
 			next FIRST;
