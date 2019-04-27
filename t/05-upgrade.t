@@ -11,7 +11,7 @@ use Test::Sbotools qw/ make_slackbuilds_txt set_lo sboconfig sboinstall sboupgra
 use File::Temp 'tempdir';
 
 if ($ENV{TEST_INSTALL}) {
-	plan tests => 21;
+	plan tests => 22;
 } else {
 	plan skip_all => 'Only run these tests if TEST_INSTALL=1';
 }
@@ -148,6 +148,10 @@ sboupgrade qw/ -r nonexistentslackbuild /, { expected => "" };
 # 21: sboupgrade and answer weirdly and use a default and then answer no twice
 install('LO2', 'nonexistentslackbuild', 'nonexistentslackbuild5');
 sboupgrade qw/nonexistentslackbuild nonexistentslackbuild5/, { input => "foo\n\nn\nn\n", expected => qr/Proceed with nonexistentslackbuild\?.*Proceed with nonexistentslackbuild\?.*Proceed with nonexistentslackbuild5\?.*Upgrade queue: nonexistentslackbuild$/sm };
+
+# 22: sboupgrade on something installed with no-longer-existing dep
+install('LO', 'nonexistentslackbuild2');
+sboupgrade qw/ -f -z nonexistentslackbuild2 /, { input => "n", expected => "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\nDo you want to ignore it and continue? [n] " };
 
 # Cleanup
 END {

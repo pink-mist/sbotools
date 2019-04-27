@@ -780,6 +780,9 @@ sub _build_queue {
         $warnings->{$sbo}="%README%" if $req eq "%README%";
       }
     }
+    else {
+      $warnings->{$sbo} = "nonexistent";
+    }
     push @result, $sbo;
   }
 

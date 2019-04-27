@@ -13,7 +13,7 @@
 use 5.16.0;
 use strict;
 use warnings FATAL => 'all';
-use SBO::Lib qw/ get_available_updates prompt usage_error slackbuilds_or_fetch uniq get_sbo_location get_inst_names get_installed_packages get_build_queue get_sbo_locations merge_queues user_prompt process_sbos print_failures %config show_version /;
+use SBO::Lib qw/ get_available_updates prompt usage_error slackbuilds_or_fetch uniq get_sbo_location get_inst_names get_installed_packages get_build_queue get_sbo_locations in merge_queues user_prompt process_sbos print_failures %config show_version /;
 use Getopt::Long qw(:config bundling);
 use File::Basename;
 use File::Copy;
@@ -110,8 +110,9 @@ for my $sbo (@sbos) {
 	my $name = $sbo;
 	$name =~ s/-compat32//;
 	$locations{$sbo} = get_sbo_location($name);
-	usage_error("Unable to locate $sbo in the SlackBuilds.org tree.") unless
-		$locations{$sbo};
+	if (not $locations{$sbo} and in(@ARGV, $sbo)) {
+		usage_error("Unable to locate $sbo in the SlackBuilds.org tree.");
+	}
 	if ($sbo =~ /-compat32$/) {
 		usage_error("compat32 Perl SBos are not supported.")
 			if $locations{$sbo} =~ qr|/perl/[^/]+$|;
@@ -129,6 +130,7 @@ if (not $non_int or not $force) {
 }
 
 my $upgrade_queue = [];
+my %warnings;
 
 # doesn't matter what's updatable and what's not if force is specified,
 # but without force, we only want to update what there are updates for
@@ -146,7 +148,7 @@ if ($non_int) {
 	for my $sbo (@sbos) {
 		my $name = $sbo;
 		$name =~ s/-compat32$//;
-		my $queue = get_build_queue([$name], my $warnings);
+		my $queue = get_build_queue([$name], \%warnings);
 		if (not $force_reqs) {
 			@$queue = grep { !$inst_names{$_} or $updates{$_} } @$queue;
 		}
@@ -176,6 +178,14 @@ if ($non_int) {
 my (@temp_queue, %commands, %options);
 FIRST: for my $sbo (@$upgrade_queue) {
 	next FIRST if $std_names{$sbo};
+
+	if (defined $warnings{$sbo} and $warnings{$sbo} eq 'nonexistent') {
+		say "Unable to locate $sbo in the SlackBuilds.org tree.";
+		if (not $non_int) {
+			exit 0 unless prompt("Do you want to ignore it and continue?", default => 'no');
+		}
+		next FIRST;
+	}
 
 	unless ($non_int) {
 		my ($cmds, $opts, $exit) = user_prompt($sbo, $locations{$sbo});
