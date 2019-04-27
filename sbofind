@@ -72,7 +72,7 @@ sub perform_search {
 	script_error 'perform_search requires an argument.' unless @_ == 1;
 	my $search_arg = shift;
 	my $search_tag_re  = $search_exact ? qr/^(\S+).*(:\s|,)\b\Q$search_arg\E\b(,|$)/i : qr/^(\S+):\s.*\Q$search_arg\E/i;
-	my $search_name_re = $search_exact ? qr/\Q$search_arg\E/i : qr/.*\Q$search_arg\E.*/i;
+	my $search_name_re = $search_exact ? qr/^\Q$search_arg\E$/i : qr/.*\Q$search_arg\E.*/i;
 
 	# first get a bunch of names from the TAGS.txt if it's available
 	my $tags_file = "$config{SBO_HOME}/repo/TAGS.txt";
