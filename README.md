@@ -3,6 +3,16 @@
 **[sbotools](https://pink-mist.github.io/sbotools/)** provides a ports-like interface to [slackbuilds.org](http://www.slackbuilds.org/).
 
 ## Changes
+* 2.6 - 2019-04-27
+  * Compatibility with new perl versions where you need to escape { in regexp
+    #75 #77 #78
+  * Add a --tries 5 option when downloading from sbosrcarch, which is a
+    saner limit than the default of 20. #79
+  * Change sboclean options --clean-dist and --clean-work to shorter forms #52
+  * Add limited -current support using ponce's SBo repo for -current #73
+  * Fix bug with sboinstall --reinstall -r #72
+  * Fix bug with sbofind -e #71
+
 * 2.5 - 2018-02-14
   * Document download behaviour #66
   * Remake sbosnap and sboremove to have OO semantics

@@ -1,3 +1,20 @@
+2.6 - 2019-04-27
+  * Fix change in new perl versions where you need to escape { in regexp
+    (https://github.com/pink-mist/sbotools/issues/75)
+    (https://github.com/pink-mist/sbotools/issues/77)
+    (https://github.com/pink-mist/sbotools/pull/78)
+  * Add a --tries 5 option when downloading from sbosrcarch, which is a
+    saner limit than the default of 20.
+    (https://github.com/pink-mist/sbotools/pull/79)
+  * Change sboclean options --clean-dist and --clean-work to shorter forms
+    (https://github.com/pink-mist/sbotools/pull/52)
+  * Add limited -current support using ponce's SBo repo for -current
+    (https://github.com/pink-mist/sbotools/issues/73)
+  * Fix bug with sboinstall --reinstall -r
+    (https://github.com/pink-mist/sbotools/issues/72)
+  * Fix bug with sbofind -e
+    (https://github.com/pink-mist/sbotools/issues/71)
+
 2.5 - 2018-02-14
   * Document download behaviour
     (https://github.com/pink-mist/sbotools/issues/66)
