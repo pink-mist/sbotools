@@ -4,7 +4,7 @@ use 5.016;
 use strict;
 use warnings;
 
-our $VERSION = '2.5';
+our $VERSION = '2.6';
 
 use SBO::Lib::Util qw/ :const script_error get_sbo_from_loc open_read get_arch /;
 use SBO::Lib::Repo qw/ $distfiles /;
@@ -161,7 +161,7 @@ sub get_distfile {
 
   #  if wget $link && verify, return
   #  else wget sbosrcarch && verify
-  if (system('wget', '--no-check-certificate', $link) != 0) {
+  if (system('wget', '--no-check-certificate', '--tries=5', $link) != 0) {
     $fail->{msg} = "Unable to wget $link.\n";
     $fail->{err} = _ERR_DOWNLOAD;
   }
@@ -179,7 +179,7 @@ sub get_distfile {
     substr($info_md5, 0, 1), substr($info_md5, 1, 1), $info_md5, _get_fname($link));
 
   return 1 if
-    system('wget', '--no-check-certificate', $sbosrcarch) == 0 and
+    system('wget', '--no-check-certificate', '--tries=5', $sbosrcarch) == 0 and
     verify_distfile(@_);
 
   return $fail->{msg}, $fail->{err};

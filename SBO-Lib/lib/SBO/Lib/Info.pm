@@ -4,7 +4,7 @@ use 5.016;
 use strict;
 use warnings;
 
-our $VERSION = '2.5';
+our $VERSION = '2.6';
 
 use SBO::Lib::Util qw/ get_arch get_sbo_from_loc open_read script_error slurp usage_error /;
 use SBO::Lib::Tree qw/ get_orig_location get_sbo_location is_local /;
@@ -180,7 +180,7 @@ C<get_requires()> returns the requirements for a given C<$sbo>.
 # wrapper to pull the list of requirements for a given sbo
 sub get_requires {
   my $location = get_sbo_location(shift);
-  return [] unless $location;
+  return undef unless $location;
   my $info = get_from_info(LOCATION => $location, GET => 'REQUIRES');
   return $info;
 }

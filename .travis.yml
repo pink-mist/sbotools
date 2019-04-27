@@ -1,6 +1,6 @@
 language: perl
 perl:
-    - "5.26"
+    - "5.28"
     - "5.22"
     - "5.18"
     - "5.16"
@@ -22,7 +22,7 @@ script:
       PERL5OPT=-MDevel::Cover=-coverage,statement,branch,condition,path,subroutine,+ignore,t/,+ignore,prove,db,/home/travis/build/pink-mist/sbotools/cover_db
       $PROVE -v t/*.t;'
     - sudo chmod -R a+x cover_db;
-      tar cvf cover_db.tar cover_db
+      tar cf cover_db.tar cover_db
 addons:
     artifacts:
         paths: "./cover_db.tar"

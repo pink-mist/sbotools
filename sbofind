@@ -71,8 +71,8 @@ slackbuilds_or_fetch();
 sub perform_search {
 	script_error 'perform_search requires an argument.' unless @_ == 1;
 	my $search_arg = shift;
-	my $search_tag_re  = $search_exact ? qr/^(\S+):\s.*\b\Q$search_arg\E\b/i : qr/^(\S+):\s.*\Q$search_arg\E/i;
-	my $search_name_re = $search_exact ? "\Q$search_arg\E" : ".*\Q$search_arg\E.*";
+	my $search_tag_re  = $search_exact ? qr/^(\S+).*(:\s|,)\b\Q$search_arg\E\b(,|$)/i : qr/^(\S+):\s.*\Q$search_arg\E/i;
+	my $search_name_re = $search_exact ? qr/\Q$search_arg\E/i : qr/.*\Q$search_arg\E.*/i;
 
 	# first get a bunch of names from the TAGS.txt if it's available
 	my $tags_file = "$config{SBO_HOME}/repo/TAGS.txt";
@@ -108,7 +108,7 @@ sub perform_search {
 			for (reverse @names) { $_ = pop @names if $_ eq $name; }
 
 			# next if $name didn't match either one of @names or $search_name_re
-			if ($names == @names and $name !~ /$search_name_re/i) { next FIRST; }
+			if ($names == @names and $name !~ $search_name_re) { next FIRST; }
 
 			# We only reach this point if $name matched one of @names, or if
 			# $search_name_re matched
@@ -136,7 +136,7 @@ sub perform_search {
 		opendir(my $dh, $config{LOCAL_OVERRIDES});
 		while (my $dir = readdir($dh)) {
 			next if $local{$dir};
-			if ($dir =~ /\Q$search_arg\E/ or in($dir, @names)) {
+			if ($dir =~ $search_name_re or in($dir, @names)) {
 				push @findings, {name => $dir, location => "$config{LOCAL_OVERRIDES}/$dir", local => 1 };
 			}
 		}

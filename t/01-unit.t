@@ -68,7 +68,7 @@ SKIP: {
 	$out = capture_merged { $exit = exit_code{ SBO::Lib::get_slack_version(); }; };
 
 	is ($exit, 1, 'get_slack_version() exited with 1');
-	is ($out, "Unsupported Slackware version: 0.0\n\n", 'get_slack_version() gave correct output (Unsupported)');
+	is ($out, "Unsupported Slackware version: 0.0\nSuggest you set the sbotools REPO setting to https://github.com/Ponce/slackbuilds.git\n\n", 'get_slack_version() gave correct output (Unsupported)');
 
 	($fh) = open_fh('/etc/slackware-version', '>');
 	print $fh "Slackware 14.1\n";

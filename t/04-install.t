@@ -50,7 +50,7 @@ ok (-e "/usr/sbo/repo/SLACKBUILDS.TXT", "SLACKBUILDS.TXT has been migrated back 
 sboremove 'nonexistentslackbuild', { input => "y\ny", test => 0 };
 
 # 4: sboinstall nonexistentslackbuild2
-sboinstall 'nonexistentslackbuild2', { exit => 1, expected => "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n" };
+sboinstall 'nonexistentslackbuild2', { exit => 0, expected => "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\nDo you want to ignore it and continue? [n] ", input => "n" };
 
 # 5: sboinstall nonexistentslackbuild3
 sboinstall 'nonexistentslackbuild3', { exit => 1, expected => "Unable to locate nonexistentslackbuild3 in the SlackBuilds.org tree.\n" };

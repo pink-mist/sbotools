@@ -4,7 +4,7 @@ use 5.016;
 use strict;
 use warnings;
 
-our $VERSION = '2.5';
+our $VERSION = '2.6';
 
 use SBO::Lib::Util qw/ :const prompt script_error get_sbo_from_loc get_arch check_multilib uniq %config in /;
 use SBO::Lib::Tree qw/ get_sbo_location /;
@@ -241,7 +241,7 @@ sub get_dc_regex {
   # convert any instances of command substitution to [^-]+
   $line =~ s/\$\([^)]+\)/[^-]+/g;
   # convert any bash variables to [^-]+
-  $line =~ s/\$({|)[A-Za-z0-9_]+(}|)/[^-]+/g;
+  $line =~ s/\$(\{|)[A-Za-z0-9_]+(}|)/[^-]+/g;
   # get rid of anything excess at the end
   $line =~ s/\s+.*$//;
   # fix .?z* at the end
@@ -779,6 +779,9 @@ sub _build_queue {
       foreach my $req (@$reqs) {
         $warnings->{$sbo}="%README%" if $req eq "%README%";
       }
+    }
+    else {
+      $warnings->{$sbo} = "nonexistent";
     }
     push @result, $sbo;
   }
