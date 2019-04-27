@@ -40,6 +40,7 @@ our @EXPORT_OK = (
     get_kernel_version
     get_sbo_from_loc
     get_slack_version
+    get_slack_version_url
     idx
     in
     indent
@@ -199,16 +200,18 @@ will exit.
 
 =cut
 
-# %supported maps what's in /etc/slackware-version to what's at SBo
-# which is now not needed since this version drops support < 14.0
-# but it's already future-proofed, so leave it.
+# %supported maps what's in /etc/slackware-version to an rsync or https URL
+my %supported = (
+  '14.0' => 'rsync://slackbuilds.org/slackbuilds/14.0/',
+  '14.1' => 'rsync://slackbuilds.org/slackbuilds/14.1/',
+  '14.2' => 'rsync://slackbuilds.org/slackbuilds/14.2/',
+  '14.2+' => 'https://github.com/Ponce/slackbuilds.git',
+  '15.0' => 'https://github.com/Ponce/slackbuilds.git',
+  current => 'https://github.com/Ponce/slackbuilds.git',
+);
+
 sub get_slack_version {
   return $config{SLACKWARE_VERSION} unless $config{SLACKWARE_VERSION} eq 'FALSE';
-  my %supported = (
-    '14.0' => '14.0',
-    '14.1' => '14.1',
-    '14.2' => '14.2',
-  );
   my ($fh, $exit) = open_read('/etc/slackware-version');
   if ($exit) {
     warn $fh;
@@ -217,10 +220,28 @@ sub get_slack_version {
   chomp(my $line = <$fh>);
   close $fh;
   my $version = ($line =~ /\s+(\d+[^\s]+)$/)[0];
-  usage_error("Unsupported Slackware version: $version\n")
+  usage_error("Unsupported Slackware version: $version\n" .
+    "Suggest you set the sbotools REPO setting to $supported{current}\n")
     unless $supported{$version};
-  return $supported{$version};
+  return $version;
 }
+
+=head2 get_slack_version_url
+
+  my $url = get_slack_version_url();
+
+C<get_slack_version_url()> returns the default URL for the given slackware
+version.
+
+If there is an error in getting the URL, or if it's not a supported version,
+an error message will be shown on STDERR, and the program will exit.
+
+=cut
+
+sub get_slack_version_url {
+  return $supported{get_slack_version()};
+}
+
 
 =head2 idx
 

@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.5';
 
-use SBO::Lib::Util qw/ %config prompt usage_error get_slack_version script_error open_fh open_read in _ERR_DOWNLOAD /;
+use SBO::Lib::Util qw/ %config prompt usage_error get_slack_version get_slack_version_url script_error open_fh open_read in _ERR_DOWNLOAD /;
 
 use Cwd;
 use File::Copy;
@@ -288,8 +288,7 @@ or whatever you've set in the C<SLACKWARE_VERSION> configuration variable.
 sub pull_sbo_tree {
   my $url = $config{REPO};
   if ($url eq 'FALSE') {
-    my $slk_version = get_slack_version();
-    $url = "rsync://slackbuilds.org/slackbuilds/$slk_version/";
+    $url = get_slack_version_url();
   } else {
     unlink($slackbuilds_txt);
   }
