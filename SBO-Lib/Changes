@@ -1,3 +1,7 @@
+2.7 - 2019-04-28
+  * Actually fix the sbofind -e bug
+    (https://github.com/pink-mist/sbotools/issues/71)
+
 2.6 - 2019-04-27
   * Fix change in new perl versions where you need to escape { in regexp
     (https://github.com/pink-mist/sbotools/issues/75)

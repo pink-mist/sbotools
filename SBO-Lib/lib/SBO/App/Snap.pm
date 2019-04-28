@@ -18,7 +18,7 @@ use Getopt::Long qw/ GetOptionsFromArray /;
 
 use parent 'SBO::App';
 
-our $VERSION = '2.6';
+our $VERSION = '2.7';
 
 sub _parse_opts {
   my $class = shift;

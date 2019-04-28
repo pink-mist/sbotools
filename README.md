@@ -3,6 +3,9 @@
 **[sbotools](https://pink-mist.github.io/sbotools/)** provides a ports-like interface to [slackbuilds.org](http://www.slackbuilds.org/).
 
 ## Changes
+* 2.7 - 2019-04-28
+  * Actually fix the sbofind -e bug #71
+      
 * 2.6 - 2019-04-27
   * Compatibility with new perl versions where you need to escape { in regexp
     #75 #77 #78

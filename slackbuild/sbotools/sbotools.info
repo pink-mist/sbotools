@@ -1,5 +1,5 @@
 PRGNAM="sbotools"
-VERSION="2.6"
+VERSION="2.7"
 HOMEPAGE="https://pink-mist.github.io/sbotools/"
 DOWNLOAD="https://pink-mist.github.io/sbotools/downloads/@FILENAME@"
 MD5SUM="@MD5@"
