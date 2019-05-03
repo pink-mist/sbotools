@@ -1,0 +1,14 @@
+#compdef sbocheck
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+_arguments \
+    '(-)'{-h,--help}'[Show help.]:' \
+    '(-)'{-v,--version}'[Show version.]:' \
+    && return 0
+
+return 1
+
+# Local Variables:
+# mode: sh
+# End:

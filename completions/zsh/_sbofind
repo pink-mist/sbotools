@@ -1,0 +1,34 @@
+#compdef sbofind
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+# work out where the SBo repo is (default to /usr/sbo/repo)
+# but also check for SBO_HOME setting in /etc/sbotools/sbotools.conf
+grep 'SBO_HOME' /etc/sbotools/sbotools.conf &> /dev/null
+if [ $? -eq 0 ]; then
+    repo="$(grep 'SBO_HOME' /etc/sbotools/sbotools.conf | cut -d= -f2)/repo"
+else
+    repo='/usr/sbo/repo'
+fi
+
+# grab a listing of all slackbuilds
+slackbuilds=( ${(uf)"$(grep 'SLACKBUILD NAME: ' $repo/SLACKBUILDS.TXT | cut -b 18-)"} )
+
+_arguments -s \
+	   - info \
+	   '(-)'{-h,--help}'[Show help information.]:' \
+	   '(-)'{-v,--version}'[Show version information.]:' \
+	   - commands \
+	   '(-e --exact)'{-e,--exact}'[Only exact matching.]' \
+	   '(-t --no-tags)'{-t,--no-tags}'[Exclude tags from search.]' \
+	   '(-i --info)'{-i,--info}'[Show the contents of the .info file for each SlackBuild.]' \
+	   '(-r --readme)'{-r,--readme}'[Show the contents of the README file for each SlackBuild found.]' \
+	   '(-q --queue)'{-q,--queue}'[Show the build queue for each SlackBuild found.]' \
+	   '(-)*:SBo SlackBuild:(${slackbuilds:|words})' \
+    && return 0
+
+return 1
+
+# Local Variables:
+# mode: sh
+# End:

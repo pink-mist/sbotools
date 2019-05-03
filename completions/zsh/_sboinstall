@@ -1,0 +1,39 @@
+#compdef sboinstall
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+# work out where the SBo repo is (default to /usr/sbo/repo)
+# but also check for SBO_HOME setting in /etc/sbotools/sbotools.conf
+grep 'SBO_HOME' /etc/sbotools/sbotools.conf &> /dev/null
+if [ $? -eq 0 ]; then
+    repo="$(grep 'SBO_HOME' /etc/sbotools/sbotools.conf | cut -d= -f2)/repo"
+else
+    repo='/usr/sbo/repo'
+fi
+
+# grab a listing of all slackbuilds
+slackbuilds=( ${(uf)"$(grep 'SLACKBUILD NAME: ' $repo/SLACKBUILDS.TXT | cut -b 18-)"} )
+
+_arguments -s \
+	   - info \
+	   '(-)'{-h,--help}'[Show help]:' \
+	   '(-)'{-v,--version}'[Show version information.]:' \
+	   - commands \
+	   '(-c --noclean)'{-c,--noclean}'[If TRUE, then do not clean working directories after build.]:clean work dirs?:((TRUE\:"Clean works directories" FALSE\:"Keep work directories"))' \
+	   '(-d --distclean)'{-d,--distclean}'[If TRUE, then remove source code after building.]:clean source?:((TRUE\:"Remove source" FALSE\:"Keep source"))' \
+	   '(-i --noinstall)'{-i,--noinstall}'[Do not install package after building.]' \
+	   '(-j --jobs)'{-j,--jobs}'[Number fed to -j# for make.]:number of jobs (make):()' \
+	   '(-p --compat32)'{-p,--compat32}'[Create a -compat32 package on x86_64 systems (experimental).]' \
+	   '(-r --nointeractive)'{-r,--nointeractive}'[Skip README.]' \
+	   '(-R --norequirements)'{-R,--norequirements}'[Skip requirement handling.]' \
+	   '--reinstall[Asks for reinstall from the requirements.]' \
+	   '(--use-template)''--create-template[Create a template for the SlackBuilds.]:Template file:()' \
+	   '(--create-template)''--use-template[Use a template file (also enables -r flag).]:Template file:_files' \
+	   '(-)*:SlackBuild:(${slackbuilds:|words})' \
+    && return 0
+
+return 1
+
+# Local Variables:
+# mode: sh
+# End:

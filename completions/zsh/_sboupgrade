@@ -1,0 +1,28 @@
+#compdef sboupgrade
+
+# sbotools: https://pink-mist.github.io/sbotools/
+
+# get a list of available upgrades
+sboupdates=( ${(uf)"$(perl -MSBO::Lib::Pkgs=get_available_updates -E 'say $_->{name} for @{ get_available_updates; }')"} )
+
+_arguments -s -C \
+	   - info \
+	   '(-)'{-h,--help}'[Show help]:' \
+	   '(-)'{-v,--version}'[Show version information.]:' \
+	   - commands \
+	   '(${sboupdates})--all[Upgrade all from sbocheck.]' \
+	   '(-c --noclean)'{-c,--noclean}'[If TRUE, then do not clean working directories after build.]:clean work dirs?:((TRUE\:"Clean works directories" FALSE\:"Keep work directories"))' \
+	   '(-d --distclean)'{-d,--distclean}'[If TRUE, then remove source code after building.]:clean source?:((TRUE\:"Remove source" FALSE\:"Keep source"))' \
+	   '(-j --jobs)'{-j,--jobs}'[Number fed to -j# for make.]:number of jobs (make):()' \
+	   '(-r --nointeractive)'{-r,--nointeractive}'[Skip README.]' \
+	   '(-f --force)'{-f,--force}'[Force an upgrade (ignore version).]' \
+	   '(-z --force-reqs)'{-z,--force-reqs}'[Force update of requirements (use with -f).]' \
+	   '(-i --noinstall)'{-i,--noinstall}'[Build package but do not install.]' \
+	   '(-)*:SlackBuild:(${sboupdates:|words})' \
+    && return 0
+
+return 1
+
+# Local Variables:
+# mode: sh
+# End:
