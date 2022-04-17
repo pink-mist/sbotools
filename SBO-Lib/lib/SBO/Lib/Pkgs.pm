@@ -67,7 +67,7 @@ sub get_available_updates {
         next unless $location;
 
         my $version = get_sbo_version($location);
-        if (version_cmp($version, $pkg->{version}) != 0) {
+        if (version_cmp($version, $pkg->{version}) > 0) {
             push @updates, { name => $pkg->{name}, installed => $pkg->{version}, update => $version };
         }
     }
