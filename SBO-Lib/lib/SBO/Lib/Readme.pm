@@ -95,12 +95,12 @@ sub ask_opts {
       if (-f $opts_log) {
         unlink $opts_log;
       }
-      my ($prev_fh, $exit) = open_fh($opts_log, '>');
+      my ($opts_fh, $exit) = open_fh($opts_log, '>');
       if ($exit) {
-        warn $prev_fh;
+        warn $opts_fh;
       } else {
-        print $prev_fh $opts;
-        close $prev_fh;
+        print $opts_fh $opts;
+        close $opts_fh;
         say "A copy of the options is kept in $opts_log\n";
       }
     }
