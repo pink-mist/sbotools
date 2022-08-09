@@ -6,7 +6,7 @@ use warnings;
 
 our $VERSION = '2.7';
 
-use SBO::Lib::Util qw/ prompt script_error slurp open_read _ERR_OPENFH usage_error /;
+use SBO::Lib::Util qw/ prompt script_error slurp open_read open_fh _ERR_OPENFH usage_error /;
 use SBO::Lib::Tree qw/ is_local /;
 
 use Exporter 'import';
@@ -50,16 +50,31 @@ SBO::Lib::Readme - Routines for interacting with a typical SBo README file.
 C<ask_opts()> displays the C<$readme> and asks if we should set any of the
 options it defines. If the user indicates that we should, we prompt them for
 the options to set and then returns them as a string. If the user didn't supply
-any options or indicated that we shouldn't, it returns C<undef>.
+any options or indicated that we shouldn't, it returns C<undef>. In addition,
+if options were previously set by the user, they are retrieved and can be used
+again.
 
 =cut
 
-# provide an opportunity to set options
+# provide an opportunity to set options or retrieve previously-used options
 sub ask_opts {
   # TODO: check number of args
   script_error('ask_opts requires an argument') unless @_;
   my ($sbo, $readme) = @_;
   say "\n". $readme;
+  my ($opts_log) = "/var/log/sbotools/$sbo";
+  if (-f $opts_log) {
+    my ($prev_fh, $exit) = open_fh($opts_log, '<');
+    if ($exit) {
+      warn $prev_fh;
+    } else {
+      my $prev_opts = <$prev_fh>;
+      if(prompt("\nIt looks like options were previously specified for $sbo:\n\n$prev_opts\n\nWould you like to use these options to build $sbo?", default => 'no')) {
+        my $opts = $prev_opts;
+	return $opts;
+      }
+    }
+  }
   if (prompt("\nIt looks like $sbo has options; would you like to set any when the slackbuild is run?", default => 'no')) {
     my $ask = sub {
       chomp(my $opts = prompt("\nPlease supply any options here, or enter to skip: "));
@@ -72,6 +87,22 @@ sub ask_opts {
       warn "Invalid input received.\n";
       $opts = $ask->();
       return() unless $opts;
+    }
+    if (defined $opts) {
+      if (!-d "/var/log/sbotools") {
+        mkdir "/var/log/sbotools";
+      }
+      if (-f $opts_log) {
+        unlink $opts_log;
+      }
+      my ($opts_fh, $exit) = open_fh($opts_log, '>');
+      if ($exit) {
+        warn $opts_fh;
+      } else {
+        print $opts_fh $opts;
+        close $opts_fh;
+        say "A copy of the options is kept in $opts_log\n";
+      }
     }
     return $opts;
   }
